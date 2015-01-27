@@ -1,8 +1,8 @@
 # cljs-devtools-sample
 
-** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **
+<span style="color:red">** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **</span>
 
-cljs-devtools provides additional tools to aid in ClojureScript web development.
+**[cljs-devtools](https://github.com/binaryage/cljs-devtools)** provides additional tools to aid in ClojureScript web development.
 
   * Better presentation of ClojureScript values in Chrome Devtools Console.
 
