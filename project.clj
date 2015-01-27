@@ -3,20 +3,22 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2725"]]
-
-  :node-dependencies [[source-map-support "0.2.8"]]
+                 [org.clojure/clojurescript "0.0-2727"]
+                 [ring "1.3.2"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
+            [lein-ring "0.9.1"]
             [lein-npm "0.4.0"]]
 
-  :source-paths ["checkouts/cljs-devtools" "src" "target/classes"]
+  :source-paths ["scripts" "target/classes"]
 
-  :clean-targets ["out/cljs_devtools_sample" "cljs_devtools_sample.js"]
+  :clean-targets ["out"]
+
+  :ring {:handler server.core/app}
 
   :cljsbuild {
     :builds [{:id "dev"
-              :source-paths ["src"]
+              :source-paths ["src" "checkouts/cljs-devtools/src"]
               :compiler {
                 :main cljs-devtools-sample.core
                 :output-to "out/cljs_devtools_sample.js"

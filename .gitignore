@@ -8,3 +8,4 @@ pom.xml
 .lein-repl-history
 .lein-plugins/
 /checkouts/
+/resources/generated/

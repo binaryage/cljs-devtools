@@ -1,46 +1,44 @@
 # cljs-devtools-sample
 
-FIXME: Write a one-line description of your library/project.
+** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **
 
-## Overview
+cljs-devtools provides additional tools to aid in ClojureScript web development.
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+  * Better presentation of ClojureScript values in Chrome Devtools Console.
+
+This project is an example of integration of cljs-devtools into an external project.
+
+<img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
 ## Setup
 
-First-time Clojurescript developers, add the following to your bash .profile:
+cljs-devtools library has not been published yet, you have to install it locally
 
-    export LEIN_FAST_TRAMPOLINE=y
-    alias cljsbuild="lein trampoline cljsbuild $@"
+Initial setup:
 
-To avoid compiling ClojureScript for each build, AOT Clojurescript locally in your project with the following:
+    cd some-work-dir
+    git clone https://github.com/binaryage/cljs-devtools.git
+    git clone https://github.com/binaryage/cljs-devtools-sample.git
+    cd cljs-devtools-sample
+    mkdir checkouts
+    ln -s ../../cljs-devtools checkouts/cljs-devtools
 
-    ./scripts/compile_cljsc
+Build the project:
 
-Subsequent dev builds can use:
+    lein cljsbuild auto
 
-    lein cljsbuild auto dev
+Start local server (in another shell session):
 
-To start a Node REPL (requires rlwrap):
+    lein ring server
 
-    ./scripts/repl
+Optionally you can start browser REPL:
 
-To get source map support in the Node REPL:
+    ./scripts/brepl
 
-    lein npm install
-
-Clean project specific out:
+Clean project:
 
     lein clean
-     
-Optimized builds:
-
-    lein cljsbuild once release     
-
-For more info on Cljs compilation, read [Waitin'](http://swannodette.github.io/2014/12/22/waitin/).
 
 ## License
 
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
+[MIT License](http://opensource.org/licenses/MIT)
