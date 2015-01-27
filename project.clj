@@ -10,7 +10,7 @@
   :plugins [[lein-cljsbuild "1.0.4"]
             [lein-npm "0.4.0"]]
 
-  :source-paths ["src" "target/classes"]
+  :source-paths ["checkouts/cljs-devtools" "src" "target/classes"]
 
   :clean-targets ["out/cljs_devtools_sample" "cljs_devtools_sample.js"]
 
