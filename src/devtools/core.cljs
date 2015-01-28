@@ -4,9 +4,8 @@
 (def MAX_MAP_ELEMENTS 5)
 (def MAX_SET_ELEMENTS 7)
 
-(declare render-header-template)
-(declare render-inline-header-template)
-(declare render-embedded-header-value)
+(declare header-template)
+(declare container-value-template)
 
 ; dirty
 (defn cljs-value? [value]
@@ -50,13 +49,10 @@
 (defn string-template [v]
   (build-template "span" "color: #C41A16" (str "\"" v "\"")))
 
-(defn generic-template [v]
-  (build-template "span" "" (build-placeholder v) "Object"))
-
 (defn header-collection-template [v]
   (let [arr (build-template "span" "" "[")]
     (doseq [x (take MAX_COLLECTION_ELEMENTS v)]
-      (.push arr (render-embedded-header-value x) (spacer-template x)))
+      (.push arr (container-value-template x) (spacer-template x)))
     (.pop arr)
     (if (> (count v) MAX_COLLECTION_ELEMENTS)
       (.push arr "…"))
@@ -68,8 +64,8 @@
         v (seq m)]
     (doseq [[k v] (take MAX_MAP_ELEMENTS v)]
       (.push arr
-             (render-embedded-header-value k) (spacer-template k)
-             (render-embedded-header-value v) (spacer-template v)))
+             (container-value-template k) (spacer-template k)
+             (container-value-template v) (spacer-template v)))
     (.pop arr)
     (if (> (count v) MAX_MAP_ELEMENTS)
       (.push arr "…"))
@@ -79,14 +75,17 @@
 (defn header-set-template [v]
   (let [arr (build-template "span" "" "#{")]
     (doseq [x (take MAX_SET_ELEMENTS v)]
-      (.push arr (render-embedded-header-value x) (spacer-template x)))
+      (.push arr (container-value-template x) (spacer-template x)))
     (.pop arr)
     (if (> (count v) MAX_SET_ELEMENTS)
       (.push arr "…"))
     (.push arr "}")
     arr))
 
-(defn render-atomic-template [x]
+(defn generic-template [v]
+  (build-template "span" "" (build-placeholder v) "Object"))
+
+(defn atomic-template [x]
   (cond
     (nil? x) (nil-template x)
     (string? x) (string-template x)
@@ -96,23 +95,24 @@
     (fn? x) (fn-template x)
     ))
 
-(defn render-embedded-header-value [x]
-  (or (render-atomic-template x)
+(defn container-template [x]
+  (cond
+    (map? x) (header-map-template x)
+    (set? x) (header-set-template x)
+    (coll? x) (header-collection-template x)
+    ))
+
+(defn container-value-template [x]
+  (or (atomic-template x)
       (generic-template x)))
 
-(defn render-header-template [x]
-  (or (render-atomic-template x)
-      (cond
-        (nil? x) (nil-template x)
-        (keyword? x) (keyword-template x)
-        (symbol? x) (symbol-template x)
-        (map? x) (header-map-template x)
-        (set? x) (header-set-template x)
-        (coll? x) (header-collection-template x)
-        :else (pr-str x))))
+(defn header-template [x]
+  (or (atomic-template x)
+      (container-template x)
+      (pr-str x)))
 
 (defn build-header [value]
-  (build-template "span" "background-color: #eff" (render-header-template value)))
+  (build-template "span" "background-color: #eff" (header-template value)))
 
 (defn header-hook [value]
   (if (cljs-value? value)
