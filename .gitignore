@@ -10,3 +10,5 @@ pom.xml
 .repl*
 /checkouts/
 /resources/generated/
+.idea
+*.iml
