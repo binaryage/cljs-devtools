@@ -28,9 +28,9 @@
       (.push arr o))
     arr))
 
-(defn spacer [& x] " ")
+(defn spacer [& _] " ")
 
-(defn nil-template [v]
+(defn nil-template [_]
   (template "span" "color: #808080" "nil"))
 
 (defn keyword-template [v]
@@ -39,8 +39,10 @@
 (defn symbol-template [v]
   (template "span" "color: #881391" (str v)))
 
-(defn integer-template [v]
-  (template "span" "color: #1C00CF" v))
+(defn number-template [v]
+  (if (integer? v)
+    (template "span" "color: #1C00CF" v)
+    (template "span" "color: #1C88CF" v)))
 
 (defn fn-template [v]
   (template "span" "color: #f00" (reference v) "fn"))
@@ -88,7 +90,7 @@
   (cond
     (nil? x) (nil-template x)
     (string? x) (string-template x)
-    (integer? x) (integer-template x)
+    (number? x) (number-template x)
     (keyword? x) (keyword-template x)
     (symbol? x) (symbol-template x)
     (fn? x) (fn-template x)
@@ -111,7 +113,7 @@
       (pr-str x)))
 
 (defn build-header [value]
-  (template "span" "background-color: #eff" (header-template value)))
+  (template "span" "background-color: #efe" (header-template value)))
 
 (defn header-hook [value]
   (if (cljs-value? value)
