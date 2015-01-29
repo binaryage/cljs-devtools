@@ -63,7 +63,7 @@
 
 ; TODO: convert to idiomatic clojure code
 (defn header-collection-template [value]
-  (let [arr (template "span" "" "[")]
+  (let [arr (template "span" "color:#000" "[")]
     (doseq [x (take MAX_COLLECTION_ELEMENTS value)]
       (.push arr (inlined-value-template x) (spacer x)))
     (.pop arr)
@@ -73,7 +73,7 @@
     arr))
 
 (defn header-map-template [value]
-  (let [arr (template "span" "" "{")
+  (let [arr (template "span" "color:#000" "{")
         v (seq value)]
     (doseq [[k v] (take MAX_MAP_ELEMENTS v)]
       (.push arr
@@ -86,7 +86,7 @@
     arr))
 
 (defn header-set-template [value]
-  (let [arr (template "span" "" "#{")]
+  (let [arr (template "span" "color:#000" "#{")]
     (doseq [x (take MAX_SET_ELEMENTS value)]
       (.push arr (inlined-value-template x) (spacer x)))
     (.pop arr)
@@ -96,7 +96,7 @@
     arr))
 
 (defn generic-template [value]
-  (template "span" "" ">" (reference value) "<"))
+  (template "span" "color:#000" (reference value)))
 
 (defn atomic-template [value]
   (cond
