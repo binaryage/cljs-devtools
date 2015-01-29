@@ -5,7 +5,7 @@
 (def MAX_SET_ELEMENTS 7)
 
 (declare header-template)
-(declare container-value-template)
+(declare container-member-template)
 
 ; dirty
 (defn cljs-value? [value]
@@ -53,7 +53,7 @@
 (defn header-collection-template [v]
   (let [arr (template "span" "" "[")]
     (doseq [x (take MAX_COLLECTION_ELEMENTS v)]
-      (.push arr (container-value-template x) (spacer x)))
+      (.push arr (container-member-template x) (spacer x)))
     (.pop arr)
     (if (> (count v) MAX_COLLECTION_ELEMENTS)
       (.push arr "…"))
@@ -65,8 +65,8 @@
         v (seq m)]
     (doseq [[k v] (take MAX_MAP_ELEMENTS v)]
       (.push arr
-             (container-value-template k) (spacer k)
-             (container-value-template v) (spacer v)))
+             (container-member-template k) (spacer k)
+             (container-member-template v) (spacer v)))
     (.pop arr)
     (if (> (count v) MAX_MAP_ELEMENTS)
       (.push arr "…"))
@@ -76,7 +76,7 @@
 (defn header-set-template [v]
   (let [arr (template "span" "" "#{")]
     (doseq [x (take MAX_SET_ELEMENTS v)]
-      (.push arr (container-value-template x) (spacer x)))
+      (.push arr (container-member-template x) (spacer x)))
     (.pop arr)
     (if (> (count v) MAX_SET_ELEMENTS)
       (.push arr "…"))
@@ -84,7 +84,7 @@
     arr))
 
 (defn generic-template [v]
-  (template "span" "" (reference v) "Object"))
+  (template "span" "" ">" (reference v) "<"))
 
 (defn atomic-template [x]
   (cond
@@ -103,7 +103,7 @@
     (coll? x) (header-collection-template x)
     ))
 
-(defn container-value-template [x]
+(defn container-member-template [x]
   (or (atomic-template x)
       (generic-template x)))
 
@@ -126,9 +126,9 @@
 
 (def cljs-formatter
   (js-obj
-     "header" header-hook
-     "hasBody" has-body-hook
-     "body" body-hook))
+    "header" header-hook
+    "hasBody" has-body-hook
+    "body" body-hook))
 
 (defn support-devtools! []
   (aset js/window "devtoolsFormatter" cljs-formatter))
