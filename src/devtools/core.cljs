@@ -48,6 +48,12 @@
 (defn index-template [value]
   (template "span" "color:#881391" value INDEX_SEPARATOR))
 
+(defn deref-template [value]
+  (cond
+    (satisfies? IAtom value) (template "span" "color:#f0f" "#<Atom " (reference @value) ">")
+    (satisfies? IVolatile value) (template "span" "color:#f0f" "#<Volatile " (reference @value) ">")
+    :else (pr-str value))) ; TODO: should we handle IDelay and others? I believe it is not safe to dereference them here
+
 ; TODO: abbreviate long strings
 (defn string-template [value]
   (template "span" "color:#C41A16" (str "\"" value "\"")))
@@ -100,6 +106,7 @@
     (keyword? value) (keyword-template value)
     (symbol? value) (symbol-template value)
     (fn? value) (fn-template value)
+    (satisfies? IDeref value) (deref-template value)
     ))
 
 (defn header-container-template [value]
@@ -138,13 +145,13 @@
   (.concat (template "ol" "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:12px")
            (body-line-templates value)))
 
-(defn abbreviated-helper [value]
+(defn something-abbreviated? [value]
   (if (coll? value)
-    (some #(abbreviated-helper %) value)
+    (some #(something-abbreviated? %) value)
     (= ABBREVIATION value)))
 
 (defn abbreviated? [template]
-  (abbreviated-helper (js->clj template)))
+  (something-abbreviated? (js->clj template)))
 
 (defn header-hook [value]
   (if (cljs-value? value)
