@@ -16,43 +16,42 @@
 (defn js-value? [value]
   (not (cljs-value? value)))
 
-(defn build-template [tag style & more]
-   (let [arr #js [tag #js {"style" style}]]
-      (doseq [o more]
-        (.push arr o))
-     arr))
+(defn template [tag style & more]
+  (let [arr #js [tag #js {"style" style}]]
+    (doseq [o more]
+      (.push arr o))
+    arr))
 
-(defn build-placeholder [object & more]
+(defn reference [object & more]
   (let [arr #js ["object" #js {"object" object}]]
     (doseq [o more]
       (.push arr o))
     arr))
 
-(defn spacer-template [x]
-  " ")
+(defn spacer [& x] " ")
 
 (defn nil-template [v]
-  (build-template "span" "color: #808080" "nil"))
+  (template "span" "color: #808080" "nil"))
 
 (defn keyword-template [v]
-  (build-template "span" "color: #881391" (str ":" (name v))))
+  (template "span" "color: #881391" (str ":" (name v))))
 
 (defn symbol-template [v]
-  (build-template "span" "color: #881391" (str v)))
+  (template "span" "color: #881391" (str v)))
 
 (defn integer-template [v]
-  (build-template "span" "color: #1C00CF" v))
+  (template "span" "color: #1C00CF" v))
 
 (defn fn-template [v]
-  (build-template "span" "color: #f00" (build-placeholder v) "fn"))
+  (template "span" "color: #f00" (reference v) "fn"))
 
 (defn string-template [v]
-  (build-template "span" "color: #C41A16" (str "\"" v "\"")))
+  (template "span" "color: #C41A16" (str "\"" v "\"")))
 
 (defn header-collection-template [v]
-  (let [arr (build-template "span" "" "[")]
+  (let [arr (template "span" "" "[")]
     (doseq [x (take MAX_COLLECTION_ELEMENTS v)]
-      (.push arr (container-value-template x) (spacer-template x)))
+      (.push arr (container-value-template x) (spacer x)))
     (.pop arr)
     (if (> (count v) MAX_COLLECTION_ELEMENTS)
       (.push arr "…"))
@@ -60,12 +59,12 @@
     arr))
 
 (defn header-map-template [m]
-  (let [arr (build-template "span" "" "{")
+  (let [arr (template "span" "" "{")
         v (seq m)]
     (doseq [[k v] (take MAX_MAP_ELEMENTS v)]
       (.push arr
-             (container-value-template k) (spacer-template k)
-             (container-value-template v) (spacer-template v)))
+             (container-value-template k) (spacer k)
+             (container-value-template v) (spacer v)))
     (.pop arr)
     (if (> (count v) MAX_MAP_ELEMENTS)
       (.push arr "…"))
@@ -73,9 +72,9 @@
     arr))
 
 (defn header-set-template [v]
-  (let [arr (build-template "span" "" "#{")]
+  (let [arr (template "span" "" "#{")]
     (doseq [x (take MAX_SET_ELEMENTS v)]
-      (.push arr (container-value-template x) (spacer-template x)))
+      (.push arr (container-value-template x) (spacer x)))
     (.pop arr)
     (if (> (count v) MAX_SET_ELEMENTS)
       (.push arr "…"))
@@ -83,7 +82,7 @@
     arr))
 
 (defn generic-template [v]
-  (build-template "span" "" (build-placeholder v) "Object"))
+  (template "span" "" (reference v) "Object"))
 
 (defn atomic-template [x]
   (cond
@@ -112,7 +111,7 @@
       (pr-str x)))
 
 (defn build-header [value]
-  (build-template "span" "background-color: #eff" (header-template value)))
+  (template "span" "background-color: #eff" (header-template value)))
 
 (defn header-hook [value]
   (if (cljs-value? value)
