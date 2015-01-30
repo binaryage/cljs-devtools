@@ -1,9 +1,11 @@
 (ns cljs-devtools-sample.core
   (:require [clojure.browser.repl :as repl]
-            [devtools.core :as dev]))
+            [devtools.core :as dev]
+            [devtools.debug :as debug]))
 
 (repl/connect "http://localhost:9000/repl")
 (enable-console-print!)
+(debug/init!)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; some quick and dirty inline tests
