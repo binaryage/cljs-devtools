@@ -42,17 +42,12 @@
     (set! (.-showRelativeTime formatter) false)
     (set! (.-showLoggerName formatter) true)))
 
-(defn js-apply [f target args]
-  (.apply f target (into-array args)))
-
-(defn hijack-console!
-  "docstring"
-  []
-  (let [old-log (aget js/console "log")]
+(defn hijack-console! []
+  (let [original-log-fn (aget js/console "log")]
     (aset js/console "log" (fn [& args]
                              (.addSeparator *console*)
                              (apply log (cons (logger "console") args))
-                             (js-apply old-log js/console args)))))
+                             (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
   (init-logger!)
