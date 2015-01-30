@@ -48,9 +48,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; enable support
 
-(.log js/console "****** enable ******")
-
-(dev/support-devtools!)
+(dev/install-devtools!)
 
 (excercise!)
 
@@ -59,7 +57,7 @@
 
 (.log js/console "****** disable ******")
 
-(dev/unsupport-devtools!)
+(dev/disable-devtools!)
 
 (excercise!)
 
@@ -67,6 +65,6 @@
 
 (.log js/console "****** enable ******")
 
-(dev/support-devtools!)
+(dev/enable-devtools!)
 
 ;(.log js/console (dev/build-header test-vector))
