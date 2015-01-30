@@ -25,6 +25,9 @@
 (defn js-value? [value]
   (not (cljs-value? value)))
 
+(defn surrogate? [value]
+  (exists? (aget value "__surrogate")))
+
 (defn template [tag style & more]
   (let [arr #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [o more]
@@ -38,6 +41,12 @@
     (doseq [o more]
       (.push arr o))
     arr))
+
+(defn surrogate [object header]
+  (js-obj
+    "__surrogate" true
+    "target" object
+    "header" header))
 
 (defn spacer [& _] " ")
 
@@ -69,7 +78,7 @@
   (template "span" "color:#C41A16" (str dq value dq)))
 
 (defn fn-template [value]
-  (template "span" "color:#f00" (reference value) "fn"))
+  (template "span" "color:#f0f" (reference (surrogate value "λ"))))
 
 (defn header-inlined-templates [value renderer max]
   (let [rendered-items (apply concat (interpose [(spacer)] (map renderer (take max value))))]
@@ -97,12 +106,23 @@
         items (header-inlined-templates value renderer max-coll-elements)]
     (template "span" "color:#000" "[" items "]")))
 
+(defn bool-template [value]
+  (template "span" "color:#099" value))
+
 (defn generic-template [value]
   (template "span" "color:#000" (reference value)))
+
+(defn js-object-template [value]
+  (if (js-value? value)
+    (template "span" "color:#000" (reference (surrogate value "#js")))))
+
+(defn bool? [value]
+  (or (true? value) (false? value)))
 
 (defn atomic-template [value]
   (cond
     (nil? value) (nil-template value)
+    (bool? value) (bool-template value)
     (string? value) (string-template value)
     (number? value) (number-template value)
     (keyword? value) (keyword-template value)
@@ -121,6 +141,7 @@
 
 (defn inlined-value-template [value]
   (or (atomic-template value)
+      (js-object-template value)
       (generic-template value)))
 
 (defn header-template [value]
@@ -157,16 +178,29 @@
   (something-abbreviated? (js->clj template)))
 
 (defn want-value? [value]
-  (cljs-value? value))
+  (or (cljs-value? value)
+      (surrogate? value)))
 
 (defn header-hook [value]
-  (build-header value))
+  (if (surrogate? value)
+    (.-header value)
+    (build-header value)))
 
 (defn has-body-hook [value]
-  (abbreviated? (build-header value)))
+  (if (surrogate? value)
+    true
+    (abbreviated? (build-header value))))
+
+(defn build-surrogate-body [value]
+  (let [target (.-target value)]
+    (template "ol"
+              "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:12px"
+              (template "li" "margin-left:12px" (reference target (pr-str target))))))
 
 (defn body-hook [value]
-  (build-body value))
+  (if (surrogate? value)
+    (build-surrogate-body value)
+    (build-body value)))
 
 (defn sanitize
   "wraps our hook in try-catch block to prevent leaking of exceptions if something goes wrong"
