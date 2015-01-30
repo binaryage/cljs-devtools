@@ -9,6 +9,7 @@
 (def formatter-key "devtoolsFormatter")
 
 (def ^:dynamic *devtools-enabled* true)
+(def ^:dynamic *devtools-installed* false)
 (def ^:dynamic *original-formatter* nil)
 
 (declare inlined-value-template)
@@ -200,13 +201,18 @@
       "body" (wrapper "body" body-hook))))
 
 (defn install-devtools! []
-  (set! *original-formatter* (aget js/window formatter-key))
-  (aset js/window formatter-key (cljs-formatter *original-formatter*)))
+  (if *devtools-installed*
+    (debug/log-info "devtools already installed - nothing to do")
+    (do
+      (set! *devtools-installed* true)
+      (set! *original-formatter* (aget js/window formatter-key))
+      (aset js/window formatter-key (cljs-formatter *original-formatter*)))))
 
 ; NOT SAFE
 (defn uninstall-devtools! []
   (aset js/window formatter-key *original-formatter*)
-  (set! *original-formatter* nil))
+  (set! *original-formatter* nil)
+  (set! *devtools-installed* false))
 
 (defn disable-devtools! []
   (set! *devtools-enabled* false))
