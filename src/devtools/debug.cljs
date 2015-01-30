@@ -7,7 +7,8 @@
 ; hence we build a secondary console for our purposes
 
 (def indentation-spacer "  ")
-(def logger-name-padding 7)
+(def logger-name-stuffer "_")
+(def logger-name-padding 8)
 
 (def ^:dynamic *indent* 0)
 (def ^:dynamic *console* nil)
@@ -15,7 +16,7 @@
 (defn logger [name]
   (let [len (count name)
         lpad (- logger-name-padding len)
-        stuffing #(apply str (repeat % "."))
+        stuffing #(apply str (repeat % logger-name-stuffer))
         padded-name (str (stuffing lpad) name)]
     (logger/getLogger padded-name)))
 
