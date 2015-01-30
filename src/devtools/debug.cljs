@@ -6,21 +6,21 @@
 ; we cannot log into console during console rendering
 ; hence we build a secondary console for our purposes
 
-(def INDENTATION_SPACER "  ")
-(def LOGGER_NAME_PADDING 7)
+(def indentation-spacer "  ")
+(def logger-name-padding 7)
 
 (def ^:dynamic *indent* 0)
 (def ^:dynamic *console* nil)
 
 (defn logger [name]
   (let [len (count name)
-        lpad (- LOGGER_NAME_PADDING len)
+        lpad (- logger-name-padding len)
         stuffing #(apply str (repeat % "."))
         padded-name (str (stuffing lpad) name)]
     (logger/getLogger padded-name)))
 
 (defn indentation []
-  (apply str (take *indent* (repeat INDENTATION_SPACER))))
+  (apply str (take *indent* (repeat indentation-spacer))))
 
 (defn indent! []
   (set! *indent* (inc *indent*)))

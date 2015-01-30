@@ -1,11 +1,11 @@
 (ns devtools.core
   (:require [devtools.debug :as debug]))
 
-(def MAX_COLLECTION_ELEMENTS 10)
-(def MAX_MAP_ELEMENTS 5)
-(def MAX_SET_ELEMENTS 7)
-(def ABBREVIATION "…")
-(def INDEX_SEPARATOR ":")
+(def max-collection-elements 10)
+(def max-map-elements 5)
+(def max-set-elements 7)
+(def abbreviation-string "…")
+(def line-index-separator ":")
 
 (declare inlined-value-template)
 
@@ -47,7 +47,7 @@
     (template "span" "color:#1C88CF" value)))
 
 (defn index-template [value]
-  (template "span" "color:#881391" value INDEX_SEPARATOR))
+  (template "span" "color:#881391" value line-index-separator))
 
 (defn deref-template [value]
   (cond
@@ -65,34 +65,34 @@
 ; TODO: convert to idiomatic clojure code
 (defn header-collection-template [value]
   (let [arr (template "span" "color:#000" "[")]
-    (doseq [x (take MAX_COLLECTION_ELEMENTS value)]
+    (doseq [x (take max-collection-elements value)]
       (.push arr (inlined-value-template x) (spacer x)))
     (.pop arr)
-    (if (> (count value) MAX_COLLECTION_ELEMENTS)
-      (.push arr ABBREVIATION))
+    (if (> (count value) max-collection-elements)
+      (.push arr abbreviation-string))
     (.push arr "]")
     arr))
 
 (defn header-map-template [value]
   (let [arr (template "span" "color:#000" "{")
         v (seq value)]
-    (doseq [[k v] (take MAX_MAP_ELEMENTS v)]
+    (doseq [[k v] (take max-map-elements v)]
       (.push arr
              (inlined-value-template k) (spacer k)
              (inlined-value-template v) (spacer v)))
     (.pop arr)
-    (if (> (count v) MAX_MAP_ELEMENTS)
-      (.push arr ABBREVIATION))
+    (if (> (count v) max-map-elements)
+      (.push arr abbreviation-string))
     (.push arr "}")
     arr))
 
 (defn header-set-template [value]
   (let [arr (template "span" "color:#000" "#{")]
-    (doseq [x (take MAX_SET_ELEMENTS value)]
+    (doseq [x (take max-set-elements value)]
       (.push arr (inlined-value-template x) (spacer x)))
     (.pop arr)
-    (if (> (count value) MAX_SET_ELEMENTS)
-      (.push arr ABBREVIATION))
+    (if (> (count value) max-set-elements)
+      (.push arr abbreviation-string))
     (.push arr "}")
     arr))
 
@@ -149,7 +149,7 @@
 (defn something-abbreviated? [value]
   (if (coll? value)
     (some #(something-abbreviated? %) value)
-    (= ABBREVIATION value)))
+    (= abbreviation-string value)))
 
 (defn abbreviated? [template]
   (something-abbreviated? (js->clj template)))
