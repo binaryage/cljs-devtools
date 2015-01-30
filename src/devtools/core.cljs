@@ -6,6 +6,10 @@
 (def max-set-elements 7)
 (def abbreviation-string "…")
 (def line-index-separator ":")
+(def formatter-key "devtoolsFormatter")
+
+(def ^:dynamic *devtools-enabled* true)
+(def ^:dynamic *original-formatter* nil)
 
 (declare inlined-value-template)
 
@@ -154,26 +158,58 @@
 (defn abbreviated? [template]
   (something-abbreviated? (js->clj template)))
 
+(defn want-value? [value]
+  (cljs-value? value))
+
 (defn header-hook [value]
-  (if (cljs-value? value)
-    (build-header value)))
+  (build-header value))
 
 (defn has-body-hook [value]
-  (if (cljs-value? value)
-    (abbreviated? (build-header value))))
+  (abbreviated? (build-header value)))
 
 (defn body-hook [value]
-  (if (cljs-value? value)
-    (build-body value)))
+  (build-body value))
 
-(def cljs-formatter
-  (js-obj
-    "header" (debug/hook-monitor "header" header-hook)
-    "hasBody" (debug/hook-monitor "hasBody" has-body-hook)
-    "body" (debug/hook-monitor "body" body-hook)))
+(defn call-js-fn? [target fn & args]
+  (debug/log-info "passing call to original formatter")
+  (if (not (nil? fn)) (.apply fn target (into-array args))))
 
-(defn support-devtools! []
-  (aset js/window "devtoolsFormatter" cljs-formatter))
+(defn sanitize
+  "wraps our hook in try-catch block to prevent leaking of exceptions if something goes wrong"
+  [hook]
+  (fn [value]
+    (try
+      (hook value)
+      (catch js/Object e
+        (debug/log-exception e)
+        nil))))
 
-(defn unsupport-devtools! []
-  (aset js/window "devtoolsFormatter" nil))
+(defn chain
+  "chains our hook with original formatter"
+  [name hook original-formatter]
+  (fn [value]
+    (if (and *devtools-enabled* (want-value? value))
+      (hook value)
+      (call-js-fn? original-formatter (aget original-formatter name) value))))
+
+(defn cljs-formatter [original-formatter]
+  (let [wrapper (fn [name hook] (debug/hook-monitor name (chain name (sanitize hook) original-formatter)))]
+    (js-obj
+      "header" (wrapper "header" header-hook)
+      "hasBody" (wrapper "hasBody" has-body-hook)
+      "body" (wrapper "body" body-hook))))
+
+(defn install-devtools! []
+  (set! *original-formatter* (aget js/window formatter-key))
+  (aset js/window formatter-key (cljs-formatter *original-formatter*)))
+
+; NOT SAFE
+(defn uninstall-devtools! []
+  (aset js/window formatter-key *original-formatter*)
+  (set! *original-formatter* nil))
+
+(defn disable-devtools! []
+  (set! *devtools-enabled* false))
+
+(defn enable-devtools! []
+  (set! *devtools-enabled* true))

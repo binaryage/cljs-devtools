@@ -13,13 +13,6 @@
 (def ^:dynamic *indent* 0)
 (def ^:dynamic *console* nil)
 
-(defn logger [name]
-  (let [len (count name)
-        lpad (- logger-name-padding len)
-        stuffing #(apply str (repeat % logger-name-stuffer))
-        padded-name (str (stuffing lpad) name)]
-    (logger/getLogger padded-name)))
-
 (defn indentation []
   (apply str (take *indent* (repeat indentation-spacer))))
 
@@ -29,12 +22,25 @@
 (defn unindent! []
   (set! *indent* (dec *indent*)))
 
+(defn logger [name]
+  (let [len (count name)
+        lpad (- logger-name-padding len)
+        stuffing #(apply str (repeat % logger-name-stuffer))
+        padded-name (str (stuffing lpad) name)]
+    (logger/getLogger padded-name)))
+
 (defn log [logger & message]
   (.info logger (apply str (cons (indentation) message))))
 
+(defn log-exception [message]
+  (.shout (logger "ex!") (apply str (cons (indentation) (str message)))))
+
+(defn log-info [message]
+  (.info (logger "info") (apply str (cons (indentation) (str message)))))
+
 (defn init-logger! []
   (set! *console* (goog.debug.FancyWindow. "devtools"))
-  (.setWelcomeMessage *console* "cljs-devtools side console")
+  (.setWelcomeMessage *console* "cljs-devtools auxiliary console")
   (.init *console*)
   (.setEnabled *console* true)
   (let [formatter (.getFormatter *console*)]
