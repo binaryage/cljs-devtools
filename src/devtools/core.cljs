@@ -4,6 +4,7 @@
 (def max-coll-elements 10)
 (def max-map-elements 5)
 (def max-set-elements 7)
+(def max-seq-elements 20)
 (def abbreviation "…")
 (def line-index-separator ":")
 (def formatter-key "devtoolsFormatter")
@@ -76,11 +77,6 @@
       (concat rendered-items [abbreviation])
       rendered-items)))
 
-(defn header-coll-template [value]
-  (let [renderer (fn [item] [(inlined-value-template item)])
-        items (header-inlined-templates value renderer max-coll-elements)]
-    (template "span" "color:#000" "[" items "]")))
-
 (defn header-map-template [value]
   (let [renderer (fn [[key value]] [(inlined-value-template key) (spacer) (inlined-value-template value)])
         items (header-inlined-templates value renderer max-map-elements)]
@@ -90,6 +86,16 @@
   (let [renderer (fn [item] [(inlined-value-template item)])
         items (header-inlined-templates value renderer max-set-elements)]
     (template "span" "color:#000" "#{" items "}")))
+
+(defn header-seq-template [value]
+  (let [renderer (fn [item] [(inlined-value-template item)])
+        items (header-inlined-templates value renderer max-seq-elements)]
+    (template "span" "color:#000" "(" items ")")))
+
+(defn header-coll-template [value]
+  (let [renderer (fn [item] [(inlined-value-template item)])
+        items (header-inlined-templates value renderer max-coll-elements)]
+    (template "span" "color:#000" "[" items "]")))
 
 (defn generic-template [value]
   (template "span" "color:#000" (reference value)))
@@ -109,6 +115,7 @@
   (cond
     (map? value) (header-map-template value)
     (set? value) (header-set-template value)
+    (seq? value) (header-seq-template value)
     (coll? value) (header-coll-template value)
     ))
 
