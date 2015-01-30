@@ -1,12 +1,13 @@
 (ns devtools.core
   (:require [devtools.debug :as debug]))
 
-(def max-seq-elements 10)
+(def max-coll-elements 10)
 (def max-map-elements 5)
 (def max-set-elements 7)
-(def abbreviation-string "…")
+(def abbreviation "…")
 (def line-index-separator ":")
 (def formatter-key "devtoolsFormatter")
+(def dq "\"")
 
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *devtools-installed* false)
@@ -26,7 +27,9 @@
 (defn template [tag style & more]
   (let [arr #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [o more]
-      (.push arr o))
+      (if (seq? o)
+        (.apply (aget arr "push") arr (into-array o)) ; convenience helper to splat cljs-seqs
+        (.push arr o)))
     arr))
 
 (defn reference [object & more]
@@ -44,7 +47,7 @@
   (template "span" "color:#881391" (str ":" (name value))))
 
 (defn symbol-template [value]
-  (template "span" "color:#881391" (str value)))
+  (template "span" "color:#000000" (str value)))
 
 (defn number-template [value]
   (if (integer? value)
@@ -62,44 +65,31 @@
 
 ; TODO: abbreviate long strings
 (defn string-template [value]
-  (template "span" "color:#C41A16" (str "\"" value "\"")))
+  (template "span" "color:#C41A16" (str dq value dq)))
 
 (defn fn-template [value]
   (template "span" "color:#f00" (reference value) "fn"))
 
-; TODO: convert to idiomatic clojure code
-(defn header-seq-template [value]
-  (let [arr (template "span" "color:#000" "[")]
-    (doseq [x (take max-seq-elements value)]
-      (.push arr (inlined-value-template x) (spacer x)))
-    (.pop arr)
-    (if (> (count value) max-seq-elements)
-      (.push arr abbreviation-string))
-    (.push arr "]")
-    arr))
+(defn header-inlined-templates [value renderer max]
+  (let [rendered-items (apply concat (interpose [(spacer)] (map renderer (take max value))))]
+    (if (> (count value) max)
+      (concat rendered-items [abbreviation])
+      rendered-items)))
+
+(defn header-coll-template [value]
+  (let [renderer (fn [item] [(inlined-value-template item)])
+        items (header-inlined-templates value renderer max-coll-elements)]
+    (template "span" "color:#000" "[" items "]")))
 
 (defn header-map-template [value]
-  (let [arr (template "span" "color:#000" "{")
-        v (seq value)]
-    (doseq [[k v] (take max-map-elements v)]
-      (.push arr
-             (inlined-value-template k) (spacer k)
-             (inlined-value-template v) (spacer v)))
-    (.pop arr)
-    (if (> (count v) max-map-elements)
-      (.push arr abbreviation-string))
-    (.push arr "}")
-    arr))
+  (let [renderer (fn [[key value]] [(inlined-value-template key) (spacer) (inlined-value-template value)])
+        items (header-inlined-templates value renderer max-map-elements)]
+    (template "span" "color:#000" "{" items "}")))
 
 (defn header-set-template [value]
-  (let [arr (template "span" "color:#000" "#{")]
-    (doseq [x (take max-set-elements value)]
-      (.push arr (inlined-value-template x) (spacer x)))
-    (.pop arr)
-    (if (> (count value) max-set-elements)
-      (.push arr abbreviation-string))
-    (.push arr "}")
-    arr))
+  (let [renderer (fn [item] [(inlined-value-template item)])
+        items (header-inlined-templates value renderer max-set-elements)]
+    (template "span" "color:#000" "#{" items "}")))
 
 (defn generic-template [value]
   (template "span" "color:#000" (reference value)))
@@ -119,7 +109,7 @@
   (cond
     (map? value) (header-map-template value)
     (set? value) (header-set-template value)
-    (seq? value) (header-seq-template value)
+    (coll? value) (header-coll-template value)
     ))
 
 (defn inlined-value-template [value]
@@ -154,7 +144,7 @@
 (defn something-abbreviated? [value]
   (if (coll? value)
     (some #(something-abbreviated? %) value)
-    (= abbreviation-string value)))
+    (= abbreviation value)))
 
 (defn abbreviated? [template]
   (something-abbreviated? (js->clj template)))
