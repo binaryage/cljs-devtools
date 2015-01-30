@@ -1,7 +1,7 @@
 (ns devtools.core
   (:require [devtools.debug :as debug]))
 
-(def max-collection-elements 10)
+(def max-seq-elements 10)
 (def max-map-elements 5)
 (def max-set-elements 7)
 (def abbreviation-string "…")
@@ -63,12 +63,12 @@
   (template "span" "color:#f00" (reference value) "fn"))
 
 ; TODO: convert to idiomatic clojure code
-(defn header-collection-template [value]
+(defn header-seq-template [value]
   (let [arr (template "span" "color:#000" "[")]
-    (doseq [x (take max-collection-elements value)]
+    (doseq [x (take max-seq-elements value)]
       (.push arr (inlined-value-template x) (spacer x)))
     (.pop arr)
-    (if (> (count value) max-collection-elements)
+    (if (> (count value) max-seq-elements)
       (.push arr abbreviation-string))
     (.push arr "]")
     arr))
@@ -114,7 +114,7 @@
   (cond
     (map? value) (header-map-template value)
     (set? value) (header-set-template value)
-    (coll? value) (header-collection-template value)
+    (seq? value) (header-seq-template value)
     ))
 
 (defn inlined-value-template [value]
