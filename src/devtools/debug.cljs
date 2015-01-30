@@ -55,8 +55,8 @@
                              (js-apply old-log js/console args)))))
 
 (defn init! []
-  (hijack-console!)
-  (init-logger!))
+  (init-logger!)
+  (hijack-console!))
 
 (defn hook-monitor [name hook]
   (fn [value]
