@@ -168,10 +168,6 @@
 (defn body-hook [value]
   (build-body value))
 
-(defn call-js-fn? [target fn & args]
-  (debug/log-info "passing call to original formatter")
-  (if (not (nil? fn)) (.apply fn target (into-array args))))
-
 (defn sanitize
   "wraps our hook in try-catch block to prevent leaking of exceptions if something goes wrong"
   [hook]
@@ -185,10 +181,15 @@
 (defn chain
   "chains our hook with original formatter"
   [name hook original-formatter]
-  (fn [value]
-    (if (and *devtools-enabled* (want-value? value))
-      (hook value)
-      (call-js-fn? original-formatter (aget original-formatter name) value))))
+  (let [call-original-formatter? (fn [value]
+                                   (if (not (nil? original-formatter))
+                                     (do ; TODO should we wrap this in try-catch instead?
+                                       (debug/log-info "passing call to original formatter")
+                                       (.call (aget original-formatter name) original-formatter value))))]
+    (fn [value]
+      (if (and *devtools-enabled* (want-value? value))
+        (hook value)
+        (call-original-formatter? value)))))
 
 (defn cljs-formatter [original-formatter]
   (let [wrapper (fn [name hook] (debug/hook-monitor name (chain name (sanitize hook) original-formatter)))]
