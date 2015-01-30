@@ -1,4 +1,5 @@
-(ns devtools.core)
+(ns devtools.core
+  (:require [devtools.debug :as debug]))
 
 (def MAX_COLLECTION_ELEMENTS 10)
 (def MAX_MAP_ELEMENTS 5)
@@ -167,9 +168,9 @@
 
 (def cljs-formatter
   (js-obj
-    "header" header-hook
-    "hasBody" has-body-hook
-    "body" body-hook))
+    "header" (debug/hook-monitor "header" header-hook)
+    "hasBody" (debug/hook-monitor "hasBody" has-body-hook)
+    "body" (debug/hook-monitor "body" body-hook)))
 
 (defn support-devtools! []
   (aset js/window "devtoolsFormatter" cljs-formatter))
