@@ -11,4 +11,5 @@
 (def app
   (-> handler
       (wrap-resource "public")
-      (wrap-content-type)))
+      (wrap-resource "src")
+      (wrap-content-type {:mime-types {"cljs" "text/plain"}})))
