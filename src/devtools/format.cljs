@@ -21,6 +21,7 @@
 (defn cljs-value? [value]
   (or (exists? (aget value "meta"))
       (exists? (aget value "_meta"))
+      (exists? (aget value "__meta"))
       (exists? (aget value "_hash"))))
 
 (defn js-value? [value]
@@ -184,19 +185,32 @@
   (or (cljs-value? value)
       (surrogate? value)))
 
+;;;;;;;;; PROTOCOL SUPPORT
+
+(defprotocol IDevtoolsFormat
+  (-header [value])
+  (-has-body [value])
+  (-body [value]))
+
 ;;;;;;;;; API CALLS
 
 (defn header-api-call [value]
   (if (surrogate? value)
     (.-header value)
-    (build-header value)))
+    (if (satisfies? IDevtoolsFormat value)
+      (-header value)
+      (build-header value))))
 
 (defn has-body-api-call [value]
   (if (surrogate? value)
     (.-hasBody value)
-    (abbreviated? (build-header value))))
+    (if (satisfies? IDevtoolsFormat value)
+      (-has-body value)
+      (abbreviated? (build-header value)))))
 
 (defn body-api-call [value]
   (if (surrogate? value)
     (build-surrogate-body value)
-    (build-body value)))
+    (if (satisfies? IDevtoolsFormat value)
+      (-body value)
+      (build-body value))))
