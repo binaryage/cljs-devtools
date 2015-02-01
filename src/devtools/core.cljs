@@ -26,22 +26,22 @@
 (defn chain
   "chains our api-call with original formatter"
   [name original-formatter enabled? api-call]
-  (let [call-original-formatter? (fn [value]
-                                   (if (not (nil? original-formatter))
-                                     (do ; TODO should we wrap this in try-catch instead?
-                                       (debug/log-info "passing call to original formatter")
-                                       (.call (aget original-formatter name) original-formatter value))))]
+  (let [maybe-call-original-formatter (fn [value]
+                                        (if (not (nil? original-formatter))
+                                          (do               ; TODO should we wrap this in try-catch instead?
+                                            (debug/log-info "passing call to original formatter")
+                                            (.call (aget original-formatter name) original-formatter value))))]
     (fn [value]
       (if (and (enabled?) (format/want-value? value))
         (api-call value)
-        (call-original-formatter? value)))))
+        (maybe-call-original-formatter value)))))
 
-(defn cljs-formatter [enabler-pred original-formatter sanitizer-enabled]
+(defn cljs-formatter [formatter-enabled? original-formatter sanitizer-enabled]
   (let [api-call-wrapper (fn [name api-call]
-                       (let [monitor (partial debug/api-call-monitor name)
-                             chainer (partial chain name original-formatter enabler-pred)
-                             sanitizer (if sanitizer-enabled sanitize identity)]
-                         ((comp monitor chainer sanitizer) api-call)))
+                           (let [monitor (partial debug/api-call-monitor name)
+                                 chainer (partial chain name original-formatter formatter-enabled?)
+                                 sanitizer (if sanitizer-enabled sanitize identity)]
+                             ((comp monitor chainer sanitizer) api-call)))
         api-gen (fn [[name api-call]] [name (api-call-wrapper name api-call)])]
     (apply js-obj (mapcat #(api-gen %) api-mapping))))
 

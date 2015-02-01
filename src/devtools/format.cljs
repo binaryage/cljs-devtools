@@ -70,7 +70,7 @@
   (cond
     (satisfies? IAtom value) (template span "color:#f0f" "#<Atom " (reference @value) ">")
     (satisfies? IVolatile value) (template span "color:#f0f" "#<Volatile " (reference @value) ">")
-    :else (pr-str value))) ; TODO: should we handle IDelay and others? I believe it is not safe to dereference them here
+    :else (pr-str value)))                                  ; TODO: should we handle IDelay and others? I believe it is not safe to dereference them here
 
 ; TODO: abbreviate long strings
 (defn string-template [value]
@@ -156,7 +156,7 @@
   (template li standard-li-style (index-template index) spacer (inlined-value-template value)))
 
 (defn body-line-templates [value]
-  (loop [data (seq value) ; TODO: limit max number of lines here?
+  (loop [data (seq value)                                   ; TODO: limit max number of lines here?
          index 0
          lines []]
     (if (empty? data)
