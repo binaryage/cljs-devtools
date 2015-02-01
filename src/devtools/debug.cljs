@@ -1,5 +1,5 @@
 (ns devtools.debug
-  (:require [goog.debug.FancyWindow :as fw]
+  (:require [goog.debug.FancyWindow]
             [goog.debug.Logger :as logger]
             [goog.json :as json]))
 
@@ -63,9 +63,9 @@
   (fn [value]
     (log (logger name) value)
     (indent!)
-    (let [template (api-call value)
-          template-filter (fn [key value] (if (= key "object") (str "REF -> " (str value)) value))]
-      (log (logger name) "=> " (json/serialize template template-filter))
+    (let [api-response (api-call value)
+          api-response-filter (fn [key value] (if (= key "object") (str "REF -> " (str value)) value))]
+      (log (logger name) "=> " (json/serialize api-response api-response-filter))
       (unindent!)
-      template)
+      api-response)
     ))
