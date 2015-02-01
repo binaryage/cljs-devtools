@@ -43,11 +43,13 @@
       (.push js-array child))
     js-array))
 
-(defn surrogate [object header]
-  (js-obj
-    surrogate-key true
-    "target" object
-    "header" header))
+(defn surrogate
+  ([object header] (surrogate object header true))
+  ([object header has-body] (js-obj
+                              surrogate-key true
+                              "target" object
+                              "header" header
+                              "hasBody" has-body)))
 
 (defn nil-template [_]
   (template span "color:#808080" "nil"))
@@ -191,7 +193,7 @@
 
 (defn has-body-api-call [value]
   (if (surrogate? value)
-    true
+    (.-hasBody value)
     (abbreviated? (build-header value))))
 
 (defn body-api-call [value]
