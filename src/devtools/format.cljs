@@ -155,10 +155,13 @@
 (defn build-header [value]
   (template span "background-color:#efe" (header-template value)))
 
-(defn body-line-template [index value]
-  (template li standard-li-style (index-template index) spacer (inlined-value-template value)))
+(defn standard-body-template [lines]
+  (template ol standard-ol-style (map #(template li standard-li-style %) lines)))
 
-(defn body-line-templates [value]
+(defn body-line-template [index value]
+  [(index-template index) spacer (inlined-value-template value)])
+
+(defn body-lines-templates [value]
   (loop [data (seq value)                                   ; TODO: limit max number of lines here?
          index 0
          lines []]
@@ -167,7 +170,7 @@
       (recur (rest data) (inc index) (conj lines (body-line-template index (first data)))))))
 
 (defn build-body [value]
-  (template ol standard-ol-style (body-line-templates value)))
+  (standard-body-template (body-lines-templates value)))
 
 (defn something-abbreviated? [value]
   (if (coll? value)
