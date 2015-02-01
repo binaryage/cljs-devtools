@@ -22,13 +22,19 @@
   (or (exists? (aget value "meta"))
       (exists? (aget value "_meta"))
       (exists? (aget value "__meta"))
-      (exists? (aget value "_hash"))))
+      (exists? (aget value "_hash"))
+      (exists? (aget value "devtools$format$IDevtoolsFormat$")))) ; we cannot detect deftypes in general, at least support those with IDevtoolsFormat
 
 (defn js-value? [value]
   (not (cljs-value? value)))
 
 (defn surrogate? [value]
   (exists? (aget value surrogate-key)))
+
+(defn stop-further-js->cls-recursion! [o]
+  (specify! o
+            IEncodeClojure
+            (-js->clj [x options] nil)))
 
 (defn template [tag style & children]
   (let [js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
@@ -39,18 +45,18 @@
     js-array))
 
 (defn reference [object & children]
-  (let [js-array #js ["object" #js {"object" object}]]
+  (let [js-array #js ["object" (stop-further-js->cls-recursion! #js {"object" object})]]
     (doseq [child children]
       (.push js-array child))
     js-array))
 
 (defn surrogate
   ([object header] (surrogate object header true))
-  ([object header has-body] (js-obj
-                              surrogate-key true
-                              "target" object
-                              "header" header
-                              "hasBody" has-body)))
+  ([object header has-body] (stop-further-js->cls-recursion! (js-obj
+                                                               surrogate-key true
+                                                               "target" object
+                                                               "header" header
+                                                               "hasBody" has-body))))
 
 (defn nil-template [_]
   (template span "color:#808080" "nil"))
