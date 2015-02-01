@@ -36,13 +36,29 @@
          }))
 
 ; custom formatter defined in user code
-(defrecord Person [name address]
+(deftype Person [name address]
   format/IDevtoolsFormat
   (-header [_] (format/template "span" "color:white; background-color:blue; padding: 0px 4px" (str "Person: " name)))
   (-has-body [_] (exists? address))
   (-body [_] (format/standard-body-template (string/split-lines address))))
 
 (def test-person (Person. "John Doe" "Office 33\n27 Colmore Row\nBirmingham\nEngland"))
+
+; defrecord with IDevtoolsFormat
+(defrecord Language [lang]
+  format/IDevtoolsFormat
+  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+  (-has-body [_])
+  (-body [_]))
+
+(def test-lang (Language. "ClojureScript"))
+
+; reify with IDevtoolsFormat
+(def test-reify (reify
+         format/IDevtoolsFormat
+         (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
+         (-has-body [_] false)
+         (-body [_])))
 
 (defn excercise! []
   (.log js/console test-number)
@@ -53,7 +69,7 @@
   (.log js/console test-large-set)
   (.log js/console test-atom)
   (.log js/console test-problematic-vector)
-  (.log js/console test-person)
+  (.log js/console [test-person test-lang test-reify])
   ;(.log js/console (.-nested test-interleaved))
   ;(.log js/console test-interleaved)
   )
