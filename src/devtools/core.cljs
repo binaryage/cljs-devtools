@@ -20,6 +20,7 @@
 (def ^:dynamic *devtools-installed* false)
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *original-formatter* nil)
+(def ^:dynamic *sanitizer-enabled* true)
 
 (declare inlined-value-template)
 
@@ -184,6 +185,10 @@
   (or (cljs-value? value)
       (surrogate? value)))
 
+(defn build-surrogate-body [value]
+  (let [target (.-target value)]
+    (template ol standard-ol-style (template li standard-li-style (reference target (pr-str target))))))
+
 (defn header-hook [value]
   (if (surrogate? value)
     (.-header value)
@@ -194,14 +199,14 @@
     true
     (abbreviated? (build-header value))))
 
-(defn build-surrogate-body [value]
-  (let [target (.-target value)]
-    (template ol standard-ol-style (template li standard-li-style (reference target (pr-str target))))))
-
 (defn body-hook [value]
   (if (surrogate? value)
     (build-surrogate-body value)
     (build-body value)))
+
+(def api-mapping [["header" header-hook]
+                  ["hasBody" has-body-hook]
+                  ["body" body-hook]])
 
 (defn sanitize
   "wraps our hook in try-catch block to prevent leaking of exceptions if something goes wrong"
@@ -215,28 +220,25 @@
 
 (defn chain
   "chains our hook with original formatter"
-  [name original-formatter hook]
+  [name original-formatter enabled? hook]
   (let [call-original-formatter? (fn [value]
                                    (if (not (nil? original-formatter))
                                      (do ; TODO should we wrap this in try-catch instead?
                                        (debug/log-info "passing call to original formatter")
                                        (.call (aget original-formatter name) original-formatter value))))]
     (fn [value]
-      (if (and *devtools-enabled* (want-value? value))
+      (if (and (enabled?) (want-value? value))
         (hook value)
         (call-original-formatter? value)))))
 
-(defn cljs-formatter [original-formatter]
-  (let [api [["header" header-hook]
-             ["hasBody" has-body-hook]
-             ["body" body-hook]]
-        hook-wrapper (fn [name hook]
+(defn cljs-formatter [enabler-pred original-formatter sanitizer-enabled]
+  (let [hook-wrapper (fn [name hook]
                        (let [monitor (partial debug/hook-monitor name)
-                             chainer (partial chain name original-formatter)
-                             sanitizer sanitize]
+                             chainer (partial chain name original-formatter enabler-pred)
+                             sanitizer (if sanitizer-enabled sanitize identity)]
                          ((comp monitor chainer sanitizer) hook)))
         api-gen (fn [[name hook]] [name (hook-wrapper name hook)])]
-    (apply js-obj (mapcat #(api-gen %) api))))
+    (apply js-obj (mapcat #(api-gen %) api-mapping))))
 
 (defn install-devtools! []
   (if *devtools-installed*
@@ -244,7 +246,7 @@
     (do
       (set! *devtools-installed* true)
       (set! *original-formatter* (aget js/window formatter-key))
-      (aset js/window formatter-key (cljs-formatter *original-formatter*)))))
+      (aset js/window formatter-key (cljs-formatter (fn [] *devtools-enabled*) *original-formatter* *sanitizer-enabled*)))))
 
 ; NOT SAFE
 (defn uninstall-devtools! []
