@@ -227,11 +227,16 @@
         (call-original-formatter? value)))))
 
 (defn cljs-formatter [original-formatter]
-  (let [hook-wrapper (fn [name hook] (debug/hook-monitor name (chain name original-formatter (sanitize hook))))]
-    (js-obj
-      "header" (hook-wrapper "header" header-hook)
-      "hasBody" (hook-wrapper "hasBody" has-body-hook)
-      "body" (hook-wrapper "body" body-hook))))
+  (let [api [["header" header-hook]
+             ["hasBody" has-body-hook]
+             ["body" body-hook]]
+        hook-wrapper (fn [name hook]
+                       (let [monitor (partial debug/hook-monitor name)
+                             chainer (partial chain name original-formatter)
+                             sanitizer sanitize]
+                         ((comp monitor chainer sanitizer) hook)))
+        api-gen (fn [[name hook]] [name (hook-wrapper name hook)])]
+    (apply js-obj (mapcat #(api-gen %) api))))
 
 (defn install-devtools! []
   (if *devtools-installed*
