@@ -59,11 +59,11 @@
   (init-logger!)
   (hijack-console!))
 
-(defn hook-monitor [name hook]
+(defn api-call-monitor [name api-call]
   (fn [value]
     (log (logger name) value)
     (indent!)
-    (let [template (hook value)
+    (let [template (api-call value)
           template-filter (fn [key value] (if (= key "object") (str "REF -> " (str value)) value))]
       (log (logger name) "=> " (json/serialize template template-filter))
       (unindent!)

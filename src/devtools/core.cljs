@@ -189,38 +189,38 @@
   (let [target (.-target value)]
     (template ol standard-ol-style (template li standard-li-style (reference target (pr-str target))))))
 
-(defn header-hook [value]
+(defn header-api-call [value]
   (if (surrogate? value)
     (.-header value)
     (build-header value)))
 
-(defn has-body-hook [value]
+(defn has-body-api-call [value]
   (if (surrogate? value)
     true
     (abbreviated? (build-header value))))
 
-(defn body-hook [value]
+(defn body-api-call [value]
   (if (surrogate? value)
     (build-surrogate-body value)
     (build-body value)))
 
-(def api-mapping [["header" header-hook]
-                  ["hasBody" has-body-hook]
-                  ["body" body-hook]])
+(def api-mapping [["header" header-api-call]
+                  ["hasBody" has-body-api-call]
+                  ["body" body-api-call]])
 
 (defn sanitize
-  "wraps our hook in try-catch block to prevent leaking of exceptions if something goes wrong"
-  [hook]
+  "wraps our api-call in try-catch block to prevent leaking of exceptions if something goes wrong"
+  [api-call]
   (fn [value]
     (try
-      (hook value)
+      (api-call value)
       (catch js/Object e
         (debug/log-exception e)
         nil))))
 
 (defn chain
-  "chains our hook with original formatter"
-  [name original-formatter enabled? hook]
+  "chains our api-call with original formatter"
+  [name original-formatter enabled? api-call]
   (let [call-original-formatter? (fn [value]
                                    (if (not (nil? original-formatter))
                                      (do ; TODO should we wrap this in try-catch instead?
@@ -228,16 +228,16 @@
                                        (.call (aget original-formatter name) original-formatter value))))]
     (fn [value]
       (if (and (enabled?) (want-value? value))
-        (hook value)
+        (api-call value)
         (call-original-formatter? value)))))
 
 (defn cljs-formatter [enabler-pred original-formatter sanitizer-enabled]
-  (let [hook-wrapper (fn [name hook]
-                       (let [monitor (partial debug/hook-monitor name)
+  (let [api-call-wrapper (fn [name api-call]
+                       (let [monitor (partial debug/api-call-monitor name)
                              chainer (partial chain name original-formatter enabler-pred)
                              sanitizer (if sanitizer-enabled sanitize identity)]
-                         ((comp monitor chainer sanitizer) hook)))
-        api-gen (fn [[name hook]] [name (hook-wrapper name hook)])]
+                         ((comp monitor chainer sanitizer) api-call)))
+        api-gen (fn [[name api-call]] [name (api-call-wrapper name api-call)])]
     (apply js-obj (mapcat #(api-gen %) api-mapping))))
 
 (defn install-devtools! []
