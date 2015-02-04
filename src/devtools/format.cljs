@@ -23,7 +23,10 @@
 ; [14:04:36] dnolen: https://github.com/clojure/clojurescript/blob/c2550c4fdc94178a7957497e2bfde54e5600c457/src/clj/cljs/core.clj#L901
 ; [14:05:00] dnolen: this property is unlikely to change - still it's probably not something anything anyone should use w/o a really good reason
 (defn cljs-value? [value]
-  (exists? (aget value "constructor" "cljs$lang$type")))
+  (try
+    (exists? (aget value "constructor" "cljs$lang$type"))
+    (catch js/Object _
+      false)))
 
 (defn js-value? [value]
   (not (cljs-value? value)))
