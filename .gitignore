@@ -1,1 +1,3 @@
 *.iml
+pom.xml
+/target/
