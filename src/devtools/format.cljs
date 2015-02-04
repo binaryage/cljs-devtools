@@ -17,13 +17,13 @@
 
 (declare inlined-value-template)
 
-; dirty TODO: find a reliable way how to detect cljs values
+; IRC #clojurescript @ freenode.net on 2015-01-27:
+; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
+; [14:04:34] dnolen: there is a very low level thing you can check
+; [14:04:36] dnolen: https://github.com/clojure/clojurescript/blob/c2550c4fdc94178a7957497e2bfde54e5600c457/src/clj/cljs/core.clj#L901
+; [14:05:00] dnolen: this property is unlikely to change - still it's probably not something anything anyone should use w/o a really good reason
 (defn cljs-value? [value]
-  (or (exists? (aget value "meta"))
-      (exists? (aget value "_meta"))
-      (exists? (aget value "__meta"))
-      (exists? (aget value "_hash"))
-      (exists? (aget value "devtools$format$IDevtoolsFormat$")))) ; we cannot detect deftypes in general, at least support those with IDevtoolsFormat
+  (exists? (aget value "constructor" "cljs$lang$type")))
 
 (defn js-value? [value]
   (not (cljs-value? value)))
