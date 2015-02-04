@@ -14,6 +14,7 @@
 (def span "span")
 (def ol "ol")
 (def li "li")
+(def general-cljs-land-style "background-color:#efe")
 
 (declare inlined-value-template)
 
@@ -151,10 +152,17 @@
     (seq? value) (header-seq-template value)
     (coll? value) (header-coll-template value)))
 
+(defn wrap-cljs-land-if-needed [needed? tmpl]
+  (if needed?
+    (template span general-cljs-land-style tmpl)
+    tmpl))
+
 (defn inlined-value-template [value]
-  (or (atomic-template value)
-      (js-object-template value)
-      (generic-template value)))
+  (let [tmpl (or 
+               (atomic-template value)
+               (js-object-template value)
+               (generic-template value))]
+    (wrap-cljs-land-if-needed (cljs-value? value) tmpl)))
 
 (defn header-template [value]
   (or (atomic-template value)
@@ -162,7 +170,7 @@
       (pr-str value)))
 
 (defn build-header [value]
-  (template span "background-color:#efe" (header-template value)))
+  (wrap-cljs-land-if-needed true (header-template value)))
 
 (defn standard-body-template [lines]
   (template ol standard-ol-style (map #(template li standard-li-style %) lines)))
