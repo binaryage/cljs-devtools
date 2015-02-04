@@ -64,7 +64,7 @@
         api-gen (fn [[name api-call]] [name (api-call-wrapper name api-call)])]
     (apply js-obj (mapcat #(api-gen %) api-mapping))))
 
-(defn install-devtools! []
+(defn install! []
   (if *devtools-installed*
     (debug/log-info "devtools already installed - nothing to do")
     (do
@@ -72,14 +72,14 @@
       (set! *original-formatter* (aget js/window formatter-key))
       (aset js/window formatter-key (cljs-formatter)))))
 
-; NOT SAFE
-(defn uninstall-devtools! []
+(defn uninstall! []
+  "this may be not safe if someone chained their formatter after us"
   (aset js/window formatter-key *original-formatter*)
   (set! *original-formatter* nil)
   (set! *devtools-installed* false))
 
-(defn disable-devtools! []
+(defn disable! []
   (set! *devtools-enabled* false))
 
-(defn enable-devtools! []
+(defn enable! []
   (set! *devtools-enabled* true))
