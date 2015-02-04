@@ -1,11 +1,14 @@
 (ns devtools.core
-  (:require [devtools.debug :as debug]
+  (:require [goog.json :as json]
+            [devtools.debug :as debug]
             [devtools.format :as format]))
 
 (def ^:dynamic *devtools-installed* false)
+(def ^:dynamic *original-formatter* nil)
+
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *sanitizer-enabled* true)
-(def ^:dynamic *original-formatter* nil)
+(def ^:dynamic *monitor-enabled* false)
 
 (def formatter-key "devtoolsFormatter")
 
@@ -13,35 +16,51 @@
                   ["hasBody" format/has-body-api-call]
                   ["body" format/body-api-call]])
 
+(defn monitor-api-calls [name api-call]
+  (fn [value]
+    (if (not *monitor-enabled*)
+      (api-call value)                                      ; raw API call
+      (do
+        (debug/log (debug/logger name) value)
+        (debug/indent!)
+        (let [api-response (api-call value)                 ; wrapped API call
+              api-response-filter (fn [key value] (if (= key "object") (str "REF -> " (str value)) value))]
+          (debug/log (debug/logger name) (str "=> " (json/serialize api-response api-response-filter)))
+          (debug/unindent!)
+          api-response)))))
+
 (defn sanitize
   "wraps our api-call in try-catch block to prevent leaking of exceptions if something goes wrong"
-  [api-call]
+  [_ api-call]
   (fn [value]
-    (try
-      (api-call value)
-      (catch js/Object e
-        (debug/log-exception e)
-        nil))))
+    (if (not *sanitizer-enabled*)
+      (api-call value)                                      ; raw API call
+      (try
+        (api-call value)                                    ; wrapped API call
+        (catch js/Object e
+          (debug/log-exception e)
+          nil)))))
 
 (defn chain
   "chains our api-call with original formatter"
-  [name original-formatter enabled? api-call]
+  [name api-call]
   (let [maybe-call-original-formatter (fn [value]
-                                        (if (not (nil? original-formatter))
+                                        (if (not (nil? *original-formatter*))
                                           (do               ; TODO should we wrap this in try-catch instead?
-                                            (debug/log-info "passing call to original formatter")
-                                            (.call (aget original-formatter name) original-formatter value))))]
+                                            (if *monitor-enabled* (debug/log-info "passing call to original formatter"))
+                                            (.call (aget *original-formatter* name) *original-formatter* value))))]
     (fn [value]
-      (if (and (enabled?) (format/want-value? value))
+      (if (and *devtools-enabled* (format/want-value? value))
         (api-call value)
         (maybe-call-original-formatter value)))))
 
-(defn cljs-formatter [formatter-enabled? original-formatter sanitizer-enabled]
+(defn cljs-formatter []
   (let [api-call-wrapper (fn [name api-call]
-                           (let [monitor (partial debug/api-call-monitor name)
-                                 chainer (partial chain name original-formatter formatter-enabled?)
-                                 sanitizer (if sanitizer-enabled sanitize identity)]
-                             ((comp monitor chainer sanitizer) api-call)))
+                           (let [monitor (partial monitor-api-calls name)
+                                 chainer (partial chain name)
+                                 sanitizer (partial sanitize name)
+                                 composition (comp monitor chainer sanitizer)]
+                             (composition api-call)))
         api-gen (fn [[name api-call]] [name (api-call-wrapper name api-call)])]
     (apply js-obj (mapcat #(api-gen %) api-mapping))))
 
@@ -51,7 +70,7 @@
     (do
       (set! *devtools-installed* true)
       (set! *original-formatter* (aget js/window formatter-key))
-      (aset js/window formatter-key (cljs-formatter (fn [] *devtools-enabled*) *original-formatter* *sanitizer-enabled*)))))
+      (aset js/window formatter-key (cljs-formatter)))))
 
 ; NOT SAFE
 (defn uninstall-devtools! []

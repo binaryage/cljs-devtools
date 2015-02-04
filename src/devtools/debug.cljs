@@ -1,7 +1,6 @@
 (ns devtools.debug
   (:require [goog.debug.FancyWindow]
-            [goog.debug.Logger :as logger]
-            [goog.json :as json]))
+            [goog.debug.Logger :as logger]))
 
 ; we cannot log into console during console rendering
 ; hence we build a secondary console for our purposes
@@ -10,6 +9,7 @@
 (def logger-name-stuffer "_")
 (def logger-name-padding 8)
 
+(def ^:dynamic *inited* false)
 (def ^:dynamic *indent* 0)
 (def ^:dynamic *console* nil)
 
@@ -29,8 +29,8 @@
         padded-name (str (stuffing lpad) name)]
     (logger/getLogger padded-name)))
 
-(defn log [logger & message]
-  (.info logger (apply str (cons (indentation) message))))
+(defn log [logger message]
+  (.info logger (apply str (cons (indentation) (str message)))))
 
 (defn log-exception [message]
   (.shout (logger "ex!") (apply str (cons (indentation) (str message)))))
@@ -56,16 +56,9 @@
                              (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
-  (init-logger!)
-  (hijack-console!))
-
-(defn api-call-monitor [name api-call]
-  (fn [value]
-    (log (logger name) value)
-    (indent!)
-    (let [api-response (api-call value)
-          api-response-filter (fn [key value] (if (= key "object") (str "REF -> " (str value)) value))]
-      (log (logger name) "=> " (json/serialize api-response api-response-filter))
-      (unindent!)
-      api-response)
-    ))
+  (if *inited*
+    (println "devtools.debug already inited, nothing to do")
+    (do
+      (init-logger!)
+      (hijack-console!)
+      (set! *inited* true))))
