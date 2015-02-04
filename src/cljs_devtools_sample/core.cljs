@@ -4,14 +4,14 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
-            [devtools.core :as dev]
-            [devtools.debug :as debug]
+            [devtools.core :as devtools]
+            [devtools.debug :as devtools-debug]
             [devtools.format :as format]))
 
 (repl/connect "http://localhost:9000/repl")
 (enable-console-print!)
-(debug/init!)
-(dev/install-devtools!)
+(devtools-debug/init!)
+(devtools/install!)
 
 (defn extract-meat [re s]
   (let [rex (js/RegExp. re "igm")]
