@@ -3,7 +3,7 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2727"]
+                 [org.clojure/clojurescript "0.0-SNAPSHOT"]
                  [cljs-http "0.1.25"]
                  [ring "1.3.2"]]
 
@@ -19,7 +19,7 @@
 
   :cljsbuild {
     :builds [{:id "dev"
-              :source-paths ["src" "checkouts/cljs-devtools/src"]
+              :source-paths ["src" "checkouts/cljs-devtools/src" "checkouts/clojurescript/src/cljs/cljs"]
               :compiler {
                 :main cljs-devtools-sample.core
                 :output-to "out/cljs_devtools_sample.js"
