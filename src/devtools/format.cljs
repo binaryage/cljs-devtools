@@ -1,9 +1,9 @@
-(ns devtools.format)
+(ns devtools.format
+  (:require
+    [devtools.debug :as debug]
+    ))
 
-(def max-coll-elements 10)
-(def max-map-elements 5)
-(def max-set-elements 10)
-(def max-seq-elements 20)
+(def max-coll-elements 5)
 (def abbreviation "…")
 (def line-index-separator ":")
 (def dq "\"")
@@ -35,11 +35,6 @@
 (defn surrogate? [value]
   (exists? (aget value surrogate-key)))
 
-(defn stop-further-js->cls-recursion! [o]
-  (specify! o
-            IEncodeClojure
-            (-js->clj [x options] nil)))
-
 (defn template [tag style & children]
   (let [js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [child children]
@@ -49,18 +44,26 @@
     js-array))
 
 (defn reference [object & children]
-  (let [js-array #js ["object" (stop-further-js->cls-recursion! #js {"object" object})]]
+  (let [js-array #js ["object" #js {"object" object}]]
     (doseq [child children]
       (.push js-array child))
     js-array))
 
 (defn surrogate
   ([object header] (surrogate object header true))
-  ([object header has-body] (stop-further-js->cls-recursion! (js-obj
-                                                               surrogate-key true
-                                                               "target" object
-                                                               "header" header
-                                                               "hasBody" has-body))))
+  ([object header has-body] (js-obj
+                              surrogate-key true
+                              "target" object
+                              "header" header
+                              "hasBody" has-body)))
+
+(defn wrap-cljs-if-needed [needed? tmpl]
+  (if needed?
+    (template span general-cljs-land-style tmpl)
+    tmpl))
+
+(defn index-template [value]
+  (template span "color:#881391" value line-index-separator))
 
 (defn nil-template [_]
   (template span "color:#808080" "nil"))
@@ -76,15 +79,6 @@
     (template span "color:#1C00CF" value)
     (template span "color:#1C88CF" value)))
 
-(defn index-template [value]
-  (template span "color:#881391" value line-index-separator))
-
-(defn deref-template [value]
-  (cond
-    (satisfies? IAtom value) (template span "color:#f0f" "#<Atom " (reference @value) ">")
-    (satisfies? IVolatile value) (template span "color:#f0f" "#<Volatile " (reference @value) ">")
-    :else (pr-str value)))                                  ; TODO: should we handle IDelay and others? I believe it is not safe to dereference them here
-
 ; TODO: abbreviate long strings
 (defn string-template [value]
   (template span "color:#C41A16" (str dq value dq)))
@@ -92,47 +86,11 @@
 (defn fn-template [value]
   (template span "color:#090" (reference (surrogate value "λ"))))
 
-(defn header-inlined-templates [value renderer max]
-  (let [rendered-items (apply concat (interpose [spacer] (map renderer (take max value))))]
-    (if (> (count value) max)
-      (concat rendered-items [abbreviation])
-      rendered-items)))
-
-(defn header-map-template [value]
-  (let [renderer (fn [[key value]] [(inlined-value-template key) spacer (inlined-value-template value)])
-        items (header-inlined-templates value renderer max-map-elements)]
-    (template span "color:#000" "{" items "}")))
-
-(defn header-set-template [value]
-  (let [renderer (fn [item] [(inlined-value-template item)])
-        items (header-inlined-templates value renderer max-set-elements)]
-    (template span "color:#000" "#{" items "}")))
-
-(defn header-seq-template [value]
-  (let [renderer (fn [item] [(inlined-value-template item)])
-        items (header-inlined-templates value renderer max-seq-elements)]
-    (template span "color:#000" "(" items ")")))
-
-(defn header-coll-template [value]
-  (let [renderer (fn [item] [(inlined-value-template item)])
-        items (header-inlined-templates value renderer max-coll-elements)]
-    (template span "color:#000" "[" items "]")))
-
 (defn bool-template [value]
   (template span "color:#099" value))
 
-(defn generic-template [value]
-  (template span "color:#000" (reference value)))
-
-(defn js-object-template [value]
-  (if (js-value? value)
-    (template span "color:#000" (reference (surrogate value "#js"))))) ; TODO: we could render short preview of #js value here
-
 (defn bool? [value]
   (or (true? value) (false? value)))
-
-(defn deref? [value]
-  (satisfies? IDeref value))
 
 (defn atomic-template [value]
   (cond
@@ -142,44 +100,63 @@
     (number? value) (number-template value)
     (keyword? value) (keyword-template value)
     (symbol? value) (symbol-template value)
-    (fn? value) (fn-template value)
-    (deref? value) (deref-template value)))
+    (fn? value) (fn-template value)))
 
-(defn header-container-template [value]
-  (cond
-    (map? value) (header-map-template value)
-    (set? value) (header-set-template value)
-    (seq? value) (header-seq-template value)
-    (coll? value) (header-coll-template value)))
+(defn abbreviated? [template]
+  (some #(= abbreviation %) template))
 
-(defn wrap-cljs-land-if-needed [needed? tmpl]
-  (if needed?
-    (template span general-cljs-land-style tmpl)
-    tmpl))
+(deftype TemplateWriter [t]
+  Object
+  (merge [_ a] (.apply (.-push t) t a))
+  IWriter
+  (-write [_ o] (.push t o))
+  (-flush [_] nil))
 
-(defn inlined-value-template [value]
-  (let [tmpl (or 
-               (atomic-template value)
-               (js-object-template value)
-               (generic-template value))]
-    (wrap-cljs-land-if-needed (cljs-value? value) tmpl)))
+(defn wrap-group-in-cljs-if-needed [group obj]
+  (if (cljs-value? obj)
+    #js [(.concat (template span general-cljs-land-style) group)]
+    group))
 
-(defn header-template [value]
-  (or (atomic-template value)
-      (header-container-template value)
-      (pr-str value)))
+(defn wrap-group-in-reference-if-needed [group obj]
+  (if (abbreviated? group)
+    #js [(reference (surrogate obj (.concat (template span "") group)))]
+    group))
+
+; fallback worker can do this in the :else case
+;   :else (write-all writer "#<" (str obj) ">")
+; we want to wrap stringified obj in a reference for further inspection
+(defn detect-else-case-and-patch-it [group obj]
+  (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
+    (aset group 1 (reference (surrogate obj (aget group 1)))))) ; TODO change to direct reference after devtools guys fix the bug
+
+(defn alt-worker [obj writer opts]
+  (if-let [tmpl (atomic-template obj)]
+    (-write writer tmpl)
+    (let [inner-tmpl #js []
+          inner-writer (TemplateWriter. inner-tmpl)]
+      ((:fallback-worker opts) obj inner-writer opts)
+      (detect-else-case-and-patch-it inner-tmpl obj) ; an ugly special case
+      (.merge writer (wrap-group-in-cljs-if-needed (wrap-group-in-reference-if-needed inner-tmpl obj) obj)))))
+
+(defn managed-pr-str [value]
+  (let [tmpl (template span "")
+        writer (TemplateWriter. tmpl)]
+    (pr-seq-writer [value] writer {:alt-worker   alt-worker
+                                   :print-length max-coll-elements
+                                   :more-text    abbreviation})
+    (wrap-cljs-if-needed (cljs-value? value) tmpl)))
 
 (defn build-header [value]
-  (wrap-cljs-land-if-needed true (header-template value)))
+  (managed-pr-str value))
 
 (defn standard-body-template [lines]
   (template ol standard-ol-style (map #(template li standard-li-style %) lines)))
 
 (defn body-line-template [index value]
-  [(index-template index) spacer (inlined-value-template value)])
+  [(index-template index) spacer (managed-pr-str value)])
 
 (defn body-lines-templates [value]
-  (loop [data (seq value)                                   ; TODO: limit max number of lines here?
+  (loop [data (take 100 (seq value))                        ; TODO: generate "more" links for continuation
          index 0
          lines []]
     (if (empty? data)
@@ -189,21 +166,15 @@
 (defn build-body [value]
   (standard-body-template (body-lines-templates value)))
 
-(defn something-abbreviated? [value]
-  (if (coll? value)
-    (some #(something-abbreviated? %) value)
-    (= abbreviation value)))
-
-(defn abbreviated? [template]
-  (something-abbreviated? (js->clj template)))
-
 (defn build-surrogate-body [value]
   (let [target (.-target value)]
-    (template ol standard-ol-style (template li standard-li-style (reference target (pr-str target))))))
+    (if (seqable? target)
+      (build-body target)
+      (template ol standard-ol-style (template li standard-li-style (reference target (str target)))))))
 
 (defn want-value? [value]
   (or (cljs-value? value)
-      (surrogate? value)))
+    (surrogate? value)))
 
 ;;;;;;;;; PROTOCOL SUPPORT
 
@@ -226,7 +197,7 @@
     (.-hasBody value)
     (if (satisfies? IDevtoolsFormat value)
       (-has-body value)
-      (abbreviated? (build-header value)))))
+      false))) ; body is emulated using references
 
 (defn body-api-call [value]
   (if (surrogate? value)

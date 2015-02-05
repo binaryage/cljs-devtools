@@ -24,7 +24,7 @@
         (debug/log (debug/logger name) value)
         (debug/indent!)
         (let [api-response (api-call value)                 ; wrapped API call
-              api-response-filter (fn [key value] (if (= key "object") (str "REF -> " (str value)) value))]
+              api-response-filter (fn [key value] (if (= key "object") (str "REF -> " #_(str value)) value))]
           (debug/log (debug/logger name) (str "=> " (json/serialize api-response api-response-filter)))
           (debug/unindent!)
           api-response)))))

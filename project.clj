@@ -7,7 +7,7 @@
 
   :dependencies
   [[org.clojure/clojure "1.6.0" :scope "provided"]
-   [org.clojure/clojurescript "0.0-2727" :scope "provided"]]
+   [org.clojure/clojurescript "0.0-SNAPSHOT" :scope "provided"]]
 
   :plugins
   [[lein-cljsbuild "1.0.4"]]
