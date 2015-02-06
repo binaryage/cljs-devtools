@@ -13,6 +13,9 @@
 (def ^:dynamic *indent* 0)
 (def ^:dynamic *console* nil)
 
+(def ^:dynamic *debug-print-length* 10)
+(def ^:dynamic *debug-print-level* 5)
+
 (defn indentation []
   (apply str (take *indent* (repeat indentation-spacer))))
 
@@ -30,13 +33,19 @@
     (logger/getLogger padded-name)))
 
 (defn log [logger message]
-  (.info logger (apply str (cons (indentation) (str message)))))
+  (binding [*print-length* *debug-print-length*
+            *print-level* *debug-print-level*]
+    (.info logger (apply str (cons (indentation) (str message))))))
 
 (defn log-exception [message]
-  (.shout (logger "ex!") (apply str (cons (indentation) (str message)))))
+  (binding [*print-length* *debug-print-length*
+            *print-level* *debug-print-level*]
+    (.shout (logger "ex!") (apply str (cons (indentation) (str message))))))
 
 (defn log-info [message]
-  (.info (logger "info") (apply str (cons (indentation) (str message)))))
+  (binding [*print-length* *debug-print-length*
+            *print-level* *debug-print-level*]
+    (.info (logger "info") (apply str (cons (indentation) (str message))))))
 
 (defn init-logger! []
   (set! *console* (goog.debug.FancyWindow. "devtools"))
