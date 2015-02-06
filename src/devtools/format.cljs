@@ -134,16 +134,19 @@
     (-write writer tmpl)
     (let [inner-tmpl #js []
           inner-writer (TemplateWriter. inner-tmpl)]
-      ((:fallback-worker opts) obj inner-writer opts)
+      (if (= *print-level* 1)
+        ((:fallback-worker opts) obj inner-writer (assoc opts :print-length 0))
+        ((:fallback-worker opts) obj inner-writer opts))
       (detect-else-case-and-patch-it inner-tmpl obj) ; an ugly special case
       (.merge writer (wrap-group-in-cljs-if-needed (wrap-group-in-reference-if-needed inner-tmpl obj) obj)))))
 
 (defn managed-pr-str [value]
   (let [tmpl (template span "")
         writer (TemplateWriter. tmpl)]
-    (pr-seq-writer [value] writer {:alt-worker   alt-worker
-                                   :print-length max-coll-elements
-                                   :more-text    abbreviation})
+    (binding [*print-level* 2]
+      (pr-seq-writer [value] writer {:alt-worker   alt-worker
+                                     :print-length max-coll-elements
+                                     :more-text    abbreviation}))
     (wrap-cljs-if-needed (cljs-value? value) tmpl)))
 
 (defn build-header [value]
