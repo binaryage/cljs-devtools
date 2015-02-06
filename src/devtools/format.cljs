@@ -186,22 +186,18 @@
 ;;;;;;;;; API CALLS
 
 (defn header-api-call [value]
-  (if (surrogate? value)
-    (.-header value)
-    (if (satisfies? IDevtoolsFormat value)
-      (-header value)
-      (build-header value))))
+  (cond
+    (satisfies? IDevtoolsFormat value) (-header value)
+    (surrogate? value) (.-header value)
+    :else (build-header value)))
 
 (defn has-body-api-call [value]
-  (if (surrogate? value)
-    (.-hasBody value)
-    (if (satisfies? IDevtoolsFormat value)
-      (-has-body value)
-      false))) ; body is emulated using references
+  (cond
+    (satisfies? IDevtoolsFormat value) (-has-body value)
+    (surrogate? value) (.-hasBody value)
+    :else false)) ; body is emulated using surrogate references
 
 (defn body-api-call [value]
-  (if (surrogate? value)
-    (build-surrogate-body value)
-    (if (satisfies? IDevtoolsFormat value)
-      (-body value)
-      (build-body value))))
+  (cond
+    (satisfies? IDevtoolsFormat value) (-body value)
+    (surrogate? value) (build-surrogate-body value)))
