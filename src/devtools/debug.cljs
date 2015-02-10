@@ -9,7 +9,7 @@
 (def logger-name-stuffer "_")
 (def logger-name-padding 8)
 
-(def ^:dynamic *inited* false)
+(def ^:dynamic *initialized* false)
 (def ^:dynamic *indent* 0)
 (def ^:dynamic *console* nil)
 
@@ -65,9 +65,9 @@
                              (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
-  (if *inited*
-    (println "devtools.debug already inited, nothing to do")
+  (if *initialized*
+    (println "devtools.debug already initialized, nothing to do")
     (do
       (init-logger!)
       (hijack-console!)
-      (set! *inited* true))))
+      (set! *initialized* true))))
