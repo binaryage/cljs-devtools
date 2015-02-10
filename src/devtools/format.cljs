@@ -4,7 +4,7 @@
     ))
 
 (def max-coll-elements 5)
-(def abbreviation "…")
+(def more-marker "…")
 (def line-index-separator ":")
 (def dq "\"")
 (def surrogate-key "$$surrogate")
@@ -103,7 +103,7 @@
     (fn? value) (fn-template value)))
 
 (defn abbreviated? [template]
-  (some #(= abbreviation %) template))
+  (some #(= more-marker %) template))
 
 (deftype TemplateWriter [t]
   Object
@@ -122,31 +122,33 @@
     #js [(reference (surrogate obj (.concat (template span "") group)))]
     group))
 
-; fallback worker can do this in the :else case
+; default printer implementation can do this:
 ;   :else (write-all writer "#<" (str obj) ">")
 ; we want to wrap stringified obj in a reference for further inspection
 (defn detect-else-case-and-patch-it [group obj]
   (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
     (aset group 1 (reference (surrogate obj (aget group 1)))))) ; TODO change to direct reference after devtools guys fix the bug
 
-(defn alt-worker [obj writer opts]
+(defn alt-printer-impl [obj writer opts]
   (if-let [tmpl (atomic-template obj)]
     (-write writer tmpl)
     (let [inner-tmpl #js []
-          inner-writer (TemplateWriter. inner-tmpl)]
+          inner-writer (TemplateWriter. inner-tmpl)
+          default-impl (:fallback-impl opts)]
+      ; we want to limit print-level, at second level use maximal abbreviation e.g. [...] or {...}
       (if (= *print-level* 1)
-        ((:fallback-worker opts) obj inner-writer (assoc opts :print-length 0))
-        ((:fallback-worker opts) obj inner-writer opts))
-      (detect-else-case-and-patch-it inner-tmpl obj) ; an ugly special case
+        (default-impl obj inner-writer (assoc opts :print-length 0))
+        (default-impl obj inner-writer opts))
+      (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
       (.merge writer (wrap-group-in-cljs-if-needed (wrap-group-in-reference-if-needed inner-tmpl obj) obj)))))
 
 (defn managed-pr-str [value]
   (let [tmpl (template span "")
         writer (TemplateWriter. tmpl)]
-    (binding [*print-level* 2]
-      (pr-seq-writer [value] writer {:alt-worker   alt-worker
+    (binding [*print-level* 2] ; when printing do at most two levels deep recursion
+      (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
                                      :print-length max-coll-elements
-                                     :more-text    abbreviation}))
+                                     :more-marker  more-marker}))
     (wrap-cljs-if-needed (cljs-value? value) tmpl)))
 
 (defn build-header [value]
@@ -198,7 +200,7 @@
   (cond
     (satisfies? IDevtoolsFormat value) (-has-body value)
     (surrogate? value) (.-hasBody value)
-    :else false)) ; body is emulated using surrogate references
+    :else false))                                           ; body is emulated using surrogate references
 
 (defn body-api-call [value]
   (cond
