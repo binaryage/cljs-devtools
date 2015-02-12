@@ -5,11 +5,10 @@
 
 (defn handler [request]
   (-> (resource-response "index.html")
-      (content-type "text/html")))
+    (content-type "text/html")))
 
-; Server
 (def app
   (-> handler
-      (wrap-resource "public")
-      (wrap-resource "src")
-      (wrap-content-type {:mime-types {"cljs" "text/plain"}})))
+    (wrap-resource "public")
+    (wrap-resource "src")
+    (wrap-content-type {:mime-types {"cljs" "text/plain"}})))

@@ -14,6 +14,7 @@
   :clean-targets ["out"]
 
   :ring {:handler server.core/app}
+  :source-paths ["scripts" "target/classes"] ; for the ring server
 
   :cljsbuild {
     :builds [{:id "dev"
