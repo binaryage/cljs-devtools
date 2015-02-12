@@ -1,7 +1,4 @@
-(ns devtools.format
-  (:require
-    [devtools.debug :as debug]
-    ))
+(ns devtools.format)
 
 (def max-coll-elements 5)
 (def more-marker "…")
@@ -15,8 +12,6 @@
 (def ol "ol")
 (def li "li")
 (def general-cljs-land-style "background-color:#efe")
-
-(declare inlined-value-template)
 
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
@@ -145,7 +140,7 @@
 (defn managed-pr-str [value print-level]
   (let [tmpl (template span "")
         writer (TemplateWriter. tmpl)]
-    (binding [*print-level* print-level] ; when printing do at most print-level deep recursion
+    (binding [*print-level* print-level]                    ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
                                      :print-length max-coll-elements
                                      :more-marker  more-marker}))
