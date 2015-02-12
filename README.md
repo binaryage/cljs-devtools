@@ -1,12 +1,12 @@
 # cljs-devtools-sample
 
-<span style="color:red">** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **</span>
+**DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs**
 
-**[cljs-devtools](https://github.com/binaryage/cljs-devtools)** provides additional tools to aid in ClojureScript web development.
+[cljs-devtools](https://github.com/binaryage/cljs-devtools) aids in ClojureScript web development.
 
   * Better presentation of ClojureScript values in Chrome Devtools Console.
 
-This project is an example of integration of cljs-devtools into an external project.
+This project is an example of integration into an external project.
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
@@ -71,9 +71,11 @@ Clean project:
 At some point you have to run `support-devtools!` from `devtools.core` namespace. Ideally run this at launch time of your app.
 
     (ns your-project.core
-      (:require [devtools.core :as dev]))
+      (:require [devtools.core :as devtools]))
     
-    (dev/support-devtools!)
+    (devtools/install!)
+    
+    (.log js/console (range 200))
 
 ## License
 
