@@ -9,7 +9,8 @@
                  [org.clojure/clojurescript "0.0-2816" :scope "provided"]]
 
   :clean-targets ["out"]
-  :plugins [[lein-cljsbuild "1.0.4"]]
+  :plugins [[lein-cljsbuild "1.0.4"]
+            [lein-cljfmt "0.1.7"]]
   :hooks [leiningen.cljsbuild]
   :cljsbuild
   {:builds
