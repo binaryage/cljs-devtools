@@ -142,23 +142,23 @@
       (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
       (.merge writer (wrap-group-in-cljs-if-needed (wrap-group-in-reference-if-needed inner-tmpl obj) obj)))))
 
-(defn managed-pr-str [value]
+(defn managed-pr-str [value print-level]
   (let [tmpl (template span "")
         writer (TemplateWriter. tmpl)]
-    (binding [*print-level* 2] ; when printing do at most two levels deep recursion
+    (binding [*print-level* print-level] ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
                                      :print-length max-coll-elements
                                      :more-marker  more-marker}))
     (wrap-cljs-if-needed (cljs-value? value) tmpl)))
 
 (defn build-header [value]
-  (managed-pr-str value))
+  (managed-pr-str value 2))
 
 (defn standard-body-template [lines]
   (template ol standard-ol-style (map #(template li standard-li-style %) lines)))
 
 (defn body-line-template [index value]
-  [(index-template index) spacer (managed-pr-str value)])
+  [(index-template index) spacer (managed-pr-str value 3)])
 
 (defn body-lines-templates [value]
   (loop [data (take 100 (seq value))                        ; TODO: generate "more" links for continuation
