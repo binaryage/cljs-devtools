@@ -1,3 +1,5 @@
 *.iml
 pom.xml
 /target/
+out/
+.lein*
