@@ -34,7 +34,7 @@
                     :optimizations :whitespace
                     :pretty-print  true}}
     }
-   :test-commands {"unit" ["phantomjs" "phantom/unit-test.js" "test/runner.html"]}
+   :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}
    }
 
   )
