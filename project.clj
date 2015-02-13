@@ -6,7 +6,8 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0" :scope "provided"]
-                 [org.clojure/clojurescript "0.0-2816" :scope "provided"]]
+                 [org.clojure/clojurescript "0.0-2843" :scope "provided"]
+                 [im.chit/purnam "0.5.1"]]
 
   :clean-targets ["out"]
   :plugins [[lein-cljsbuild "1.0.4"]
@@ -27,13 +28,16 @@
                     :output-dir     "out/prod"
                     :optimizations  :advanced
                     :cache-analysis true
-                    :source-map     "out/prod/cljs_devtools.min.js"}}
+                    :source-map     "out/prod/cljs_devtools.min.js.map"}}
     :test
     {:source-paths ["src", "test"]
      :compiler     {:output-to     "out/test/cljs_devtools.test.js"
                     :output-dir    "out/test"
-                    :optimizations :whitespace
-                    :pretty-print  true}}
+                    :main devtools.test-runner
+                    :asset-path "_generated"
+                    :optimizations :none
+                    :pretty-print  true
+                    :source-map    true}}
     }
    :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}
    }

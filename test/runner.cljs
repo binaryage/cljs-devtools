@@ -1,6 +1,7 @@
 (ns devtools.test-runner
   (:require [cljs.test :as test :refer-macros [run-tests] :refer [report]]
-            [devtools.core-test :as core-test]))
+            [devtools.core-test :as core-test]
+            [devtools.format-test :as format-test]))
 
 (enable-console-print!)
 
@@ -12,4 +13,5 @@
 
 (test/run-tests
   (cljs.test/empty-env ::test/default)
-  'devtools.core-test)
+  'devtools.core-test
+  'devtools.format-test)
