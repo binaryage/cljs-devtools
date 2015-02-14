@@ -12,6 +12,17 @@
 (def ol "ol")
 (def li "li")
 (def general-cljs-land-style "background-color:#efe")
+(def index-style "color:#881391")
+(def nil-style "color:#808080")
+(def nil-label "nil")
+(def keyword-style "color:#881391")
+(def integer-style "color:#1C00CF")
+(def float-style "color:#1C88CF")
+(def string-style "color:#C41A16")
+(def symbol-style "color:#000000")
+(def fn-style "color:#090")
+(def fn-label "λ")
+(def bool-style "color:#099")
 
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
@@ -58,44 +69,29 @@
     tmpl))
 
 (defn index-template [value]
-  (template span "color:#881391" value line-index-separator))
-
-(defn nil-template [_]
-  (template span "color:#808080" "nil"))
-
-(defn keyword-template [value]
-  (template span "color:#881391" (str ":" (name value))))
-
-(defn symbol-template [value]
-  (template span "color:#000000" (str value)))
+  (template span index-style value line-index-separator))
 
 (defn number-template [value]
   (if (integer? value)
-    (template span "color:#1C00CF" value)
-    (template span "color:#1C88CF" value)))
+    (template span integer-style value)
+    (template span float-style value)))
 
 ; TODO: abbreviate long strings
 (defn string-template [value]
-  (template span "color:#C41A16" (str dq value dq)))
-
-(defn fn-template [value]
-  (template span "color:#090" (reference (surrogate value "λ"))))
-
-(defn bool-template [value]
-  (template span "color:#099" value))
+  (template span string-style (str dq value dq)))
 
 (defn bool? [value]
   (or (true? value) (false? value)))
 
 (defn atomic-template [value]
   (cond
-    (nil? value) (nil-template value)
-    (bool? value) (bool-template value)
+    (nil? value) (template span nil-style nil-label)
+    (bool? value) (template span bool-style value)
     (string? value) (string-template value)
     (number? value) (number-template value)
-    (keyword? value) (keyword-template value)
-    (symbol? value) (symbol-template value)
-    (fn? value) (fn-template value)))
+    (keyword? value) (template span keyword-style (str ":" (name value)))
+    (symbol? value) (template span symbol-style (str value))
+    (fn? value) (template span fn-style (reference (surrogate value fn-label)))))
 
 (defn abbreviated? [template]
   (some #(= more-marker %) template))
