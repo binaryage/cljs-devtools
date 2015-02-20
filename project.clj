@@ -1,4 +1,4 @@
-(defproject com.binaryage/devtools "0.0-SNAPSHOT"
+(defproject binaryage/devtools "0.1.0"
   :description "Experimental Chrome devtools support for ClojureScript"
   :url "https://github.com/binaryage/cljs-devtools"
   :license {:name         "MIT License"
@@ -6,7 +6,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0" :scope "provided"]
-                 [org.clojure/clojurescript "0.0-2843" :scope "provided"]
+                 [org.clojure/clojurescript "0.0-2850" :scope "provided"]
                  [im.chit/purnam "0.5.1"]]
 
   :clean-targets ["out"]
