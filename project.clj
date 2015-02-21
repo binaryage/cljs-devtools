@@ -4,6 +4,15 @@
   :license {:name         "MIT License"
             :url          "http://opensource.org/licenses/MIT"
             :distribution :repo}
+  :scm {:name "git"
+        :url "https://github.com/binaryage/cljs-devtools"}
+  :signing {:gpg-key "DDD8C87F"}
+  :deploy-repositories [["clojars" {:creds :gpg}]]
+  :pom-addition [:developers [:developer
+                              [:name "Antonin Hildebrand"]
+                              [:url "https://github.com/darwin"]
+                              [:email "antonin@hildebrand.cz"]
+                              [:timezone "+1"]]]
 
   :dependencies [[org.clojure/clojure "1.6.0" :scope "provided"]
                  [org.clojure/clojurescript "0.0-2850" :scope "provided"]
