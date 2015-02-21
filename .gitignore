@@ -3,3 +3,4 @@ pom.xml
 /target/
 out/
 .lein*
+pom.xml.*

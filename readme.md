@@ -1,5 +1,9 @@
 # cljs-devtools
 
+Leiningen
+
+    [binaryage/devtools "0.1.0"]
+
 [READ MORE HERE >> https://github.com/binaryage/cljs-devtools-sample](https://github.com/binaryage/cljs-devtools-sample)
 
 ** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **
