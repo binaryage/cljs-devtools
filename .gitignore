@@ -4,3 +4,4 @@ pom.xml
 out/
 .lein*
 pom.xml.*
+.idea

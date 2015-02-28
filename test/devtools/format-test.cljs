@@ -1,6 +1,6 @@
 (ns devtools.format-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [purnam.native.functions :refer [js-equals]]
+            [devtools.utils :refer [js-equals]]
             [goog.json :as json]
             [devtools.format :as f]))
 
