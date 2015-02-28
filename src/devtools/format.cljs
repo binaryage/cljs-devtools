@@ -35,9 +35,6 @@
     (catch js/Object _
       false)))
 
-(defn js-value? [value]
-  (not (cljs-value? value)))
-
 (defn surrogate? [value]
   (exists? (aget value surrogate-key)))
 
