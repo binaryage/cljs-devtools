@@ -1,35 +1,7 @@
 (ns devtools.format-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.utils :refer [js-equals]]
-            [goog.json :as json]
+            [devtools.utils :refer [js-equals is-header]]
             [devtools.format :as f]))
-
-(defn replace-refs [template placeholder]
-  (let [filter (fn [key value] (if (= key "object") placeholder value))]
-    (json/parse (json/serialize template filter))))
-
-(defn collect-refs [template]
-  (let [refs (atom [])
-        filter (fn [key value] (if-not (= key "object")
-                                 value
-                                 (do
-                                   (reset! refs (conj @refs value))
-                                   "##REF##")))]
-    (json/serialize template filter)
-    @refs))
-
-(defn is-header [value expected & callbacks]
-  (let [template (f/header-api-call value)
-        sanitized-template (replace-refs template "##REF##")
-        refs (collect-refs template)]
-    (is (js-equals sanitized-template (clj->js expected)))
-    (when-not (empty? callbacks)
-      (is (= (count refs) (count callbacks)) "number of refs and callbacks does not match")
-      (loop [rfs refs
-             cbs callbacks]
-        (when-not (empty? cbs)
-          ((first cbs) (first rfs))
-          (recur (rest rfs) (rest cbs)))))))
 
 (deftest test-headers
   (testing "formatting headers"
