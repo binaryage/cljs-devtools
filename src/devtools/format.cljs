@@ -112,11 +112,10 @@
     (-write writer tmpl)
     (let [inner-tmpl #js []
           inner-writer (TemplateWriter. inner-tmpl)
-          default-impl (:fallback-impl opts)]
-      ; we want to limit print-level, at second level use maximal abbreviation e.g. [...] or {...}
-      (if (= *print-level* 1)
-        (default-impl obj inner-writer (assoc opts :print-length 0))
-        (default-impl obj inner-writer opts))
+          default-impl (:fallback-impl opts)
+          ; we want to limit print-level, at second level use maximal abbreviation e.g. [...] or {...}
+          inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
+      (default-impl obj inner-writer inner-opts)
       (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
       (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
 
