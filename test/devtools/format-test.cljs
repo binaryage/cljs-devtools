@@ -1,6 +1,6 @@
 (ns devtools.format-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.utils :refer [js-equals is-header]]
+            [devtools.test-utils :refer [js-equals is-header]]
             [devtools.format :as f]))
 
 (deftest test-headers
