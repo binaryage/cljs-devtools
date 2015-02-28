@@ -13,17 +13,14 @@
        ["span" {"style" f/symbol-style} "symbol"]])
     (is-header [1 2 3]
       ["span" {"style" f/general-cljs-land-style}
-       ["span"
-        {"style" "background-color:#efe"}
-        "["
-        ["span" {"style" f/integer-style} 1] f/spacer
-        ["span" {"style" f/integer-style} 2] f/spacer
-        ["span" {"style" f/integer-style} 3]
-        "]"]])
+       "["
+       ["span" {"style" f/integer-style} 1] f/spacer
+       ["span" {"style" f/integer-style} 2] f/spacer
+       ["span" {"style" f/integer-style} 3]
+       "]"])
     (is-header (range 100)
       ["span" {"style" f/general-cljs-land-style}
-       ["span" {"style" f/general-cljs-land-style}
-        ["object" {"object" "##REF##"}]]]
+       ["object" {"object" "##REF##"}]]
       (fn [ref]
         (is (f/surrogate? ref))
         (is-header ref

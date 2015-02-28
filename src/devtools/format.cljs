@@ -95,11 +95,6 @@
   (-write [_ o] (.push t o))
   (-flush [_] nil))
 
-(defn wrap-group-in-cljs-if-needed [group obj]
-  (if (cljs-value? obj)
-    #js [(.concat (template span general-cljs-land-style) group)]
-    group))
-
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (abbreviated? group)
     #js [(reference (surrogate obj (.concat (template span "") group)))]
@@ -123,7 +118,7 @@
         (default-impl obj inner-writer (assoc opts :print-length 0))
         (default-impl obj inner-writer opts))
       (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
-      (.merge writer (wrap-group-in-cljs-if-needed (wrap-group-in-reference-if-needed inner-tmpl obj) obj)))))
+      (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
 
 (defn managed-pr-str [value style print-level]
   (let [tmpl (template span style)
