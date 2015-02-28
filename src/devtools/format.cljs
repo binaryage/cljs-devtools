@@ -60,11 +60,6 @@
                               "header" header
                               "hasBody" has-body)))
 
-(defn wrap-cljs-if-needed [needed? tmpl]
-  (if needed?
-    (template span general-cljs-land-style tmpl)
-    tmpl))
-
 (defn index-template [value]
   (template span index-style value line-index-separator))
 
@@ -130,23 +125,23 @@
       (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
       (.merge writer (wrap-group-in-cljs-if-needed (wrap-group-in-reference-if-needed inner-tmpl obj) obj)))))
 
-(defn managed-pr-str [value print-level]
-  (let [tmpl (template span "")
+(defn managed-pr-str [value style print-level]
+  (let [tmpl (template span style)
         writer (TemplateWriter. tmpl)]
     (binding [*print-level* print-level]                    ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
                                      :print-length max-coll-elements
                                      :more-marker  more-marker}))
-    (wrap-cljs-if-needed (cljs-value? value) tmpl)))
+    tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value 2))
+  (managed-pr-str value general-cljs-land-style 2))
 
 (defn standard-body-template [lines]
   (template ol standard-ol-style (map #(template li standard-li-style %) lines)))
 
 (defn body-line-template [index value]
-  [(index-template index) spacer (managed-pr-str value 3)])
+  [(index-template index) spacer (managed-pr-str value (if cljs-value? general-cljs-land-style "") 3)])
 
 (defn body-lines-templates [value]
   (loop [data (take 100 (seq value))                        ; TODO: generate "more" links for continuation
