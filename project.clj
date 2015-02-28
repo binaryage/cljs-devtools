@@ -3,18 +3,19 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2843"]
+                 [org.clojure/clojurescript "0.0-2913"]
                  [cljs-http "0.1.25"]
+                 [binaryage/devtools "0.1.0"]
                  [ring "1.3.2"]]
 
-  :plugins [[lein-cljsbuild "1.0.4"]
-            [lein-ring "0.9.1"]
-            [lein-npm "0.4.0"]]
+  :plugins [[lein-cljsbuild "1.0.5"]
+            [lein-ring "0.9.1"]]
 
   :clean-targets ["out"]
 
   :ring {:handler server.core/app}
-  :source-paths ["scripts" "target/classes"] ; for the ring server
+
+  :source-paths ["src" "target/classes"]
 
   :cljsbuild {
     :builds [{:id "dev"
