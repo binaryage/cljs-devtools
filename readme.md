@@ -1,18 +1,25 @@
 # cljs-devtools
 
-Leiningen
-
-    [binaryage/devtools "0.1.0"]
-
-[READ MORE HERE >> https://github.com/binaryage/cljs-devtools-sample](https://github.com/binaryage/cljs-devtools-sample)
+Better presentation of ClojureScript values in Chrome Devtools Console.
 
 ** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **
 
-cljs-devtools provides additional tools to aid in ClojureScript web development.
+## Integration in your own project
 
-  * Better presentation of ClojureScript values in Chrome Devtools Console.
+Add devtools dependency into your Leiningen's project.clj:
 
-This project should be included in your cljs project as a library. Please follow documentation with [the sample project](https://github.com/binaryage/cljs-devtools-sample).
+[![Clojars Project](http://clojars.org/binaryage/devtools/latest-version.svg)](http://clojars.org/binaryage/devtools)
+
+To activate it. At some point you have to call `install!` from `devtools.core` namespace. Ideally run this at launch time of your app.
+
+    (ns your-project.core
+      (:require [devtools.core :as devtools]))
+    
+    (devtools/install!)
+    
+    (.log js/console (range 200))
+    
+## See [sample project](https://github.com/binaryage/cljs-devtools-sample)
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
