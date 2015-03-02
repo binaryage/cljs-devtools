@@ -42,8 +42,9 @@
 (defn is-header [value expected & callbacks]
   (let [template (f/header-api-call value)
         sanitized-template (replace-refs template "##REF##")
-        refs (collect-refs template)]
-    (is (js-equals sanitized-template (clj->js expected)))
+        refs (collect-refs template)
+        expected-template (clj->js expected)]
+    (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)
       (is (= (count refs) (count callbacks)) "number of refs and callbacks does not match")
       (loop [rfs refs
