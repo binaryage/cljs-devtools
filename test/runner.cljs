@@ -62,11 +62,11 @@
   (println (:fail m) "failures," (:error m) "errors.")
   (aset js/window "test-failures" (+ (:fail m) (:error m))))
 
-(defn pretty-print-diffs [diffs]
+(defn pretty-print-diffs [diffs color]
   (let [printer (fn [[op data]]
                   (cond
-                    (= op js/DIFF_DELETE) (str (ansi :red) data (ansi :reset))
-                    (= op js/DIFF_INSERT) (str (ansi :green) data (ansi :reset))
+                    (= op js/DIFF_DELETE) (str (ansi :red) data (ansi color))
+                    (= op js/DIFF_INSERT) (str (ansi :green) data (ansi color))
                     :else data))]
     (apply str (map printer diffs))))
 
@@ -80,16 +80,16 @@
           dmp (diff-match-patch-class.)
           diffs (.diff_main dmp json-b json-a)]
       (.diff_cleanupSemantic dmp diffs)
-      (println (pretty-print-diffs diffs)))))
+      (println (ansi :bg-white) (ansi :black) (pretty-print-diffs diffs :black) (ansi :reset)))))
 
 (defmethod report [::test/default :fail] [m]
   (test/inc-report-counter! :fail)
   (println (ansi :red) "\nFAIL in" (test/testing-vars-str m) (ansi :reset))
   (when (seq (:testing-contexts (test/get-current-env)))
-    (println (test/testing-contexts-str)))
-  (when-let [message (:message m)] (println message))
-  (println "expected:" (pr-str (:expected m)))
-  (println "  actual:" (pr-str (:actual m)))
+    (println (ansi :blue) (test/testing-contexts-str) (ansi :reset)))
+  (when-let [message (:message m)] (println (ansi :magenta) message (ansi :reset)))
+  (println "expected:" (ansi :green) (pr-str (:expected m)) (ansi :reset))
+  (println "  actual:" (ansi :yellow) (pr-str (:actual m)) (ansi :reset))
   (present-diff-if-applicable (:actual m)))
 
 (test/run-tests
