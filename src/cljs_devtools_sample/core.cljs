@@ -23,7 +23,7 @@
   (let [rex (js/RegExp. "^\n+|\n+$" "g")]
     (.replace s rex "")))
 
-(defn escape-html [text] (string/escape text {\< "&lt;", \> "&gt;", \& "&amp;" }))
+(defn escape-html [text] (string/escape text {\< "&lt;", \> "&gt;", \& "&amp;"}))
 
 (defn get-meat [source-code]
   (trim-newlines (nth (extract-meat (str "-" "->([^]*?); <-") source-code) 1)))
@@ -38,9 +38,9 @@
 
 (defn log [& args] (.apply (aget js/console "log") js/console (into-array args)))
 
-(log  nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.))
+(log nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.))
 (log [nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.)])
-(log (range 120) (interleave (repeat :even) (repeat :odd)))
+(log (range 100) (range 101) (range 220) (interleave (repeat :even) (repeat :odd)))
 (log {:k1 'v1 :k2 'v2 :k3 'v3 :k4 'v4 :k5 'v5 :k6 'v6 :k7 'v7 :k8 'v8 :k9 'v9})
 (log #{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15})
 (log [[js/window] (js-obj "k1" "v1" "k2" :v2) #(.log js/console "hello") (js* "function(x) { console.log(x); }")])
@@ -72,17 +72,22 @@
 
 ; reify with IDevtoolsFormat
 (def test-reify (reify
-         format/IDevtoolsFormat
-         (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
-         (-has-body [_] false)
-         (-body [_])))
+                  format/IDevtoolsFormat
+                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
+                  (-has-body [_] false)
+                  (-body [_])))
+
+(def long-string
+  "First line
+second line
+third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
+
+last line")
 
 (defn excercise! []
-  ;(.log js/console [test-lang test-reify])
-  ;(.log js/console (.-nested test-interleaved))
-  ;(.log js/console test-interleaved)
-  )
+  (log [test-lang test-reify])
+  (log (.-nested test-interleaved))
+  (log test-interleaved)
+  (log [long-string]))
 
 (excercise!)
-
-;(.log js/console (dev/build-header test-vector))

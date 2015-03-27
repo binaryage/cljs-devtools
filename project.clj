@@ -3,8 +3,8 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2913"]
-                 [binaryage/devtools "0.1.1"]
+                 [org.clojure/clojurescript "0.0-3126"]
+                 [binaryage/devtools "0.1.2"]
                  [cljs-http "0.1.25"]
                  [ring "1.3.2"]]
 
