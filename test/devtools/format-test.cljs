@@ -1,6 +1,6 @@
 (ns devtools.format-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.test-utils :refer [js-equals is-header want?]]
+            [devtools.test-utils :refer [js-equals is-header want? is-body has-body? unroll]]
             [devtools.format :as f]))
 
 (deftest wants
@@ -23,6 +23,29 @@
     (want? '() true)
     (want? {} true)
     (want? #{} true)))
+
+(deftest bodies
+  (testing "these values should not have body"
+    (has-body? "some string" false)
+    (has-body? 0 false)
+    (has-body? 1000 false)
+    (has-body? -1000 false)
+    (has-body? 0.5 false)
+    (has-body? 0.0 false)
+    (has-body? -0.5 false)
+    (has-body? true false)
+    (has-body? false false)
+    (has-body? nil false)
+    (has-body? #(.-document js/window) false)
+    (has-body? :keyword false)
+    (has-body? 'symbol false)
+    (has-body? [] false)
+    (has-body? '() false)
+    (has-body? {} false)
+    (has-body? #{} false)
+    (has-body? (range f/max-number-body-items) false))
+  (testing "these values should have body"
+    ))
 
 (deftest test-simple-atomic-values
   (testing "simple atomic value"
@@ -65,20 +88,80 @@
        ["span" {"style" f/integer-style} 1] f/spacer
        ["span" {"style" f/integer-style} 2] f/spacer
        ["span" {"style" f/integer-style} 3]
-       "]"]))
-  (testing "ranges"
-    (is-header (range 100)
+       "]"])
+    (is (= 5 f/max-header-elements))
+    (is-header [1 2 3 4 5]
+      ["span" {"style" f/general-cljs-land-style}
+       "["
+       (unroll (fn [i] [["span" {"style" f/integer-style} (+ i 1)] f/spacer]) (range 4))
+       ["span" {"style" f/integer-style} 5]
+       "]"])
+    (is-header [1 2 3 4 5 6]
       ["span" {"style" f/general-cljs-land-style}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
         (is (f/surrogate? ref))
         (is-header ref
           ["span" {}
+           "["
+           (unroll (fn [i] [["span" {"style" f/integer-style} (+ i 1)] f/spacer]) (range 5))
+           f/more-marker
+           "]"])
+        (has-body? ref true)
+        (is-body ref
+          ["ol" {"style" f/standard-ol-style}
+           (unroll (fn [i] [["li" {"style" f/standard-li-style}
+                             ["span" {"style" f/index-style} i f/line-index-separator]
+                             f/spacer
+                             ["span" {"style" f/general-cljs-land-style}
+                              ["span" {"style" f/integer-style} (+ i 1)]]]]) (range 6))]))))
+  (testing "ranges"
+    (is (> 10 f/max-header-elements))
+    (is-header (range 10)
+      ["span" {"style" f/general-cljs-land-style}
+       ["object" {"object" "##REF##"}]]
+      (fn [ref]
+        (is (f/surrogate? ref))
+        (has-body? ref true)
+        (is-header ref
+          ["span" {}
            "("
-           ["span" {"style" f/integer-style} 0] f/spacer
-           ["span" {"style" f/integer-style} 1] f/spacer
-           ["span" {"style" f/integer-style} 2] f/spacer
-           ["span" {"style" f/integer-style} 3] f/spacer
-           ["span" {"style" f/integer-style} 4] f/spacer
+           (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
            f/more-marker
            ")"])))))
+
+(deftest test-continuations
+  (testing "long range"
+    (is-header (range (+ f/max-number-body-items 1))
+      ["span" {"style" f/general-cljs-land-style}
+       ["object" {"object" "##REF##"}]]
+      (fn [ref]
+        (is (f/surrogate? ref))
+        (has-body? ref true)
+        (is-header ref
+          ["span" {}
+           "("
+           (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
+           f/more-marker
+           ")"])
+        (is-body ref
+          ["ol" {"style" f/standard-ol-style}
+           (unroll (fn [i] [["li" {"style" f/standard-li-style}
+                             ["span" {"style" f/index-style} i f/line-index-separator]
+                             f/spacer
+                             ["span" {"style" f/general-cljs-land-style}
+                              ["span" {"style" f/integer-style} i]]]]) (range f/max-number-body-items))
+           ["li" {"style" f/standard-li-style}
+            ["object" {"object" "##REF##"}]]]
+          (fn [ref]
+            (is (f/surrogate? ref))
+            (has-body? ref true)
+            (is-header ref f/body-items-more-label)
+            (is-body ref
+              ["ol" {"style" f/standard-ol-no-margin-style}
+               (unroll (fn [i] [["li" {"style" f/standard-li-no-margin-style}
+                                 ["span" {"style" f/index-style} f/max-number-body-items f/line-index-separator]
+                                 f/spacer
+                                 ["span" {"style" f/general-cljs-land-style}
+                                  ["span" {"style" f/integer-style} (+ i f/max-number-body-items)]]]]) (range 1))])))))))
+

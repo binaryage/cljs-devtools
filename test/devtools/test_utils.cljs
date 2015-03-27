@@ -44,9 +44,8 @@
                                            (str (pr-str value) " SHOULD be processed by devtools custom formatter")
                                            (str (pr-str value) " SHOULD NOT be processed by devtools custom formatter"))))
 
-(defn is-header [value expected & callbacks]
-  (let [template (f/header-api-call value)
-        sanitized-template (replace-refs template "##REF##")
+(defn is-template [template expected & callbacks]
+  (let [sanitized-template (replace-refs template "##REF##")
         refs (collect-refs template)
         expected-template (clj->js expected)]
     (is (js-equals sanitized-template expected-template))
@@ -57,3 +56,24 @@
         (when-not (empty? cbs)
           ((first cbs) (first rfs))
           (recur (rest rfs) (rest cbs)))))))
+
+(defn expand-fns [expected]
+  (if (coll? expected)
+    (mapcat (fn [item] (cond
+                         (fn? item) (item)
+                         :else [item])) expected)
+    expected))
+
+(defn is-header [value expected & callbacks]
+  (apply is-template (concat [(f/header-api-call value) (expand-fns expected)] callbacks)))
+
+(defn is-body [value expected & callbacks]
+  (apply is-template (concat [(f/body-api-call value) (expand-fns expected)] callbacks)))
+
+(defn has-body? [value expected]
+  (is (= (f/has-body-api-call value) expected) (if expected
+                                                 (str (pr-str value) " SHOULD return true to hasBody call")
+                                                 (str (pr-str value) " SHOULD return false to hasBody call"))))
+
+(defn unroll [& args]
+  (apply partial (concat [mapcat] args)))

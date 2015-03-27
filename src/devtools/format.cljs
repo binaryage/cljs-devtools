@@ -1,6 +1,6 @@
 (ns devtools.format)
 
-(def max-coll-elements 5)
+(def max-header-elements 5)
 (def more-marker "…")
 (def max-number-body-items 100)
 (def body-items-more-label "more…")
@@ -152,7 +152,7 @@
         writer (TemplateWriter. tmpl)]
     (binding [*print-level* print-level]                    ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
-                                     :print-length max-coll-elements
+                                     :print-length max-header-elements
                                      :more-marker  more-marker}))
     tmpl))
 
