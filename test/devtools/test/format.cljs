@@ -76,7 +76,23 @@
       (fn [ref]
         (is (f/surrogate? ref))
         (is-header ref
-          ["span" {"style" f/string-style} (str f/dq "1234" f/new-line-string-replacer "678901234567890" f/string-abbreviation-marker "12345678901234" f/new-line-string-replacer "67890" f/dq)])))))
+          ["span" {"style" f/string-style}
+           (str
+             f/dq
+             "1234" f/new-line-string-replacer "678901234567890"
+             f/string-abbreviation-marker
+             "12345678901234" f/new-line-string-replacer "67890"
+             f/dq)])
+        (is-body ref
+          ["ol" {"style" f/standard-ol-style}
+           ["li" {"style" f/standard-li-style}
+            ["span" {"style" f/string-style}
+             (str
+               f/dq
+               "1234" f/new-line-string-replacer
+               "\n6789012345678901234567890123456789012345678901234" f/new-line-string-replacer
+               "\n67890"
+               f/dq)]]])))))
 
 (deftest test-collections
   (testing "vectors"
