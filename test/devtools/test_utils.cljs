@@ -39,6 +39,11 @@
     (json/serialize template filter)
     @refs))
 
+(defn want? [value expected]
+  (is (= (f/want-value? value) expected) (if expected
+                                           (str (pr-str value) " SHOULD be processed by devtools custom formatter")
+                                           (str (pr-str value) " SHOULD NOT be processed by devtools custom formatter"))))
+
 (defn is-header [value expected & callbacks]
   (let [template (f/header-api-call value)
         sanitized-template (replace-refs template "##REF##")

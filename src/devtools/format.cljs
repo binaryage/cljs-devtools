@@ -2,6 +2,10 @@
 
 (def max-coll-elements 5)
 (def more-marker "…")
+(def string-prefix-limit 20)
+(def string-postfix-limit 20)
+(def string-abbreviation-marker " … ")
+(def new-line-string-replacer "↵")
 (def line-index-separator ":")
 (def dq "\"")
 (def surrogate-key "$$surrogate")
@@ -36,7 +40,9 @@
       false)))
 
 (defn surrogate? [value]
-  (exists? (aget value surrogate-key)))
+  (and
+    (not (nil? value))
+    (exists? (aget value surrogate-key))))
 
 (defn template [tag style & children]
   (let [js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
@@ -54,11 +60,14 @@
 
 (defn surrogate
   ([object header] (surrogate object header true))
-  ([object header has-body] (js-obj
-                              surrogate-key true
-                              "target" object
-                              "header" header
-                              "hasBody" has-body)))
+  ([object header has-body] (surrogate object header has-body nil))
+  ([object header has-body body-template]
+   (js-obj
+     surrogate-key true
+     "target" object
+     "header" header
+     "hasBody" has-body
+     "bodyTemplate" body-template)))
 
 (defn index-template [value]
   (template span index-style value line-index-separator))
@@ -68,9 +77,24 @@
     (template span integer-style value)
     (template span float-style value)))
 
-; TODO: abbreviate long strings
-(defn string-template [value]
-  (template span string-style (str dq value dq)))
+(defn abbreviate-long-string [string]
+  (str
+    (apply str (take string-prefix-limit string))
+    string-abbreviation-marker
+    (apply str (take-last string-postfix-limit string))))
+
+(defn string-template [source-string]
+  (let [re-nl (js/RegExp. "\n" "g")
+        inline-string (.replace source-string re-nl new-line-string-replacer)
+        max-inline-string-size (+ string-prefix-limit string-postfix-limit)]
+    (if (<= (count inline-string) max-inline-string-size)
+      (template span string-style (str dq inline-string dq))
+      (let [abbreviated-string-template (template span string-style (str dq (abbreviate-long-string inline-string) dq))
+            string-with-nl-markers (.replace source-string re-nl (str new-line-string-replacer "\n"))
+            body-template (template ol standard-ol-style
+                            (template li standard-li-style
+                              (template span string-style (str dq string-with-nl-markers dq))))]
+        (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn bool? [value]
   (or (true? value) (false? value)))
@@ -149,10 +173,12 @@
   (standard-body-template (body-lines-templates value)))
 
 (defn build-surrogate-body [value]
-  (let [target (.-target value)]
-    (if (seqable? target)
-      (build-body target)
-      (template ol standard-ol-style (template li standard-li-style (reference target (str target)))))))
+  (if-let [body-template (aget value "bodyTemplate")]
+    body-template
+    (let [target (aget value "target")]
+      (if (seqable? target)
+        (build-body target)
+        (template ol standard-ol-style (template li standard-li-style (reference target (str target))))))))
 
 (defn want-value? [value]
   (or (cljs-value? value)
@@ -170,13 +196,13 @@
 (defn header-api-call [value]
   (cond
     (satisfies? IDevtoolsFormat value) (-header value)
-    (surrogate? value) (.-header value)
+    (surrogate? value) (aget value "header")
     :else (build-header value)))
 
 (defn has-body-api-call [value]
   (cond
     (satisfies? IDevtoolsFormat value) (-has-body value)
-    (surrogate? value) (.-hasBody value)
+    (surrogate? value) (aget value "hasBody")
     :else false))                                           ; body is emulated using surrogate references
 
 (defn body-api-call [value]
