@@ -1,6 +1,6 @@
-(ns devtools.format-test
+(ns devtools.test.format
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.test-utils :refer [js-equals is-header want? is-body has-body? unroll]]
+            [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll]]
             [devtools.format :as f]))
 
 (deftest wants
@@ -43,9 +43,7 @@
     (has-body? '() false)
     (has-body? {} false)
     (has-body? #{} false)
-    (has-body? (range f/max-number-body-items) false))
-  (testing "these values should have body"
-    ))
+    (has-body? (range f/max-number-body-items) false)))
 
 (deftest test-simple-atomic-values
   (testing "simple atomic value"

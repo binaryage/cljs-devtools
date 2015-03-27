@@ -1,4 +1,4 @@
-(ns devtools.test-utils
+(ns devtools.utils.test
   (:require [cljs.test :refer-macros [is]]
             [goog.array :as garr]
             [goog.json :as json]

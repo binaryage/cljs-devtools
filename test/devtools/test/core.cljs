@@ -1,4 +1,4 @@
-(ns devtools.core-test
+(ns devtools.test.core
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.core :as core]))
 
