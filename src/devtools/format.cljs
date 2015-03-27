@@ -2,6 +2,8 @@
 
 (def max-coll-elements 5)
 (def more-marker "…")
+(def max-number-body-items 100)
+(def body-items-more-label "more…")
 (def string-prefix-limit 20)
 (def string-postfix-limit 20)
 (def string-abbreviation-marker " … ")
@@ -10,7 +12,9 @@
 (def dq "\"")
 (def surrogate-key "$$surrogate")
 (def standard-ol-style "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:12px")
+(def standard-ol-no-margin-style "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:0px")
 (def standard-li-style "margin-left:12px")
+(def standard-li-no-margin-style "margin-left:0px")
 (def spacer " ")
 (def span "span")
 (def ol "ol")
@@ -155,29 +159,44 @@
 (defn build-header [value]
   (managed-pr-str value general-cljs-land-style 2))
 
-(defn standard-body-template [lines]
-  (template ol standard-ol-style (map #(template li standard-li-style %) lines)))
+(defn standard-body-template [lines margin?]
+  (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
+        li-style (if margin? standard-li-style standard-li-no-margin-style)]
+    (template ol ol-style (map #(template li li-style %) lines))))
 
 (defn body-line-template [index value]
   [(index-template index) spacer (managed-pr-str value (if cljs-value? general-cljs-land-style "") 3)])
 
-(defn body-lines-templates [value]
-  (loop [data (take 100 (seq value))                        ; TODO: generate "more" links for continuation
-         index 0
+(defn prepare-body-lines [data starting-index]
+  (loop [work data
+         index starting-index
          lines []]
-    (if (empty? data)
+    (if (empty? work)
       lines
-      (recur (rest data) (inc index) (conj lines (body-line-template index (first data)))))))
+      (recur (rest work) (inc index) (conj lines (body-line-template index (first work)))))))
 
-(defn build-body [value]
-  (standard-body-template (body-lines-templates value)))
+(defn body-lines-templates [value starting-index]
+  (let [seq (seq value)
+        chunk (take max-number-body-items seq)
+        rest (drop max-number-body-items seq)
+        lines (prepare-body-lines chunk starting-index)
+        continue? (not (empty? (take 1 rest)))]
+    (if-not continue?
+      lines
+      (let [surrogate-object (surrogate rest body-items-more-label)]
+        (aset surrogate-object "startingIndex" (+ starting-index max-number-body-items))
+        (conj lines (reference surrogate-object))))))
+
+(defn build-body [value starting-index]
+  (standard-body-template (body-lines-templates value starting-index) (zero? starting-index)))
 
 (defn build-surrogate-body [value]
   (if-let [body-template (aget value "bodyTemplate")]
     body-template
     (let [target (aget value "target")]
       (if (seqable? target)
-        (build-body target)
+        (let [starting-index (or (aget value "startingIndex") 0)]
+          (build-body target starting-index))
         (template ol standard-ol-style (template li standard-li-style (reference target (str target))))))))
 
 (defn want-value? [value]
