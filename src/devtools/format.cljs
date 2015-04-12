@@ -1,4 +1,5 @@
-(ns devtools.format)
+(ns devtools.format
+  (:require [devtools.debug :as debug]))
 
 (def max-header-elements 5)
 (def more-marker "…")
@@ -133,7 +134,8 @@
 ; we want to wrap stringified obj in a reference for further inspection
 (defn detect-else-case-and-patch-it [group obj]
   (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
-    (aset group 1 (reference (surrogate obj (aget group 1)))))) ; TODO change to direct reference after devtools guys fix the bug
+    (let [label (aget group 1)]
+      (aset group 1 (reference (surrogate obj label true (reference obj "inspect js object"))))))) ; TODO change to direct reference after devtools guys fix the bug
 
 (defn alt-printer-impl [obj writer opts]
   (if-let [tmpl (atomic-template obj)]
@@ -214,17 +216,17 @@
 
 (defn header-api-call [value]
   (cond
-    (satisfies? IDevtoolsFormat value) (-header value)
     (surrogate? value) (aget value "header")
-    :else (build-header value)))
+    (satisfies? IDevtoolsFormat value) (-header value)
+    (cljs-value? value) (build-header value)))
 
 (defn has-body-api-call [value]
   (cond
-    (satisfies? IDevtoolsFormat value) (-has-body value)
     (surrogate? value) (aget value "hasBody")
+    (satisfies? IDevtoolsFormat value) (-has-body value)
     :else false))                                           ; body is emulated using surrogate references
 
 (defn body-api-call [value]
   (cond
-    (satisfies? IDevtoolsFormat value) (-body value)
-    (surrogate? value) (build-surrogate-body value)))
+    (surrogate? value) (build-surrogate-body value)
+    (satisfies? IDevtoolsFormat value) (-body value)))
