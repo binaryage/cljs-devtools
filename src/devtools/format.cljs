@@ -1,5 +1,4 @@
-(ns devtools.format
-  (:require [devtools.debug :as debug]))
+(ns devtools.format)
 
 (def max-header-elements 5)
 (def more-marker "…")
