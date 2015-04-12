@@ -41,8 +41,9 @@
                    {:source-paths ["src", "test"]
                     :compiler     {:output-to     "out/test/cljs_devtools.test.js"
                                    :output-dir    "out/test"
-                                   :main          devtools.test-runner
+                                   :main          devtools.runner
                                    :asset-path    "_generated"
+                                   :cache-analysis true
                                    :optimizations :none
                                    :pretty-print  true
                                    :source-map    true}}
