@@ -15,7 +15,7 @@
                               [:timezone "+1"]]]
 
   :dependencies [[org.clojure/clojure "1.6.0" :scope "provided"]
-                 [org.clojure/clojurescript "0.0-3126" :scope "provided"]]
+                 [org.clojure/clojurescript "0.0-3196" :scope "provided"]]
 
   :clean-targets ["out"]
   :plugins [[lein-cljsbuild "1.0.4"]
