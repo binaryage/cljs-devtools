@@ -201,10 +201,6 @@
           (build-body target starting-index))
         (template ol standard-ol-style (template li standard-li-style (reference target (str target))))))))
 
-(defn want-value? [value]
-  (or (cljs-value? value)
-    (surrogate? value)))
-
 ;;;;;;;;; PROTOCOL SUPPORT
 
 (defprotocol IDevtoolsFormat
@@ -212,21 +208,41 @@
   (-has-body [value])
   (-body [value]))
 
-;;;;;;;;; API CALLS
+;;;;;;;;; RAW API
 
-(defn header-api-call [value]
+(defn want-value? [value]
+  (or (cljs-value? value)
+    (surrogate? value)))
+
+(defn header [value]
   (cond
     (surrogate? value) (aget value "header")
     (satisfies? IDevtoolsFormat value) (-header value)
-    (cljs-value? value) (build-header value)))
+    :else (build-header value)))
 
-(defn has-body-api-call [value]
+(defn has-body [value]
+  ; note: body is emulated using surrogate references
   (cond
     (surrogate? value) (aget value "hasBody")
     (satisfies? IDevtoolsFormat value) (-has-body value)
-    :else false))                                           ; body is emulated using surrogate references
+    :else false))
 
-(defn body-api-call [value]
+(defn body [value]
   (cond
     (surrogate? value) (build-surrogate-body value)
     (satisfies? IDevtoolsFormat value) (-body value)))
+
+;;;;;;;;; API CALLS
+
+(defn header-api-call [value]
+  (if (want-value? value)
+    (header value)))
+
+(defn has-body-api-call [value]
+  (if (want-value? value)
+    (has-body value)
+    false))
+
+(defn body-api-call [value]
+  (if (want-value? value)
+    (body value)))

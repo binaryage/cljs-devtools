@@ -65,15 +65,15 @@
     expected))
 
 (defn is-header [value expected & callbacks]
-  (apply is-template (concat [(f/header-api-call value) (expand-fns expected)] callbacks)))
+  (apply is-template (concat [(f/header value) (expand-fns expected)] callbacks)))
 
 (defn is-body [value expected & callbacks]
-  (apply is-template (concat [(f/body-api-call value) (expand-fns expected)] callbacks)))
+  (apply is-template (concat [(f/body value) (expand-fns expected)] callbacks)))
 
 (defn has-body? [value expected]
-  (is (= (f/has-body-api-call value) expected) (if expected
-                                                 (str (pr-str value) " SHOULD return true to hasBody call")
-                                                 (str (pr-str value) " SHOULD return false to hasBody call"))))
+  (is (= (f/has-body value) expected) (if expected
+                                        (str (pr-str value) " SHOULD return true to hasBody call")
+                                        (str (pr-str value) " SHOULD return false to hasBody call"))))
 
 (defn unroll [& args]
   (apply partial (concat [mapcat] args)))
