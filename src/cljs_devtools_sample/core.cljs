@@ -91,3 +91,15 @@ last line")
   (log [long-string]))
 
 (excercise!)
+
+(def global (atom []))
+
+(defn break-into-this-fn [param]
+  (let [range (range 3)
+        seq (interleave (repeat :even) (repeat :odd))]
+    (doseq [item range]
+      (let [s (str item "(" (nth seq item) ") " param)]
+        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
+
+(break-into-this-fn "postfix")
+(log global)
