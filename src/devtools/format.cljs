@@ -160,10 +160,11 @@
 (defn build-header [value]
   (managed-pr-str value general-cljs-land-style 2))
 
-(defn standard-body-template [lines margin?]
-  (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
+(defn standard-body-template
+  ([lines margin?] (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
         li-style (if margin? standard-li-style standard-li-no-margin-style)]
     (template ol ol-style (map #(template li li-style %) lines))))
+  ([lines] (standard-body-template lines true)))
 
 (defn body-line-template [index value]
   [(index-template index) spacer (managed-pr-str value (if cljs-value? general-cljs-land-style "") 3)])
