@@ -1,8 +1,10 @@
 # cljs-devtools
 
-Better presentation of ClojureScript values in Chrome Devtools Console.
+**DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs**
 
-** DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs **
+[![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
+
+Better presentation of ClojureScript values in Chrome Devtools.
 
 ## Integration in your own project
 
