@@ -2,9 +2,16 @@
 
 **DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs**
 
+Better presentation of ClojureScript values in Chrome Devtools.
+
 [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
 
-Better presentation of ClojureScript values in Chrome Devtools.
+Unfortunatelly cljs-devtools are broken in the latest Chrome Canary.
+
+For cljs-devtools 0.2.0 please use Chrome with Blink between r193475 and r193856.
+
+Chromium version from commit 325000 seems to work fine for me:
+[https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/325000/](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/325000)
 
 ## Integration in your own project
 
