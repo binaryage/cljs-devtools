@@ -30,7 +30,6 @@
 (def string-style "color:#C41A16")
 (def symbol-style "color:#000000")
 (def fn-style "color:#090")
-(def fn-label "λ")
 (def bool-style "color:#099")
 
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
@@ -112,7 +111,7 @@
     (number? value) (number-template value)
     (keyword? value) (template span keyword-style (str value))
     (symbol? value) (template span symbol-style (str value))
-    (fn? value) (template span fn-style (reference (surrogate value fn-label)))))
+    (fn? value) (template span fn-style (reference value))))
 
 (defn abbreviated? [template]
   (some #(= more-marker %) template))
@@ -134,8 +133,7 @@
 ; we want to wrap stringified obj in a reference for further inspection
 (defn detect-else-case-and-patch-it [group obj]
   (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
-    (let [label (aget group 1)]
-      (aset group 1 (reference (surrogate obj label true (reference obj "inspect js object"))))))) ; TODO change to direct reference after devtools guys fix the bug
+    (aset group 1 (reference obj))))
 
 (defn alt-printer-impl [obj writer opts]
   (if-let [tmpl (atomic-template obj)]
@@ -163,8 +161,8 @@
 
 (defn standard-body-template
   ([lines margin?] (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
-        li-style (if margin? standard-li-style standard-li-no-margin-style)]
-    (template ol ol-style (map #(template li li-style %) lines))))
+                         li-style (if margin? standard-li-style standard-li-no-margin-style)]
+                     (template ol ol-style (map #(template li li-style %) lines))))
   ([lines] (standard-body-template lines true)))
 
 (defn body-line-template [index value]
@@ -200,7 +198,7 @@
       (if (seqable? target)
         (let [starting-index (or (aget value "startingIndex") 0)]
           (build-body target starting-index))
-        (template ol standard-ol-style (template li standard-li-style (reference target (str target))))))))
+        (template ol standard-ol-style (template li standard-li-style (reference target)))))))
 
 ;;;;;;;;; PROTOCOL SUPPORT
 
