@@ -196,3 +196,22 @@
                                  ["span" {"style" f/general-cljs-land-style}
                                   ["span" {"style" f/integer-style} (+ i f/max-number-body-items)]]]]) (range 1))])))))))
 
+(deftest test-printing
+  (testing "max print level"
+    (let [many-levels [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]]
+      (has-body? many-levels false)
+      (is-header many-levels
+        ["span" {"style" f/general-cljs-land-style}
+         "["
+         ["span" {"style" f/integer-style} 1]
+         f/spacer
+         "["
+         ["span" {"style" f/integer-style} 2]
+         f/spacer
+         "["
+         ["span" {"style" f/integer-style} 3]
+         f/spacer
+         ["object" {"object" "##REF##"}]
+         "]"
+         "]"
+         "]"]))))

@@ -1,5 +1,6 @@
 (ns devtools.format)
 
+(def max-print-level 3)
 (def max-header-elements 5)
 (def more-marker "…")
 (def max-number-body-items 100)
@@ -142,7 +143,7 @@
     (let [inner-tmpl #js []
           inner-writer (TemplateWriter. inner-tmpl)
           default-impl (:fallback-impl opts)
-          ; we want to limit print-level, at second level use maximal abbreviation e.g. [...] or {...}
+          ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
           inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
       (default-impl obj inner-writer inner-opts)
       (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
@@ -158,7 +159,7 @@
     tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value general-cljs-land-style 2))
+  (managed-pr-str value general-cljs-land-style (inc max-print-level)))
 
 (defn standard-body-template
   ([lines margin?] (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
