@@ -109,7 +109,7 @@
     (bool? value) (template span bool-style value)
     (string? value) (string-template value)
     (number? value) (number-template value)
-    (keyword? value) (template span keyword-style (str ":" (name value)))
+    (keyword? value) (template span keyword-style (str value))
     (symbol? value) (template span symbol-style (str value))
     (fn? value) (template span fn-style (reference (surrogate value fn-label)))))
 
