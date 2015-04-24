@@ -20,7 +20,7 @@
 (def span "span")
 (def ol "ol")
 (def li "li")
-(def general-cljs-land-style "background-color:#efe")
+(def cljs-style "background-color:#efe")
 (def index-style "color:#881391")
 (def nil-style "color:#808080")
 (def nil-label "nil")
@@ -69,7 +69,7 @@
    (js-obj
      surrogate-key true
      "target" object
-     "header" (template span general-cljs-land-style header)
+     "header" (template span cljs-style header)
      "hasBody" has-body
      "bodyTemplate" body-template)))
 
@@ -157,7 +157,7 @@
     tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value general-cljs-land-style (inc max-print-level)))
+  (managed-pr-str value cljs-style (inc max-print-level)))
 
 (defn standard-body-template
   ([lines margin?] (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
@@ -166,7 +166,7 @@
   ([lines] (standard-body-template lines true)))
 
 (defn body-line-template [index value]
-  [(index-template index) spacer (managed-pr-str value (if cljs-value? general-cljs-land-style "") 3)])
+  [(index-template index) spacer (managed-pr-str value (if cljs-value? cljs-style "") 3)])
 
 (defn prepare-body-lines [data starting-index]
   (loop [work data
