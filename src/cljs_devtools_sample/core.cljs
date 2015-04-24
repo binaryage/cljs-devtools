@@ -38,7 +38,7 @@
 
 (defn log [& args] (.apply (aget js/console "log") js/console (into-array args)))
 
-(log nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.))
+(log nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2})
 (log [nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.)])
 (log (range 100) (range 101) (range 220) (interleave (repeat :even) (repeat :odd)))
 (log {:k1 'v1 :k2 'v2 :k3 'v3 :k4 'v4 :k5 'v5 :k6 'v6 :k7 'v7 :k8 'v8 :k9 'v9})
@@ -59,47 +59,50 @@
 
 ; <-- MEAT STOPS HERE ---
 
-(def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
-
-; defrecord with IDevtoolsFormat
-(defrecord Language [lang]
-  format/IDevtoolsFormat
-  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
-  (-has-body [_])
-  (-body [_]))
-
-(def test-lang (Language. "ClojureScript"))
-
-; reify with IDevtoolsFormat
-(def test-reify (reify
-                  format/IDevtoolsFormat
-                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
-                  (-has-body [_] false)
-                  (-body [_])))
-
-(def long-string
-  "First line
-second line
-third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
-
-last line")
-
-(defn excercise! []
-  (log [test-lang test-reify])
-  (log (.-nested test-interleaved))
-  (log test-interleaved)
-  (log [long-string]))
-
-(excercise!)
-
-(def global (atom []))
-
-(defn break-into-this-fn [param]
-  (let [range (range 3)
-        seq (interleave (repeat :even) (repeat :odd))]
-    (doseq [item range]
-      (let [s (str item "(" (nth seq item) ") " param)]
-        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
-
-(break-into-this-fn "postfix")
-(log global)
+;(def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
+;
+;; defrecord with IDevtoolsFormat
+;(defrecord Language [lang]
+;  format/IDevtoolsFormat
+;  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+;  (-has-body [_])
+;  (-body [_]))
+;
+;(def test-lang (Language. "ClojureScript"))
+;
+;; reify with IDevtoolsFormat
+;(def test-reify (reify
+;                  format/IDevtoolsFormat
+;                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
+;                  (-has-body [_] false)
+;                  (-body [_])))
+;
+;(def long-string
+;  "First line
+;second line
+;third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
+;
+;last line")
+;
+;(defn excercise! []
+;  (log [test-lang test-reify])
+;  (log (.-nested test-interleaved))
+;  (log test-interleaved)
+;  (log [long-string]))
+;
+;(excercise!)
+;
+;(def global (atom []))
+;
+;(defn break-into-this-fn [param]
+;  (let [range (range 3)
+;        seq (interleave (repeat :even) (repeat :odd))]
+;    (doseq [item range]
+;      (let [s (str item "(" (nth seq item) ") " param)]
+;        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
+;
+;(break-into-this-fn "postfix")
+;(log global)
+;
+;(log [::namespaced-keyword])
+;(log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
