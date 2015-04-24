@@ -19,7 +19,7 @@
   (testing "these values should be processed by our custom formatter"
     (want? :keyword true)
     (want? ::auto-namespaced-keyword true)
-    (want? :devtools.tes/fully-qualified-keyword true)
+    (want? :devtools/fully-qualified-keyword true)
     (want? 'symbol true)
     (want? [] true)
     (want? '() true)
@@ -41,7 +41,7 @@
     (has-body? #(.-document js/window) false)
     (has-body? :keyword false)
     (has-body? ::auto-namespaced-keyword false)
-    (has-body? :devtools.tes/fully-qualified-keyword false)
+    (has-body? :devtools/fully-qualified-keyword false)
     (has-body? 'symbol false)
     (has-body? [] false)
     (has-body? '() false)
@@ -57,9 +57,9 @@
     (is-header ::auto-namespaced-keyword
       ["span" {"style" f/general-cljs-land-style}
        ["span" {"style" f/keyword-style} ":devtools.test.format/auto-namespaced-keyword"]])
-    (is-header :devtools.tes/fully-qualified-keyword
+    (is-header :devtools/fully-qualified-keyword
       ["span" {"style" f/general-cljs-land-style}
-       ["span" {"style" f/keyword-style} ":devtools.tes/fully-qualified-keyword"]]))
+       ["span" {"style" f/keyword-style} ":devtools/fully-qualified-keyword"]]))
   (testing "symbols"
     (is-header 'symbol
       ["span" {"style" f/general-cljs-land-style}
