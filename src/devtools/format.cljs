@@ -11,7 +11,7 @@
 (def new-line-string-replacer "↵")
 (def line-index-separator ":")
 (def dq "\"")
-(def surrogate-key "$$surrogate")
+(def surrogate-key "$$this-is-cljs-devtools-surrogate")
 (def standard-ol-style "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:12px")
 (def standard-ol-no-margin-style "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:0px")
 (def standard-li-style "margin-left:12px")
