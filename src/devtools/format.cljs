@@ -69,7 +69,7 @@
    (js-obj
      surrogate-key true
      "target" object
-     "header" header
+     "header" (template span general-cljs-land-style header)
      "hasBody" has-body
      "bodyTemplate" body-template)))
 

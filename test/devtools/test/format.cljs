@@ -69,20 +69,22 @@
       (fn [ref]
         (is (f/surrogate? ref))
         (is-header ref
-          ["span" {"style" f/string-style} (str f/dq "12345678901234567890" f/string-abbreviation-marker "12345678901234567890" f/dq)])))
+          ["span" {"style" f/general-cljs-land-style}
+           ["span" {"style" f/string-style} (str f/dq "12345678901234567890" f/string-abbreviation-marker "12345678901234567890" f/dq)]])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
       ["span" {"style" f/general-cljs-land-style}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
         (is (f/surrogate? ref))
         (is-header ref
-          ["span" {"style" f/string-style}
-           (str
-             f/dq
-             "1234" f/new-line-string-replacer "678901234567890"
-             f/string-abbreviation-marker
-             "12345678901234" f/new-line-string-replacer "67890"
-             f/dq)])
+          ["span" {"style" f/general-cljs-land-style}
+           ["span" {"style" f/string-style}
+            (str
+              f/dq
+              "1234" f/new-line-string-replacer "678901234567890"
+              f/string-abbreviation-marker
+              "12345678901234" f/new-line-string-replacer "67890"
+              f/dq)]])
         (is-body ref
           ["ol" {"style" f/standard-ol-style}
            ["li" {"style" f/standard-li-style}
@@ -116,11 +118,12 @@
       (fn [ref]
         (is (f/surrogate? ref))
         (is-header ref
-          ["span" {}
-           "["
-           (unroll (fn [i] [["span" {"style" f/integer-style} (+ i 1)] f/spacer]) (range 5))
-           f/more-marker
-           "]"])
+          ["span" {"style" f/general-cljs-land-style}
+           ["span" {}
+            "["
+            (unroll (fn [i] [["span" {"style" f/integer-style} (+ i 1)] f/spacer]) (range 5))
+            f/more-marker
+            "]"]])
         (has-body? ref true)
         (is-body ref
           ["ol" {"style" f/standard-ol-style}
@@ -138,11 +141,12 @@
         (is (f/surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {}
-           "("
-           (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
-           f/more-marker
-           ")"])))))
+          ["span" {"style" f/general-cljs-land-style}
+           ["span" {}
+            "("
+            (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
+            f/more-marker
+            ")"]])))))
 
 (deftest test-continuations
   (testing "long range"
@@ -153,11 +157,12 @@
         (is (f/surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {}
-           "("
-           (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
-           f/more-marker
-           ")"])
+          ["span" {"style" f/general-cljs-land-style}
+           ["span" {}
+            "("
+            (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
+            f/more-marker
+            ")"]])
         (is-body ref
           ["ol" {"style" f/standard-ol-style}
            (unroll (fn [i] [["li" {"style" f/standard-li-style}
@@ -170,7 +175,8 @@
           (fn [ref]
             (is (f/surrogate? ref))
             (has-body? ref true)
-            (is-header ref f/body-items-more-label)
+            (is-header ref
+              ["span" {"style" f/general-cljs-land-style} f/body-items-more-label])
             (is-body ref
               ["ol" {"style" f/standard-ol-no-margin-style}
                (unroll (fn [i] [["li" {"style" f/standard-li-no-margin-style}

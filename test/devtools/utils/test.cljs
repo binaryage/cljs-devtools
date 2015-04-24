@@ -57,12 +57,10 @@
           ((first cbs) (first rfs))
           (recur (rest rfs) (rest cbs)))))))
 
-(defn expand-fns [expected]
-  (if (coll? expected)
-    (mapcat (fn [item] (cond
-                         (fn? item) (item)
-                         :else [item])) expected)
-    expected))
+(defn expand-fns [v]
+  (if (vector? v)
+    (mapcat (fn [item] (if (fn? item) (expand-fns (item)) [(expand-fns item)])) v)
+    v))
 
 (defn is-header [value expected & callbacks]
   (apply is-template (concat [(f/header value) (expand-fns expected)] callbacks)))
