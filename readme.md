@@ -2,16 +2,34 @@
 
 **DANGER ZONE - WORK IN PROGRESS - EXPERIMENTAL APIs**
 
-Better presentation of ClojureScript values in Chrome Devtools.
-
 [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
 
-Unfortunatelly cljs-devtools are broken in the latest Chrome Canary.
+Better presentation of ClojureScript values in Chrome Devtools:
 
-For cljs-devtools 0.2.0 please use Chrome with Blink between r193475 and r193856.
+<img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
-Chromium version from commit 325000 seems to work fine for me:
-[https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/325000/](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/325000)
+## Enable Custom formatters in your Chrome (Canary)
+
+For now you must use Chrome Canary or bleeding edge build from [chromium-browser-snapshots](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html).
+
+##### First, enable Dev Tools Experiments:
+
+  * Visit chrome://flags
+  * Search the page for "devtools".
+  * Click "Enable" under "Enable Developer Tools Experiments"
+  * Click "Relaunch Now"
+
+##### Then turn on custom formatters:
+
+  * Open Dev Tools.
+  * Click the gear in the upper right to go to Settings.
+  * Click the "Experiments" tab.
+  * Press the shift key six times to show the "hidden experiments".
+  * Check "Custom Object Formatters".
+  * Close Dev Tools.
+  * Open Dev Tools.
+  * Click the gear to open settings again.
+  * Under "Console", check "Enable custom formatters".
 
 ## Integration in your own project
 
@@ -30,8 +48,4 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
     
 ## See [sample project](https://github.com/binaryage/cljs-devtools-sample)
 
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
-
-## License
-
-[MIT License](http://opensource.org/licenses/MIT)
+#### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools/master/LICENSE.txt)
