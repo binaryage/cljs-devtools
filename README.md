@@ -66,6 +66,4 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
     
     (.log js/console (range 200))
 
-## License
-
-[MIT License](http://opensource.org/licenses/MIT)
+#### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools-sample/master/LICENSE.txt)
