@@ -8,6 +8,10 @@ Better presentation of ClojureScript values in Chrome Devtools:
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
+Note: version 0.2.1 is compatible with Chromium built against Blink [r194327 or higher](https://codereview.chromium.org/1096283003).
+
+You can see Blink version which was compiled in your Chrome under **chrome://version** (url).
+
 ## Enable Custom formatters in your Chrome (Canary)
 
 For now you must use Chrome Canary or bleeding edge build from [chromium-browser-snapshots](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html).
