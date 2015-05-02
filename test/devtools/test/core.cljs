@@ -38,7 +38,7 @@
       (devtools/uninstall!)
       (is (= (devtools/installed?) false))
       (is (= (.-length (aget js/window devtools/formatter-key)) 1))
-      (is (= existing-formatter (aget (aget js/window devtools/formatter-key) 0)))))
+      (is (= existing-formatter (aget js/window devtools/formatter-key 0)))))
   (testing "Testing install, install foreign custom formatter, uninstall scenario"
     (let [existing-formatter #js {"some" "value"}
           initial-formatters #js [existing-formatter]]
@@ -57,5 +57,5 @@
         (devtools/uninstall!)
         (is (= (devtools/installed?) false))
         (is (= (.-length (aget js/window devtools/formatter-key)) 2))
-        (is (= existing-formatter (aget (aget js/window devtools/formatter-key) 0)))
-        (is (= additional-formatter (aget (aget js/window devtools/formatter-key) 1)))))))
+        (is (= existing-formatter (aget js/window devtools/formatter-key 0)))
+        (is (= additional-formatter (aget js/window devtools/formatter-key 1)))))))
