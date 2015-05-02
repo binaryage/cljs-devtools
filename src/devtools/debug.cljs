@@ -53,10 +53,7 @@
   (if-not *initialized*
     (apply api-call args)
     (do
-      (try
-        (log (logger name) (str args))                      ; potential exception converting args to string
-        (catch :default e
-          (log-exception (str e))))
+      (log (logger name) args)
       (indent!)
       (let [api-response (apply api-call args)
             api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
@@ -79,10 +76,7 @@
   (let [original-log-fn (aget js/console "log")]
     (aset js/console "log" (fn [& args]
                              (.addSeparator *console*)
-                             (try
-                               (log (logger "console") (str args)) ; potential exception converting args to string
-                               (catch :default e
-                                 (log-exception (str e))))
+                             (log (logger "console") args)
                              (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
