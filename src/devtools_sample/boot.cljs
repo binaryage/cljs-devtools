@@ -23,8 +23,10 @@
   (trim-newlines (nth (extract-meat (str "-" "->([^]*?); <-") source-code) 1)))
 
 (defn fetch-source-code []
-  (go (let [response (<! (http/get "/src/devtools_sample/core.cljs"))]
-        (aset (.querySelector js/document "code") "innerHTML" (escape-html (get-meat (:body response)))))))
+  (go (let [response (<! (http/get "/src/devtools_sample/core.cljs"))
+            block (.querySelector js/document "code")]
+        (aset block "innerHTML" (escape-html (get-meat (:body response))))
+        (.highlightBlock js/hljs block))))
 
 (defn boot! []
   (when enable-debug
