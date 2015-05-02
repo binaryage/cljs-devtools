@@ -1,4 +1,4 @@
-(defproject devtools-sample "0.1.0-SNAPSHOT"
+(defproject binaryage/devtools-sample "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 
