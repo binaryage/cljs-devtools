@@ -3,7 +3,7 @@
             [devtools.core :as devtools]))
 
 (deftest test-install-and-uninstall
-  (testing "Testing install/uninstall when devtoolsFormatters was not previously set"
+  (testing "install/uninstall when devtoolsFormatters was not previously set"
     (is (nil? (aget js/window devtools/formatter-key)))
     (is (= (devtools/installed?) false))
     (devtools/install!)
@@ -13,7 +13,7 @@
     (devtools/uninstall!)
     (is (= (devtools/installed?) false))
     (is (nil? (aget js/window devtools/formatter-key))))
-  (testing "Testing install/uninstall when devtoolsFormatters was set to an empty array"
+  (testing "install/uninstall when devtoolsFormatters was set to an empty array"
     (let [empty-formatters #js []]
       (aset js/window devtools/formatter-key empty-formatters)
       (is (= empty-formatters (aget js/window devtools/formatter-key)))
@@ -25,7 +25,7 @@
       (devtools/uninstall!)
       (is (= (devtools/installed?) false))
       (is (nil? (aget js/window devtools/formatter-key)))))
-  (testing "Testing install/uninstall when devtoolsFormatters was set to a non-empty array"
+  (testing "install/uninstall when devtoolsFormatters was set to a non-empty array"
     (let [existing-formatter #js {"some" "value"}
           initial-formatters #js [existing-formatter]]
       (aset js/window devtools/formatter-key initial-formatters)
@@ -39,7 +39,7 @@
       (is (= (devtools/installed?) false))
       (is (= (.-length (aget js/window devtools/formatter-key)) 1))
       (is (= existing-formatter (aget js/window devtools/formatter-key 0)))))
-  (testing "Testing install, install foreign custom formatter, uninstall scenario"
+  (testing "install, install foreign custom formatter, uninstall scenario"
     (let [existing-formatter #js {"some" "value"}
           initial-formatters #js [existing-formatter]]
       (aset js/window devtools/formatter-key initial-formatters)

@@ -6,7 +6,7 @@
 (deftype SimpleType [some-field])
 
 (deftest test-wants
-  (testing "these simple values should not be processed by our custom formatter"
+  (testing "these simple values SHOULD NOT be processed by our custom formatter"
     (want? "some string" false)
     (want? 0 false)
     (want? 1000 false)
@@ -19,7 +19,7 @@
     (want? nil false)
     (want? (SimpleType. "some-value") #js {"prevent-recursion" true} false)
     (want? #(.-document js/window) false))
-  (testing "these values should be processed by our custom formatter"
+  (testing "these values SHOULD be processed by our custom formatter"
     (want? :keyword true)
     (want? ::auto-namespaced-keyword true)
     (want? :devtools/fully-qualified-keyword true)
