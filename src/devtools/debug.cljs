@@ -53,7 +53,7 @@
   (try
     (log (logger name) (str args))                          ; potential exception converting args to string
     (catch :default e
-      log-exception (str e)))
+      (log-exception (str e))))
   (indent!)
   (let [api-response (apply api-call args)
         api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
@@ -79,7 +79,7 @@
                              (try
                                (log (logger "console") (str args)) ; potential exception converting args to string
                                (catch :default e
-                                 log-exception (str e)))
+                                 (log-exception (str e))))
                              (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
