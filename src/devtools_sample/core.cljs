@@ -1,4 +1,5 @@
 (ns devtools-sample.core
+  (:require-macros [devtools-sample.logging :refer [log]])
   (:require [clojure.string :as string]
             [devtools-sample.boot :refer [boot!]]
             [devtools-sample.more :refer [more!]]
@@ -10,10 +11,7 @@
 ; some quick and dirty inline tests
 
 ; --- MEAT STARTS HERE -->
-
-(defn log [& args] (.apply (aget js/console "log") js/console (into-array args)))
-
-; note: (log a b c) function is shorthand for (.log js/console a b c)
+; note: (log ...) function is a shorthand for (.log js/console ...)
 
 (log nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2})
 (log [nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.)])

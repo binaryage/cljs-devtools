@@ -1,10 +1,13 @@
 (ns devtools-sample.boot
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [devtools-sample.logging :refer [log]])
   (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
             [devtools.core :as devtools]
             [devtools.debug :as debug]))
+
+(def enable-debug false)
 
 (defn extract-meat [re s]
   (let [rex (js/RegExp. re "igm")]
@@ -24,8 +27,9 @@
         (aset (.querySelector js/document "code") "innerHTML" (escape-html (get-meat (:body response)))))))
 
 (defn boot! []
-  (debug/init!)
-  (set! devtools/*monitor-enabled* true)
-  (set! devtools/*sanitizer-enabled* false)
+  (when enable-debug
+    (debug/init!)
+    (set! devtools/*monitor-enabled* true)
+    (set! devtools/*sanitizer-enabled* false))
   (devtools/install!)
   (fetch-source-code))

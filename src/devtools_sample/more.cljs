@@ -1,4 +1,5 @@
 (ns devtools-sample.more
+  (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools.format :as format]))
 
 (defn log [& args] (.apply (aget js/console "log") js/console (into-array args)))
