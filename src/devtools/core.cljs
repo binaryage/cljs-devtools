@@ -35,7 +35,7 @@
       (api-call value)                                      ; raw API call
       (try
         (api-call value)                                    ; wrapped API call
-        (catch js/Object e
+        (catch :default e
           (debug/log-exception e)
           nil)))))
 
