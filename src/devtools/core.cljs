@@ -8,13 +8,10 @@
 (def ^:dynamic *monitor-enabled* false)
 
 (def formatter-key "devtoolsFormatters")
-(def api-marker "cljs_devtools_handler")
 
-(def api-mapping [["header" format/header-api-call]
-                  ["hasBody" format/has-body-api-call]
-                  ["body" format/body-api-call]])
+(deftype CLJSDevtoolsFormatter [header hasBody body])
 
-(defn monitor-api-calls [name api-call]
+(defn- monitor-api-calls [name api-call]
   (fn [value]
     (if-not *monitor-enabled*
       (api-call value)                                      ; raw API call
@@ -27,7 +24,7 @@
           (debug/unindent!)
           api-response)))))
 
-(defn sanitize
+(defn- sanitize
   "wraps our api-call in try-catch block to prevent leaking of exceptions if something goes wrong"
   [_ api-call]
   (fn [value]
@@ -39,51 +36,48 @@
           (debug/log-exception e)
           nil)))))
 
-(defn cljs-formatter []
+(defn- build-cljs-formatter []
   (let [api-call-wrapper (fn [name api-call]
                            (let [monitor (partial monitor-api-calls name)
                                  sanitizer (partial sanitize name)]
-                             ((comp monitor sanitizer) api-call)))
-        api-gen (fn [[name api-call]] [name (api-call-wrapper name api-call)])]
-    (apply js-obj (mapcat #(api-gen %) api-mapping))))
+                             ((comp monitor sanitizer) api-call)))]
+    (CLJSDevtoolsFormatter.
+      (api-call-wrapper "header" format/header-api-call)
+      (api-call-wrapper "hasBody" format/has-body-api-call)
+      (api-call-wrapper "body" format/body-api-call))))
 
-(defn- is-marked? [o]
-  (boolean (aget o api-marker)))
+(defn- is-ours? [o]
+  (instance? CLJSDevtoolsFormatter o))
 
-(defn- mark! [o]
-  (aset o api-marker true)
-  o)
-
-(defn- safe-get-formatters []
+(defn- get-formatters-safe []
   (let [formatters (aget js/window formatter-key)]
     (if (array? formatters)                                 ; TODO: maybe issue a warning if formatters are anything else than array or nil
       formatters
       #js [])))
 
 (defn- installed? []
-  (let [formatters (safe-get-formatters)]
-    (boolean (some is-marked? formatters))))
+  (let [formatters (get-formatters-safe)]
+    (boolean (some is-ours? formatters))))
 
-(defn- install-marked-formatter! [formatter]
-  (let [formatters (.slice (safe-get-formatters))]          ; slice effectively duplicates the array
+(defn- install-our-formatter! [formatter]
+  (let [formatters (.slice (get-formatters-safe))]          ; slice effectively duplicates the array
     (.push formatters formatter)                            ; acting on duplicated array
     (aset js/window formatter-key formatters)))
 
-(defn- uninstall-marked-formatters! []
-  (let [formatters (safe-get-formatters)
-        new-formatters (remove is-marked? (vec formatters))
-        new-formatters-value (if (empty? new-formatters) nil (into-array new-formatters))]
-    (aset js/window formatter-key new-formatters-value)))
+(defn- uninstall-our-formatters! []
+  (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))
+        new-formatters-js (if (empty? new-formatters) nil (into-array new-formatters))]
+    (aset js/window formatter-key new-formatters-js)))
 
 (defn install! []
   (if (installed?)
     (debug/log-info "devtools already installed - nothing to do")
-    (install-marked-formatter! (mark! (cljs-formatter)))))
+    (install-our-formatter! (build-cljs-formatter))))
 
 (defn uninstall! []
   (if-not (installed?)
     (debug/log-info "devtools not installed - nothing to do")
-    (uninstall-marked-formatters!)))
+    (uninstall-our-formatters!)))
 
 
 (defn disable! []
