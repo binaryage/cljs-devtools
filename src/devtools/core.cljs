@@ -13,7 +13,8 @@
 (defn find-fn-in-debug-ns [fn-name]
   (try
     (aget js/window "devtools" "debug" fn-name)
-    (catch :default _)))
+    (catch :default _
+      nil)))
 
 (defn monitor-api-call-if-avail [name api-call args]
   (if-let [monitor-api-call (find-fn-in-debug-ns "monitor_api_call")]

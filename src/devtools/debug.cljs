@@ -50,16 +50,19 @@
     (.info (logger "info") (apply str (cons (indentation) (str message))))))
 
 (defn ^:export monitor-api-call [name api-call args]
-  (try
-    (log (logger name) (str args))                          ; potential exception converting args to string
-    (catch :default e
-      (log-exception (str e))))
-  (indent!)
-  (let [api-response (apply api-call args)
-        api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
-    (log (logger name) (str "=> " (js->clj (json/parse (json/serialize api-response api-response-filter)))))
-    (unindent!)
-    api-response))
+  (if-not *initialized*
+    (apply api-call args)
+    (do
+      (try
+        (log (logger name) (str args))                      ; potential exception converting args to string
+        (catch :default e
+          (log-exception (str e))))
+      (indent!)
+      (let [api-response (apply api-call args)
+            api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
+        (log (logger name) (str "=> " (js->clj (json/parse (json/serialize api-response api-response-filter)))))
+        (unindent!)
+        api-response))))
 
 (defn init-logger! []
   (set! *console* (goog.debug.FancyWindow. "devtools"))
