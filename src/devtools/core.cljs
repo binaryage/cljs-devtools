@@ -12,13 +12,13 @@
 (deftype CLJSDevtoolsFormatter [header hasBody body])
 
 (defn- monitor-api-calls [name api-call]
-  (fn [value]
+  (fn [& args]
     (if-not *monitor-enabled*
-      (api-call value)                                      ; raw API call
+      (apply api-call args)                                 ; raw API call
       (do
-        (debug/log (debug/logger name) value)
+        (debug/log (debug/logger name) (json/serialize (clj->js args)))
         (debug/indent!)
-        (let [api-response (api-call value)                 ; wrapped API call
+        (let [api-response (apply api-call args)            ; wrapped API call
               api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
           (debug/log (debug/logger name) (str "=> " (js->clj (json/parse (json/serialize api-response api-response-filter)))))
           (debug/unindent!)
@@ -27,11 +27,11 @@
 (defn- sanitize
   "wraps our api-call in try-catch block to prevent leaking of exceptions if something goes wrong"
   [_ api-call]
-  (fn [value]
+  (fn [& args]
     (if-not *sanitizer-enabled*
-      (api-call value)                                      ; raw API call
+      (apply api-call args)                                 ; raw API call
       (try
-        (api-call value)                                    ; wrapped API call
+        (apply api-call args)                               ; wrapped API call
         (catch :default e
           (debug/log-exception e)
           nil)))))
