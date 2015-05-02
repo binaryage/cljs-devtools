@@ -16,7 +16,7 @@
 
 (defn monitor-api-calls [name api-call]
   (fn [value]
-    (if (not *monitor-enabled*)
+    (if-not *monitor-enabled*
       (api-call value)                                      ; raw API call
       (do
         (debug/log (debug/logger name) value)
@@ -31,7 +31,7 @@
   "wraps our api-call in try-catch block to prevent leaking of exceptions if something goes wrong"
   [_ api-call]
   (fn [value]
-    (if (not *sanitizer-enabled*)
+    (if-not *sanitizer-enabled*
       (api-call value)                                      ; raw API call
       (try
         (api-call value)                                    ; wrapped API call
