@@ -1,4 +1,4 @@
-(defproject cljs-devtools-sample "0.1.0-SNAPSHOT"
+(defproject devtools-sample "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 
@@ -12,7 +12,7 @@
             [lein-ring "0.9.1"]]
 
   :jvm-opts ^:replace ["-Xms512m" "-Xmx512m" "-server"]
-  
+
   :clean-targets ["out"]
 
   :ring {:handler server.core/app}
@@ -23,8 +23,8 @@
     :builds [{:id "dev"
               :source-paths ["src" "checkouts/cljs-devtools/src"]
               :compiler {
-                :main cljs-devtools-sample.core
-                :output-to "out/cljs_devtools_sample.js"
+                :main devtools-sample.core
+                :output-to "out/devtools_sample.js"
                 :output-dir "out"
                 :optimizations :none
                 :cache-analysis true
