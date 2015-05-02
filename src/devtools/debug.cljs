@@ -1,6 +1,7 @@
 (ns devtools.debug
   (:require [goog.debug.FancyWindow]
-            [goog.debug.Logger :as logger]))
+            [goog.debug.Logger :as logger]
+            [goog.json :as json]))
 
 ; we cannot log into console during console rendering
 ; hence we build a secondary console for our purposes
@@ -38,15 +39,27 @@
             *print-level* *debug-print-level*]
     (.info logger (apply str (cons (indentation) (str message))))))
 
-(defn log-exception [message]
+(defn ^:export log-exception [message]
   (binding [*print-length* *debug-print-length*
             *print-level* *debug-print-level*]
     (.shout (logger "ex!") (apply str (cons (indentation) (str message))))))
 
-(defn log-info [message]
+(defn ^:export log-info [message]
   (binding [*print-length* *debug-print-length*
             *print-level* *debug-print-level*]
     (.info (logger "info") (apply str (cons (indentation) (str message))))))
+
+(defn ^:export monitor-api-call [name api-call args]
+  (try
+    (log (logger name) (str args))                          ; potential exception converting args to string
+    (catch :default e
+      log-exception (str e)))
+  (indent!)
+  (let [api-response (apply api-call args)
+        api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
+    (log (logger name) (str "=> " (js->clj (json/parse (json/serialize api-response api-response-filter)))))
+    (unindent!)
+    api-response))
 
 (defn init-logger! []
   (set! *console* (goog.debug.FancyWindow. "devtools"))
@@ -63,12 +76,15 @@
   (let [original-log-fn (aget js/console "log")]
     (aset js/console "log" (fn [& args]
                              (.addSeparator *console*)
-                             (apply log (cons (logger "console") args))
+                             (try
+                               (log (logger "console") (str args)) ; potential exception converting args to string
+                               (catch :default e
+                                 log-exception (str e)))
                              (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
   (if *initialized*
-    (println "devtools.debug already initialized, nothing to do")
+    (.warn js/console "devtools.debug already initialized, nothing to do")
     (do
       (init-logger!)
       (hijack-console!)

@@ -1,7 +1,5 @@
 (ns devtools.core
-  (:require [goog.json :as json]
-            [devtools.debug :as debug]
-            [devtools.format :as format]))
+  (:require [devtools.format :as format]))
 
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *sanitizer-enabled* true)
@@ -11,40 +9,46 @@
 
 (deftype CLJSDevtoolsFormatter [header hasBody body])
 
+; devtools.debug namespace may not be present => no debugging
+(defn find-fn-in-debug-ns [fn-name]
+  (aget js/window "devtools" "debug" fn-name))
+
+(defn monitor-api-call-if-avail [name api-call args]
+  (if-let [monitor-api-call (find-fn-in-debug-ns "monitor_api_call")]
+    (monitor-api-call name api-call args)
+    (apply api-call args)))
+
+(defn log-exception-if-avail [& args]
+  (if-let [log-exception (find-fn-in-debug-ns "log_exception")]
+    (apply log-exception args)))
+
+; monitors api calls in a separate debug console if debug namespace is available
 (defn- monitor-api-calls [name api-call]
   (fn [& args]
     (if-not *monitor-enabled*
-      (apply api-call args)                                 ; raw API call
-      (do
-        (debug/log (debug/logger name) (json/serialize (clj->js args)))
-        (debug/indent!)
-        (let [api-response (apply api-call args)            ; wrapped API call
-              api-response-filter (fn [key value] (if (= key "object") "##REF##" value))]
-          (debug/log (debug/logger name) (str "=> " (js->clj (json/parse (json/serialize api-response api-response-filter)))))
-          (debug/unindent!)
-          api-response)))))
+      (apply api-call args)
+      (monitor-api-call-if-avail name api-call args))))
 
-(defn- sanitize
-  "wraps our api-call in try-catch block to prevent leaking of exceptions if something goes wrong"
-  [_ api-call]
+; wraps our api calls in a try-catch block to prevent leaking of exceptions in case something went wrong
+(defn- sanitize [name api-call]
   (fn [& args]
     (if-not *sanitizer-enabled*
       (apply api-call args)                                 ; raw API call
       (try
         (apply api-call args)                               ; wrapped API call
         (catch :default e
-          (debug/log-exception e)
+          (log-exception-if-avail (str name ": " e))
           nil)))))
 
 (defn- build-cljs-formatter []
-  (let [api-call-wrapper (fn [name api-call]
-                           (let [monitor (partial monitor-api-calls name)
-                                 sanitizer (partial sanitize name)]
-                             ((comp monitor sanitizer) api-call)))]
+  (let [wrap (fn [name api-call]
+               (let [monitor (partial monitor-api-calls name)
+                     sanitizer (partial sanitize name)]
+                 ((comp monitor sanitizer) api-call)))]
     (CLJSDevtoolsFormatter.
-      (api-call-wrapper "header" format/header-api-call)
-      (api-call-wrapper "hasBody" format/has-body-api-call)
-      (api-call-wrapper "body" format/body-api-call))))
+      (wrap "header" format/header-api-call)
+      (wrap "hasBody" format/has-body-api-call)
+      (wrap "body" format/body-api-call))))
 
 (defn- is-ours? [o]
   (instance? CLJSDevtoolsFormatter o))
