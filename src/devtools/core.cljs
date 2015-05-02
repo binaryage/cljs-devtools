@@ -71,12 +71,12 @@
 
 (defn install! []
   (if (installed?)
-    (debug/log-info "devtools already installed - nothing to do")
+    (.warn js/console "install!: devtools already installed - nothing to do")
     (install-our-formatter! (build-cljs-formatter))))
 
 (defn uninstall! []
   (if-not (installed?)
-    (debug/log-info "devtools not installed - nothing to do")
+    (.warn js/console "uninstall!: devtools not installed - nothing to do")
     (uninstall-our-formatters!)))
 
 
