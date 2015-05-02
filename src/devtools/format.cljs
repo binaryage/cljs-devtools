@@ -39,8 +39,8 @@
 ; [14:05:00] dnolen: this property is unlikely to change - still it's probably not something anything anyone should use w/o a really good reason
 (defn cljs-value? [value]
   (try
-    (exists? (aget value "constructor" "cljs$lang$type"))
-    (catch js/Object _
+    (.. value -constructor -cljs$lang$type)
+    (catch :default _
       false)))
 
 (defn surrogate? [value]
