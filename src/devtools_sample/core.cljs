@@ -1,33 +1,10 @@
 (ns devtools-sample.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs-http.client :as http]
-            [cljs.core.async :refer [<!]]
-            [clojure.string :as string]
-            [devtools.core :as devtools]
-            [devtools.format :as format]
-            [devtools.debug :as debug]))
+  (:require [clojure.string :as string]
+            [devtools-sample.boot :refer [boot!]]
+            [devtools-sample.more :refer [more!]]
+            [devtools.format :as format]))
 
-(debug/init!)
-
-(set! devtools/*monitor-enabled* true)
-(set! devtools/*sanitizer-enabled* false)
-(devtools/install!)
-
-(defn extract-meat [re s]
-  (let [rex (js/RegExp. re "igm")]
-    (.exec rex s)))
-
-(defn trim-newlines [s]
-  (let [rex (js/RegExp. "^\n+|\n+$" "g")]
-    (.replace s rex "")))
-
-(defn escape-html [text] (string/escape text {\< "&lt;", \> "&gt;", \& "&amp;"}))
-
-(defn get-meat [source-code]
-  (trim-newlines (nth (extract-meat (str "-" "->([^]*?); <-") source-code) 1)))
-
-(go (let [response (<! (http/get "/src/cljs_devtools_sample/core.cljs"))]
-      (aset (.querySelector js/document "code") "innerHTML" (escape-html (get-meat (:body response))))))
+(boot!)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; some quick and dirty inline tests
@@ -35,6 +12,8 @@
 ; --- MEAT STARTS HERE -->
 
 (defn log [& args] (.apply (aget js/console "log") js/console (into-array args)))
+
+; note: (log a b c) function is shorthand for (.log js/console a b c)
 
 (log nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2})
 (log [nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] #{1 2 3} {:k1 1 :k2 2} #js [1 2 3] #js {"k1" 1 "k2" 2} (js/Date.)])
@@ -57,54 +36,4 @@
 
 ; <-- MEAT STOPS HERE ---
 
-(deftype SomeType [some-field])
-
-(log (SomeType. "some value"))
-
-(def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
-
-; defrecord with IDevtoolsFormat
-(defrecord Language [lang]
-  format/IDevtoolsFormat
-  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
-  (-has-body [_])
-  (-body [_]))
-
-(def test-lang (Language. "ClojureScript"))
-
-; reify with IDevtoolsFormat
-(def test-reify (reify
-                  format/IDevtoolsFormat
-                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
-                  (-has-body [_] false)
-                  (-body [_])))
-
-(def long-string
-  "First line
-second line
-third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
-
-last line")
-
-(defn excercise! []
-  (log [test-lang test-reify])
-  (log (.-nested test-interleaved))
-  (log test-interleaved)
-  (log [long-string]))
-
-(excercise!)
-
-(def global (atom []))
-
-(defn break-into-this-fn [param]
-  (let [range (range 3)
-        seq (interleave (repeat :even) (repeat :odd))]
-    (doseq [item range]
-      (let [s (str item "(" (nth seq item) ") " param)]
-        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
-
-(break-into-this-fn "postfix")
-(log global)
-
-(log [::namespaced-keyword])
-(log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
+(more!)
