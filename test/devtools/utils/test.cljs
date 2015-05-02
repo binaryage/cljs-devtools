@@ -31,47 +31,79 @@
 
 (defn collect-refs [template]
   (let [refs (atom [])
-        filter (fn [key value] (if-not (= key "object")
-                                 value
-                                 (do
-                                   (reset! refs (conj @refs value))
-                                   "##REF##")))]
+        catch-next (atom false)
+        filter (fn [_ value]
+                 (when @catch-next
+                   (reset! catch-next false)
+                   (reset! refs (conj @refs value)))
+                 (if (= value "object") (reset! catch-next true))
+                 value)]
     (json/serialize template filter)
     @refs))
 
-(defn want? [value expected]
-  (is (= (f/want-value? value) expected) (if expected
-                                           (str (pr-str value) " SHOULD be processed by devtools custom formatter")
-                                           (str (pr-str value) " SHOULD NOT be processed by devtools custom formatter"))))
+; note: not perfect just ad-hoc for our cases
+(defn plain-js-obj? [o]
+  (and (object? o) (not (coll? o))))
+
+(defn want?* [value config expected]
+  (is (= (f/want-value? value config)) expected)
+  (if expected
+    (str (pr-str value) " SHOULD be processed by devtools custom formatter")
+    (str (pr-str value) " SHOULD NOT be processed by devtools custom formatter")))
+
+(defn want? [value expected-or-config & rest]
+  (if-not (plain-js-obj? expected-or-config)
+    (apply want?* (concat [value nil expected-or-config] rest))
+    (apply want?* (concat [value expected-or-config] rest))))
+
+(defn unroll-fns [v]
+  (if (vector? v)
+    (mapcat (fn [item] (if (fn? item) (unroll-fns (item)) [(unroll-fns item)])) v)
+    v))
 
 (defn is-template [template expected & callbacks]
   (let [sanitized-template (replace-refs template "##REF##")
         refs (collect-refs template)
-        expected-template (clj->js expected)]
+        expected-template (clj->js (unroll-fns expected))]
     (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)
       (is (= (count refs) (count callbacks)) "number of refs and callbacks does not match")
       (loop [rfs refs
              cbs callbacks]
         (when-not (empty? cbs)
-          ((first cbs) (first rfs))
-          (recur (rest rfs) (rest cbs)))))))
+          (let [rf (first rfs)
+                object (aget rf "object")
+                config (aget rf "config")
+                cb (first cbs)]
+            (cb object config)
+            (recur (rest rfs) (rest cbs))))))))
 
-(defn expand-fns [v]
-  (if (vector? v)
-    (mapcat (fn [item] (if (fn? item) (expand-fns (item)) [(expand-fns item)])) v)
-    v))
+(defn is-header* [value config expected & callbacks]
+  (apply is-template (concat [(f/header value config) expected] callbacks)))
 
-(defn is-header [value expected & callbacks]
-  (apply is-template (concat [(f/header value) (expand-fns expected)] callbacks)))
+(defn is-header [value expected-or-config & rest]
+  (if-not (plain-js-obj? expected-or-config)
+    (apply is-header* (concat [value nil expected-or-config] rest))
+    (apply is-header* (concat [value expected-or-config] rest))))
 
-(defn is-body [value expected & callbacks]
-  (apply is-template (concat [(f/body value) (expand-fns expected)] callbacks)))
+(defn is-body* [value config expected & callbacks]
+  (apply is-template (concat [(f/body value config) expected] callbacks)))
 
-(defn has-body? [value expected]
-  (is (= (f/has-body value) expected) (if expected
-                                        (str (pr-str value) " SHOULD return true to hasBody call")
-                                        (str (pr-str value) " SHOULD return false to hasBody call"))))
+(defn is-body [value expected-or-config & rest]
+  (if-not (plain-js-obj? expected-or-config)
+    (apply is-body* (concat [value nil expected-or-config] rest))
+    (apply is-body* (concat [value expected-or-config] rest))))
+
+(defn has-body?* [value config expected]
+  (is (= (f/has-body value config) expected)
+    (if expected
+      (str (pr-str value) " SHOULD return true to hasBody call")
+      (str (pr-str value) " SHOULD return false to hasBody call"))))
+
+(defn has-body? [value expected-or-config & rest]
+  (if-not (plain-js-obj? expected-or-config)
+    (apply has-body?* (concat [value nil expected-or-config] rest))
+    (apply has-body?* (concat [value expected-or-config] rest))))
 
 (defn unroll [& args]
   (apply partial (concat [mapcat] args)))

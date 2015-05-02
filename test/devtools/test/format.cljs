@@ -3,7 +3,9 @@
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll]]
             [devtools.format :as f]))
 
-(deftest wants
+(deftype SimpleType [some-field])
+
+(deftest test-wants
   (testing "these simple values should not be processed by our custom formatter"
     (want? "some string" false)
     (want? 0 false)
@@ -15,6 +17,7 @@
     (want? true false)
     (want? false false)
     (want? nil false)
+    (want? (SimpleType. "some-value") #js {"prevent-recursion" true} false)
     (want? #(.-document js/window) false))
   (testing "these values should be processed by our custom formatter"
     (want? :keyword true)
@@ -24,9 +27,11 @@
     (want? [] true)
     (want? '() true)
     (want? {} true)
-    (want? #{} true)))
+    (want? #{} true)
+    (want? (SimpleType. "some-value") true)
+    (want? (range f/max-number-body-items) true)))
 
-(deftest bodies
+(deftest test-bodies
   (testing "these values should not have body"
     (has-body? "some string" false)
     (has-body? 0 false)
@@ -47,6 +52,8 @@
     (has-body? '() false)
     (has-body? {} false)
     (has-body? #{} false)
+    (has-body? (SimpleType. "some-value") false)
+    (has-body? (SimpleType. "some-value") #js {"prevent-recursion" true} false)
     (has-body? (range f/max-number-body-items) false)))
 
 (deftest test-simple-atomic-values
@@ -215,3 +222,16 @@
          "]"
          "]"
          "]"]))))
+
+(deftest test-deftype
+  (testing "simple deftype"
+    (let [type-instance (SimpleType. "some-value")]
+      (is-header type-instance
+        ["span" {"style" f/cljs-style}
+         "#<"
+         ["object" {"object" "##REF##" "config" #js {"prevent-recursion" true}}]
+         ">"]
+        (fn [ref config]
+          (want? ref config false)
+          (is (not (f/surrogate? ref)))
+          (has-body? ref false))))))

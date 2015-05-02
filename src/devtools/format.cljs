@@ -46,7 +46,12 @@
 (defn surrogate? [value]
   (and
     (not (nil? value))
-    (exists? (aget value surrogate-key))))
+    (aget value surrogate-key)))
+
+(defn prevent-recursion? [config]
+  (and
+    (not (nil? config))
+    (aget config "prevent-recursion")))
 
 (defn template [tag style & children]
   (let [js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
@@ -56,11 +61,9 @@
         (.push js-array child)))
     js-array))
 
-(defn reference [object & children]
-  (let [js-array #js ["object" #js {"object" object}]]
-    (doseq [child children]
-      (.push js-array child))
-    js-array))
+(defn reference
+  ([object] #js ["object" #js {"object" object}])
+  ([object config] #js ["object" #js {"object" object "config" config}]))
 
 (defn surrogate
   ([object header] (surrogate object header true))
@@ -131,9 +134,13 @@
 ; default printer implementation can do this:
 ;   :else (write-all writer "#<" (str obj) ">")
 ; we want to wrap stringified obj in a reference for further inspection
+;
+; in some situations obj can still be a clojurescript value (e.g. deftypes)
+; we have to implement a special flag to prevent infinite recursion
+; see https://github.com/binaryage/cljs-devtools/issues/2
 (defn detect-else-case-and-patch-it [group obj]
   (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
-    (aset group 1 (reference obj))))
+    (aset group 1 (reference obj #js {"prevent-recursion" true}))))
 
 (defn alt-printer-impl [obj writer opts]
   (if-let [tmpl (atomic-template obj)]
@@ -209,39 +216,40 @@
 
 ;;;;;;;;; RAW API
 
-(defn want-value? [value]
-  (or (cljs-value? value)
-    (surrogate? value)))
+(defn want-value? [value config]
+  (if (prevent-recursion? config)
+    false
+    (or (cljs-value? value) (surrogate? value))))
 
-(defn header [value]
+(defn header [value config]
   (cond
     (surrogate? value) (aget value "header")
     (satisfies? IDevtoolsFormat value) (-header value)
     :else (build-header value)))
 
-(defn has-body [value]
+(defn has-body [value config]
   ; note: body is emulated using surrogate references
   (cond
     (surrogate? value) (aget value "hasBody")
     (satisfies? IDevtoolsFormat value) (-has-body value)
     :else false))
 
-(defn body [value]
+(defn body [value config]
   (cond
     (surrogate? value) (build-surrogate-body value)
     (satisfies? IDevtoolsFormat value) (-body value)))
 
 ;;;;;;;;; API CALLS
 
-(defn header-api-call [value]
-  (if (want-value? value)
-    (header value)))
+(defn header-api-call [value config]
+  (if (want-value? value config)
+    (header value config)))
 
-(defn has-body-api-call [value]
-  (if (want-value? value)
-    (has-body value)
+(defn has-body-api-call [value config]
+  (if (want-value? value config)
+    (has-body value config)
     false))
 
-(defn body-api-call [value]
-  (if (want-value? value)
-    (body value)))
+(defn body-api-call [value config]
+  (if (want-value? value config)
+    (body value config)))
