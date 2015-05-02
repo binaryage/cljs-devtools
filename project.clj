@@ -11,8 +11,6 @@
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-ring "0.9.1"]]
 
-  :jvm-opts ^:replace ["-Xms512m" "-Xmx512m" "-server"]
-
   :clean-targets ["out"]
 
   :ring {:handler server.core/app}
