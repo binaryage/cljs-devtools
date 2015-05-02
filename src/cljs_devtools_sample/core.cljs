@@ -1,16 +1,14 @@
 (ns cljs-devtools-sample.core
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [clojure.browser.repl :as repl]
-            [cljs-http.client :as http]
+  (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
             [devtools.core :as devtools]
-            [devtools.debug :as devtools-debug]
-            [devtools.format :as format]))
+            [devtools.format :as format]
+            [devtools.debug :as debug]))
 
-(repl/connect "http://localhost:9000/repl")
-(enable-console-print!)
-(devtools-debug/init!)
+(debug/init!)
+
 (set! devtools/*monitor-enabled* true)
 (set! devtools/*sanitizer-enabled* false)
 (devtools/install!)
@@ -59,50 +57,54 @@
 
 ; <-- MEAT STOPS HERE ---
 
-;(def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
-;
-;; defrecord with IDevtoolsFormat
-;(defrecord Language [lang]
-;  format/IDevtoolsFormat
-;  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
-;  (-has-body [_])
-;  (-body [_]))
-;
-;(def test-lang (Language. "ClojureScript"))
-;
-;; reify with IDevtoolsFormat
-;(def test-reify (reify
-;                  format/IDevtoolsFormat
-;                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
-;                  (-has-body [_] false)
-;                  (-body [_])))
-;
-;(def long-string
-;  "First line
-;second line
-;third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
-;
-;last line")
-;
-;(defn excercise! []
-;  (log [test-lang test-reify])
-;  (log (.-nested test-interleaved))
-;  (log test-interleaved)
-;  (log [long-string]))
-;
-;(excercise!)
-;
-;(def global (atom []))
-;
-;(defn break-into-this-fn [param]
-;  (let [range (range 3)
-;        seq (interleave (repeat :even) (repeat :odd))]
-;    (doseq [item range]
-;      (let [s (str item "(" (nth seq item) ") " param)]
-;        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
-;
-;(break-into-this-fn "postfix")
-;(log global)
-;
-;(log [::namespaced-keyword])
-;(log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
+(deftype SomeType [some-field])
+
+(log (SomeType. "some value"))
+
+(def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
+
+; defrecord with IDevtoolsFormat
+(defrecord Language [lang]
+  format/IDevtoolsFormat
+  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+  (-has-body [_])
+  (-body [_]))
+
+(def test-lang (Language. "ClojureScript"))
+
+; reify with IDevtoolsFormat
+(def test-reify (reify
+                  format/IDevtoolsFormat
+                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
+                  (-has-body [_] false)
+                  (-body [_])))
+
+(def long-string
+  "First line
+second line
+third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
+
+last line")
+
+(defn excercise! []
+  (log [test-lang test-reify])
+  (log (.-nested test-interleaved))
+  (log test-interleaved)
+  (log [long-string]))
+
+(excercise!)
+
+(def global (atom []))
+
+(defn break-into-this-fn [param]
+  (let [range (range 3)
+        seq (interleave (repeat :even) (repeat :odd))]
+    (doseq [item range]
+      (let [s (str item "(" (nth seq item) ") " param)]
+        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
+
+(break-into-this-fn "postfix")
+(log global)
+
+(log [::namespaced-keyword])
+(log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
