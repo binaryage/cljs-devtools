@@ -7,7 +7,7 @@
 
 (def formatter-key "devtoolsFormatters")
 
-(deftype CLJSDevtoolsFormatter [header hasBody body])
+(deftype CLJSDevtoolsFormatter [])
 
 ; devtools.debug namespace may not be present => no debugging
 (defn find-fn-in-debug-ns [fn-name]
@@ -47,11 +47,15 @@
   (let [wrap (fn [name api-call]
                (let [monitor (partial monitor-api-calls name)
                      sanitizer (partial sanitize name)]
-                 ((comp monitor sanitizer) api-call)))]
-    (CLJSDevtoolsFormatter.
-      (wrap "header" format/header-api-call)
-      (wrap "hasBody" format/has-body-api-call)
-      (wrap "body" format/body-api-call))))
+                 ((comp monitor sanitizer) api-call)
+                 api-call))
+        formatter (CLJSDevtoolsFormatter.)
+        define! (fn [name fn]
+                  (aset formatter name (wrap name fn)))]
+    (define! "header" format/header-api-call)
+    (define! "hasBody" format/has-body-api-call)
+    (define! "body" format/body-api-call)
+    formatter))
 
 (defn- is-ours? [o]
   (instance? CLJSDevtoolsFormatter o))
