@@ -24,7 +24,7 @@
   :cljsbuild
   {:builds
                   {:dev
-                   {:source-paths ["src"]
+                   {:source-paths ["src", "src-debug"]
                     :compiler     {:output-to      "out/dev/cljs_devtools.js"
                                    :output-dir     "out/dev"
                                    :optimizations  :none
