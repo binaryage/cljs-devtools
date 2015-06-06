@@ -23,11 +23,14 @@
     (aget config "prevent-recursion")))
 
 (defn template [tag style & children]
-  (let [js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
+  (let [resolve-pref (fn [pref-or-val] (if (keyword? pref-or-val) (pref pref-or-val) pref-or-val))
+        tag (resolve-pref tag)
+        style (resolve-pref style)
+        js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [child children]
       (if (coll? child)
         (.apply (aget js-array "push") js-array (into-array child)) ; convenience helper to splat cljs collections
-        (.push js-array child)))
+        (.push js-array (resolve-pref child))))
     js-array))
 
 (defn reference
@@ -41,17 +44,17 @@
    (js-obj
      (pref :surrogate-key) true
      "target" object
-     "header" (template (pref :span) (pref :cljs-style) header)
+     "header" (template :span :cljs-style header)
      "hasBody" has-body
      "bodyTemplate" body-template)))
 
 (defn index-template [value]
-  (template (pref :span) (pref :index-style) value (pref :line-index-separator)))
+  (template :span :index-style value :line-index-separator))
 
 (defn number-template [value]
   (if (integer? value)
-    (template (pref :span) (pref :integer-style) value)
-    (template (pref :span) (pref :float-style) value)))
+    (template :span :integer-style value)
+    (template :span :float-style value)))
 
 (defn abbreviate-long-string [string]
   (str
@@ -65,12 +68,12 @@
         inline-string (.replace source-string re-nl (pref :new-line-string-replacer))
         max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
     (if (<= (count inline-string) max-inline-string-size)
-      (template (pref :span) (pref :string-style) (str dq inline-string dq))
-      (let [abbreviated-string-template (template (pref :span) (pref :string-style) (str dq (abbreviate-long-string inline-string) dq))
+      (template :span :string-style (str dq inline-string dq))
+      (let [abbreviated-string-template (template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
-            body-template (template (pref :ol) (pref :standard-ol-style)
-                            (template (pref :li) (pref :standard-li-style)
-                              (template (pref :span) (pref :string-style) (str dq string-with-nl-markers dq))))]
+            body-template (template :ol :standard-ol-style
+                            (template :li :standard-li-style
+                              (template :span :string-style (str dq string-with-nl-markers dq))))]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn bool? [value]
@@ -78,13 +81,13 @@
 
 (defn atomic-template [value]
   (cond
-    (nil? value) (template (pref :span) (pref :nil-style) (pref :nil-label))
-    (bool? value) (template (pref :span) (pref :bool-style) value)
+    (nil? value) (template :span :nil-style :nil-label)
+    (bool? value) (template :span :bool-style value)
     (string? value) (string-template value)
     (number? value) (number-template value)
-    (keyword? value) (template (pref :span) (pref :keyword-style) (str value))
-    (symbol? value) (template (pref :span) (pref :symbol-style) (str value))
-    (fn? value) (template (pref :span) (pref :fn-style) (reference value))))
+    (keyword? value) (template :span :keyword-style (str value))
+    (symbol? value) (template :span :symbol-style (str value))
+    (fn? value) (template :span :fn-style (reference value))))
 
 (defn abbreviated? [template]
   (some #(= (pref :more-marker) %) template))
@@ -98,7 +101,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (abbreviated? group)
-    #js [(reference (surrogate obj (.concat (template (pref :span) "") group)))]
+    #js [(reference (surrogate obj (.concat (template :span "") group)))]
     group))
 
 ; default printer implementation can do this:
@@ -125,7 +128,7 @@
       (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
 
 (defn managed-pr-str [value style print-level]
-  (let [tmpl (template (pref :span) style)
+  (let [tmpl (template :span style)
         writer (TemplateWriter. tmpl)]
     (binding [*print-level* print-level]                    ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
@@ -134,16 +137,16 @@
     tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value (pref :cljs-style) (inc (pref :max-print-level))))
+  (managed-pr-str value :cljs-style (inc (pref :max-print-level))))
 
 (defn standard-body-template
-  ([lines margin?] (let [ol-style (if margin? (pref :standard-ol-style) (pref :standard-ol-no-margin-style))
-                         li-style (if margin? (pref :standard-li-style) (pref :standard-li-no-margin-style))]
-                     (template (pref :ol) ol-style (map #(template (pref :li) li-style %) lines))))
+  ([lines margin?] (let [ol-style (if margin? :standard-ol-style :standard-ol-no-margin-style)
+                         li-style (if margin? :standard-li-style :standard-li-no-margin-style)]
+                     (template :ol ol-style (map #(template :li li-style %) lines))))
   ([lines] (standard-body-template lines true)))
 
 (defn body-line-template [index value]
-  [(index-template index) (pref :spacer) (managed-pr-str value (if cljs-value? (pref :cljs-style) "") 3)])
+  [(index-template index) (pref :spacer) (managed-pr-str value (if cljs-value? :cljs-style "") 3)])
 
 (defn prepare-body-lines [data starting-index]
   (loop [work data
@@ -176,7 +179,7 @@
       (if (seqable? target)
         (let [starting-index (or (aget value "startingIndex") 0)]
           (build-body target starting-index))
-        (template (pref :ol) (pref :standard-ol-style) (template (pref :li) (pref :standard-li-style) (reference target)))))))
+        (template :ol :standard-ol-style (template :li :standard-li-style (reference target)))))))
 
 ;;;;;;;;; PROTOCOL SUPPORT
 
