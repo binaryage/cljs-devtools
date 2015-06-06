@@ -14,8 +14,8 @@
                               [:email "antonin@hildebrand.cz"]
                               [:timezone "+1"]]]
 
-  :dependencies [[org.clojure/clojure "1.6.0" :scope "provided"]
-                 [org.clojure/clojurescript "0.0-3196" :scope "provided"]]
+  :dependencies [[org.clojure/clojure "1.7.0-RC1" :scope "provided"]
+                 [org.clojure/clojurescript "0.0-3308" :scope "provided"]]
   
   :clean-targets ["out"]
   :plugins [[lein-cljsbuild "1.0.4"]
