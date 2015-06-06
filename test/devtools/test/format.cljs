@@ -215,11 +215,7 @@
          "["
          ["span" {"style" f/integer-style} 2]
          f/spacer
-         "["
-         ["span" {"style" f/integer-style} 3]
-         f/spacer
          ["object" {"object" "##REF##"}]
-         "]"
          "]"
          "]"]))))
 

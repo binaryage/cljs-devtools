@@ -1,6 +1,6 @@
 (ns devtools.format)
 
-(def max-print-level 3)
+(def max-print-level 2)
 (def max-header-elements 5)
 (def more-marker "…")
 (def max-number-body-items 100)
