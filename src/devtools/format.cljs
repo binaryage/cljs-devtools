@@ -1,36 +1,5 @@
-(ns devtools.format)
-
-(def max-print-level 2)
-(def max-header-elements 5)
-(def more-marker "…")
-(def max-number-body-items 100)
-(def body-items-more-label "more…")
-(def string-prefix-limit 20)
-(def string-postfix-limit 20)
-(def string-abbreviation-marker " … ")
-(def new-line-string-replacer "↵")
-(def line-index-separator ":")
-(def dq "\"")
-(def surrogate-key "$$this-is-cljs-devtools-surrogate")
-(def standard-ol-style "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:12px")
-(def standard-ol-no-margin-style "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:0px")
-(def standard-li-style "margin-left:12px")
-(def standard-li-no-margin-style "margin-left:0px")
-(def spacer " ")
-(def span "span")
-(def ol "ol")
-(def li "li")
-(def cljs-style "background-color:#efe")
-(def index-style "color:#881391")
-(def nil-style "color:#808080")
-(def nil-label "nil")
-(def keyword-style "color:#881391")
-(def integer-style "color:#1C00CF")
-(def float-style "color:#1C88CF")
-(def string-style "color:#C41A16")
-(def symbol-style "color:#000000")
-(def fn-style "color:#090")
-(def bool-style "color:#099")
+(ns devtools.format
+  (:require [devtools.prefs :refer [pref]]))
 
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
@@ -46,7 +15,7 @@
 (defn surrogate? [value]
   (and
     (not (nil? value))
-    (aget value surrogate-key)))
+    (aget value (pref :surrogate-key))))
 
 (defn prevent-recursion? [config]
   (and
@@ -70,37 +39,38 @@
   ([object header has-body] (surrogate object header has-body nil))
   ([object header has-body body-template]
    (js-obj
-     surrogate-key true
+     (pref :surrogate-key) true
      "target" object
-     "header" (template span cljs-style header)
+     "header" (template (pref :span) (pref :cljs-style) header)
      "hasBody" has-body
      "bodyTemplate" body-template)))
 
 (defn index-template [value]
-  (template span index-style value line-index-separator))
+  (template (pref :span) (pref :index-style) value (pref :line-index-separator)))
 
 (defn number-template [value]
   (if (integer? value)
-    (template span integer-style value)
-    (template span float-style value)))
+    (template (pref :span) (pref :integer-style) value)
+    (template (pref :span) (pref :float-style) value)))
 
 (defn abbreviate-long-string [string]
   (str
-    (apply str (take string-prefix-limit string))
-    string-abbreviation-marker
-    (apply str (take-last string-postfix-limit string))))
+    (apply str (take (pref :string-prefix-limit) string))
+    (pref :string-abbreviation-marker)
+    (apply str (take-last (pref :string-postfix-limit) string))))
 
 (defn string-template [source-string]
-  (let [re-nl (js/RegExp. "\n" "g")
-        inline-string (.replace source-string re-nl new-line-string-replacer)
-        max-inline-string-size (+ string-prefix-limit string-postfix-limit)]
+  (let [dq (pref :dq)
+        re-nl (js/RegExp. "\n" "g")
+        inline-string (.replace source-string re-nl (pref :new-line-string-replacer))
+        max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
     (if (<= (count inline-string) max-inline-string-size)
-      (template span string-style (str dq inline-string dq))
-      (let [abbreviated-string-template (template span string-style (str dq (abbreviate-long-string inline-string) dq))
-            string-with-nl-markers (.replace source-string re-nl (str new-line-string-replacer "\n"))
-            body-template (template ol standard-ol-style
-                            (template li standard-li-style
-                              (template span string-style (str dq string-with-nl-markers dq))))]
+      (template (pref :span) (pref :string-style) (str dq inline-string dq))
+      (let [abbreviated-string-template (template (pref :span) (pref :string-style) (str dq (abbreviate-long-string inline-string) dq))
+            string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
+            body-template (template (pref :ol) (pref :standard-ol-style)
+                            (template (pref :li) (pref :standard-li-style)
+                              (template (pref :span) (pref :string-style) (str dq string-with-nl-markers dq))))]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn bool? [value]
@@ -108,16 +78,16 @@
 
 (defn atomic-template [value]
   (cond
-    (nil? value) (template span nil-style nil-label)
-    (bool? value) (template span bool-style value)
+    (nil? value) (template (pref :span) (pref :nil-style) (pref :nil-label))
+    (bool? value) (template (pref :span) (pref :bool-style) value)
     (string? value) (string-template value)
     (number? value) (number-template value)
-    (keyword? value) (template span keyword-style (str value))
-    (symbol? value) (template span symbol-style (str value))
-    (fn? value) (template span fn-style (reference value))))
+    (keyword? value) (template (pref :span) (pref :keyword-style) (str value))
+    (symbol? value) (template (pref :span) (pref :symbol-style) (str value))
+    (fn? value) (template (pref :span) (pref :fn-style) (reference value))))
 
 (defn abbreviated? [template]
-  (some #(= more-marker %) template))
+  (some #(= (pref :more-marker) %) template))
 
 (deftype TemplateWriter [t]
   Object
@@ -128,7 +98,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (abbreviated? group)
-    #js [(reference (surrogate obj (.concat (template span "") group)))]
+    #js [(reference (surrogate obj (.concat (template (pref :span) "") group)))]
     group))
 
 ; default printer implementation can do this:
@@ -148,32 +118,32 @@
     (let [inner-tmpl #js []
           inner-writer (TemplateWriter. inner-tmpl)
           default-impl (:fallback-impl opts)
-          ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
+          ; we want to (pref :li)mit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
           inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
       (default-impl obj inner-writer inner-opts)
       (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
       (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
 
 (defn managed-pr-str [value style print-level]
-  (let [tmpl (template span style)
+  (let [tmpl (template (pref :span) style)
         writer (TemplateWriter. tmpl)]
     (binding [*print-level* print-level]                    ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
-                                     :print-length max-header-elements
-                                     :more-marker  more-marker}))
+                                     :print-length (pref :max-header-elements)
+                                     :more-marker  (pref :more-marker)}))
     tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value cljs-style (inc max-print-level)))
+  (managed-pr-str value (pref :cljs-style) (inc (pref :max-print-level))))
 
 (defn standard-body-template
-  ([lines margin?] (let [ol-style (if margin? standard-ol-style standard-ol-no-margin-style)
-                         li-style (if margin? standard-li-style standard-li-no-margin-style)]
-                     (template ol ol-style (map #(template li li-style %) lines))))
+  ([lines margin?] (let [ol-style (if margin? (pref :standard-ol-style) (pref :standard-ol-no-margin-style))
+                         li-style (if margin? (pref :standard-li-style) (pref :standard-li-no-margin-style))]
+                     (template (pref :ol) ol-style (map #(template (pref :li) li-style %) lines))))
   ([lines] (standard-body-template lines true)))
 
 (defn body-line-template [index value]
-  [(index-template index) spacer (managed-pr-str value (if cljs-value? cljs-style "") 3)])
+  [(index-template index) (pref :spacer) (managed-pr-str value (if cljs-value? (pref :cljs-style) "") 3)])
 
 (defn prepare-body-lines [data starting-index]
   (loop [work data
@@ -185,13 +155,14 @@
 
 (defn body-lines-templates [value starting-index]
   (let [seq (seq value)
+        max-number-body-items (pref :max-number-body-items)
         chunk (take max-number-body-items seq)
         rest (drop max-number-body-items seq)
         lines (prepare-body-lines chunk starting-index)
         continue? (not (empty? (take 1 rest)))]
     (if-not continue?
       lines
-      (let [surrogate-object (surrogate rest body-items-more-label)]
+      (let [surrogate-object (surrogate rest (pref :body-items-more-label))]
         (aset surrogate-object "startingIndex" (+ starting-index max-number-body-items))
         (conj lines (reference surrogate-object))))))
 
@@ -205,7 +176,7 @@
       (if (seqable? target)
         (let [starting-index (or (aget value "startingIndex") 0)]
           (build-body target starting-index))
-        (template ol standard-ol-style (template li standard-li-style (reference target)))))))
+        (template (pref :ol) (pref :standard-ol-style) (template (pref :li) (pref :standard-li-style) (reference target)))))))
 
 ;;;;;;;;; PROTOCOL SUPPORT
 

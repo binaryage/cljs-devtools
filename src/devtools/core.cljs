@@ -1,5 +1,6 @@
 (ns devtools.core
-  (:require [devtools.format :as format]))
+  (:require [devtools.format :as format]
+            [devtools.prefs :as prefs]))
 
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *sanitizer-enabled* true)
@@ -96,3 +97,9 @@
 
 (defn enable! []
   (set! *devtools-enabled* true))
+
+(defn set-prefs! [new-prefs]
+  (prefs/set-prefs! new-prefs))
+
+(defn get-prefs []
+  (prefs/get-prefs))

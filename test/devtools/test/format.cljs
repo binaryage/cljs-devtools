@@ -1,7 +1,8 @@
 (ns devtools.test.format
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll]]
-            [devtools.format :as f]))
+            [devtools.format :refer [surrogate?]]
+            [devtools.prefs :refer [pref]]))
 
 (deftype SimpleType [some-field])
 
@@ -29,7 +30,7 @@
     (want? {} true)
     (want? #{} true)
     (want? (SimpleType. "some-value") true)
-    (want? (range f/max-number-body-items) true)))
+    (want? (range (pref :max-number-body-items)) true)))
 
 (deftest test-bodies
   (testing "these values should not have body"
@@ -54,167 +55,167 @@
     (has-body? #{} false)
     (has-body? (SimpleType. "some-value") false)
     (has-body? (SimpleType. "some-value") #js {"prevent-recursion" true} false)
-    (has-body? (range f/max-number-body-items) false)))
+    (has-body? (range (pref :max-number-body-items)) false)))
 
 (deftest test-simple-atomic-values
   (testing "keywords"
     (is-header :keyword
-      ["span" {"style" f/cljs-style}
-       ["span" {"style" f/keyword-style} ":keyword"]])
+      ["span" {"style" (pref :cljs-style)}
+       ["span" {"style" (pref :keyword-style)} ":keyword"]])
     (is-header ::auto-namespaced-keyword
-      ["span" {"style" f/cljs-style}
-       ["span" {"style" f/keyword-style} ":devtools.test.format/auto-namespaced-keyword"]])
+      ["span" {"style" (pref :cljs-style)}
+       ["span" {"style" (pref :keyword-style)} ":devtools.test.format/auto-namespaced-keyword"]])
     (is-header :devtools/fully-qualified-keyword
-      ["span" {"style" f/cljs-style}
-       ["span" {"style" f/keyword-style} ":devtools/fully-qualified-keyword"]]))
+      ["span" {"style" (pref :cljs-style)}
+       ["span" {"style" (pref :keyword-style)} ":devtools/fully-qualified-keyword"]]))
   (testing "symbols"
     (is-header 'symbol
-      ["span" {"style" f/cljs-style}
-       ["span" {"style" f/symbol-style} "symbol"]])))
+      ["span" {"style" (pref :cljs-style)}
+       ["span" {"style" (pref :symbol-style)} "symbol"]])))
 
 (deftest test-strings
   (testing "short strings"
     (is-header "some short string"
-      ["span" {"style" f/cljs-style}
-       ["span" {"style" f/string-style} (str f/dq "some short string" f/dq)]])
+      ["span" {"style" (pref :cljs-style)}
+       ["span" {"style" (pref :string-style)} (str (pref :dq) "some short string" (pref :dq))]])
     (is-header "line1\nline2\n\nline4"
-      ["span" {"style" f/cljs-style}
-       ["span" {"style" f/string-style} (str f/dq "line1" f/new-line-string-replacer "line2" f/new-line-string-replacer f/new-line-string-replacer "line4" f/dq)]]))
+      ["span" {"style" (pref :cljs-style)}
+       ["span" {"style" (pref :string-style)} (str (pref :dq) "line1" (pref :new-line-string-replacer) "line2" (pref :new-line-string-replacer) (pref :new-line-string-replacer) "line4" (pref :dq))]]))
   (testing "long strings"
     (is-header "123456789012345678901234567890123456789012345678901234567890"
-      ["span" {"style" f/cljs-style}
+      ["span" {"style" (pref :cljs-style)}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
-        (is (f/surrogate? ref))
+        (is (surrogate? ref))
         (is-header ref
-          ["span" {"style" f/cljs-style}
-           ["span" {"style" f/string-style} (str f/dq "12345678901234567890" f/string-abbreviation-marker "12345678901234567890" f/dq)]])))
+          ["span" {"style" (pref :cljs-style)}
+           ["span" {"style" (pref :string-style)} (str (pref :dq) "12345678901234567890" (pref :string-abbreviation-marker) "12345678901234567890" (pref :dq))]])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
-      ["span" {"style" f/cljs-style}
+      ["span" {"style" (pref :cljs-style)}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
-        (is (f/surrogate? ref))
+        (is (surrogate? ref))
         (is-header ref
-          ["span" {"style" f/cljs-style}
-           ["span" {"style" f/string-style}
+          ["span" {"style" (pref :cljs-style)}
+           ["span" {"style" (pref :string-style)}
             (str
-              f/dq
-              "1234" f/new-line-string-replacer "678901234567890"
-              f/string-abbreviation-marker
-              "12345678901234" f/new-line-string-replacer "67890"
-              f/dq)]])
+              (pref :dq)
+              "1234" (pref :new-line-string-replacer) "678901234567890"
+              (pref :string-abbreviation-marker)
+              "12345678901234" (pref :new-line-string-replacer) "67890"
+              (pref :dq))]])
         (is-body ref
-          ["ol" {"style" f/standard-ol-style}
-           ["li" {"style" f/standard-li-style}
-            ["span" {"style" f/string-style}
+          ["ol" {"style" (pref :standard-ol-style)}
+           ["li" {"style" (pref :standard-li-style)}
+            ["span" {"style" (pref :string-style)}
              (str
-               f/dq
-               "1234" f/new-line-string-replacer
-               "\n6789012345678901234567890123456789012345678901234" f/new-line-string-replacer
+               (pref :dq)
+               "1234" (pref :new-line-string-replacer)
+               "\n6789012345678901234567890123456789012345678901234" (pref :new-line-string-replacer)
                "\n67890"
-               f/dq)]]])))))
+               (pref :dq))]]])))))
 
 (deftest test-collections
   (testing "vectors"
     (is-header [1 2 3]
-      ["span" {"style" f/cljs-style}
+      ["span" {"style" (pref :cljs-style)}
        "["
-       ["span" {"style" f/integer-style} 1] f/spacer
-       ["span" {"style" f/integer-style} 2] f/spacer
-       ["span" {"style" f/integer-style} 3]
+       ["span" {"style" (pref :integer-style)} 1] (pref :spacer)
+       ["span" {"style" (pref :integer-style)} 2] (pref :spacer)
+       ["span" {"style" (pref :integer-style)} 3]
        "]"])
-    (is (= 5 f/max-header-elements))
+    (is (= 5 (pref :max-header-elements)))
     (is-header [1 2 3 4 5]
-      ["span" {"style" f/cljs-style}
+      ["span" {"style" (pref :cljs-style)}
        "["
-       (unroll (fn [i] [["span" {"style" f/integer-style} (+ i 1)] f/spacer]) (range 4))
-       ["span" {"style" f/integer-style} 5]
+       (unroll (fn [i] [["span" {"style" (pref :integer-style)} (+ i 1)] (pref :spacer)]) (range 4))
+       ["span" {"style" (pref :integer-style)} 5]
        "]"])
     (is-header [1 2 3 4 5 6]
-      ["span" {"style" f/cljs-style}
+      ["span" {"style" (pref :cljs-style)}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
-        (is (f/surrogate? ref))
+        (is (surrogate? ref))
         (is-header ref
-          ["span" {"style" f/cljs-style}
+          ["span" {"style" (pref :cljs-style)}
            ["span" {}
             "["
-            (unroll (fn [i] [["span" {"style" f/integer-style} (+ i 1)] f/spacer]) (range 5))
-            f/more-marker
+            (unroll (fn [i] [["span" {"style" (pref :integer-style)} (+ i 1)] (pref :spacer)]) (range 5))
+            (pref :more-marker)
             "]"]])
         (has-body? ref true)
         (is-body ref
-          ["ol" {"style" f/standard-ol-style}
-           (unroll (fn [i] [["li" {"style" f/standard-li-style}
-                             ["span" {"style" f/index-style} i f/line-index-separator]
-                             f/spacer
-                             ["span" {"style" f/cljs-style}
-                              ["span" {"style" f/integer-style} (+ i 1)]]]]) (range 6))]))))
+          ["ol" {"style" (pref :standard-ol-style)}
+           (unroll (fn [i] [["li" {"style" (pref :standard-li-style)}
+                             ["span" {"style" (pref :index-style)} i (pref :line-index-separator)]
+                             (pref :spacer)
+                             ["span" {"style" (pref :cljs-style)}
+                              ["span" {"style" (pref :integer-style)} (+ i 1)]]]]) (range 6))]))))
   (testing "ranges"
-    (is (> 10 f/max-header-elements))
+    (is (> 10 (pref :max-header-elements)))
     (is-header (range 10)
-      ["span" {"style" f/cljs-style}
+      ["span" {"style" (pref :cljs-style)}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
-        (is (f/surrogate? ref))
+        (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {"style" f/cljs-style}
+          ["span" {"style" (pref :cljs-style)}
            ["span" {}
             "("
-            (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
-            f/more-marker
+            (unroll (fn [i] [["span" {"style" (pref :integer-style)} i] (pref :spacer)]) (range (pref :max-header-elements)))
+            (pref :more-marker)
             ")"]])))))
 
 (deftest test-continuations
   (testing "long range"
-    (is-header (range (+ f/max-number-body-items 1))
-      ["span" {"style" f/cljs-style}
+    (is-header (range (+ (pref :max-number-body-items) 1))
+      ["span" {"style" (pref :cljs-style)}
        ["object" {"object" "##REF##"}]]
       (fn [ref]
-        (is (f/surrogate? ref))
+        (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {"style" f/cljs-style}
+          ["span" {"style" (pref :cljs-style)}
            ["span" {}
             "("
-            (unroll (fn [i] [["span" {"style" f/integer-style} i] f/spacer]) (range f/max-header-elements))
-            f/more-marker
+            (unroll (fn [i] [["span" {"style" (pref :integer-style)} i] (pref :spacer)]) (range (pref :max-header-elements)))
+            (pref :more-marker)
             ")"]])
         (is-body ref
-          ["ol" {"style" f/standard-ol-style}
-           (unroll (fn [i] [["li" {"style" f/standard-li-style}
-                             ["span" {"style" f/index-style} i f/line-index-separator]
-                             f/spacer
-                             ["span" {"style" f/cljs-style}
-                              ["span" {"style" f/integer-style} i]]]]) (range f/max-number-body-items))
-           ["li" {"style" f/standard-li-style}
+          ["ol" {"style" (pref :standard-ol-style)}
+           (unroll (fn [i] [["li" {"style" (pref :standard-li-style)}
+                             ["span" {"style" (pref :index-style)} i (pref :line-index-separator)]
+                             (pref :spacer)
+                             ["span" {"style" (pref :cljs-style)}
+                              ["span" {"style" (pref :integer-style)} i]]]]) (range (pref :max-number-body-items)))
+           ["li" {"style" (pref :standard-li-style)}
             ["object" {"object" "##REF##"}]]]
           (fn [ref]
-            (is (f/surrogate? ref))
+            (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              ["span" {"style" f/cljs-style} f/body-items-more-label])
+              ["span" {"style" (pref :cljs-style)} (pref :body-items-more-label)])
             (is-body ref
-              ["ol" {"style" f/standard-ol-no-margin-style}
-               (unroll (fn [i] [["li" {"style" f/standard-li-no-margin-style}
-                                 ["span" {"style" f/index-style} f/max-number-body-items f/line-index-separator]
-                                 f/spacer
-                                 ["span" {"style" f/cljs-style}
-                                  ["span" {"style" f/integer-style} (+ i f/max-number-body-items)]]]]) (range 1))])))))))
+              ["ol" {"style" (pref :standard-ol-no-margin-style)}
+               (unroll (fn [i] [["li" {"style" (pref :standard-li-no-margin-style)}
+                                 ["span" {"style" (pref :index-style)} (pref :max-number-body-items) (pref :line-index-separator)]
+                                 (pref :spacer)
+                                 ["span" {"style" (pref :cljs-style)}
+                                  ["span" {"style" (pref :integer-style)} (+ i (pref :max-number-body-items))]]]]) (range 1))])))))))
 
 (deftest test-printing
   (testing "max print level"
     (let [many-levels [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]]
       (has-body? many-levels false)
       (is-header many-levels
-        ["span" {"style" f/cljs-style}
+        ["span" {"style" (pref :cljs-style)}
          "["
-         ["span" {"style" f/integer-style} 1]
-         f/spacer
+         ["span" {"style" (pref :integer-style)} 1]
+         (pref :spacer)
          "["
-         ["span" {"style" f/integer-style} 2]
-         f/spacer
+         ["span" {"style" (pref :integer-style)} 2]
+         (pref :spacer)
          ["object" {"object" "##REF##"}]
          "]"
          "]"]))))
@@ -223,11 +224,11 @@
   (testing "simple deftype"
     (let [type-instance (SimpleType. "some-value")]
       (is-header type-instance
-        ["span" {"style" f/cljs-style}
+        ["span" {"style" (pref :cljs-style)}
          "#<"
          ["object" {"object" "##REF##" "config" #js {"prevent-recursion" true}}]
          ">"]
         (fn [ref config]
           (want? ref config false)
-          (is (not (f/surrogate? ref)))
+          (is (not (surrogate? ref)))
           (has-body? ref false))))))
