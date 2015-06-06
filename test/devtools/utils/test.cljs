@@ -1,8 +1,10 @@
 (ns devtools.utils.test
   (:require [cljs.test :refer-macros [is]]
+            [clojure.walk :refer [postwalk]]
             [goog.array :as garr]
             [goog.json :as json]
-            [devtools.format :as f]))
+            [devtools.format :as f]
+            [devtools.prefs :refer [pref]]))
 
 ; taken from https://github.com/purnam/purnam/blob/62bec5207621779a31c5adf3593530268aebb7fd/src/purnam/native/functions.cljs#L128-L145
 ; Copyright © 2014 Chris Zheng
@@ -56,6 +58,9 @@
     (apply want?* (concat [value nil expected-or-config] rest))
     (apply want?* (concat [value expected-or-config] rest))))
 
+(defn resolve-prefs [v]
+  (postwalk #(if (keyword? %) (pref %) %) v))
+
 (defn unroll-fns [v]
   (if (vector? v)
     (mapcat (fn [item] (if (fn? item) (unroll-fns (item)) [(unroll-fns item)])) v)
@@ -64,7 +69,7 @@
 (defn is-template [template expected & callbacks]
   (let [sanitized-template (replace-refs template "##REF##")
         refs (collect-refs template)
-        expected-template (clj->js (unroll-fns expected))]
+        expected-template (clj->js (resolve-prefs (unroll-fns expected)))]
     (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)
       (is (= (count refs) (count callbacks)) "number of refs and callbacks does not match")
