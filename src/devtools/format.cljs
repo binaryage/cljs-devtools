@@ -29,7 +29,7 @@
         js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [child children]
       (if (coll? child)
-        (.apply (aget js-array "push") js-array (into-array child)) ; convenience helper to splat cljs collections
+        (.apply (aget js-array "push") js-array (into-array child))                                                   ; convenience helper to splat cljs collections
         (.push js-array (resolve-pref child))))
     js-array))
 
@@ -69,7 +69,8 @@
         max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
     (if (<= (count inline-string) max-inline-string-size)
       (template :span :string-style (str dq inline-string dq))
-      (let [abbreviated-string-template (template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
+      (let [abbreviated-string-template (template :span :string-style
+                                          (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
             body-template (template :ol :standard-ol-style
                             (template :li :standard-li-style
@@ -124,13 +125,13 @@
           ; we want to (pref :li)mit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
           inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
       (default-impl obj inner-writer inner-opts)
-      (detect-else-case-and-patch-it inner-tmpl obj)        ; an ugly special case
+      (detect-else-case-and-patch-it inner-tmpl obj)                                                                  ; an ugly special case
       (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
 
 (defn managed-pr-str [value style print-level]
   (let [tmpl (template :span style)
         writer (TemplateWriter. tmpl)]
-    (binding [*print-level* print-level]                    ; when printing do at most print-level deep recursion
+    (binding [*print-level* print-level]                                                                              ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
                                      :print-length (pref :max-header-elements)
                                      :more-marker  (pref :more-marker)}))
@@ -181,39 +182,42 @@
           (build-body target starting-index))
         (template :ol :standard-ol-style (template :li :standard-li-style (reference target)))))))
 
-;;;;;;;;; PROTOCOL SUPPORT
+; -------------------------------------------------------------------------------------------------------------------
+; PROTOCOL SUPPORT
 
 (defprotocol IDevtoolsFormat
   (-header [value])
   (-has-body [value])
   (-body [value]))
 
-;;;;;;;;; RAW API
+; -------------------------------------------------------------------------------------------------------------------
+; RAW API
 
 (defn want-value? [value config]
   (if (prevent-recursion? config)
     false
     (or (cljs-value? value) (surrogate? value))))
 
-(defn header [value config]
+(defn header [value _config]
   (cond
     (surrogate? value) (aget value "header")
     (satisfies? IDevtoolsFormat value) (-header value)
     :else (build-header value)))
 
-(defn has-body [value config]
+(defn has-body [value _config]
   ; note: body is emulated using surrogate references
   (cond
     (surrogate? value) (aget value "hasBody")
     (satisfies? IDevtoolsFormat value) (-has-body value)
     :else false))
 
-(defn body [value config]
+(defn body [value _config]
   (cond
     (surrogate? value) (build-surrogate-body value)
     (satisfies? IDevtoolsFormat value) (-body value)))
 
-;;;;;;;;; API CALLS
+; -------------------------------------------------------------------------------------------------------------------
+; API CALLS
 
 (defn header-api-call [value config]
   (if (want-value? value config)

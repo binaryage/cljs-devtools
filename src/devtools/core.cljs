@@ -11,18 +11,18 @@
 (deftype CLJSDevtoolsFormatter [])
 
 ; devtools.debug namespace may not be present => no debugging
-(defn find-fn-in-debug-ns [fn-name]
+(defn- find-fn-in-debug-ns [fn-name]
   (try
     (aget js/window "devtools" "debug" fn-name)
     (catch :default _
       nil)))
 
-(defn monitor-api-call-if-avail [name api-call args]
+(defn- monitor-api-call-if-avail [name api-call args]
   (if-let [monitor-api-call (find-fn-in-debug-ns "monitor_api_call")]
     (monitor-api-call name api-call args)
     (apply api-call args)))
 
-(defn log-exception-if-avail [& args]
+(defn- log-exception-if-avail [& args]
   (if-let [log-exception (find-fn-in-debug-ns "log_exception")]
     (apply log-exception args)))
 
@@ -37,9 +37,9 @@
 (defn- sanitize [name api-call]
   (fn [& args]
     (if-not *sanitizer-enabled*
-      (apply api-call args)                                 ; raw API call
+      (apply api-call args)                                                                                           ; raw API call
       (try
-        (apply api-call args)                               ; wrapped API call
+        (apply api-call args)                                                                                         ; wrapped API call
         (catch :default e
           (log-exception-if-avail (str name ": " e))
           nil)))))
@@ -63,7 +63,7 @@
 
 (defn- get-formatters-safe []
   (let [formatters (aget js/window formatter-key)]
-    (if (array? formatters)                                 ; TODO: maybe issue a warning if formatters are anything else than array or nil
+    (if (array? formatters)                                                                                           ; TODO: maybe issue a warning if formatters are anything else than array or nil
       formatters
       #js [])))
 
@@ -72,14 +72,16 @@
     (boolean (some is-ours? formatters))))
 
 (defn- install-our-formatter! [formatter]
-  (let [formatters (.slice (get-formatters-safe))]          ; slice effectively duplicates the array
-    (.push formatters formatter)                            ; acting on duplicated array
+  (let [formatters (.slice (get-formatters-safe))]                                                                    ; slice effectively duplicates the array
+    (.push formatters formatter)                                                                                      ; acting on duplicated array
     (aset js/window formatter-key formatters)))
 
 (defn- uninstall-our-formatters! []
   (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))
         new-formatters-js (if (empty? new-formatters) nil (into-array new-formatters))]
     (aset js/window formatter-key new-formatters-js)))
+
+; -- public API -----------------------------------------------------------------------------------------------------
 
 (defn install! []
   (if (installed?)
@@ -90,7 +92,6 @@
   (if-not (installed?)
     (.warn js/console "uninstall!: devtools not installed - nothing to do")
     (uninstall-our-formatters!)))
-
 
 (defn disable! []
   (set! *devtools-enabled* false))
