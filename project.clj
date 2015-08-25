@@ -25,16 +25,16 @@
   {:builds
                   {:dev
                    {:source-paths ["src", "src-debug"]
-                    :compiler     {:output-to      "out/dev/cljs_devtools.js"
-                                   :output-dir     "out/dev"
-                                   :optimizations  :none
-                                   :source-map     true}}
+                    :compiler     {:output-to     "out/dev/cljs_devtools.js"
+                                   :output-dir    "out/dev"
+                                   :optimizations :none
+                                   :source-map    true}}
                    :prod
                    {:source-paths ["src"]
-                    :compiler     {:output-to      "out/prod/cljs_devtools.min.js"
-                                   :output-dir     "out/prod"
-                                   :optimizations  :advanced
-                                   :source-map     "out/prod/cljs_devtools.min.js.map"}}
+                    :compiler     {:output-to     "out/prod/cljs_devtools.min.js"
+                                   :output-dir    "out/prod"
+                                   :optimizations :advanced
+                                   :source-map    "out/prod/cljs_devtools.min.js.map"}}
                    :test
                    {:source-paths ["src", "test"]
                     :compiler     {:output-to     "out/test/cljs_devtools.test.js"

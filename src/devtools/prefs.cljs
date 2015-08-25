@@ -31,7 +31,8 @@
    :string-style                "color:#C41A16"
    :symbol-style                "color:#000000"
    :fn-style                    "color:#090"
-   :bool-style                  "color:#099"})
+   :bool-style                  "color:#099"
+   :file-reader                 nil})
 
 (def ^:dynamic *prefs* default-prefs)
 
