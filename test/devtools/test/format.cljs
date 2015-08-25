@@ -226,10 +226,6 @@
     (let [type-instance (SimpleType. "some-value")]
       (is-header type-instance
         ["span" {"style" :cljs-style}
-         "#<"
-         ["object" {"object" "##REF##" "config" #js {"prevent-recursion" true}}]
-         ">"]
-        (fn [ref config]
-          (want? ref config false)
-          (is (not (surrogate? ref)))
-          (has-body? ref false))))))
+         "#object["
+         "devtools.test.format.SimpleType"
+         "]"]))))
