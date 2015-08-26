@@ -8,6 +8,7 @@
 (def ^:dynamic *monitor-enabled* false)
 
 (def formatter-key "devtoolsFormatters")
+(def obsolete-formatter-key "devtoolsFormatter")
 
 (deftype CLJSDevtoolsFormatter [])
 
@@ -75,7 +76,9 @@
 (defn- install-our-formatter! [formatter]
   (let [formatters (.slice (get-formatters-safe))]                                                                    ; slice effectively duplicates the array
     (.push formatters formatter)                                                                                      ; acting on duplicated array
-    (aset js/window formatter-key formatters)))
+    (aset js/window formatter-key formatters)
+    (if (prefs/pref :legacy-formatter)
+      (aset js/window obsolete-formatter-key formatter))))
 
 (defn- uninstall-our-formatters! []
   (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))
@@ -109,3 +112,7 @@
 
 (defn get-prefs []
   (prefs/get-prefs))
+
+(defn set-pref! [pref val]
+  (let [prefs (get-prefs)]
+    (set-prefs! (assoc prefs pref val))))
