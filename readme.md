@@ -23,33 +23,18 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
     
     (.log js/console (range 200))
 
-Note: version 0.2.2 is compatible with Chromium built against Blink [r194327 or higher](https://codereview.chromium.org/1096283003).
-
-You can see Blink version which was compiled in your Chrome under **chrome://version** (url).
-
 ## See [sample project](https://github.com/binaryage/cljs-devtools-sample)
 
 ## Enable Custom formatters in your Chrome (Canary)
 
-For now you must use Chrome Canary or bleeding edge build from [chromium-browser-snapshots](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html).
+For now you must use Chrome Canary (worked in 48.0.2537.0 canary (64-bit) under Mac).
 
-##### First, enable Dev Tools Experiments:
+##### Turn on custom formatters:
 
-  * Visit chrome://flags
-  * Search the page for "devtools".
-  * Click "Enable" under "Enable Developer Tools Experiments"
-  * Click "Relaunch Now"
-
-##### Then turn on custom formatters:
-
-  * Open Dev Tools.
-  * Click the gear in the upper right to go to Settings.
-  * Click the "Experiments" tab.
-  * Press the shift key six times to show the "hidden experiments".
-  * Check "Custom Object Formatters".
+  * Open DevTools.
+  * Go to Settings: (Click "three dots" menu in upper right corner of DevTools > Menu > Settings F1)
+  * Check "Enable custom formatters".
   * Close Dev Tools.
   * Open Dev Tools.
-  * Click the gear to open settings again.
-  * Under "Console", check "Enable custom formatters".
 
 #### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools/master/LICENSE.txt)
