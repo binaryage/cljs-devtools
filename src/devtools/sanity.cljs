@@ -29,8 +29,7 @@
 (defonce ^:dynamic *original-global-error-handler* nil)
 (defonce ^:dynamic *original-type-error-prototype-to-string* nil)
 
-(assert js/WeakSet)
-(defonce *processed-errors* (js/WeakSet.))
+(defonce *processed-errors* (if (exists? js/WeakSet) (js/WeakSet.)))                                                  ; note: phantomjs does not have WeakSet yet
 
 (defn empty-as-nil [str]
   (if (empty? str) nil str))
@@ -74,10 +73,11 @@
 
 (defn type-error-to-string []
   (this-as this
-    (when-not (.has *processed-errors* this)
-      (.add *processed-errors* this)
-      (when-let [sense (error-object-sense this)]
-        (set! (.-message this) (str (.-message this) ", a sanity hint: " sense))))                                    ; this is dirty, patch message field before it gets used
+    (if *processed-errors*
+      (when-not (.has *processed-errors* this)
+        (.add *processed-errors* this)
+        (when-let [sense (error-object-sense this)]
+          (set! (.-message this) (str (.-message this) ", a sanity hint: " sense)))))                                 ; this is dirty, patch message field before it gets used
     (.call *original-type-error-prototype-to-string* this)))
 
 (defn global-error-handler [message url line column error]
