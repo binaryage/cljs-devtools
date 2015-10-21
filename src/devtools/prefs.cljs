@@ -2,6 +2,7 @@
 
 (def default-prefs
   {:install-sanity              false
+   :sanity-min-length           128
    :max-print-level             2
    :max-header-elements         5
    :max-number-body-items       100

@@ -44,8 +44,17 @@
   (let [reader (or (pref :file-reader) ajax-reader)]
     (reader where)))
 
-(defn get-line [source line-number]
-  (aget (.split source "\n") (dec line-number)))                                                                      ; line numbering is 1-based
+(defn get-line [lines line-number]
+  (aget lines (dec line-number)))                                                                                     ; line numbering is 1-based
+
+(defn extend-content [content lines line-number min-length]
+  (if (or (> (count content) min-length)
+        (not (pos? line-number)))
+    content
+    (let [prev-line-number (dec line-number)
+          prev-line (get-line lines prev-line-number)
+          new-content (str prev-line "\n" content)]
+      (extend-content new-content lines prev-line-number min-length))))
 
 (defn mark-call-closed-at-column [line column]
   (let [n (dec column)                                                                                                ; column number is 1-based
@@ -55,9 +64,11 @@
 
 (defn mark-null-call-site-location [file line-number column]
   (let [content (retrieve-javascript-source file)
-        line (get-line content line-number)
-        marked-line (mark-call-closed-at-column line column)]
-    (str/trim marked-line)))
+        lines (.split content "\n")
+        line (get-line lines line-number)
+        marked-line (mark-call-closed-at-column line column)
+        min-length (or (pref :sanity-min-length) 128)]
+    (extend-content marked-line lines line-number min-length)))
 
 (defn make-sense-of-the-error [message file line-number column]
   (cond
@@ -77,7 +88,7 @@
       (when-not (.has *processed-errors* this)
         (.add *processed-errors* this)
         (when-let [sense (error-object-sense this)]
-          (set! (.-message this) (str (.-message this) ", a sanity hint: " sense)))))                                 ; this is dirty, patch message field before it gets used
+          (set! (.-message this) (str (.-message this) ", a sanity hint:\n" sense)))))                                 ; this is dirty, patch message field before it gets used
     (.call *original-type-error-prototype-to-string* this)))
 
 (defn global-error-handler [message url line column error]
@@ -85,7 +96,7 @@
               (*original-global-error-handler* message url line column error))]
     (if-not res
       (when-let [sense (error-object-sense error)]
-        (.error js/console "A sanity hint for following uncaught error: " sense)
+        (.info js/console "A sanity hint for incoming uncaught error:\n" sense)
         false)
       true)))
 
