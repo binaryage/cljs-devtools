@@ -38,7 +38,7 @@ last line")
         seq (interleave (repeat :even) (repeat :odd))]
     (doseq [item range]
       (let [s (str item "(" (nth seq item) ") " param)]
-        (reset! global (conj @global s))))))                                                                          ; <- put breakpoint HERE and see Scope variables in the Devtools
+        (reset! global (conj @global s))))))                                                                          ; <- put breakpoint HERE and see Scope variables in the DevTools
 
 (defn more! []
   (log (SomeType. "some value"))

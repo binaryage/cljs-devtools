@@ -33,6 +33,6 @@
     (debug/init!)
     (set! devtools/*monitor-enabled* true)
     (set! devtools/*sanitizer-enabled* false))
-  (devtools/set-pref! :install-sanity true)
+  (devtools/set-pref! :install-sanity-hints true)
   (devtools/install!)
   (fetch-source-code))

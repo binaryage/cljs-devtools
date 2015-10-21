@@ -4,7 +4,7 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.145"]
-                 [binaryage/devtools "0.3.0"]
+                 [binaryage/devtools "0.4.0"]
                  [cljs-http "0.1.37"]
                  [ring "1.4.0"]]
 

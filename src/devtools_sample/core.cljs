@@ -22,6 +22,7 @@
 (log [1 2 3 4 5 [10 20 30 40 50 [100 200 300 400 500 [1000 2000 3000 4000 5000 :*]]]])
 (log [1 2 3 [10 20 30 [100 200 300 [1000 2000 3000 :*]]]])
 (log (atom {:number 0 :string "string" :keyword :keyword :symbol 'symbol :vector [0 1 2 3 4 5 6] :set '#{a b c} :map '{k1 v1 k2 v2}}))
+(log (with-meta ["has meta data"] {:some "meta-data"}))
 
 ; custom formatter defined in user code
 (deftype Person [name address]
