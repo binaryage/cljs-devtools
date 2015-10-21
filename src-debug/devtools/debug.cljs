@@ -9,7 +9,6 @@
 (def indentation-spacer "  ")
 (def logger-name-stuffer "_")
 (def logger-name-padding 8)
-(def additional-console-styles ".logmsg, .logmsg * {font-size:10px;}")
 
 (def ^:dynamic *initialized* false)
 (def ^:dynamic *indent* 0)
@@ -63,7 +62,6 @@
 
 (defn init-logger! []
   (set! *console* (goog.debug.FancyWindow. "devtools"))
-  (aset *console* "getStyleRules" #(str (goog.debug.FancyWindow.prototype.getStyleRules) additional-console-styles))
   (.setWelcomeMessage *console* "cljs-devtools auxiliary console")
   (.init *console*)
   (.setEnabled *console* true)
