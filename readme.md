@@ -9,7 +9,7 @@
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
-#### It works when paused in Scope view and Console in the drawer (toggle with ESC)
+#### Scope view / drawer Console (toggle with ESC)
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-scope.png">
 
@@ -35,7 +35,7 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
 (.log js/console (range 200))
 ```
 
-## See [sample project](https://github.com/binaryage/cljs-devtools-sample)
+See [the sample project](https://github.com/binaryage/cljs-devtools-sample).
 
 ## Enable Custom formatters in your Chrome (Canary)
 
