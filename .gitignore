@@ -9,6 +9,6 @@ pom.xml
 .lein-plugins/
 .repl*
 /checkouts/
-/resources/generated/
+/resources/public/_compiled
 .idea
 *.iml
