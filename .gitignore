@@ -5,3 +5,4 @@ out/
 .lein*
 pom.xml.*
 .idea
+test/_generated
