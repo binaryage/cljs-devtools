@@ -1,7 +1,8 @@
 (ns devtools.prefs)
 
 (def default-prefs
-  {:max-print-level             2
+  {:install-sanity              false
+   :max-print-level             2
    :max-header-elements         5
    :max-number-body-items       100
    :string-prefix-limit         20

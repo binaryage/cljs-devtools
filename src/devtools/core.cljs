@@ -92,14 +92,16 @@
     (.warn js/console "install!: devtools already installed - nothing to do")
     (do
       (install-our-formatter! (build-cljs-formatter))
-      (sanity/install!))))
+      (when (prefs/pref :install-sanity)
+        (sanity/install!)))))
 
 (defn uninstall! []
   (if-not (installed?)
     (.warn js/console "uninstall!: devtools not installed - nothing to do")
     (do
       (uninstall-our-formatters!)
-      (sanity/uninstall!))))
+      (if (prefs/pref :install-sanity)
+        (sanity/uninstall!)))))
 
 (defn disable! []
   (set! *devtools-enabled* false))
@@ -114,5 +116,6 @@
   (prefs/get-prefs))
 
 (defn set-pref! [pref val]
-  (let [prefs (get-prefs)]
-    (set-prefs! (assoc prefs pref val))))
+  (let [prefs (get-prefs)
+        new-prefs (assoc prefs pref val)]
+    (set-prefs! new-prefs)))
