@@ -83,13 +83,13 @@
     (make-sense-of-the-error (.-message error) file line column)))
 
 (defn type-error-to-string []
-  (this-as this
+  (this-as self
     (if *processed-errors*
-      (when-not (.has *processed-errors* this)
-        (.add *processed-errors* this)
-        (when-let [sense (error-object-sense this)]
-          (set! (.-message this) (str (.-message this) ", a sanity hint:\n" sense)))))                                 ; this is dirty, patch message field before it gets used
-    (.call *original-type-error-prototype-to-string* this)))
+      (when-not (.has *processed-errors* self)
+        (.add *processed-errors* self)
+        (when-let [sense (error-object-sense self)]
+          (set! (.-message self) (str (.-message self) ", a sanity hint:\n" sense)))))                                ; this is dirty, patch message field before it gets used
+    (.call *original-type-error-prototype-to-string* self)))
 
 (defn global-error-handler [message url line column error]
   (let [res (if *original-global-error-handler*
