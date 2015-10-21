@@ -38,7 +38,7 @@ last line")
         seq (interleave (repeat :even) (repeat :odd))]
     (doseq [item range]
       (let [s (str item "(" (nth seq item) ") " param)]
-        (reset! global (conj @global s))))))                ; <- put breakpoint HERE and see Scope variables in the Devtools
+        (reset! global (conj @global s))))))                                                                          ; <- put breakpoint HERE and see Scope variables in the Devtools
 
 (defn more! []
   (log (SomeType. "some value"))
@@ -52,5 +52,11 @@ last line")
 
   (log [::namespaced-keyword])
   (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]))
+
+(defn fn-returns-nil [])
+
+(defn ^:export sanity-test-handler []
+  ((fn-returns-nil) "param"))                                                                                         ; a test for sanity checker
+
 
 
