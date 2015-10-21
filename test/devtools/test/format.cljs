@@ -6,6 +6,8 @@
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
             [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 
+(def REF ["object" {"object" "##REF##"}])
+
 (deftype SimpleType [some-field])
 
 (deftest test-wants
@@ -86,7 +88,7 @@
   (testing "long strings"
     (is-header "123456789012345678901234567890123456789012345678901234567890"
       ["span" {"style" :cljs-style}
-       ["object" {"object" "##REF##"}]]
+       REF]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
@@ -94,7 +96,7 @@
            ["span" {"style" :string-style} (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)]])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
       ["span" {"style" :cljs-style}
-       ["object" {"object" "##REF##"}]]
+       REF]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
@@ -137,10 +139,10 @@
     (set-prefs! default-prefs)
     (is-header [1 2 3]
       ["span" {"style" :cljs-style}
-       ["object" {"object" "##REF##"}]])
+       REF])
     (is-header [1 2 3 4 5 6]
       ["span" {"style" :cljs-style}
-       ["object" {"object" "##REF##"}]]
+       REF]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
@@ -162,7 +164,7 @@
     (is (> 10 :max-header-elements))
     (is-header (range 10)
       ["span" {"style" :cljs-style}
-       ["object" {"object" "##REF##"}]]
+       REF]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
@@ -178,7 +180,7 @@
   (testing "long range"
     (is-header (range (+ :max-number-body-items 1))
       ["span" {"style" :cljs-style}
-       ["object" {"object" "##REF##"}]]
+       REF]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
@@ -197,7 +199,7 @@
                              ["span" {"style" :cljs-style}
                               ["span" {"style" :integer-style} i]]]]) (range :max-number-body-items))
            ["li" {"style" :standard-li-style}
-            ["object" {"object" "##REF##"}]]]
+            REF]]
           (fn [ref]
             (is (surrogate? ref))
             (has-body? ref true)
@@ -217,21 +219,21 @@
       (has-body? many-levels false)
       (is-header many-levels
         ["span" {"style" :cljs-style}
-         ["object" {"object" "##REF##"}]]
+         REF]
         (fn [ref]
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
             ["span" {"style" :cljs-style}
              ["span" {}
-              "[" ["span" {"style" :integer-style} 1] " " ["object" {"object" "##REF##"}] "]"]]))
+              "[" ["span" {"style" :integer-style} 1] " " REF "]"]]))
         (fn [ref]
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
             ["span" {"style" :cljs-style}
              ["span" {}
-              "[" ["span" {"style" :integer-style} 2] " " ["object" {"object" "##REF##"}] "]"]]))
+              "[" ["span" {"style" :integer-style} 2] " " REF "]"]]))
         (fn [ref]
           (is (surrogate? ref))
           (has-body? ref true)
