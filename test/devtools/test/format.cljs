@@ -290,3 +290,27 @@
       (is (= (body-api-call ["cljs-value"]) "always-rewrite"))
       (is (= (body-api-call "javascript-value") "always-rewrite"))
       (set-prefs! default-prefs))))
+
+(deftest test-meta
+  (testing "meta is disabled"
+    (set-pref! :print-meta-data false)
+    (is-header (with-meta {} :meta)
+      ["span" {"style" :cljs-style} REF]
+      (fn [ref]
+        (is-header ref
+          ["span" {"style" :cljs-style} ["span" {} "{" "}"]])))
+    (set-prefs! default-prefs))
+  (testing "simple meta"
+    (is-header (with-meta {} :meta)
+      ["span" {"style" :meta-wrapper-style}
+       ["span" {"style" :cljs-style} REF]
+       ["span" {} REF]]
+      (fn [ref]
+        (is-header ref
+          ["span" {"style" :cljs-style} ["span" {} "{" "}"]]))
+      (fn [ref]
+        (has-body? ref true)
+        (is-header ref
+          ["span" {"style" :cljs-style} ["span" {"style" :meta-style} "meta"]])
+        (is-body ref
+          ["span" {"style" :cljs-style} ["span" {"style" :keyword-style} ":meta"]])))))

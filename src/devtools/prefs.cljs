@@ -35,6 +35,9 @@
    :symbol-style                "color:#000000"
    :fn-style                    "color:#090"
    :bool-style                  "color:#099"
+   :print-meta-data             true
+   :meta-wrapper-style          "background-color:#efe; border:1px solid #ada; padding:1px; border-radius:2px; position:relative; left:-1px;"
+   :meta-style                  "background-color:#8b8; color:#fff; padding: 0px 2px; border-radius: 1px;"
    :file-reader                 nil
    :header-pre-handler          nil
    :header-post-handelr         nil

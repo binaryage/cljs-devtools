@@ -56,6 +56,11 @@
     (template :span :integer-style value)
     (template :span :float-style value)))
 
+(declare build-header)
+
+(defn meta-template [value]
+  (template :span "" (reference (surrogate value (template :span :meta-style "meta") true (build-header value)))))
+
 (defn abbreviate-long-string [string]
   (str
     (apply str (take (pref :string-prefix-limit) string))
@@ -141,7 +146,11 @@
     tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value :cljs-style (inc (pref :max-print-level))))
+  (let [meta-data (if (pref :print-meta-data) (meta value))
+        value-template (managed-pr-str value :cljs-style (inc (pref :max-print-level)))]
+    (if meta-data
+      (template :span :meta-wrapper-style value-template (meta-template meta-data))
+      value-template)))
 
 (defn standard-body-template
   ([lines margin?] (let [ol-style (if margin? :standard-ol-style :standard-ol-no-margin-style)
