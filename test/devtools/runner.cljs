@@ -73,7 +73,7 @@
 
 (defn present-diff-if-applicable [actual-value]
   ; only present diffs for (not (js-equals a b)) forms
-  (when (and (= (first actual-value) 'not) (= (first (second actual-value)) 'js-equals))
+  (when (and (seqable? actual-value) (= (first actual-value) 'not) (= (first (second actual-value)) 'js-equals))
     (let [[a b] (next (second actual-value))
           json-a (.stringify js/JSON a nil " ")
           json-b (.stringify js/JSON b nil " ")

@@ -116,6 +116,4 @@
   (prefs/get-prefs))
 
 (defn set-pref! [pref val]
-  (let [prefs (get-prefs)
-        new-prefs (assoc prefs pref val)]
-    (set-prefs! new-prefs)))
+  (prefs/set-pref! pref val))

@@ -1,9 +1,10 @@
 (ns devtools.test.format
   (:refer-clojure :exclude [range = > < + str])
-  (:require-macros [devtools.utils.macros :refer [range = > < + str]]) ; prefs aware versions
+  (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll]]
-            [devtools.format :refer [surrogate?]]))
+            [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
+            [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 
 (deftype SimpleType [some-field])
 
@@ -229,3 +230,43 @@
          "#object["
          "devtools.test.format.SimpleType"
          "]"]))))
+
+(deftest test-handlers
+  (let [handled-keyword-output (clj->js ["span" {"style" (pref :cljs-style)}
+                                         ["span" {"style" (pref :keyword-style)} ":handled"]])]
+    (testing "header pre-handler"
+      (set-pref! :header-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled)))
+      (is (js-equals (header-api-call ["cljs-value"]) handled-keyword-output))
+      (is (not (js-equals (header-api-call ["non-matching-cljs-value"]) handled-keyword-output)))
+      (set-pref! :header-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
+      (is (js-equals (header-api-call "javascript-value") handled-keyword-output))
+      (is (not (js-equals (header-api-call "not-matching-javascript-value") handled-keyword-output)))
+      (set-prefs! default-prefs))
+    (testing "header post-handler"
+      (set-pref! :header-post-handler (fn [_value] "always-rewrite"))
+      (is (= (header-api-call ["cljs-value"]) "always-rewrite"))
+      (is (= (header-api-call "javascript-value") "always-rewrite"))
+      (set-prefs! default-prefs))
+    (testing "has-body pre-handler"
+      (set-pref! :has-body-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled)))
+      (is (= (has-body-api-call ["cljs-value"]) false))
+      (is (= (has-body-api-call :non-matching-cljs-value) nil))
+      (set-pref! :has-body-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
+      (is (= (has-body-api-call "javascript-value") false))
+      (is (= (has-body-api-call "not-matching-javascript-value") nil))
+      (set-prefs! default-prefs))
+    (testing "has-body post-handler"
+      (set-pref! :has-body-post-handler (fn [_value] "always-rewrite"))
+      (is (= (has-body-api-call ["cljs-value"]) "always-rewrite"))
+      (is (= (has-body-api-call "javascript-value") "always-rewrite"))
+      (set-prefs! default-prefs))
+    (testing "body pre-handler"
+      (set-pref! :body-pre-handler (fn [value] (if (= value ["cljs-value"]) ["handled-cljs-value"])))
+      (is (= (body-api-call ["cljs-value"]) nil))
+      (is (= (body-api-call ["non-matching-cljs-value"]) nil))
+      (set-prefs! default-prefs))
+    (testing "header post-handler"
+      (set-pref! :body-post-handler (fn [_value] "always-rewrite"))
+      (is (= (body-api-call ["cljs-value"]) "always-rewrite"))
+      (is (= (body-api-call "javascript-value") "always-rewrite"))
+      (set-prefs! default-prefs))))

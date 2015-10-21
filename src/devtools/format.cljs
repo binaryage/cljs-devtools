@@ -219,15 +219,19 @@
 ; -------------------------------------------------------------------------------------------------------------------
 ; API CALLS
 
-(defn header-api-call [value config]
-  (if (want-value? value config)
-    (header value config)))
+(defn build-api-call [raw-fn pre-handler-key post-handler-key]
+  "Wraps raw API call in a function which calls pre-handler and post-handler.
 
-(defn has-body-api-call [value config]
-  (if (want-value? value config)
-    (has-body value config)
-    false))
+pre-handler gets a chance to pre-process value before it is passed to cljs-devtools
+post-handler gets a chance to post-process value returned by cljs-devtools."
+  (fn [value config]
+    (let [pre-handler (or (pref pre-handler-key) identity)
+          post-handler (or (pref post-handler-key) identity)
+          preprocessed-value (pre-handler value)
+          result (if (want-value? preprocessed-value config)
+                   (raw-fn preprocessed-value config))]
+      (post-handler result))))
 
-(defn body-api-call [value config]
-  (if (want-value? value config)
-    (body value config)))
+(def header-api-call (build-api-call header :header-pre-handler :header-post-handler))
+(def has-body-api-call (build-api-call has-body :has-body-pre-handler :has-body-post-handler))
+(def body-api-call (build-api-call body :body-pre-handler :body-post-handler))
