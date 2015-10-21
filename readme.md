@@ -4,9 +4,14 @@
 
 [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
 
-Better presentation of ClojureScript values in Chrome DevTools:
+* Better presentation of ClojureScript values in Chrome DevTools
+* [optional] More informative exceptions
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
+
+<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-scope.png">
+
+<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
 
 ## Integration in your own project
 
@@ -18,9 +23,10 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
 
     (ns your-project.core
       (:require [devtools.core :as devtools]))
-    
+
+    (devtools/set-pref! :install-sanity true) ; this is optional
     (devtools/install!)
-    
+
     (.log js/console (range 200))
 
 ## See [sample project](https://github.com/binaryage/cljs-devtools-sample)
