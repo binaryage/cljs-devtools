@@ -5,6 +5,7 @@
    :sanity-min-length           128
    :max-print-level             2
    :max-header-elements         5
+   :seqables-always-expandable  true
    :max-number-body-items       100
    :string-prefix-limit         20
    :string-postfix-limit        20

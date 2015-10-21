@@ -119,6 +119,7 @@
 
 (deftest test-collections
   (testing "vectors"
+    (set-pref! :seqables-always-expandable false)
     (is-header [1 2 3]
       ["span" {"style" :cljs-style}
        "["
@@ -133,6 +134,10 @@
        (unroll (fn [i] [["span" {"style" :integer-style} (+ i 1)] :spacer]) (range 4))
        ["span" {"style" :integer-style} 5]
        "]"])
+    (set-prefs! default-prefs)
+    (is-header [1 2 3]
+      ["span" {"style" :cljs-style}
+       ["object" {"object" "##REF##"}]])
     (is-header [1 2 3 4 5 6]
       ["span" {"style" :cljs-style}
        ["object" {"object" "##REF##"}]]
@@ -212,15 +217,28 @@
       (has-body? many-levels false)
       (is-header many-levels
         ["span" {"style" :cljs-style}
-         "["
-         ["span" {"style" :integer-style} 1]
-         :spacer
-         "["
-         ["span" {"style" :integer-style} 2]
-         :spacer
-         ["object" {"object" "##REF##"}]
-         "]"
-         "]"]))))
+         ["object" {"object" "##REF##"}]]
+        (fn [ref]
+          (is (surrogate? ref))
+          (has-body? ref true)
+          (is-header ref
+            ["span" {"style" :cljs-style}
+             ["span" {}
+              "[" ["span" {"style" :integer-style} 1] " " ["object" {"object" "##REF##"}] "]"]]))
+        (fn [ref]
+          (is (surrogate? ref))
+          (has-body? ref true)
+          (is-header ref
+            ["span" {"style" :cljs-style}
+             ["span" {}
+              "[" ["span" {"style" :integer-style} 2] " " ["object" {"object" "##REF##"}] "]"]]))
+        (fn [ref]
+          (is (surrogate? ref))
+          (has-body? ref true)
+          (is-header ref
+            ["span" {"style" :cljs-style}
+             ["span" {}
+              "[" :more-marker "]"]]))))))
 
 (deftest test-deftype
   (testing "simple deftype"

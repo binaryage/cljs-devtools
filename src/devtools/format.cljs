@@ -93,6 +93,9 @@
 (defn abbreviated? [template]
   (some #(= (pref :more-marker) %) template))
 
+(defn expandable? [obj]
+  (and (pref :seqables-always-expandable) (seqable? obj)))
+
 (deftype TemplateWriter [t]
   Object
   (merge [_ a] (.apply (.-push t) t a))
@@ -101,7 +104,7 @@
   (-flush [_] nil))
 
 (defn wrap-group-in-reference-if-needed [group obj]
-  (if (abbreviated? group)
+  (if (or (expandable? obj) (abbreviated? group))
     #js [(reference (surrogate obj (.concat (template :span "") group)))]
     group))
 
