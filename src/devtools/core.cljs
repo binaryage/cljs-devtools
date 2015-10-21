@@ -1,7 +1,7 @@
 (ns devtools.core
   (:require [devtools.prefs :as prefs]
             [devtools.format :as format]
-            [devtools.sanity :as sanity]))
+            [devtools.sanity-hints :as hints]))
 
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *sanitizer-enabled* true)
@@ -92,16 +92,16 @@
     (.warn js/console "install!: devtools already installed - nothing to do")
     (do
       (install-our-formatter! (build-cljs-formatter))
-      (when (prefs/pref :install-sanity)
-        (sanity/install!)))))
+      (when (prefs/pref :install-sanity-hints)
+        (hints/install!)))))
 
 (defn uninstall! []
   (if-not (installed?)
     (.warn js/console "uninstall!: devtools not installed - nothing to do")
     (do
       (uninstall-our-formatters!)
-      (if (prefs/pref :install-sanity)
-        (sanity/uninstall!)))))
+      (if (prefs/pref :install-sanity-hints)
+        (hints/uninstall!)))))
 
 (defn disable! []
   (set! *devtools-enabled* false))

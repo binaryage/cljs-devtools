@@ -1,4 +1,4 @@
-(ns devtools.sanity
+(ns devtools.sanity-hints
   (:require [devtools.prefs :refer [pref]]
             [cljs.stacktrace :as stacktrace]
             [clojure.string :as str]))
@@ -67,7 +67,7 @@
         lines (.split content "\n")
         line (get-line lines line-number)
         marked-line (mark-call-closed-at-column line column)
-        min-length (or (pref :sanity-min-length) 128)]
+        min-length (or (pref :sanity-hint-min-length) 128)]
     (extend-content marked-line lines line-number min-length)))
 
 (defn make-sense-of-the-error [message file line-number column]

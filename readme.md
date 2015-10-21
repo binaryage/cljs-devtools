@@ -3,11 +3,17 @@
 [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
 
 * Better presentation of ClojureScript values in Chrome DevTools
-* [optional] More informative exceptions
+* [optional] More informative exceptions (sanity hints)
+
+#### An example of formatting various ClojureScript data structures:
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
 
+#### It works when paused in Scope view and Console in the drawer (toggle with ESC)
+
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-scope.png">
+
+#### An example of a sanity hint:
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
 
@@ -23,7 +29,7 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
 (ns your-project.core
   (:require [devtools.core :as devtools]))
 
-(devtools/set-pref! :install-sanity true) ; this is optional
+(devtools/set-pref! :install-sanity-hints true) ; this is optional
 (devtools/install!)
 
 (.log js/console (range 200))

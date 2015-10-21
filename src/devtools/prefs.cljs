@@ -1,8 +1,8 @@
 (ns devtools.prefs)
 
 (def default-prefs
-  {:install-sanity              false
-   :sanity-min-length           128
+  {:install-sanity-hints        false
+   :sanity-hint-min-length      128
    :max-print-level             2
    :max-header-elements         5
    :seqables-always-expandable  true
