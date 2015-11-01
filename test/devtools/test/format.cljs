@@ -219,21 +219,11 @@
       (has-body? many-levels false)
       (is-header many-levels
         ["span" {"style" :cljs-style}
-         REF]
-        (fn [ref]
-          (is (surrogate? ref))
-          (has-body? ref true)
-          (is-header ref
-            ["span" {"style" :cljs-style}
-             ["span" {}
-              "[" ["span" {"style" :integer-style} 1] " " REF "]"]]))
-        (fn [ref]
-          (is (surrogate? ref))
-          (has-body? ref true)
-          (is-header ref
-            ["span" {"style" :cljs-style}
-             ["span" {}
-              "[" ["span" {"style" :integer-style} 2] " " REF "]"]]))
+         "[" ["span" {"style" :integer-style} 1] " "
+         "[" ["span" {"style" :integer-style} 2] " "
+         REF
+         "]"
+         "]"]
         (fn [ref]
           (is (surrogate? ref))
           (has-body? ref true)
@@ -295,22 +285,55 @@
   (testing "meta is disabled"
     (set-pref! :print-meta-data false)
     (is-header (with-meta {} :meta)
-      ["span" {"style" :cljs-style} REF]
-      (fn [ref]
-        (is-header ref
-          ["span" {"style" :cljs-style} ["span" {} "{" "}"]])))
+      ["span" {"style" :cljs-style} "{" "}"])
     (set-prefs! default-prefs))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
       ["span" {"style" :meta-wrapper-style}
-       ["span" {"style" :cljs-style} REF]
+       ["span" {"style" :cljs-style} "{" "}"]
        ["span" {} REF]]
-      (fn [ref]
-        (is-header ref
-          ["span" {"style" :cljs-style} ["span" {} "{" "}"]]))
       (fn [ref]
         (has-body? ref true)
         (is-header ref
           ["span" {"style" :cljs-style} ["span" {"style" :meta-style} "meta"]])
         (is-body ref
           ["span" {"style" :cljs-style} ["span" {"style" :keyword-style} ":meta"]])))))
+
+(deftest test-sequables
+  (testing "min-sequable-count-for-expansion"
+    (set-pref! :max-header-elements 100)
+    (set-pref! :seqables-always-expandable true)
+    (set-pref! :min-sequable-count-for-expansion 3)
+    (is-header [1 2]
+      ["span" {"style" :cljs-style}
+       "["
+       ["span" {"style" :integer-style} 1]
+       " "
+       ["span" {"style" :integer-style} 2]
+       "]"])
+    (is-header [1 2 3]
+      ["span" {"style" :cljs-style} REF]
+      (fn [ref]
+        (is (surrogate? ref))
+        (has-body? ref true)
+        (is-header ref
+          ["span" {"style" :cljs-style}
+           ["span" {}
+            "["
+            ["span" {"style" :integer-style} 1]
+            " "
+            ["span" {"style" :integer-style} 2]
+            " "
+            ["span" {"style" :integer-style} 3]
+            "]"]])))
+    (set-pref! :min-sequable-count-for-expansion 4)
+    (is-header [1 2 3]
+      ["span" {"style" :cljs-style}
+       "["
+       ["span" {"style" :integer-style} 1]
+       " "
+       ["span" {"style" :integer-style} 2]
+       " "
+       ["span" {"style" :integer-style} 3]
+       "]"])
+    (set-prefs! default-prefs)))

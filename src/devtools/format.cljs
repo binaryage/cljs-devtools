@@ -99,7 +99,7 @@
   (some #(= (pref :more-marker) %) template))
 
 (defn expandable? [obj]
-  (and (pref :seqables-always-expandable) (seqable? obj)))
+  (and (pref :seqables-always-expandable) (seqable? obj) (>= (count obj) (pref :min-sequable-count-for-expansion))))
 
 (deftype TemplateWriter [t]
   Object
