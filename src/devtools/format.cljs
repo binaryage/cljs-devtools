@@ -44,7 +44,7 @@
    (js-obj
      (pref :surrogate-key) true
      "target" object
-     "header" (template :span :cljs-style header)
+     "header" header
      "hasBody" has-body
      "bodyTemplate" body-template)))
 
@@ -147,19 +147,23 @@
 
 (defn build-header [value]
   (let [meta-data (if (pref :print-meta-data) (meta value))
-        value-template (managed-pr-str value :cljs-style (inc (pref :max-print-level)))]
+        value-template (managed-pr-str value :header-style (inc (pref :max-print-level)))]
     (if meta-data
       (template :span :meta-wrapper-style value-template (meta-template meta-data))
       value-template)))
 
+(defn build-header-wrapped [value]
+  (template :span :cljs-style
+    (build-header value)))
+
 (defn standard-body-template
+  ([lines] (standard-body-template lines true))
   ([lines margin?] (let [ol-style (if margin? :standard-ol-style :standard-ol-no-margin-style)
                          li-style (if margin? :standard-li-style :standard-li-no-margin-style)]
-                     (template :ol ol-style (map #(template :li li-style %) lines))))
-  ([lines] (standard-body-template lines true)))
+                     (template :ol ol-style (map #(template :li li-style %) lines)))))
 
 (defn body-line-template [index value]
-  [(index-template index) (pref :spacer) (managed-pr-str value (if cljs-value? :cljs-style "") 3)])
+  [(index-template index) (pref :spacer) (managed-pr-str value :item-style 3)])
 
 (defn prepare-body-lines [data starting-index]
   (loop [work data
@@ -183,7 +187,8 @@
         (conj lines (reference surrogate-object))))))
 
 (defn build-body [value starting-index]
-  (standard-body-template (body-lines-templates value starting-index) (zero? starting-index)))
+  (template :span :body-style
+    (standard-body-template (body-lines-templates value starting-index) (zero? starting-index))))
 
 (defn build-surrogate-body [value]
   (if-let [body-template (aget value "bodyTemplate")]
@@ -214,7 +219,7 @@
   (cond
     (surrogate? value) (aget value "header")
     (satisfies? IDevtoolsFormat value) (-header value)
-    :else (build-header value)))
+    :else (build-header-wrapped value)))
 
 (defn has-body [value _config]
   ; note: body is emulated using surrogate references

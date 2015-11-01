@@ -61,6 +61,13 @@
 (defn resolve-prefs [v]
   (postwalk #(if (keyword? %) (pref %) %) v))
 
+(defn remove-empty-styles [v]
+  (let [empty-style-remover (fn [x]
+                              (if (and (map? x) (= (get x "style") ""))
+                                (dissoc x "style")
+                                x))]
+    (postwalk empty-style-remover v)))
+
 (defn unroll-fns [v]
   (if (vector? v)
     (mapcat (fn [item] (if (fn? item) (unroll-fns (item)) [(unroll-fns item)])) v)
@@ -69,7 +76,11 @@
 (defn is-template [template expected & callbacks]
   (let [sanitized-template (replace-refs template "##REF##")
         refs (collect-refs template)
-        expected-template (clj->js (resolve-prefs (unroll-fns expected)))]
+        expected-template (-> expected
+                            (unroll-fns)
+                            (resolve-prefs)
+                            (remove-empty-styles)
+                            (clj->js))]
     (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)
       (is (= (count refs) (count callbacks)) "number of refs and callbacks does not match")

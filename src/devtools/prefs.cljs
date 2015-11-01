@@ -1,4 +1,12 @@
-(ns devtools.prefs)
+(ns devtools.prefs
+  (:require [clojure.string :as str]))
+
+(def ^:const signature-color "rgba(100, 255, 100, 1);")
+
+(defn signature-color-with-opacity [opacity]
+  (str/replace signature-color "1);" (str opacity ");")))
+
+(def signature-background (signature-color-with-opacity 0.08))
 
 (def default-prefs
   {:install-sanity-hints             false
@@ -25,7 +33,10 @@
    :span                             "span"
    :ol                               "ol"
    :li                               "li"
-   :cljs-style                       "background-color:#efe"
+   :cljs-style                       (str "background-color:" signature-background)
+   :header-style                     ""
+   :item-style                       ""
+   :body-style                       (str "display:inline-block;border: 1px dashed " (signature-color-with-opacity 0.4) ";border-top:none;border-radius:1px;margin: 0px 4px 2px 4px;background-color:" signature-background)
    :index-style                      "color:#881391"
    :nil-style                        "color:#808080"
    :nil-label                        "nil"

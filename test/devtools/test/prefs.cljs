@@ -38,10 +38,12 @@
 (deftest test-render-with-changed-styles
   (testing "simple keyword styling"
     (is-header :keyword
-      ["span" {"style" "background-color:#efe"}
-       ["span" {"style" "color:#881391"} ":keyword"]])
-    (merge-prefs! {:cljs-style "background-color:red" :keyword-style "color:white"})
+      ["span" {"style" :cljs-style}
+       ["span" {"style" :header-style}
+        ["span" {"style" :keyword-style} ":keyword"]]])
+    (merge-prefs! {:header-style "background-color:red" :keyword-style "color:white"})
     (is-header :keyword
-      ["span" {"style" "background-color:red"}
-       ["span" {"style" "color:white"} ":keyword"]])
+      ["span" {"style" :cljs-style}
+       ["span" {"style" "background-color:red"}
+        ["span" {"style" "color:white"} ":keyword"]]])
     (set-prefs! default-prefs)))

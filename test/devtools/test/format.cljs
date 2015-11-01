@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll]]
+            [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
             [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 
@@ -65,49 +65,55 @@
   (testing "keywords"
     (is-header :keyword
       ["span" {"style" :cljs-style}
-       ["span" {"style" :keyword-style} ":keyword"]])
+       ["span" {"style" :header-style}
+        ["span" {"style" :keyword-style} ":keyword"]]])
     (is-header ::auto-namespaced-keyword
       ["span" {"style" :cljs-style}
-       ["span" {"style" :keyword-style} ":devtools.test.format/auto-namespaced-keyword"]])
+       ["span" {"style" :header-style}
+        ["span" {"style" :keyword-style} ":devtools.test.format/auto-namespaced-keyword"]]])
     (is-header :devtools/fully-qualified-keyword
       ["span" {"style" :cljs-style}
-       ["span" {"style" :keyword-style} ":devtools/fully-qualified-keyword"]]))
+       ["span" {"style" :header-style}
+        ["span" {"style" :keyword-style} ":devtools/fully-qualified-keyword"]]]))
   (testing "symbols"
     (is-header 'symbol
       ["span" {"style" :cljs-style}
-       ["span" {"style" :symbol-style} "symbol"]])))
+       ["span" {"style" :header-style}
+        ["span" {"style" :symbol-style} "symbol"]]])))
 
 (deftest test-strings
   (testing "short strings"
     (is-header "some short string"
       ["span" {"style" :cljs-style}
-       ["span" {"style" :string-style} (str :dq "some short string" :dq)]])
+       ["span" {"style" :header-style}
+        ["span" {"style" :string-style} (str :dq "some short string" :dq)]]])
     (is-header "line1\nline2\n\nline4"
       ["span" {"style" :cljs-style}
-       ["span" {"style" :string-style} (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]))
+       ["span" {"style" :header-style}
+        ["span" {"style" :string-style} (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]]))
   (testing "long strings"
     (is-header "123456789012345678901234567890123456789012345678901234567890"
       ["span" {"style" :cljs-style}
-       REF]
+       ["span" {"style" :header-style}
+        REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" {"style" :cljs-style}
-           ["span" {"style" :string-style} (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)]])))
+          ["span" {"style" :string-style} (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
       ["span" {"style" :cljs-style}
-       REF]
+       ["span" {"style" :header-style}
+        REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" {"style" :cljs-style}
-           ["span" {"style" :string-style}
-            (str
-              :dq
-              "1234" :new-line-string-replacer "678901234567890"
-              :string-abbreviation-marker
-              "12345678901234" :new-line-string-replacer "67890"
-              :dq)]])
+          ["span" {"style" :string-style}
+           (str
+             :dq
+             "1234" :new-line-string-replacer "678901234567890"
+             :string-abbreviation-marker
+             "12345678901234" :new-line-string-replacer "67890"
+             :dq)])
         (is-body ref
           ["ol" {"style" :standard-ol-style}
            ["li" {"style" :standard-li-style}
@@ -124,94 +130,100 @@
     (set-pref! :seqables-always-expandable false)
     (is-header [1 2 3]
       ["span" {"style" :cljs-style}
-       "["
-       ["span" {"style" :integer-style} 1] :spacer
-       ["span" {"style" :integer-style} 2] :spacer
-       ["span" {"style" :integer-style} 3]
-       "]"])
+       ["span" {"style" :header-style}
+        "["
+        ["span" {"style" :integer-style} 1] :spacer
+        ["span" {"style" :integer-style} 2] :spacer
+        ["span" {"style" :integer-style} 3]
+        "]"]])
     (is (= 5 :max-header-elements))
     (is-header [1 2 3 4 5]
       ["span" {"style" :cljs-style}
-       "["
-       (unroll (fn [i] [["span" {"style" :integer-style} (+ i 1)] :spacer]) (range 4))
-       ["span" {"style" :integer-style} 5]
-       "]"])
+       ["span" {"style" :header-style}
+        "["
+        (unroll (fn [i] [["span" {"style" :integer-style} (+ i 1)] :spacer]) (range 4))
+        ["span" {"style" :integer-style} 5]
+        "]"]])
     (set-prefs! default-prefs)
     (is-header [1 2 3]
       ["span" {"style" :cljs-style}
-       REF])
+       ["span" {"style" :header-style}
+        REF]])
     (is-header [1 2 3 4 5 6]
       ["span" {"style" :cljs-style}
-       REF]
+       ["span" {"style" :header-style}
+        REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" {"style" :cljs-style}
-           ["span" {}
-            "["
-            (unroll (fn [i] [["span" {"style" :integer-style} (+ i 1)] :spacer]) (range 5))
-            :more-marker
-            "]"]])
+          ["span" {}
+           "["
+           (unroll (fn [i] [["span" {"style" :integer-style} (+ i 1)] :spacer]) (range 5))
+           :more-marker
+           "]"])
         (has-body? ref true)
         (is-body ref
-          ["ol" {"style" :standard-ol-style}
-           (unroll (fn [i] [["li" {"style" :standard-li-style}
-                             ["span" {"style" :index-style} i :line-index-separator]
-                             :spacer
-                             ["span" {"style" :cljs-style}
-                              ["span" {"style" :integer-style} (+ i 1)]]]]) (range 6))]))))
+          ["span" {"style" :body-style}
+           ["ol" {"style" :standard-ol-style}
+            (unroll (fn [i] [["li" {"style" :standard-li-style}
+                              ["span" {"style" :index-style} i :line-index-separator]
+                              :spacer
+                              ["span" {"style" :item-style}
+                               ["span" {"style" :integer-style} (+ i 1)]]]]) (range 6))]]))))
   (testing "ranges"
     (is (> 10 :max-header-elements))
     (is-header (range 10)
       ["span" {"style" :cljs-style}
-       REF]
+       ["span" {"style" :header-style}
+        REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {"style" :cljs-style}
-           ["span" {}
-            "("
-            (unroll (fn [i] [["span" {"style" :integer-style} i] :spacer]) (range :max-header-elements))
-            :more-marker
-            ")"]])))))
+          ["span" {}
+           "("
+           (unroll (fn [i] [["span" {"style" :integer-style} i] :spacer]) (range :max-header-elements))
+           :more-marker
+           ")"])))))
 
 (deftest test-continuations
   (testing "long range"
     (is-header (range (+ :max-number-body-items 1))
       ["span" {"style" :cljs-style}
-       REF]
+       ["span" {"style" :header-style}
+        REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {"style" :cljs-style}
-           ["span" {}
-            "("
-            (unroll (fn [i] [["span" {"style" :integer-style} i] :spacer]) (range :max-header-elements))
-            :more-marker
-            ")"]])
+          ["span" {}
+           "("
+           (unroll (fn [i] [["span" {"style" :integer-style} i] :spacer]) (range :max-header-elements))
+           :more-marker
+           ")"])
         (is-body ref
-          ["ol" {"style" :standard-ol-style}
-           (unroll (fn [i] [["li" {"style" :standard-li-style}
-                             ["span" {"style" :index-style} i :line-index-separator]
-                             :spacer
-                             ["span" {"style" :cljs-style}
-                              ["span" {"style" :integer-style} i]]]]) (range :max-number-body-items))
-           ["li" {"style" :standard-li-style}
-            REF]]
+          ["span" {"style" :body-style}
+           ["ol" {"style" :standard-ol-style}
+            (unroll (fn [i] [["li" {"style" :standard-li-style}
+                              ["span" {"style" :index-style} i :line-index-separator]
+                              :spacer
+                              ["span" {"style" :item-style}
+                               ["span" {"style" :integer-style} i]]]]) (range :max-number-body-items))
+            ["li" {"style" :standard-li-style}
+             REF]]]
           (fn [ref]
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              ["span" {"style" :cljs-style} :body-items-more-label])
+              :body-items-more-label)
             (is-body ref
-              ["ol" {"style" :standard-ol-no-margin-style}
-               (unroll (fn [i] [["li" {"style" :standard-li-no-margin-style}
-                                 ["span" {"style" :index-style} :max-number-body-items :line-index-separator]
-                                 :spacer
-                                 ["span" {"style" :cljs-style}
-                                  ["span" {"style" :integer-style} (+ i :max-number-body-items)]]]]) (range 1))])))))))
+              ["span" {"style" :body-style}
+               ["ol" {"style" :standard-ol-no-margin-style}
+                (unroll (fn [i] [["li" {"style" :standard-li-no-margin-style}
+                                  ["span" {"style" :index-style} :max-number-body-items :line-index-separator]
+                                  :spacer
+                                  ["span" {"style" :item-style}
+                                   ["span" {"style" :integer-style} (+ i :max-number-body-items)]]]]) (range 1))]])))))))
 
 (deftest test-printing
   (testing "max print level"
@@ -219,38 +231,40 @@
       (has-body? many-levels false)
       (is-header many-levels
         ["span" {"style" :cljs-style}
-         "[" ["span" {"style" :integer-style} 1] " "
-         "[" ["span" {"style" :integer-style} 2] " "
-         REF
-         "]"
-         "]"]
+         ["span" {"style" :header-style}
+          "[" ["span" {"style" :integer-style} 1] " "
+          "[" ["span" {"style" :integer-style} 2] " "
+          REF
+          "]"
+          "]"]]
         (fn [ref]
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
-            ["span" {"style" :cljs-style}
-             ["span" {}
-              "[" :more-marker "]"]]))))))
+            ["span" {}
+             "[" :more-marker "]"]))))))
 
 (deftest test-deftype
   (testing "simple deftype"
     (let [type-instance (SimpleType. "some-value")]
       (is-header type-instance
         ["span" {"style" :cljs-style}
-         "#object["
-         "devtools.test.format.SimpleType"
-         "]"]))))
+         ["span" {"style" :header-style}
+          "#object["
+          "devtools.test.format.SimpleType"
+          "]"]]))))
 
 (deftest test-handlers
-  (let [handled-keyword-output (clj->js ["span" {"style" (pref :cljs-style)}
-                                         ["span" {"style" (pref :keyword-style)} ":handled"]])]
+  (let [handled-output (clj->js (remove-empty-styles ["span" {"style" (pref :cljs-style)}
+                                                      ["span" {"style" (pref :header-style)}
+                                                       ["span" {"style" (pref :keyword-style)} ":handled"]]]))]
     (testing "header pre-handler"
       (set-pref! :header-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled)))
-      (is (js-equals (header-api-call ["cljs-value"]) handled-keyword-output))
-      (is (not (js-equals (header-api-call ["non-matching-cljs-value"]) handled-keyword-output)))
+      (is (js-equals (header-api-call ["cljs-value"]) handled-output))
+      (is (not (js-equals (header-api-call ["non-matching-cljs-value"]) handled-output)))
       (set-pref! :header-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
-      (is (js-equals (header-api-call "javascript-value") handled-keyword-output))
-      (is (not (js-equals (header-api-call "not-matching-javascript-value") handled-keyword-output)))
+      (is (js-equals (header-api-call "javascript-value") handled-output))
+      (is (not (js-equals (header-api-call "not-matching-javascript-value") handled-output)))
       (set-prefs! default-prefs))
     (testing "header post-handler"
       (set-pref! :header-post-handler (fn [_value] "always-rewrite"))
@@ -285,19 +299,23 @@
   (testing "meta is disabled"
     (set-pref! :print-meta-data false)
     (is-header (with-meta {} :meta)
-      ["span" {"style" :cljs-style} "{" "}"])
+      ["span" {"style" :cljs-style}
+       ["span" {"style" :header-style}
+        "{" "}"]])
     (set-prefs! default-prefs))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
-      ["span" {"style" :meta-wrapper-style}
-       ["span" {"style" :cljs-style} "{" "}"]
-       ["span" {} REF]]
+      ["span" {"style" :cljs-style}
+       ["span" {"style" :meta-wrapper-style}
+        ["span" {"style" :header-style} "{" "}"]
+        ["span" {} REF]]]
       (fn [ref]
         (has-body? ref true)
         (is-header ref
-          ["span" {"style" :cljs-style} ["span" {"style" :meta-style} "meta"]])
+          ["span" {"style" :meta-style} "meta"])
         (is-body ref
-          ["span" {"style" :cljs-style} ["span" {"style" :keyword-style} ":meta"]])))))
+          ["span" {"style" :header-style}
+           ["span" {"style" :keyword-style} ":meta"]])))))
 
 (deftest test-sequables
   (testing "min-sequable-count-for-expansion"
@@ -306,34 +324,37 @@
     (set-pref! :min-sequable-count-for-expansion 3)
     (is-header [1 2]
       ["span" {"style" :cljs-style}
-       "["
-       ["span" {"style" :integer-style} 1]
-       " "
-       ["span" {"style" :integer-style} 2]
-       "]"])
+       ["span" {"style" :header-style}
+        "["
+        ["span" {"style" :integer-style} 1]
+        " "
+        ["span" {"style" :integer-style} 2]
+        "]"]])
     (is-header [1 2 3]
-      ["span" {"style" :cljs-style} REF]
+      ["span" {"style" :cljs-style}
+       ["span" {"style" :header-style}
+        REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {"style" :cljs-style}
-           ["span" {}
-            "["
-            ["span" {"style" :integer-style} 1]
-            " "
-            ["span" {"style" :integer-style} 2]
-            " "
-            ["span" {"style" :integer-style} 3]
-            "]"]])))
+          ["span" {}
+           "["
+           ["span" {"style" :integer-style} 1]
+           " "
+           ["span" {"style" :integer-style} 2]
+           " "
+           ["span" {"style" :integer-style} 3]
+           "]"])))
     (set-pref! :min-sequable-count-for-expansion 4)
     (is-header [1 2 3]
       ["span" {"style" :cljs-style}
-       "["
-       ["span" {"style" :integer-style} 1]
-       " "
-       ["span" {"style" :integer-style} 2]
-       " "
-       ["span" {"style" :integer-style} 3]
-       "]"])
+       ["span" {"style" :header-style}
+        "["
+        ["span" {"style" :integer-style} 1]
+        " "
+        ["span" {"style" :integer-style} 2]
+        " "
+        ["span" {"style" :integer-style} 3]
+        "]"]])
     (set-prefs! default-prefs)))
