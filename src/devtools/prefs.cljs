@@ -37,8 +37,8 @@
    :fn-style                         "color:#090"
    :bool-style                       "color:#099"
    :print-meta-data                  true
-   :meta-wrapper-style               "background-color:#efe; border:1px solid #ada; padding:1px; border-radius:2px; position:relative; left:-1px;"
-   :meta-style                       "background-color:#8b8; color:#fff; padding: 0px 2px; border-radius: 1px;"
+   :meta-wrapper-style               "background-color:#efe; border:1px solid #ada; border-radius:2px;"
+   :meta-style                       "background-color:#ada; color:#fff; padding:0px 2px 0px 4px;"                    ; border radius on :meta-wrapper-style adds another 2px to the right
    :file-reader                      nil
    :header-pre-handler               nil
    :header-post-handelr              nil
