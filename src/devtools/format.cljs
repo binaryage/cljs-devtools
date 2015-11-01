@@ -98,8 +98,15 @@
 (defn abbreviated? [template]
   (some #(= (pref :more-marker) %) template))
 
+(defn seq-count-is-greater-or-equal? [seq limit]
+  (let [chunk (take limit seq)]                                                                                       ; we have to be extra careful to not call count on seq, it might be an infinite sequence
+    (= (count chunk) limit)))
+
 (defn expandable? [obj]
-  (and (pref :seqables-always-expandable) (seqable? obj) (>= (count obj) (pref :min-sequable-count-for-expansion))))
+  (and
+    (pref :seqables-always-expandable)
+    (seqable? obj)
+    (seq-count-is-greater-or-equal? obj (pref :min-sequable-count-for-expansion))))
 
 (deftype TemplateWriter [t]
   Object
