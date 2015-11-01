@@ -189,13 +189,16 @@
         continue? (not (empty? (take 1 rest)))]
     (if-not continue?
       lines
-      (let [surrogate-object (surrogate rest (pref :body-items-more-label))]
+      (let [surrogate-object (surrogate rest (template :span :more-style (pref :body-items-more-label)))]
         (aset surrogate-object "startingIndex" (+ starting-index max-number-body-items))
         (conj lines (reference surrogate-object))))))
 
 (defn build-body [value starting-index]
-  (template :span :body-style
-    (standard-body-template (body-lines-templates value starting-index) (zero? starting-index))))
+  (let [is-body? (zero? starting-index)
+        result (standard-body-template (body-lines-templates value starting-index) is-body?)]
+    (if is-body?
+      (template :span :body-style result)
+      result)))
 
 (defn build-surrogate-body [value]
   (if-let [body-template (aget value "bodyTemplate")]

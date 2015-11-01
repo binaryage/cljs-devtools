@@ -215,15 +215,15 @@
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              :body-items-more-label)
+              ["span" {"style" :more-style}
+               :body-items-more-label])
             (is-body ref
-              ["span" {"style" :body-style}
-               ["ol" {"style" :standard-ol-no-margin-style}
-                (unroll (fn [i] [["li" {"style" :standard-li-no-margin-style}
-                                  ["span" {"style" :index-style} :max-number-body-items :line-index-separator]
-                                  :spacer
-                                  ["span" {"style" :item-style}
-                                   ["span" {"style" :integer-style} (+ i :max-number-body-items)]]]]) (range 1))]])))))))
+              ["ol" {"style" :standard-ol-no-margin-style}
+               (unroll (fn [i] [["li" {"style" :standard-li-no-margin-style}
+                                 ["span" {"style" :index-style} :max-number-body-items :line-index-separator]
+                                 :spacer
+                                 ["span" {"style" :item-style}
+                                  ["span" {"style" :integer-style} (+ i :max-number-body-items)]]]]) (range 1))])))))))
 
 (deftest test-printing
   (testing "max print level"
