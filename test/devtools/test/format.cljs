@@ -215,7 +215,7 @@
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              ["span" {"style" :more-style}
+              ["span" {"style" :body-items-more-label-style}
                :body-items-more-label])
             (is-body ref
               ["ol" {"style" :standard-ol-no-margin-style}
@@ -314,8 +314,9 @@
         (is-header ref
           ["span" {"style" :meta-style} "meta"])
         (is-body ref
-          ["span" {"style" :header-style}
-           ["span" {"style" :keyword-style} ":meta"]])))))
+          ["span" {"style" :meta-body-style}
+           ["span" {"style" :header-style}
+            ["span" {"style" :keyword-style} ":meta"]]])))))
 
 (deftest test-sequables
   (testing "min-sequable-count-for-expansion"

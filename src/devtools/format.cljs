@@ -192,7 +192,8 @@
         continue? (not (empty? (take 1 rest)))]
     (if-not continue?
       lines
-      (let [surrogate-object (surrogate rest (template :span :more-style (pref :body-items-more-label)))]
+      (let [more-label-template (template :span :body-items-more-label-style (pref :body-items-more-label))
+            surrogate-object (surrogate rest more-label-template)]
         (aset surrogate-object "startingIndex" (+ starting-index max-number-body-items))
         (conj lines (reference surrogate-object))))))
 

@@ -36,7 +36,7 @@
    :cljs-style                       (str "background-color:" signature-background)
    :header-style                     ""
    :item-style                       ""
-   :more-style                       "background-color:#999; color:#fff; padding:0px 2px 0px 2px;-webkit-user-select: none;"
+   :body-items-more-label-style                 "background-color:#999; color:#fff; padding:0px 2px 0px 2px;-webkit-user-select: none;"
    :body-style                       (str "display:inline-block;border: 1px dashed " (signature-color-with-opacity 0.4) ";border-top:none;border-radius:1px;margin: 0px 4px 2px 4px;background-color:" signature-background)
    :index-style                      "color:#881391"
    :nil-style                        "color:#808080"
