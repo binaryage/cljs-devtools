@@ -50,7 +50,8 @@
    :bool-style                       "color:#099"
    :print-meta-data                  true
    :meta-wrapper-style               "background-color:#efe; border:1px solid #ada; border-radius:2px;"
-   :meta-style                       "background-color:#ada; color:#fff; padding:0px 2px 0px 4px;"                    ; border radius on :meta-wrapper-style adds another 2px to the right
+   :meta-style                       "background-color:#ada; color:#fff; padding:0px 2px 0px 4px;" ; border radius on :meta-wrapper-style adds another 2px to the right
+   :meta-body-style                  "border:1px solid #ada; position:relative; left:1px; top:-1px; margin-left:-1px; padding:1px; border-bottom-left-radius:2px; border-bottom-right-radius:2px;"
    :file-reader                      nil
    :header-pre-handler               nil
    :header-post-handelr              nil

@@ -59,7 +59,10 @@
 (declare build-header)
 
 (defn meta-template [value]
-  (template :span "" (reference (surrogate value (template :span :meta-style "meta") true (build-header value)))))
+  (let [header-template (template :span :meta-style "meta")
+        body-template (template :span :meta-body-style
+                        (build-header value))]
+    (template :span "" (reference (surrogate value header-template true body-template)))))
 
 (defn abbreviate-long-string [string]
   (str
