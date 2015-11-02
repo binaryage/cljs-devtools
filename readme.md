@@ -17,6 +17,8 @@
 
 <img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
 
+Read more in [v0.4.0 release notes](https://github.com/binaryage/cljs-devtools/releases/tag/v0.4.0).
+
 ## Integration in your own project
 
 Add devtools dependency into your Leiningen's project.clj:
@@ -39,12 +41,13 @@ See [the sample project](https://github.com/binaryage/cljs-devtools-sample).
 
 ## Enable Custom formatters in your Chrome (Canary)
 
-For now you must use Chrome Canary (worked in 48.0.2537.0 canary (64-bit) under Mac).
+For now you must use Chrome Canary (worked in 48.0.2551.0 canary (64-bit) under Mac).
 
 ##### Turn on custom formatters:
 
   * Open DevTools.
-  * Go to Settings: (Click the "three dots" icon in the upper right corner of DevTools > Menu > Settings [F1])
+  * Go to Settings 
+      (Click the "three dots" icon in the upper right corner of DevTools > Menu > Settings [F1])
   * Check "Enable custom formatters".
   * Close DevTools.
   * Open DevTools.
