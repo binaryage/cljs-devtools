@@ -52,4 +52,8 @@ For now you must use Chrome Canary (worked in 48.0.2551.0 canary (64-bit) under 
   * Close DevTools.
   * Open DevTools.
 
+## Related links
+
+  * A Figwheel user? Check out how to [integrate cljs-devtools with Figwheel REPL](https://github.com/binaryage/cljs-devtools/wiki/Figwheel-REPL-plugin)
+
 #### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools/master/LICENSE.txt)
