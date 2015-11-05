@@ -19,8 +19,9 @@
 
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src"
-                                       "checkouts/cljs-devtools/src"
-                                       "checkouts/cljs-devtools/src-debug"]
+                                       ;"checkouts/cljs-devtools/src"
+                                       ;"checkouts/cljs-devtools/src-debug"
+                                       ]
                         :compiler     {:main           devtools-sample.core
                                        :output-to      "resources/public/_compiled/devtools_sample.js"
                                        :output-dir     "resources/public/_compiled"

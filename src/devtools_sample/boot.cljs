@@ -5,7 +5,8 @@
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
             [devtools.core :as devtools]
-            [devtools.debug :as debug]))
+            ;[devtools.debug :as debug]
+            ))
 
 (def enable-debug false)
 
@@ -30,7 +31,7 @@
 
 (defn boot! []
   (when enable-debug
-    (debug/init!)
+    ;(debug/init!)
     (set! devtools/*monitor-enabled* true)
     (set! devtools/*sanitizer-enabled* false))
   (devtools/set-pref! :install-sanity-hints true)
