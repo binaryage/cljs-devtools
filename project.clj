@@ -19,12 +19,12 @@
                               [:timezone "+1"]]]
 
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.7.145" :scope "provided"]]
+                 [org.clojure/clojurescript "1.7.170" :scope "provided"]]
 
   :clean-targets ^{:protect false} ["out" "test/_generated"]
 
-  :plugins [[lein-cljsbuild "1.1.0"]
-            [lein-cljfmt "0.1.7"]]
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-cljfmt "0.3.0"]]
 
   :hooks [leiningen.cljsbuild]
 
