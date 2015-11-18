@@ -1,6 +1,4 @@
-# cljs-devtools
-
-[![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
+# cljs-devtools [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) [![Dependency Status](https://www.versioneye.com/user/projects/564cbab3a656ab000e000f66//badge.svg?style=flat)](https://www.versioneye.com/user/projects/564cbab3a656ab000e000f66/)
 
 * Better presentation of ClojureScript values in Chrome DevTools
 * [optional] More informative exceptions (sanity hints)
