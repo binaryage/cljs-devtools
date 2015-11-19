@@ -8,16 +8,6 @@
   :scm {:name "git"
         :url  "https://github.com/binaryage/cljs-devtools"}
 
-  :signing {:gpg-key "DDD8C87F"}
-
-  :deploy-repositories [["clojars" {:creds :gpg}]]
-
-  :pom-addition [:developers [:developer
-                              [:name "Antonin Hildebrand"]
-                              [:url "https://github.com/darwin"]
-                              [:email "antonin@hildebrand.cz"]
-                              [:timezone "+1"]]]
-
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.170" :scope "provided"]]
 
