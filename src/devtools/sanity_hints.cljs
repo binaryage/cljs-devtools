@@ -76,11 +76,15 @@
     :else nil))
 
 (defn error-object-sense [error]
-  (let [native-stack-trace (.-stack error)
-        stack-trace (stacktrace/parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""})
-        top-item (second stack-trace)                                                                                 ; first line is just an error message
-        {:keys [file line column]} top-item]
-    (make-sense-of-the-error (.-message error) file line column)))
+  (try
+    (let [native-stack-trace (.-stack error)
+          stack-trace (stacktrace/parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""})
+          top-item (second stack-trace)                                                                               ; first line is just an error message
+          {:keys [file line column]} top-item]
+      (make-sense-of-the-error (.-message error) file line column))
+    (catch :default _e
+      ; silently fail in case of troubles parsing stack trace
+      false)))
 
 (defn type-error-to-string []
   (this-as self
