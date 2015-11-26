@@ -1,5 +1,7 @@
 # cljs-devtools [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) [![Dependency Status](https://www.versioneye.com/user/projects/564cbab3a656ab000e000f66//badge.svg?style=flat)](https://www.versioneye.com/user/projects/564cbab3a656ab000e000f66/)
 
+[![Clojars Project](http://clojars.org/binaryage/devtools/latest-version.svg)](http://clojars.org/binaryage/devtools)
+
 * Better presentation of ClojureScript values in Chrome DevTools
 * [optional] More informative exceptions (sanity hints)
 
@@ -44,7 +46,7 @@ For now you must use Chrome Canary (worked in 48.0.2551.0 canary (64-bit) under 
 ##### Turn on custom formatters:
 
   * Open DevTools.
-  * Go to Settings 
+  * Go to Settings
       (Click the "three dots" icon in the upper right corner of DevTools > Menu > Settings [F1])
   * Check "Enable custom formatters".
   * Close DevTools.
