@@ -11,33 +11,42 @@
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.170" :scope "provided"]]
 
-  :clean-targets ^{:protect false} ["out" "test/_generated"]
+  :clean-targets ^{:protect false} ["target"
+                                    "test/_generated"]
 
-  :plugins [[lein-cljsbuild "1.1.1"]
-            [lein-cljfmt "0.3.0"]]
-
+  :plugins [[lein-cljsbuild "1.1.1"]]
   :hooks [leiningen.cljsbuild]
 
-  :cljsbuild
-  {:builds        {:dev
-                   {:source-paths ["src", "src-debug"]
-                    :compiler     {:output-to     "out/dev/cljs_devtools.js"
-                                   :output-dir    "out/dev"
-                                   :optimizations :none
-                                   :source-map    true}}
-                   :prod
-                   {:source-paths ["src"]
-                    :compiler     {:output-to     "out/prod/cljs_devtools.min.js"
-                                   :output-dir    "out/prod"
-                                   :optimizations :advanced
-                                   :source-map    "out/prod/cljs_devtools.min.js.map"}}
-                   :test
-                   {:source-paths ["src", "test"]
-                    :compiler     {:output-to     "test/_generated/cljs_devtools.test.js"
-                                   :output-dir    "test/_generated"
-                                   :main          devtools.runner
-                                   :asset-path    "_generated"
-                                   :optimizations :none
-                                   :pretty-print  true
-                                   :source-map    true}}}
-   :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}})
+  :source-paths ["src"]
+  :test-paths ["test"]
+
+  :aliases {"test" ["with-profile" "test" "test"]}
+
+  :profiles {:devel
+             {:cljsbuild {:builds {:devel
+                                   {:source-paths ["src", "src-debug"]
+                                    :compiler     {:output-to     "target/devel/cljs_devtools.js"
+                                                   :output-dir    "target/devel"
+                                                   :optimizations :none
+                                                   :source-map    true}}}}}
+
+             :release
+             {:cljsbuild {:builds {:release
+                                   {:source-paths ["src"]
+                                    :compiler     {:output-to     "target/release/cljs_devtools.min.js"
+                                                   :output-dir    "target/release"
+                                                   :optimizations :advanced
+                                                   :source-map    "out/prod/cljs_devtools.min.js.map"}}}}}
+
+             :test
+             {:cljsbuild {:builds        {:test
+                                          {:source-paths ["src", "test"]
+                                           :compiler     {:output-to     "test/_generated/cljs_devtools.test.js"
+                                                          :output-dir    "test/_generated"
+                                                          :main          devtools.runner
+                                                          :asset-path    "_generated"
+                                                          :optimizations :none
+                                                          :pretty-print  true
+                                                          :source-map    true}}}
+                          :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}}}}
+  )

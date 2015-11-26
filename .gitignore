@@ -1,7 +1,6 @@
 *.iml
 pom.xml
-/target/
-out/
+target/
 .lein*
 pom.xml.*
 .idea
