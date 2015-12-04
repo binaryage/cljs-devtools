@@ -39,18 +39,15 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
 
 See [the sample project](https://github.com/binaryage/cljs-devtools-sample).
 
-## Enable Custom formatters in your Chrome (Canary)
+## Enable Custom formatters in Chrome
 
-For now you must use Chrome Canary (worked in 48.0.2551.0 canary (64-bit) under Mac).
+(Available in [Chrome 47 and higher](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html))
 
-##### Turn on custom formatters:
-
-  * Open DevTools.
-  * Go to Settings
-      (Click the "three dots" icon in the upper right corner of DevTools > Menu > Settings [F1])
-  * Check "Enable custom formatters".
-  * Close DevTools.
-  * Open DevTools.
+  * Open DevTools
+  * Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings `F1` > Console)
+  * Check-in "Enable custom formatters"
+  * Close DevTools
+  * Open DevTools
 
 ## Related links
 
