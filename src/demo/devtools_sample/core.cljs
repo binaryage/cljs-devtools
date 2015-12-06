@@ -7,9 +7,6 @@
 
 (boot!)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; some quick and dirty inline tests
-
 ; --- MEAT STARTS HERE -->
 ; note: (log ...) function is a shorthand for (.log js/console ...)
 

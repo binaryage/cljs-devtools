@@ -1,3 +1,4 @@
+/.lein-env
 pom.xml
 *jar
 /lib/
