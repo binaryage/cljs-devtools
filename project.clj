@@ -3,12 +3,12 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.145"]
+                 [org.clojure/clojurescript "1.7.170"]
                  [binaryage/devtools "0.4.1"]
-                 [cljs-http "0.1.37"]
+                 [cljs-http "0.1.38"]
                  [ring "1.4.0"]]
 
-  :plugins [[lein-cljsbuild "1.1.0"]
+  :plugins [[lein-cljsbuild "1.1.1"]
             [lein-ring "0.9.7"]]
 
   :clean-targets ^{:protect false} ["resources/public/_compiled"]
