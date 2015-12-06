@@ -22,6 +22,8 @@
 
   :aliases {"test" ["with-profile" "test" "test"]}
 
+  :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
+
   :profiles {:devel
              {:cljsbuild {:builds {:devel
                                    {:source-paths ["src", "src-debug"]
