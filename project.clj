@@ -7,22 +7,28 @@
                  [binaryage/devtools "0.4.1"]
                  [cljs-http "0.1.38"]
                  [ring "1.4.0"]
-                 [ring-refresh "0.1.1"]
-                 [environ "1.0.1"]]
+                 [environ "1.0.1"]
+                 [figwheel "0.5.0-2"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0-2"]
             [lein-ring "0.9.7"]
-            [lein-environ "1.0.1"]
-            [lein-cooper "0.0.1"]]
+            [lein-environ "1.0.1"]]
 
   :ring {:handler       devtools-sample.server/app
          :auto-reload?  true
-         :auto-refresh? true}
+         ;:auto-refresh? true
+         }
+
+  :figwheel {:server-port    7000
+             ;:nrepl-port     7777
+             :server-logfile ".figwheel_server.log"
+             :css-dirs       []}
 
   :source-paths ["src/server"]
 
   :clean-targets ^{:protect false} ["resources/public/_compiled"
-                                    "target/classes"]
+                                    "target"]
 
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
 
@@ -36,7 +42,8 @@
                                                    :source-map    true}}}}}
              :checkouts
              {:cljsbuild {:builds {:demo
-                                   {:source-paths ["checkouts/cljs-devtools/src"]}}}}
+                                   {:source-paths ["checkouts/cljs-devtools/src"
+                                                   "checkouts/figwheel-support/src"]}}}}
 
              :debug
              {:env {:devtools-debug true}}
@@ -44,8 +51,11 @@
              :devel
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["src/debug"
+                                                   "src/figwheel"
                                                    "checkouts/cljs-devtools/src-debug"]}}}}}
 
-  :aliases {"demo"   ["with-profile" "+demo" "do" "clean," "cljsbuild" "once," "ring" "server"]
-            "devel"  ["cooper"]
-            "server" ["with-profile" "+demo" "ring" "server"]})
+  :aliases {"demo"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "once," "ring" "server"]
+            "cljs"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "auto"]
+            "server"       ["ring" "server"]
+            "debug-cljs"   ["with-profile" "+demo,+checkouts,+devel,+debug" "do" "clean," "figwheel"]
+            "debug-server" ["with-profile" "+debug" "ring" "server"]})
