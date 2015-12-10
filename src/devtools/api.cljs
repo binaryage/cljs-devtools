@@ -9,6 +9,13 @@
      (catch :default e
        (js/devtools.api.repl_exception {request-id} e)))")
 
+(defn console-log [& args]
+  (.apply (.-log js/console) js/console (apply array args)))
+
+; $REPL-RESULT$ is a magic marker, cljs-devtools-shell will treat it differently
+(defn log-repl-result [request-id & args]
+  (apply console-log (concat ["$REPL-RESULT$" request-id] args)))
+
 ; TODO: error checks
 (defn ^:export repl-eval [request-id code]
   (if-let [figwheel-repl-ns (oget js/window "figwheel" "client" "repl")]
@@ -18,10 +25,9 @@
       (ocall figwheel-repl-ns "repl_eval" request-id wrapped-code code))))
 
 (defn ^:export repl-result [request-id value]
-  (.log js/console "$REPL-RESULT$" request-id value)
+  (log-repl-result request-id value)
   value)
 
 (defn ^:export repl-exception [request-id exception]
-  (.log js/console "$REPL-RESULT$" request-id exception)
+  (log-repl-result request-id exception)
   (throw exception))
-
