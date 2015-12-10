@@ -1,7 +1,8 @@
 (ns devtools.core
   (:require [devtools.prefs :as prefs]
             [devtools.format :as format]
-            [devtools.sanity-hints :as hints]))
+            [devtools.sanity-hints :as hints]
+            [devtools.api]))
 
 (def ^:dynamic *devtools-enabled* true)
 (def ^:dynamic *sanitizer-enabled* true)
