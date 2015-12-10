@@ -26,10 +26,11 @@
 ;
 ; note: Tested under Chrome only
 
+(defonce ^:dynamic *installed?* false)
 (defonce ^:dynamic *original-global-error-handler* nil)
 (defonce ^:dynamic *original-type-error-prototype-to-string* nil)
 
-(defonce *processed-errors* (if (exists? js/WeakSet) (js/WeakSet.)))                                                  ; note: phantomjs does not have WeakSet yet
+(defonce *processed-errors* (if (exists? js/WeakSet) (js/WeakSet.)))                                                          ; note: phantomjs does not have WeakSet yet
 
 (defn empty-as-nil [str]
   (if (empty? str) nil str))
@@ -45,11 +46,11 @@
     (reader where)))
 
 (defn get-line [lines line-number]
-  (aget lines (dec line-number)))                                                                                     ; line numbering is 1-based
+  (aget lines (dec line-number)))                                                                                             ; line numbering is 1-based
 
 (defn extend-content [content lines line-number min-length]
   (if (or (> (count content) min-length)
-        (not (pos? line-number)))
+          (not (pos? line-number)))
     content
     (let [prev-line-number (dec line-number)
           prev-line (get-line lines prev-line-number)
@@ -57,7 +58,7 @@
       (extend-content new-content lines prev-line-number min-length))))
 
 (defn mark-call-closed-at-column [line column]
-  (let [n (dec column)                                                                                                ; column number is 1-based
+  (let [n (dec column)                                                                                                        ; column number is 1-based
         prefix (.substring line 0 n)
         postfix (.substring line n)]
     (str prefix " <<< ☢ RETURNED NULL ☢ <<< " postfix)))
@@ -79,7 +80,7 @@
   (try
     (let [native-stack-trace (.-stack error)
           stack-trace (stacktrace/parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""})
-          top-item (second stack-trace)                                                                               ; first line is just an error message
+          top-item (second stack-trace)                                                                                       ; first line is just an error message
           {:keys [file line column]} top-item]
       (make-sense-of-the-error (.-message error) file line column))
     (catch :default _e
@@ -92,7 +93,7 @@
       (when-not (.has *processed-errors* self)
         (.add *processed-errors* self)
         (when-let [sense (error-object-sense self)]
-          (set! (.-message self) (str (.-message self) ", a sanity hint:\n" sense)))))                                ; this is dirty, patch message field before it gets used
+          (set! (.-message self) (str (.-message self) ", a sanity hint:\n" sense)))))                                        ; this is dirty, patch message field before it gets used
     (.call *original-type-error-prototype-to-string* self)))
 
 (defn global-error-handler [message url line column error]
@@ -112,10 +113,14 @@
     (set! (.-toString prototype) type-error-to-string)))
 
 (defn install! []
-  (install-type-error-enhancer))
+  (when-not *installed?*
+    (set! *installed?* true)
+    (install-type-error-enhancer)))
 
 (defn uninstall! []
-  (assert *original-type-error-prototype-to-string*)
-  (set! (.-onerror js/window) *original-global-error-handler*)
-  (let [prototype (.-prototype js/TypeError)]
-    (set! (.-toString prototype) *original-type-error-prototype-to-string*)))
+  (when *installed?*
+    (set! *installed?* false)
+    (assert *original-type-error-prototype-to-string*)
+    (set! (.-onerror js/window) *original-global-error-handler*)
+    (let [prototype (.-prototype js/TypeError)]
+      (set! (.-toString prototype) *original-type-error-prototype-to-string*))))
