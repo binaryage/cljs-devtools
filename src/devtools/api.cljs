@@ -21,11 +21,11 @@
     (call-figwheel-driver "eval" request-id wrapped-code code)))
 
 (defn ^:export repl-result [request-id value]
-  (dirac/log-repl-result request-id value)
+  (dirac/log request-id "result" value)
   value)
 
 (defn ^:export repl-exception [request-id exception]
-  (dirac/log-repl-result request-id exception)
+  (dirac/error request-id "exception" exception)
   (throw exception))
 
 (defn ^:export warm-up-repl-connection []
