@@ -2,6 +2,7 @@
   (:require [devtools.prefs :as prefs]
             [devtools.format :as format]
             [devtools.sanity-hints :as hints]
+            [devtools.dirac :as dirac]
             [devtools.api]))
 
 (def ^:dynamic *devtools-enabled* true)
@@ -93,8 +94,10 @@
     (.warn js/console "install!: devtools already installed - nothing to do")
     (do
       (install-our-formatter! (build-cljs-formatter))
-      (when (prefs/pref :install-sanity-hints)
-        (hints/install!)))))
+      (if (prefs/pref :install-sanity-hints)
+        (hints/install!))
+      (if (prefs/pref :install-dirac-support)
+        (dirac/install!)))))
 
 (defn uninstall! []
   (if-not (installed?)
@@ -102,7 +105,9 @@
     (do
       (uninstall-our-formatters!)
       (if (prefs/pref :install-sanity-hints)
-        (hints/uninstall!)))))
+        (hints/uninstall!))
+      (if (prefs/pref :install-dirac-support)
+        (dirac/uninstall!)))))
 
 (defn disable! []
   (set! *devtools-enabled* false))

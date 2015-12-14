@@ -10,6 +10,7 @@
 
 (def default-prefs
   {:install-sanity-hints             false
+   :install-dirac-support            true
    :sanity-hint-min-length           128
    :max-print-level                  2
    :max-header-elements              5
