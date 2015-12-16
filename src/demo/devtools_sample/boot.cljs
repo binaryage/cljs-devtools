@@ -1,12 +1,11 @@
 (ns devtools-sample.boot
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [devtools-sample.logging :refer [log]]
-                   [devtools-sample.config :refer [debug? figwheel?]])
+                   [devtools-sample.config :refer [debug?]])
   (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
-            [devtools.core :as devtools]
-            [devtools-sample.figwheel :as figwheel]))
+            [devtools.core :as devtools]))
 
 (defn extract-meat [re s]
   (let [rex (js/RegExp. re "igm")]
@@ -28,8 +27,6 @@
         (.highlightBlock js/hljs block))))
 
 (defn boot! []
-  (when (figwheel?)
-    (figwheel/start!))
   (when (debug?)
     (log "devtools-sample: enabled debug mode")
     (set! devtools/*monitor-enabled* true)

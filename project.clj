@@ -42,9 +42,6 @@
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["checkouts/cljs-devtools/src"
                                                    "checkouts/figwheel-support/src"]}}}}
-             :figwheel
-             {:env {:devtools-figwheel true}}
-
              :debug
              {:env {:devtools-debug true}}
 
@@ -56,8 +53,8 @@
 
   :aliases {"demo"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "once," "ring" "server"]
             "cljs"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "auto"]
-            "dirac"        ["with-profile" "+demo,+checkouts,+devel,+figwheel" "do" "clean," "figwheel"]
+            "dirac"        ["with-profile" "+demo,+checkouts,+devel" "do" "clean," "figwheel"]
             "server"       ["ring" "server"]
             "prepare-checkouts" ["shell" "scripts/prepare-checkouts.sh"]
-            "debug"        ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel" "figwheel"]
+            "debug"        ["with-profile" "+demo,+checkouts,+devel,+debug" "figwheel"]
             "debug-server" ["with-profile" "+debug" "ring" "server"]})
