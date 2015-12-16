@@ -45,9 +45,11 @@
     (log-warning reason)
     (oapply (get-repl-driver-ns) name args)))
 
-(defn subscribe! [callback]
+(defn subscribe! [callback & [trials]]
   (if-let [repl-driver-ns (get-repl-driver-ns)]
-    (ocall repl-driver-ns "subscribe" callback)))
+    (ocall repl-driver-ns "subscribe" callback)
+    (if (< trials 10)                                                                                                         ; HACK: figwheel namespace may be loaded later, give it some time
+      (js/setTimeout (partial subscribe! callback) 1000 (inc trials)))))
 
 (defn unsubscribe! [callback]
   (if-let [repl-driver-ns (get-repl-driver-ns)]
