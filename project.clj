@@ -13,6 +13,7 @@
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-2"]
+            [lein-shell "0.4.2"]
             [lein-ring "0.9.7"]
             [lein-environ "1.0.1"]]
 
@@ -57,5 +58,6 @@
             "cljs"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "auto"]
             "dirac"        ["with-profile" "+demo,+checkouts,+devel,+figwheel" "do" "clean," "figwheel"]
             "server"       ["ring" "server"]
+            "prepare-checkouts" ["shell" "scripts/prepare-checkouts.sh"]
             "debug"        ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel" "figwheel"]
             "debug-server" ["with-profile" "+debug" "ring" "server"]})
