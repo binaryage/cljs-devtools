@@ -49,7 +49,7 @@
   (if-let [repl-driver-ns (get-repl-driver-ns)]
     (ocall repl-driver-ns "subscribe" callback)
     (if (< trials 10)                                                                                                         ; HACK: figwheel namespace may be loaded later, give it some time
-      (js/setTimeout (partial subscribe! callback) 1000 (inc trials)))))
+      (js/setTimeout #(subscribe! callback (inc trials)) 1000))))
 
 (defn unsubscribe! [callback]
   (if-let [repl-driver-ns (get-repl-driver-ns)]
