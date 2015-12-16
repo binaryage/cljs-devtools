@@ -5,6 +5,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
                  [binaryage/devtools "0.4.1"]
+                 [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.38"]
                  [ring "1.4.0"]
                  [environ "1.0.1"]
@@ -15,15 +16,11 @@
             [lein-ring "0.9.7"]
             [lein-environ "1.0.1"]]
 
-  :ring {:handler       devtools-sample.server/app
-         :auto-reload?  true
-         ;:auto-refresh? true
-         }
+  :ring {:handler      devtools-sample.server/app
+         :auto-reload? true}
 
   :figwheel {:server-port    7000
-             ;:nrepl-port     7777
-             :server-logfile ".figwheel_server.log"
-             :css-dirs       []}
+             :server-logfile ".figwheel_server.log"}
 
   :source-paths ["src/server"]
 
@@ -44,6 +41,8 @@
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["checkouts/cljs-devtools/src"
                                                    "checkouts/figwheel-support/src"]}}}}
+             :figwheel
+             {:env {:devtools-figwheel true}}
 
              :debug
              {:env {:devtools-debug true}}
@@ -56,6 +55,7 @@
 
   :aliases {"demo"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "once," "ring" "server"]
             "cljs"         ["with-profile" "+demo" "do" "clean," "cljsbuild" "auto"]
+            "dirac"        ["with-profile" "+demo,+checkouts,+devel,+figwheel" "do" "clean," "figwheel"]
             "server"       ["ring" "server"]
-            "debug-cljs"   ["with-profile" "+demo,+checkouts,+devel,+debug" "do" "clean," "figwheel"]
+            "debug"        ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel" "figwheel"]
             "debug-server" ["with-profile" "+debug" "ring" "server"]})

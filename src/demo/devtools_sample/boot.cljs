@@ -1,7 +1,7 @@
 (ns devtools-sample.boot
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [devtools-sample.logging :refer [log]]
-                   [devtools-sample.config :refer [debug?]])
+                   [devtools-sample.config :refer [debug? figwheel?]])
   (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
@@ -28,10 +28,11 @@
         (.highlightBlock js/hljs block))))
 
 (defn boot! []
+  (when (figwheel?)
+    (figwheel/start!))
   (when (debug?)
-    (figwheel/start!)
     (log "devtools-sample: enabled debug mode")
-    ;(set! devtools/*monitor-enabled* true)
+    (set! devtools/*monitor-enabled* true)
     (set! devtools/*sanitizer-enabled* false))
   (devtools/set-pref! :install-sanity-hints true)
   (devtools/install!)
