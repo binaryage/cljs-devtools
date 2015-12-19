@@ -23,7 +23,8 @@
   :figwheel {:server-port    7000
              :server-logfile ".figwheel_server.log"}
 
-  :source-paths ["src/server"]
+  :source-paths ["src"
+                 "src/server"]
 
   :clean-targets ^{:protect false} ["resources/public/_compiled"
                                     "target"]

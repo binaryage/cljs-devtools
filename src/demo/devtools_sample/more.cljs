@@ -31,14 +31,13 @@ third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooon
 
 last line")
 
-(def global (atom []))
+(def state (atom []))
 
-(defn break-into-this-fn [param]
-  (let [range (range 3)
-        seq (interleave (repeat :even) (repeat :odd))]
-    (doseq [item range]
-      (let [s (str item "(" (nth seq item) ") " param)]
-        (reset! global (conj @global s))))))                                                                                  ; <- put breakpoint HERE and see Scope variables in the DevTools
+(defn simple-fn [count]
+  (let [rng (range count)]
+    (doseq [item rng]
+      (let [s (str "item=" item)]
+        (swap! state conj s)))))                                                                                              ; <- set breakpoint HERE and see Scope variables in DevTools
 
 (defn more! []
   (log (SomeType. "some value"))
@@ -47,8 +46,8 @@ last line")
   (log test-interleaved)
   (log [long-string])
 
-  (break-into-this-fn "postfix")
-  (log global)
+  (simple-fn 10)
+  (log state)
 
   (log [::namespaced-keyword])
   (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]))
