@@ -77,11 +77,43 @@
         (error request-id "error" error-msg)
         (log request-id kind text)))))
 
-(defn process-message [msg]
+(defn wrap-with-single-quotes [s]
+  (str "'" s "'"))
+
+(defn code-as-string [code]
+  (let [re-quote (js/RegExp. "'" "g")
+        re-new-line (js/RegExp. "\n", "g")]
+    (-> code
+        (.replace re-quote "\\'")
+        (.replace re-new-line "\\n")
+        (wrap-with-single-quotes))))
+
+(def ^:dynamic eval-js-template
+  "devtools.api.eval_js({request-id}, \"{callback-name}\", {code-string})")
+
+(defn eval-js
+  "This function gets called when we receive request from Figwheel to evaluate javascript expression in the context
+  of REPL driver. Normally we could just eval the code in global javascript context at this point (Figwheel does that).
+  But we want to support cases when DevTools is stopped at a breakpoint and console commands are evaluated in the context
+  of current stack frame. That is why we wrap expression code into api/eval-js call and send it to Dirac DevTools for
+  evaluation. Dirac uses debugger protocol to instruct javascript engine to evaluate wrapped code in the context
+  debugger state (the same context that would be used when typing commands into DevTools javascript console)."
+  [request-id callback-name code]
+  (let [wrapped-code (-> eval-js-template
+                         (string/replace "{request-id}" request-id)
+                         (string/replace "{callback-name}" callback-name)
+                         (string/replace "{code-string}" (code-as-string code)))]
+    (.info js/console "eval" request-id wrapped-code)
+    (call-dirac "eval-js" request-id wrapped-code)))
+
+(defn process-message
+  "Process a message received from Figwheel."
+  [msg _opts]
   (case (:command msg)
     :job-start (call-dirac "job-start" (:request-id msg))
     :job-end (call-dirac "job-end" (:request-id msg))
     :repl-ns (call-dirac "repl-ns" (:ns msg))
+    :eval-js (eval-js (:request-id msg) (:callback-name msg) (:code msg))
     :output (present-output (:request-id msg) (name (:kind msg)) (:content msg))
     (.warn js/console (str "Received unrecognized message '" (:command msg) "' from Figwheel") msg)))
 
