@@ -61,7 +61,7 @@
   (let [n (dec column)                                                                                                        ; column number is 1-based
         prefix (.substring line 0 n)
         postfix (.substring line n)]
-    (str prefix " <<< ☢ RETURNED NULL ☢ <<< " postfix)))
+    (str prefix " <<< ☢ NULL ☢ <<< " postfix)))
 
 (defn mark-null-call-site-location [file line-number column]
   (let [content (retrieve-javascript-source file)
