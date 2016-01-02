@@ -1,9 +1,11 @@
 (ns devtools.dirac
   (:require-macros [devtools.util :refer [oget ocall oapply]])
   (:require [goog.object]
-            [devtools.figwheel :as figwheel]
+            [clojure.browser.repl :as brepl]
             [devtools.prefs :refer [pref]]
             [clojure.string :as string]))
+
+; ===========================================================================================================================
 
 ; Dirac is a codename for our DevTools fork
 ;
@@ -17,6 +19,9 @@
 ;                      we let these bubble through as real log messages but decorate them slightly for our purposes
 
 (defonce ^:dynamic *installed?* false)
+
+; keep in mind that we want to avoid any state at all
+; javascript running this code can be reloaded anytime, same with devtools front-end
 
 (defn console-tunnel [method & args]
   (.apply (oget js/console method) js/console (apply array args)))
@@ -51,13 +56,13 @@
 (defn group-end []
   (.groupEnd js/console))
 
-(defn detect-and-strip [prefix text]
+#_(defn detect-and-strip [prefix text]
   (let [prefix-len (count prefix)
         s (subs text 0 prefix-len)]
     (if (= s prefix)
       (string/triml (subs text prefix-len)))))
 
-(defn present-java-trace [request-id text]
+#_(defn present-java-trace [request-id text]
   (let [lines (string/split text #"\n")
         first-line (first lines)
         rest-content (string/join "\n" (rest lines))]
@@ -68,7 +73,7 @@
         (log request-id :stderr rest-content)
         (group-end)))))
 
-(defn present-output [request-id kind text]
+#_(defn present-output [request-id kind text]
   (case kind
     "java-trace" (present-java-trace request-id text)
     (if-let [warning-msg (detect-and-strip "WARNING:" text)]
@@ -77,52 +82,46 @@
         (error request-id "error" error-msg)
         (log request-id kind text)))))
 
-(defn wrap-with-single-quotes [s]
-  (str "'" s "'"))
-
-(defn code-as-string [code]
-  (let [re-quote (js/RegExp. "'" "g")
-        re-new-line (js/RegExp. "\n", "g")]
-    (-> code
-        (.replace re-quote "\\'")
-        (.replace re-new-line "\\n")
-        (wrap-with-single-quotes))))
-
-(def ^:dynamic eval-js-template
-  "devtools.api.eval_js({request-id}, \"{callback-name}\", {code-string})")
-
-(defn eval-js
-  "This function gets called when we receive request from Figwheel to evaluate javascript expression in the context
-  of REPL driver. Normally we could just eval the code in global javascript context at this point (Figwheel does that).
-  But we want to support cases when DevTools is stopped at a breakpoint and console commands are evaluated in the context
-  of current stack frame. That is why we wrap expression code into api/eval-js call and send it to Dirac DevTools for
-  evaluation. Dirac uses debugger protocol to instruct javascript engine to evaluate wrapped code in the context
-  debugger state (the same context that would be used when typing commands into DevTools javascript console)."
-  [request-id callback-name code]
-  (let [wrapped-code (-> eval-js-template
-                         (string/replace "{request-id}" request-id)
-                         (string/replace "{callback-name}" callback-name)
-                         (string/replace "{code-string}" (code-as-string code)))]
-    (.info js/console "eval" request-id wrapped-code)
-    (call-dirac "eval-js" request-id wrapped-code)))
-
-(defn process-message
-  "Process a message received from Figwheel."
-  [msg _opts]
-  (case (:command msg)
-    :job-start (call-dirac "job-start" (:request-id msg))
-    :job-end (call-dirac "job-end" (:request-id msg))
-    :repl-ns (call-dirac "repl-ns" (:ns msg))
-    :eval-js (eval-js (:request-id msg) (:callback-name msg) (:code msg))
-    :output (present-output (:request-id msg) (name (:kind msg)) (:content msg))
-    (.warn js/console (str "Received unrecognized message '" (:command msg) "' from Figwheel") msg)))
-
 (defn install! []
   (when-not *installed?*
     (set! *installed?* true)
-    (figwheel/subscribe! process-message)))
+    (.info js/console "bootstrapping browser repl")
+    (brepl/bootstrap)))
 
 (defn uninstall! []
   (when *installed?*
-    (set! *installed?* false)
-    (figwheel/unsubscribe! process-message)))
+    (set! *installed?* false)))
+
+(defn present-repl-result
+  "Called by our boilerplate when we capture REPL evaluation result."
+  [request-id value]
+  (log request-id "result" value))
+
+(defn present-repl-exception [request-id exception]
+  "Called by our boilerplate when we capture REPL evaluation exception."
+  (error request-id "exception" exception))
+
+(defn present-in-dirac-repl [request-id value]
+  (try
+    (js/devtools.dirac.present_repl_result request-id value)
+    value
+    (catch :default e
+      (js/devtools.dirac.present_repl_exception request-id e)
+      (throw e))))
+
+(defn ^:export postprocess-successful-eval
+  "This is a postprocessing function wrapping weasel javascript evaluation attempt.
+  This structure is needed for building response to nREPL server (see dirac.implant.weasel in Dirac project)
+  In our case weasel is running in the context of Dirac DevTools and could potentially have different version of cljs runtime.
+  To be correct we have to do this post-processing in app's context to use the same cljs runtime as app evaluating the code."
+  [value]
+  #js {:status "success"
+       :value  (str value)})
+
+(defn ^:export postprocess-unsuccessful-eval [e]
+  "Same as postprocess-successful-eval but prepares response for evaluation attempt with exception."
+  #js {:status     "exception"
+       :value      (pr-str e)
+       :stacktrace (if (.hasOwnProperty e "stack")
+                     (.-stack e)
+                     "No stacktrace available.")})
