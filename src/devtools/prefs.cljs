@@ -7,6 +7,7 @@
   (str/replace signature-color "1);" (str opacity ");")))
 
 (def signature-background (signature-color-with-opacity 0.08))
+(def body-border-color (signature-color-with-opacity 0.4))
 
 (def default-prefs
   {:install-sanity-hints             false
@@ -26,19 +27,35 @@
    :line-index-separator             ":"
    :dq                               "\""
    :surrogate-key                    "$$this-is-cljs-devtools-surrogate"
-   :standard-ol-style                "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:12px"
-   :standard-ol-no-margin-style      "list-style-type:none; padding-left:0px; margin-top:0px; margin-bottom:0px; margin-left:0px"
+   :standard-ol-style                (str "list-style-type:none;"
+                                          "padding-left:0px;"
+                                          "margin-top:0px;"
+                                          "margin-bottom:0px;"
+                                          "margin-left:12px")
+   :standard-ol-no-margin-style      (str "list-style-type:none;"
+                                          "padding-left:0px;"
+                                          "margin-top:0px;"
+                                          "margin-bottom:0px;"
+                                          "margin-left:0px")
    :standard-li-style                "margin-left:12px"
    :standard-li-no-margin-style      "margin-left:0px"
    :spacer                           " "
    :span                             "span"
    :ol                               "ol"
    :li                               "li"
-   :cljs-style                       (str "background-color:" signature-background)
+   :cljs-style                       (str "background-color:" signature-background ";")
    :header-style                     ""
    :item-style                       ""
-   :body-items-more-label-style      "background-color:#999; color:#fff; padding:0px 2px 0px 2px;-webkit-user-select: none;"
-   :body-style                       (str "display:inline-block;border: 1px dashed " (signature-color-with-opacity 0.4) ";border-top:none;border-radius:1px;margin: 0px 4px 2px 4px;background-color:" signature-background)
+   :body-items-more-label-style      (str "background-color:#999;"
+                                          "color:#fff;"
+                                          "padding:0px 2px 0px 2px;"
+                                          "-webkit-user-select: none;")
+   :body-style                       (str "display:inline-block;"
+                                          "border: 1px dashed " body-border-color ";"
+                                          "border-top:none;"
+                                          "border-radius:1px;"
+                                          "margin: 0px 4px 2px 4px;"
+                                          "background-color:" signature-background ";")
    :index-style                      "color:#881391"
    :nil-style                        "color:#808080"
    :nil-label                        "nil"
@@ -50,9 +67,21 @@
    :fn-style                         "color:#090"
    :bool-style                       "color:#099"
    :print-meta-data                  true
-   :meta-wrapper-style               "background-color:#efe; border:1px solid #ada; border-radius:2px;"
-   :meta-style                       "background-color:#ada; color:#fff; padding:0px 2px 0px 4px;-webkit-user-select: none;"  ; border radius on :meta-wrapper-style adds another 2px to the right
-   :meta-body-style                  "border:1px solid #ada; position:relative; left:1px; top:-1px; margin-left:-1px; padding:1px; border-bottom-left-radius:2px; border-bottom-right-radius:2px;"
+   :meta-wrapper-style               (str "background-color:#efe;"
+                                          "border:1px solid #ada;"
+                                          "border-radius:2px;")
+   :meta-style                       (str "background-color:#ada;"
+                                          "color:#fff;"
+                                          "padding:0px 2px 0px 4px;"                                                          ; border radius on :meta-wrapper-style adds another 2px to the right
+                                          "-webkit-user-select: none;")
+   :meta-body-style                  (str "border:1px solid #ada;"
+                                          "position:relative;"
+                                          "left:1px;"
+                                          "top:-1px;"
+                                          "margin-left:-1px;"
+                                          "padding:1px;"
+                                          "border-bottom-left-radius:2px;"
+                                          "border-bottom-right-radius:2px;")
    :file-reader                      nil
    :header-pre-handler               nil
    :header-post-handelr              nil
