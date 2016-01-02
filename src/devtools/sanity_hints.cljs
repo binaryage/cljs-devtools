@@ -5,7 +5,7 @@
 
 ; Question: How much time have you lost staring at "Cannot read property 'call' of null" kind of errors?
 ;
-; -------------------------------------------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------------------------------------------------
 ;
 ; The idea is to try enhance error object's .stack and .message fields with additional info about
 ; the call site causing null type error. With optimizations :none the name of the null call site can be seen.

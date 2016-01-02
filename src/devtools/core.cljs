@@ -41,9 +41,9 @@
 (defn- sanitize [name api-call]
   (fn [& args]
     (if-not *sanitizer-enabled*
-      (apply api-call args)                                                                                           ; raw API call
+      (apply api-call args)                                                                                                   ; raw API call
       (try
-        (apply api-call args)                                                                                         ; wrapped API call
+        (apply api-call args)                                                                                                 ; wrapped API call
         (catch :default e
           (log-exception-if-avail (str name ": " e))
           nil)))))
@@ -67,7 +67,7 @@
 
 (defn- get-formatters-safe []
   (let [formatters (aget js/window formatter-key)]
-    (if (array? formatters)                                                                                           ; TODO: maybe issue a warning if formatters are anything else than array or nil
+    (if (array? formatters)                                                                                                   ; TODO: maybe issue a warning if formatters are anything else than array or nil
       formatters
       #js [])))
 
@@ -76,8 +76,8 @@
     (boolean (some is-ours? formatters))))
 
 (defn- install-our-formatter! [formatter]
-  (let [formatters (.slice (get-formatters-safe))]                                                                    ; slice effectively duplicates the array
-    (.push formatters formatter)                                                                                      ; acting on duplicated array
+  (let [formatters (.slice (get-formatters-safe))]                                                                            ; slice effectively duplicates the array
+    (.push formatters formatter)                                                                                              ; acting on duplicated array
     (aset js/window formatter-key formatters)
     (if (prefs/pref :legacy-formatter)
       (aset js/window obsolete-formatter-key formatter))))
@@ -87,7 +87,7 @@
         new-formatters-js (if (empty? new-formatters) nil (into-array new-formatters))]
     (aset js/window formatter-key new-formatters-js)))
 
-; -- public API -----------------------------------------------------------------------------------------------------
+; -- public API -------------------------------------------------------------------------------------------------------------
 
 (defn install! []
   (if (installed?)

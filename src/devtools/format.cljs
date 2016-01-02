@@ -29,7 +29,7 @@
         js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [child children]
       (if (coll? child)
-        (.apply (aget js-array "push") js-array (into-array child))                                                   ; convenience helper to splat cljs collections
+        (.apply (aget js-array "push") js-array (into-array child))                                                           ; convenience helper to splat cljs collections
         (.push js-array (resolve-pref child))))
     js-array))
 
@@ -61,7 +61,7 @@
 (defn meta-template [value]
   (let [header-template (template :span :meta-style "meta")
         body-template (template :span :meta-body-style
-                        (build-header value))]
+                                (build-header value))]
     (template :span "" (reference (surrogate value header-template true body-template)))))
 
 (defn abbreviate-long-string [string]
@@ -78,11 +78,11 @@
     (if (<= (count inline-string) max-inline-string-size)
       (template :span :string-style (str dq inline-string dq))
       (let [abbreviated-string-template (template :span :string-style
-                                          (str dq (abbreviate-long-string inline-string) dq))
+                                                  (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
             body-template (template :ol :standard-ol-style
-                            (template :li :standard-li-style
-                              (template :span :string-style (str dq string-with-nl-markers dq))))]
+                                    (template :li :standard-li-style
+                                              (template :span :string-style (str dq string-with-nl-markers dq))))]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn bool? [value]
@@ -102,7 +102,7 @@
   (some #(= (pref :more-marker) %) template))
 
 (defn seq-count-is-greater-or-equal? [seq limit]
-  (let [chunk (take limit seq)]                                                                                       ; we have to be extra careful to not call count on seq, it might be an infinite sequence
+  (let [chunk (take limit seq)]                                                                                               ; we have to be extra careful to not call count on seq, it might be an infinite sequence
     (= (count chunk) limit)))
 
 (defn expandable? [obj]
@@ -143,13 +143,13 @@
           ; we want to (pref :li)mit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
           inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
       (default-impl obj inner-writer inner-opts)
-      (detect-else-case-and-patch-it inner-tmpl obj)                                                                  ; an ugly special case
+      (detect-else-case-and-patch-it inner-tmpl obj)                                                                          ; an ugly special case
       (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
 
 (defn managed-pr-str [value style print-level]
   (let [tmpl (template :span style)
         writer (TemplateWriter. tmpl)]
-    (binding [*print-level* print-level]                                                                              ; when printing do at most print-level deep recursion
+    (binding [*print-level* print-level]                                                                                      ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
                                      :print-length (pref :max-header-elements)
                                      :more-marker  (pref :more-marker)}))
@@ -164,7 +164,7 @@
 
 (defn build-header-wrapped [value]
   (template :span :cljs-style
-    (build-header value)))
+            (build-header value)))
 
 (defn standard-body-template
   ([lines] (standard-body-template lines true))
@@ -213,7 +213,7 @@
           (build-body target starting-index))
         (template :ol :standard-ol-style (template :li :standard-li-style (reference target)))))))
 
-; -------------------------------------------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------------------------------------------------
 ; PROTOCOL SUPPORT
 
 (defprotocol IDevtoolsFormat
@@ -221,7 +221,7 @@
   (-has-body [value])
   (-body [value]))
 
-; -------------------------------------------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API
 
 (defn want-value? [value config]
@@ -247,7 +247,7 @@
     (surrogate? value) (build-surrogate-body value)
     (satisfies? IDevtoolsFormat value) (-body value)))
 
-; -------------------------------------------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------------------------------------------------
 ; API CALLS
 
 (defn build-api-call [raw-fn pre-handler-key post-handler-key]
