@@ -23,6 +23,8 @@
 ; keep in mind that we want to avoid any state at all
 ; javascript running this code can be reloaded anytime, same with devtools front-end
 
+; -- tunneling messages to Dirac DevTools -----------------------------------------------------------------------------------
+
 (defn console-tunnel [method & args]
   (.apply (oget js/console method) js/console (apply array args)))
 
@@ -56,58 +58,53 @@
 (defn group-end []
   (.groupEnd js/console))
 
-#_(defn detect-and-strip [prefix text]
-    (let [prefix-len (count prefix)
-          s (subs text 0 prefix-len)]
-      (if (= s prefix)
-        (string/triml (subs text prefix-len)))))
+; -- helpers ----------------------------------------------------------------------------------------------------------------
 
-#_(defn present-java-trace [request-id text]
-    (let [lines (string/split text #"\n")
-          first-line (first lines)
-          rest-content (string/join "\n" (rest lines))]
-      (if (empty? rest-content)
-        (error request-id :stderr first-line)
-        (do
-          (group-collapsed request-id :stderr "%c%s" (pref :java-trace-header-style) first-line)
-          (log request-id :stderr rest-content)
-          (group-end)))))
+(defn detect-and-strip [prefix text]
+  (let [prefix-len (count prefix)
+        s (subs text 0 prefix-len)]
+    (if (= s prefix)
+      (string/triml (subs text prefix-len)))))
 
-#_(defn present-output [request-id kind text]
-    (case kind
-      "java-trace" (present-java-trace request-id text)
-      (if-let [warning-msg (detect-and-strip "WARNING:" text)]
-        (warn request-id "warning" warning-msg)
-        (if-let [error-msg (detect-and-strip "ERROR:" text)]
-          (error request-id "error" error-msg)
-          (log request-id kind text)))))
+(defn present-java-trace [request-id text]
+  (let [lines (string/split text #"\n")
+        first-line (first lines)
+        rest-content (string/join "\n" (rest lines))]
+    (if (empty? rest-content)
+      (error request-id :stderr first-line)
+      (do
+        (group-collapsed request-id :stderr "%c%s" (pref :java-trace-header-style) first-line)
+        (log request-id :stderr rest-content)
+        (group-end)))))
 
-(defn install! []
-  (when-not *installed?*
-    (set! *installed?* true)
-    (.info js/console "bootstrapping browser repl")
-    (brepl/bootstrap)))
+; -- public API -------------------------------------------------------------------------------------------------------------
 
-(defn uninstall! []
-  (when *installed?*
-    (set! *installed?* false)))
-
-(defn present-repl-result
-  "Called by our boilerplate when we capture REPL evaluation result."
+(defn ^:export present-repl-result
+  "Called by our nREPL boilerplate when we capture REPL evaluation result."
   [request-id value]
-  (log request-id "result" value))
+  (log request-id "result" value)
+  value)
 
-(defn present-repl-exception [request-id exception]
-  "Called by our boilerplate when we capture REPL evaluation exception."
+(defn ^:export present-repl-exception
+  "Called by our nREPL boilerplate when we capture REPL evaluation exception."
+  [request-id exception]
   (error request-id "exception" exception))
 
-(defn present-in-dirac-repl [request-id value]
+(defn ^:export present-in-dirac-repl [request-id value]
   (try
     (js/devtools.dirac.present_repl_result request-id value)
-    value
     (catch :default e
       (js/devtools.dirac.present_repl_exception request-id e)
       (throw e))))
+
+(defn ^:export present-output [request-id kind text]
+  (case kind
+    "java-trace" (present-java-trace request-id text)
+    (if-let [warning-msg (detect-and-strip "WARNING:" text)]
+      (warn request-id "warning" warning-msg)
+      (if-let [error-msg (detect-and-strip "ERROR:" text)]
+        (error request-id "error" error-msg)
+        (log request-id kind text)))))
 
 (defn ^:export postprocess-successful-eval
   "This is a postprocessing function wrapping weasel javascript evaluation attempt.
@@ -125,3 +122,15 @@
        :stacktrace (if (.hasOwnProperty e "stack")
                      (.-stack e)
                      "No stacktrace available.")})
+
+; -- install/uninstall ------------------------------------------------------------------------------------------------------
+
+(defn install! []
+  (when-not *installed?*
+    (set! *installed?* true)
+    (.info js/console "bootstrapping browser repl")
+    (brepl/bootstrap)))
+
+(defn uninstall! []
+  (when *installed?*
+    (set! *installed?* false)))
