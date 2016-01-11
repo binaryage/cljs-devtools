@@ -57,3 +57,15 @@
 (defn disable-feature! [& features]
   (doseq [feature features]
     (disable-single-feature! feature)))
+
+; -- deprecated API ---------------------------------------------------------------------------------------------------------
+
+(defn enable! []
+  (.warn js/console (str "devtools.core/enable! was deprecated "
+                         "and has no effect in current version of cljs-devtools "
+                         "=> remove the call")))
+
+(defn disable! []
+  (.warn js/console (str "devtools.core/disable! was deprecated "
+                         "and has no effect in current version of cljs-devtools "
+                         "=> remove the call")))
