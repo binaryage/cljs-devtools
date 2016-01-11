@@ -1,5 +1,6 @@
 (ns devtools.dirac
-  (:require-macros [devtools.util :refer [oget ocall oapply]])
+  (:require-macros [devtools.util :refer [oget ocall oapply]]
+                   [devtools.dirac :refer [gen-config]])
   (:require [goog.object]
             [clojure.browser.repl :as brepl]
             [devtools.prefs :refer [pref]]
@@ -15,10 +16,18 @@
 ; when first paramter of the log message mentions our magic word, we treat the call differently:
 ; 1) "~~$DIRAC-MSG$~~" is for control messages
 ;                      these are taken outside of message processing and do not affect console model
-; 2) "~~$DIRAC-LOG$~~" is for favored version of normal log statements
+; 2) "~~$DIRAC-LOG$~~" is for favored version of normal log statements (they will have green cljs-ish background)
 ;                      we let these bubble through as real log messages but decorate them slightly for our purposes
 
 (defonce ^:dynamic *installed?* false)
+
+(defonce api-version 1)                                                                                                       ; internal API version
+
+(def default-config
+  {:dirac-agent-host "localhost"
+   :dirac-agent-port "8231"})
+
+(defonce static-config (gen-config))                                                                                          ; this config is comming from environment and system properties
 
 ; keep in mind that we want to avoid any state at all
 ; javascript running this code can be reloaded anytime, same with devtools front-end
@@ -77,7 +86,21 @@
         (log request-id :stderr rest-content)
         (group-end)))))
 
+(defn build-effective-config [default-config static-config]
+  (let [static-keys (keys default-config)
+        * (fn [key]
+            (if-let [val (pref key)]
+              [key val]))
+        dynamic-config (into {} (map * static-keys))]
+    (merge default-config static-config dynamic-config)))
+
 ; -- public API -------------------------------------------------------------------------------------------------------------
+
+(defn ^:export get-effective-config []
+  (clj->js (build-effective-config default-config static-config)))
+
+(defn ^:export get-api-version []
+  api-version)
 
 (defn ^:export present-repl-result
   "Called by our nREPL boilerplate when we capture REPL evaluation result."
@@ -130,11 +153,11 @@
 
 ; -- install/uninstall ------------------------------------------------------------------------------------------------------
 
-(defn install! []
+(defn ^:export install! []
   (when-not *installed?*
     (set! *installed?* true)
     (brepl/bootstrap)))
 
-(defn uninstall! []
+(defn ^:export uninstall! []
   (when *installed?*
     (set! *installed?* false)))

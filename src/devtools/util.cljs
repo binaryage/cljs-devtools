@@ -16,7 +16,7 @@
     (reduce * (first labels) (rest labels))))
 
 (defn log-info [& args]
-  (.apply (.-log js/console) js/console (to-array args)))
+  (.apply (.-info js/console) js/console (to-array args)))
 
 (defn display-banner [prefix known-features]
   (when-not (prefs/pref :dont-display-banner)
