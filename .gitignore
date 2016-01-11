@@ -14,3 +14,4 @@ pom.xml
 .idea
 *.iml
 .figwheel_server.log
+.nrepl-port

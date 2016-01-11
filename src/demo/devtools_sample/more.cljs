@@ -46,9 +46,6 @@ last line")
   (log test-interleaved)
   (log [long-string])
 
-  (simple-fn 10)
-  (log state)
-
   (log [::namespaced-keyword])
   (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]))
 
@@ -56,6 +53,10 @@ last line")
 
 (defn ^:export sanity-test-handler []
   ((fn-returns-nil) "param"))                                                                                                 ; a test for sanity checker
+
+(defn ^:export breakpoint-test-handler []
+  (simple-fn 10)
+  (log state))
 
 
 

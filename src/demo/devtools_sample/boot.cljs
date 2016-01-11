@@ -5,7 +5,8 @@
   (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
-            [devtools.core :as devtools]))
+            [devtools.core :as devtools]
+            [devtools.custom-formatters :as custom-formatters]))
 
 (defn extract-meat [re s]
   (let [rex (js/RegExp. re "igm")]
@@ -33,8 +34,8 @@
 
   (when (debug?)
     (log "devtools-sample: enabled debug mode")
-    (set! devtools/*monitor-enabled* true)
-    (set! devtools/*sanitizer-enabled* false))
-  (devtools/set-pref! :install-sanity-hints true)
+    (set! custom-formatters/*monitor-enabled* true)
+    (set! custom-formatters/*sanitizer-enabled* false))
+  (devtools/enable-feature! :dirac :sanity-hints)
   (devtools/install!)
   (fetch-source-code))
