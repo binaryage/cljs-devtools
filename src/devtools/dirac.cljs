@@ -133,7 +133,6 @@
 (defn install! []
   (when-not *installed?*
     (set! *installed?* true)
-    (.info js/console "bootstrapping browser repl")
     (brepl/bootstrap)))
 
 (defn uninstall! []

@@ -10,8 +10,9 @@
 (def body-border-color (signature-color-with-opacity 0.4))
 
 (def default-prefs
-  {:install-sanity-hints             false
-   :install-dirac-support            true
+  {:install-custom-formatters        true                                                                                     ; the only feature enabled by default
+   :install-sanity-hints             false
+   :install-dirac-support            false
    :sanity-hint-min-length           128
    :max-print-level                  2
    :max-header-elements              5
