@@ -89,7 +89,9 @@
    :has-body-post-handler            nil
    :body-pre-handler                 nil
    :body-post-handler                nil
-   :java-trace-header-style          "color:red"})
+   :java-trace-header-style          "color:red"
+   :dirac-print-level                1
+   :dirac-print-length               10})
 
 (def ^:dynamic *prefs* default-prefs)
 

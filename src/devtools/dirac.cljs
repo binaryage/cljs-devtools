@@ -110,10 +110,15 @@
   "This is a postprocessing function wrapping weasel javascript evaluation attempt.
   This structure is needed for building response to nREPL server (see dirac.implant.weasel in Dirac project)
   In our case weasel is running in the context of Dirac DevTools and could potentially have different version of cljs runtime.
-  To be correct we have to do this post-processing in app's context to use the same cljs runtime as app evaluating the code."
+  To be correct we have to do this post-processing in app's context to use the same cljs runtime as app evaluating the code.
+
+  Also we have to be careful to not enter into infinite printing with cyclic data structures.
+  We limit printing level and length."
   [value]
-  #js {:status "success"
-       :value  (str value)})
+  (binding [cljs.core/*print-level* (pref :dirac-print-level)
+            cljs.core/*print-length* (pref :dirac-print-length)]
+    #js {:status "success"
+         :value  (str value)}))
 
 (defn ^:export postprocess-unsuccessful-eval [e]
   "Same as postprocess-successful-eval but prepares response for evaluation attempt with exception."
