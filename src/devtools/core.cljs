@@ -2,7 +2,8 @@
   (:require [devtools.prefs :as prefs]
             [devtools.sanity-hints :as hints]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.dirac :as dirac]))
+            [devtools.dirac :as dirac]
+            [devtools.util :as util]))
 
 (def known-features
   {:custom-formatters :install-custom-formatters
@@ -16,6 +17,7 @@
 ; -- public API -------------------------------------------------------------------------------------------------------------
 
 (defn install! []
+  (util/display-banner "Installing cljs-devtools:" known-features)
   (if (prefs/pref :install-custom-formatters)
     (custom-formatters/install!))
   (if (prefs/pref :install-sanity-hints)
@@ -24,12 +26,9 @@
     (dirac/install!)))
 
 (defn uninstall! []
-  (if (prefs/pref :install-custom-formatters)
-    (custom-formatters/uninstall!))
-  (if (prefs/pref :install-sanity-hints)
-    (hints/uninstall!))
-  (if (prefs/pref :install-dirac-support)
-    (dirac/uninstall!)))
+  (custom-formatters/uninstall!)
+  (hints/uninstall!)
+  (dirac/uninstall!))
 
 (defn set-prefs! [new-prefs]
   (prefs/set-prefs! new-prefs))
@@ -46,7 +45,7 @@
     (.warn js/console (missing-feature-warning feature known-features))))
 
 (defn enable-single-feature! [feature]
-  (set-single-feature! feature false))
+  (set-single-feature! feature true))
 
 (defn disable-single-feature! [feature]
   (set-single-feature! feature false))
