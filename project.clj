@@ -63,9 +63,9 @@
                                         {:source-paths ["src/debug"
                                                         "checkouts/cljs-devtools/src-debug"]}}}}}
 
-  :aliases {"demo"              ["with-profile" "+demo"
+  :aliases {"demo"              ["with-profile" "+demo,+figwheel"
                                  "do" "clean,"
-                                 "cljsbuild" "once," "ring" "server"]
+                                 "figwheel"]
             "cljs"              ["with-profile" "+demo"
                                  "do" "clean,"
                                  "cljsbuild" "auto"]

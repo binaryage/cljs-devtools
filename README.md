@@ -13,7 +13,7 @@ Build the project and start local demo server:
 
     lein demo
 
-  * Leiningen should open your default browser with [http://localhost:3000](http://localhost:3000).
+  * A demo web site should be available at [http://localhost:7000](http://localhost:7000).
   * Please go to your Chrome with [enabled custom formatters](https://github.com/binaryage/cljs-devtools).
   * Open the web development console under devtools and you should see something similar to the screenshot at the top.
     Note: you might have to refresh the page again to see custom formatters after opening the console.
