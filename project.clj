@@ -7,7 +7,6 @@
                  [binaryage/devtools "0.4.1"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.39"]
-                 [ring "1.4.0"]
                  [environ "1.0.1"]
                  [figwheel "0.5.0-3"]]
 
@@ -16,11 +15,7 @@
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-3"]
             [lein-shell "0.4.2"]
-            [lein-ring "0.9.7"]
             [lein-environ "1.0.1"]]
-
-  :ring {:handler      devtools-sample.server/app
-         :auto-reload? true}
 
   :figwheel {:server-port    7000
              :server-logfile ".figwheel_server.log"}
@@ -37,7 +32,7 @@
                                   [clj-logging-config "1.9.12"]
                                   [http-kit "2.1.21-alpha2"]
                                   [org.clojure/tools.nrepl "0.2.12"]
-                                  [binaryage/dirac "0.1.0-SNAPSHOT"]]
+                                  [binaryage/dirac "0.1.0"]]
                    :repl-options {:port             8230
                                   :nrepl-middleware [dirac.nrepl.middleware/dirac-repl]
                                   :init             (do
@@ -59,18 +54,24 @@
                   {:env {:devtools-debug true}}
 
              :figwheel
-                  {:env {:devtools-figwheel true}}
+                  {:env       {:devtools-figwheel true}
+                   :cljsbuild {:builds {:demo
+                                        {:source-paths ["src/figwheel"]}}}}
 
              :devel
                   {:cljsbuild {:builds {:demo
                                         {:source-paths ["src/debug"
-                                                        "src/figwheel"
                                                         "checkouts/cljs-devtools/src-debug"]}}}}}
 
-  :aliases {"demo"              ["with-profile" "+demo" "do" "clean," "cljsbuild" "once," "ring" "server"]
-            "cljs"              ["with-profile" "+demo" "do" "clean," "cljsbuild" "auto"]
-            "dirac"             ["with-profile" "+demo,+checkouts,+devel,+figwheel" "do" "clean," "figwheel"]
-            "server"            ["ring" "server"]
-            "prepare-checkouts" ["shell" "scripts/prepare-checkouts.sh"]
-            "debug"             ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel" "figwheel"]
-            "debug-server"      ["with-profile" "+debug" "ring" "server"]})
+  :aliases {"demo"              ["with-profile" "+demo"
+                                 "do" "clean,"
+                                 "cljsbuild" "once," "ring" "server"]
+            "cljs"              ["with-profile" "+demo"
+                                 "do" "clean,"
+                                 "cljsbuild" "auto"]
+            "dirac"             ["with-profile" "+demo,+figwheel"
+                                 "do" "clean,"
+                                 "figwheel"]
+            "debug"             ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel"
+                                 "figwheel"]
+            "prepare-checkouts" ["shell" "scripts/prepare-checkouts.sh"]})
