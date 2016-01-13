@@ -2,20 +2,21 @@
 
 [![Clojars Project](http://clojars.org/binaryage/devtools/latest-version.svg)](http://clojars.org/binaryage/devtools)
 
-* Better presentation of ClojureScript values in Chrome DevTools
-* [optional] More informative exceptions (sanity hints)
+* Better presentation of ClojureScript values in Chrome DevTools (custom formatters)
+* More informative exceptions (sanity hints)
+* [Dirac DevTools](https://github.com/binaryage/dirac) support (dirac)
 
 #### An example of formatting various ClojureScript data structures:
 
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
+![](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sample-full.png)
 
 #### Scope view / drawer Console (toggle with ESC)
 
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-scope.png">
+![](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-scope.png)
 
 #### An example of a sanity hint:
 
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
+![An example of a sanity hint](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png)
 
 Read more in [v0.4.0 release notes](https://github.com/binaryage/cljs-devtools/releases/tag/v0.4.0).
 
@@ -31,17 +32,17 @@ To activate it. At some point you have to call `install!` from `devtools.core` n
 (ns your-project.core
   (:require [devtools.core :as devtools]))
 
-(devtools/set-pref! :install-sanity-hints true) ; this is optional
+(devtools/enable-feature! :sanity-hints :dirac) ; enables additional features, :custom-formatters is enabled by default
 (devtools/install!)
 
 (.log js/console (range 200))
 ```
 
-See [the sample project](https://github.com/binaryage/cljs-devtools-sample).
+Check out the **[sample project](https://github.com/binaryage/cljs-devtools-sample)**.
 
 ## Enable Custom formatters in Chrome
 
-(Available in [Chrome 47 and higher](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html))
+**Available in [Chrome 47 and higher](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html)**
 
   * Open DevTools
   * Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings `F1` > Console)
@@ -49,8 +50,10 @@ See [the sample project](https://github.com/binaryage/cljs-devtools-sample).
   * Close DevTools
   * Open DevTools
 
-## Related links
+## What next?
 
-  * A Figwheel user? Check out how to [integrate cljs-devtools with Figwheel REPL](https://github.com/binaryage/cljs-devtools/wiki/Figwheel-REPL-plugin)
+  * [Dirac DevTools](https://github.com/binaryage/dirac)
+
+---
 
 #### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools/master/LICENSE.txt)
