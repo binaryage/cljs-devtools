@@ -55,7 +55,7 @@
              :figwheel
                   {:env       {:devtools-figwheel true}
                    :cljsbuild {:builds {:demo
-                                        {:source-paths ["src/figwheel"]}}}}
+                                        {:figwheel true}}}}
 
              :devel
                   {:cljsbuild {:builds {:demo
