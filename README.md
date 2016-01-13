@@ -2,7 +2,7 @@
 
 This project is an example of integration of [**cljs-devtools**](https://github.com/binaryage/cljs-devtools) into a ClojureScript project.
 
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-formatter-prototype.png">
+![](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sample-full.png)
 
 ## Local setup
 
