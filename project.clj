@@ -20,8 +20,7 @@
   :figwheel {:server-port    7000
              :server-logfile ".figwheel_server.log"}
 
-  :source-paths ["src"
-                 "src/server"]
+  :source-paths ["src"]
 
   :clean-targets ^{:protect false} ["resources/public/_compiled"
                                     "target"]
@@ -73,5 +72,4 @@
                                  "do" "clean,"
                                  "figwheel"]
             "debug"             ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel"
-                                 "figwheel"]
-            "prepare-checkouts" ["shell" "scripts/prepare-checkouts.sh"]})
+                                 "figwheel"]})
