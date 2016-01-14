@@ -1,6 +1,4 @@
-# cljs-devtools [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
-
-[![Clojars Project](http://clojars.org/binaryage/devtools/latest-version.svg)](http://clojars.org/binaryage/devtools)
+# cljs-devtools [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools)
 
 * Better presentation of ClojureScript values in Chrome DevTools (custom formatters)
 * More informative exceptions (sanity hints)
@@ -22,9 +20,9 @@ Read more in [v0.4.0 release notes](https://github.com/binaryage/cljs-devtools/r
 
 ## Integration in your own project
 
-Add devtools dependency into your Leiningen's project.clj:
+Add devtools dependency into your Leiningen's project.clj
 
-[![Clojars Project](http://clojars.org/binaryage/devtools/latest-version.svg)](http://clojars.org/binaryage/devtools)
+[![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools)
 
 To activate it. At some point you have to call `install!` from `devtools.core` namespace. Ideally run this at launch time of your app.
 
