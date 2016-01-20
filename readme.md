@@ -1,4 +1,4 @@
-# cljs-devtools-sample
+# cljs-devtools-sample [![MIT License](https://img.shields.io/badge/license-MIT-007EC7.svg?style=flat-square)](/license.txt)
 
 This project is an example of integration of [**cljs-devtools**](https://github.com/binaryage/cljs-devtools) into a ClojureScript project.
 
@@ -17,7 +17,3 @@ Build the project and start local demo server:
   * Please go to your Chrome with [enabled custom formatters](https://github.com/binaryage/cljs-devtools).
   * Open the web development console under devtools and you should see something similar to the screenshot at the top.
     Note: you might have to refresh the page again to see custom formatters after opening the console.
-
----
-
-#### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools-sample/master/LICENSE.txt)
