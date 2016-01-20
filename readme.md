@@ -2,7 +2,7 @@
 
 * Better presentation of ClojureScript values in Chrome DevTools (custom formatters)
 * More informative exceptions (sanity hints)
-* [Dirac DevTools](https://github.com/binaryage/dirac) support (dirac)
+* Support for [**Dirac DevTools**](https://github.com/binaryage/dirac) (dirac)
 
 #### An example of formatting various ClojureScript data structures:
 
@@ -20,17 +20,19 @@ Read more in [v0.4.0 release notes](https://github.com/binaryage/cljs-devtools/r
 
 ## Integration in your own project
 
-Add devtools dependency into your Leiningen's project.clj
+Add devtools dependency into your Leiningen's `project.clj`
 
 [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools)
 
-To activate it. At some point you have to call `install!` from `devtools.core` namespace. Ideally run this at launch time of your app.
+To install it. You have to call `install!` from `devtools.core` namespace. Ideally run this as early as possible during
+launch time of your app.
 
 ```clojure
 (ns your-project.core
   (:require [devtools.core :as devtools]))
 
-(devtools/enable-feature! :sanity-hints :dirac) ; enables additional features, :custom-formatters is enabled by default
+; this enables additional features, :custom-formatters is enabled by default
+(devtools/enable-feature! :sanity-hints :dirac)
 (devtools/install!)
 
 (.log js/console (range 200))
@@ -40,13 +42,16 @@ Check out the **[sample project](https://github.com/binaryage/cljs-devtools-samp
 
 ## Enable Custom formatters in Chrome
 
-**Available in [Chrome 47 and higher](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html)**
+Available in [**Chrome 47 and higher**](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
 
   * Open DevTools
   * Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings `F1` > Console)
   * Check-in "Enable custom formatters"
   * Close DevTools
   * Open DevTools
+
+Note: You might need to refresh the page first time you open Console panel with existing logs - custom formatters are applied
+only on newly printed console messages.
 
 ## What next?
 
