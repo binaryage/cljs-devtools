@@ -1,4 +1,5 @@
-Copyright (c) 2015 Antonin Hildebrand
+Copyright (c) BinaryAge Limited and contributors:
+https://github.com/binaryage/cljs-devtools-sample/graphs/contributors
 
 MIT License
 
