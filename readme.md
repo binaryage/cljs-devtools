@@ -1,4 +1,4 @@
-# cljs-devtools [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools) [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
+# cljs-devtools [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools) [![Build Status](https://travis-ci.org/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) [![MIT License](https://img.shields.io/badge/license-MIT-007EC7.svg?style=flat-square)](/license.txt)
 
 * Better presentation of ClojureScript values in Chrome DevTools (custom formatters)
 * More informative exceptions (sanity hints)
@@ -51,7 +51,3 @@ Check out the **[sample project](https://github.com/binaryage/cljs-devtools-samp
 ## What next?
 
   * [Dirac DevTools](https://github.com/binaryage/dirac)
-
----
-
-#### License [MIT](https://raw.githubusercontent.com/binaryage/cljs-devtools/master/LICENSE.txt)
