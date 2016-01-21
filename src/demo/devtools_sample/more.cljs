@@ -8,6 +8,12 @@
 
 (def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
 
+(def circular1 (atom nil))
+(reset! circular1 circular1)
+
+(def circular2 {:k (atom nil)})
+(reset! (:k circular2) circular2)
+
 ; defrecord with IDevtoolsFormat
 (defrecord Language [lang]
   format/IDevtoolsFormat
@@ -47,7 +53,9 @@ last line")
   (log [long-string])
 
   (log [::namespaced-keyword])
-  (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]))
+  (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
+  (log circular1)
+  (log circular2))
 
 (defn fn-returns-nil [])
 

@@ -4,7 +4,7 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
-                 [binaryage/devtools "0.5.0"]
+                 [binaryage/devtools "0.5.1"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.39"]
                  [environ "1.0.1"]
