@@ -168,7 +168,6 @@
            ["ol" {"style" :standard-ol-style}
             (unroll (fn [i] [["li" {"style" :standard-li-style}
                               ["span" {"style" :index-style} i :line-index-separator]
-                              :spacer
                               ["span" {"style" :item-style}
                                ["span" {"style" :integer-style} (+ i 1)]]]]) (range 6))]]))))
   (testing "ranges"
@@ -207,7 +206,6 @@
            ["ol" {"style" :standard-ol-style}
             (unroll (fn [i] [["li" {"style" :standard-li-style}
                               ["span" {"style" :index-style} i :line-index-separator]
-                              :spacer
                               ["span" {"style" :item-style}
                                ["span" {"style" :integer-style} i]]]]) (range :max-number-body-items))
             ["li" {"style" :standard-li-style}
@@ -222,7 +220,6 @@
               ["ol" {"style" :standard-ol-no-margin-style}
                (unroll (fn [i] [["li" {"style" :standard-li-no-margin-style}
                                  ["span" {"style" :index-style} :max-number-body-items :line-index-separator]
-                                 :spacer
                                  ["span" {"style" :item-style}
                                   ["span" {"style" :integer-style} (+ i :max-number-body-items)]]]]) (range 1))])))))))
 

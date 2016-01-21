@@ -56,7 +56,10 @@
    :li                               "li"
    :cljs-style                       (str "background-color:" signature-background ";")
    :header-style                     ""
-   :item-style                       ""
+   :item-style                       (str "display: inline-block;"
+                                          "border-left: 2px solid rgba(100, 100, 100, 0.2);"
+                                          "padding: 0px 4px 0px 4px;"
+                                          "margin: 0px 0px 1px 0px;")
    :body-items-more-label-style      (str "background-color:#999;"
                                           "min-width: 50px;"
                                           "display: inline-block;"
@@ -78,13 +81,15 @@
    :index-style                      (str "min-width: 50px;"
                                           "display: inline-block;"
                                           "text-align: right;"
+                                          "vertical-align: top;"
                                           "background-color:#ddd;"
                                           "color:#000;"
                                           "opacity: 0.5;"
                                           "margin-right: 3px;"
                                           "padding: 0px 4px 0px 4px;"
                                           "margin: 0px 0px 1px 0px;"
-                                          "border-radius:2px;"
+                                          "border-top-left-radius: 2px;"
+                                          "border-bottom-left-radius: 2px;"
                                           "-webkit-user-select: none;")
    :nil-style                        "color:#808080"
    :nil-label                        "nil"
