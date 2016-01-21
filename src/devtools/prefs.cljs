@@ -42,13 +42,13 @@
                                           "padding-left:0px;"
                                           "margin-top:0px;"
                                           "margin-bottom:0px;"
-                                          "margin-left:12px")
+                                          "margin-left:0px")
    :standard-ol-no-margin-style      (str "list-style-type:none;"
                                           "padding-left:0px;"
                                           "margin-top:0px;"
                                           "margin-bottom:0px;"
                                           "margin-left:0px")
-   :standard-li-style                "margin-left:12px"
+   :standard-li-style                "margin-left:0px"
    :standard-li-no-margin-style      "margin-left:0px"
    :spacer                           " "
    :span                             "span"
