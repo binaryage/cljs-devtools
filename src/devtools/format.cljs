@@ -2,6 +2,35 @@
   (:require-macros [devtools.util :refer [oget oset ocall oapply]])
   (:require [devtools.prefs :refer [pref]]))
 
+; - state management --------------------------------------------------------------------------------------------------------
+;
+; we have to maintain some state:
+; a) to prevent infinite recursion in some pathological cases (https://github.com/binaryage/cljs-devtools/issues/2)
+; b) to keep track of printed objects to visually signal circular data structures
+;
+; We dynamically bind *current-config* to active config when entering calls to our API methods.
+; But there is a catch. Our printing methods usually do not print everything at once.
+; We can include "object references" which can be expanded later by DevTools (when user clicks a disclosure triangle).
+; For proper continuation in rendering of those references we have to carry our state over.
+; We use custom-formatters' "config" feature to carry over a data structure for continued rendering after expansion.
+;
+
+(def ^:dynamic *current-state* nil)
+
+(defn get-current-state []
+  *current-state*)
+
+(defn update-current-state! [f & args]
+  (set! *current-state* (apply f *current-state* args)))
+
+(defn push-object-to-current-history! [object]
+  (update-current-state! update :history conj object))
+
+(defn get-current-history []
+  (:history (get-current-state)))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
 ; [14:04:34] dnolen: there is a very low level thing you can check
@@ -11,15 +40,11 @@
   (if (goog/isObject value)                                                                                                   ; see http://stackoverflow.com/a/22482737/84283
     (oget value "constructor" "cljs$lang$type")))
 
-(defn surrogate? [value]
-  (and
-    (not (nil? value))
-    (aget value (pref :surrogate-key))))
+(defn ^bool prevent-recursion? []
+  (boolean (:prevent-recursion (get-current-state))))
 
-(defn prevent-recursion? [config]
-  (and
-    (not (nil? config))
-    (aget config "prevent-recursion")))
+(defn set-prevent-recursion! []
+  (update-current-state! assoc :prevent-recursion true))
 
 (defn template [tag style & children]
   (let [resolve-pref (fn [pref-or-val] (if (keyword? pref-or-val) (pref pref-or-val) pref-or-val))
@@ -32,9 +57,10 @@
         (.push js-array (resolve-pref child))))
     js-array))
 
-(defn reference
-  ([object] #js ["object" #js {"object" object}])
-  ([object config] #js ["object" #js {"object" object "config" config}]))
+(defn surrogate? [value]
+  (and
+    (not (nil? value))
+    (aget value (pref :surrogate-key))))
 
 (defn surrogate
   ([object header] (surrogate object header true))
@@ -46,6 +72,37 @@
      "header" header
      "hasBody" has-body
      "bodyTemplate" body-template)))
+
+(defn get-target-object [value]
+  (if (surrogate? value) (oget value "target") value))
+
+(defn positions [pred coll]
+  (keep-indexed (fn [idx x] (if (pred x) idx)) coll))
+
+(defn remove-positions [coll indices]
+  (keep-indexed (fn [idx x] (if-not (contains? indices idx) x)) coll))
+
+(defn ^bool is-circular? [object]
+  (let [current-state (get-current-state)]
+    (if (:entered-reference current-state)
+      (do
+        ; we skip the cicularity check after entering into a reference
+        ; reference's expandable placeholder was already checked and marked if circular
+        (update-current-state! dissoc :entered-reference)
+        false)
+      (let [history (get-current-history)]
+        (some #(identical? % object) history)))))
+
+(defn circular-reference-template [content-group]
+  (.concat
+    (template :span :circular-reference-wrapper-style)
+    #js [(template :span :circular-reference-style (str (pref :circular-reference-label)))]
+    content-group))
+
+(defn reference [object]
+  (update-current-state! assoc :entered-reference true)                                                                       ; this is a flag for is-circular? check
+  #js ["object" #js {"object" object
+                     "config" (get-current-state)}])
 
 (defn index-template [value]
   (template :span :index-style value :line-index-separator))
@@ -109,16 +166,25 @@
     (seqable? obj)
     (seq-count-is-greater-or-equal? obj (pref :min-sequable-count-for-expansion))))
 
-(deftype TemplateWriter [t]
+(deftype TemplateWriter [group]
   Object
-  (merge [_ a] (.apply (.-push t) t a))
+  (merge [_ a] (.apply (.-push group) group a))
+  (get-group [_] group)
   IWriter
-  (-write [_ o] (.push t o))
+  (-write [_ o] (.push group o))
   (-flush [_] nil))
+
+(defn make-template-writer []
+  (TemplateWriter. #js []))
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
     #js [(reference (surrogate obj (.concat (template :span "") group)))]
+    group))
+
+(defn wrap-group-in-circular-warning-if-needed [group circular?]
+  (if circular?
+    #js [(circular-reference-template group)]
     group))
 
 ; default printer implementation can do this:
@@ -130,19 +196,27 @@
 ; see https://github.com/binaryage/cljs-devtools/issues/2
 (defn detect-else-case-and-patch-it [group obj]
   (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
-    (aset group 1 (reference obj #js {"prevent-recursion" true}))))
+    (do
+      (set-prevent-recursion!)
+      #js [(aget group 0) (reference obj) (aget group 2)])
+    group))
 
 (defn alt-printer-impl [obj writer opts]
-  (if-let [tmpl (atomic-template obj)]
-    (-write writer tmpl)
-    (let [inner-tmpl #js []
-          inner-writer (TemplateWriter. inner-tmpl)
-          default-impl (:fallback-impl opts)
-          ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
-          inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
-      (default-impl obj inner-writer inner-opts)
-      (detect-else-case-and-patch-it inner-tmpl obj)                                                                          ; an ugly special case
-      (.merge writer (wrap-group-in-reference-if-needed inner-tmpl obj) obj))))
+  (binding [*current-state* (get-current-state)]
+    (let [circular? (is-circular? obj)]
+      (push-object-to-current-history! obj)
+      (if-let [tmpl (atomic-template obj)]
+        (-write writer tmpl)
+        (let [inner-writer (make-template-writer)
+              default-impl (:fallback-impl opts)
+              ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
+              inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
+          (default-impl obj inner-writer inner-opts)
+          (let [final-group (-> (.get-group inner-writer)
+                                (detect-else-case-and-patch-it obj)                                                           ; an ugly special case
+                                (wrap-group-in-reference-if-needed obj)
+                                (wrap-group-in-circular-warning-if-needed circular?))]
+            (.merge writer final-group)))))))
 
 (defn managed-pr-str [value style print-level]
   (let [tmpl (template :span style)
@@ -222,28 +296,41 @@
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API
 
-(defn want-value? [value config]
-  (if (prevent-recursion? config)
-    false
+(defn want-value?* [value]
+  (if (prevent-recursion?)
+    false                                                                                                                     ; the value won't be rendered by our custom formatter
     (or (cljs-value? value) (surrogate? value))))
 
-(defn header [value _config]
+(defn header* [value]
   (cond
     (surrogate? value) (aget value "header")
     (satisfies? IDevtoolsFormat value) (-header value)
     :else (build-header-wrapped value)))
 
-(defn has-body [value _config]
+(defn has-body* [value]
   ; note: body is emulated using surrogate references
   (cond
     (surrogate? value) (aget value "hasBody")
     (satisfies? IDevtoolsFormat value) (-has-body value)
     :else false))
 
-(defn body [value _config]
+(defn body* [value]
   (cond
     (surrogate? value) (build-surrogate-body value)
     (satisfies? IDevtoolsFormat value) (-body value)))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+; RAW API config-aware
+
+(defn config-wrapper [raw-fn]
+  (fn [value config]
+    (binding [*current-state* (or config {})]
+      (raw-fn value))))
+
+(def want-value? (config-wrapper want-value?*))
+(def header (config-wrapper header*))
+(def has-body (config-wrapper has-body*))
+(def body (config-wrapper body*))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; API CALLS

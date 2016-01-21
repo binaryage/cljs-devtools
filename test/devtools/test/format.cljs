@@ -1,12 +1,14 @@
 (ns devtools.test.format
   (:refer-clojure :exclude [range = > < + str])
-  (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                ; prefs aware versions
+  (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                        ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
-            [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
+            [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
+            [devtools.format :as f]))
 
-(def REF ["object" {"object" "##REF##"}])
+(def REF ["object" {"object" "##REF##"
+                    "config" "##CONFIG##"}])
 
 (deftype SimpleType [some-field])
 
@@ -22,7 +24,7 @@
     (want? true false)
     (want? false false)
     (want? nil false)
-    (want? (SimpleType. "some-value") #js {"prevent-recursion" true} false)
+    (want? (SimpleType. "some-value") false)
     (want? #(.-document js/window) false))
   (testing "these values SHOULD be processed by our custom formatter"
     (want? :keyword true)
@@ -58,7 +60,6 @@
     (has-body? {} false)
     (has-body? #{} false)
     (has-body? (SimpleType. "some-value") false)
-    (has-body? (SimpleType. "some-value") #js {"prevent-recursion" true} false)
     (has-body? (range :max-number-body-items) false)))
 
 (deftest test-simple-atomic-values
@@ -359,3 +360,28 @@
         ["span" {"style" :integer-style} 3]
         "]"]])
     (set-prefs! default-prefs)))
+
+(deftest test-circular-data
+  (testing "circulare data structure"
+    (let [circular-ds (atom nil)]
+      (reset! circular-ds circular-ds)
+      (is-header circular-ds
+        ["span" {"style" :cljs-style}
+         ["span" {"style" :header-style}
+          "#object [cljs.core.Atom "
+          "{"
+          ["span" {"style" :keyword-style} ":val"] " "
+          ["span" {"style" :circular-reference-wrapper-style}
+           ["span" {"style" :circular-reference-style} :circular-reference-label]
+           "#object [cljs.core.Atom "
+           "{"
+           ["span" {"style" :keyword-style} ":val"] " "
+           ["span" {"style" :circular-reference-wrapper-style}
+            ["span" {"style" :circular-reference-style} :circular-reference-label]
+            "#object [cljs.core.Atom "
+            REF
+            "]"]
+           "}"
+           "]"]
+          "}"
+          "]"]]))))

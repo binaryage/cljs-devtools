@@ -3,6 +3,7 @@
             [clojure.walk :refer [postwalk]]
             [goog.array :as garr]
             [goog.json :as json]
+            [goog.object :as gobj]
             [devtools.format :as f]
             [devtools.prefs :refer [pref]]))
 
@@ -31,6 +32,10 @@
   (let [filter (fn [key value] (if (= key "object") placeholder value))]
     (json/parse (json/serialize template filter))))
 
+(defn replace-configs [template placeholder]
+  (let [filter (fn [key value] (if (= key "config") placeholder value))]
+    (json/parse (json/serialize template filter))))
+
 (defn collect-refs [template]
   (let [refs (atom [])
         catch-next (atom false)
@@ -47,16 +52,11 @@
 (defn plain-js-obj? [o]
   (and (object? o) (not (coll? o))))
 
-(defn want?* [value config expected]
-  (is (= (f/want-value? value config)) expected)
+(defn want? [value expected]
+  (is (= (f/want-value? value)) expected)
   (if expected
     (str (pr-str value) " SHOULD be processed by devtools custom formatter")
     (str (pr-str value) " SHOULD NOT be processed by devtools custom formatter")))
-
-(defn want? [value expected-or-config & rest]
-  (if-not (plain-js-obj? expected-or-config)
-    (apply want?* (concat [value nil expected-or-config] rest))
-    (apply want?* (concat [value expected-or-config] rest))))
 
 (defn resolve-prefs [v]
   (postwalk #(if (keyword? %) (pref %) %) v))
@@ -74,13 +74,15 @@
     v))
 
 (defn is-template [template expected & callbacks]
-  (let [sanitized-template (replace-refs template "##REF##")
+  (let [sanitized-template (-> template
+                               (replace-refs "##REF##")
+                               (replace-configs "##CONFIG##"))
         refs (collect-refs template)
         expected-template (-> expected
-                            (unroll-fns)
-                            (resolve-prefs)
-                            (remove-empty-styles)
-                            (clj->js))]
+                              (unroll-fns)
+                              (resolve-prefs)
+                              (remove-empty-styles)
+                              (clj->js))]
     (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)
       (is (= (count refs) (count callbacks)) "number of refs and callbacks does not match")
@@ -94,32 +96,41 @@
             (cb object config)
             (recur (rest rfs) (rest cbs))))))))
 
-(defn is-header* [value config expected & callbacks]
-  (apply is-template (concat [(f/header value config) expected] callbacks)))
+(defn patch-circular-references [obj & [parents]]
+  (if (goog/isObject obj)
+    (if (some #(identical? obj %) parents)
+      "##CIRCULAR##"
+      (let [new-parents (conj parents obj)]
+        (doseq [key (gobj/getKeys obj)]
+          (let [val (gobj/get obj key)
+                patched-val (patch-circular-references val new-parents)]
+            (if-not (identical? val patched-val)
+              (gobj/set obj key patched-val))))
+        obj))
+    obj))
 
-(defn is-header [value expected-or-config & rest]
-  (if-not (plain-js-obj? expected-or-config)
-    (apply is-header* (concat [value nil expected-or-config] rest))
-    (apply is-header* (concat [value expected-or-config] rest))))
+(defn safe-data-fn [f]
+  (fn [value]
+    (-> value
+        (f)
+        (patch-circular-references))))
 
-(defn is-body* [value config expected & callbacks]
-  (apply is-template (concat [(f/body value config) expected] callbacks)))
+; note: custom formatters api can return circular data structures when feeded with circular input data
+;       we are not interested in exploring cycles, so these safe- methods remove cycles early on
+(def safe-header (safe-data-fn f/header))
+(def safe-body (safe-data-fn f/body))
 
-(defn is-body [value expected-or-config & rest]
-  (if-not (plain-js-obj? expected-or-config)
-    (apply is-body* (concat [value nil expected-or-config] rest))
-    (apply is-body* (concat [value expected-or-config] rest))))
+(defn is-header [value expected & callbacks]
+  (apply is-template (safe-header value) expected callbacks))
 
-(defn has-body?* [value config expected]
-  (is (= (f/has-body value config) expected)
-    (if expected
-      (str (pr-str value) " SHOULD return true to hasBody call")
-      (str (pr-str value) " SHOULD return false to hasBody call"))))
+(defn is-body [value expected & callbacks]
+  (apply is-template (safe-body value) expected callbacks))
 
-(defn has-body? [value expected-or-config & rest]
-  (if-not (plain-js-obj? expected-or-config)
-    (apply has-body?* (concat [value nil expected-or-config] rest))
-    (apply has-body?* (concat [value expected-or-config] rest))))
+(defn has-body? [value expected]
+  (is (= (f/has-body value) expected)
+      (if expected
+        (str (pr-str value) " SHOULD return true to hasBody call")
+        (str (pr-str value) " SHOULD return false to hasBody call"))))
 
 (defn unroll [& args]
   (apply partial (concat [mapcat] args)))
