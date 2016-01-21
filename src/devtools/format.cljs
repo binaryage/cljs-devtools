@@ -8,12 +8,14 @@
 ; a) to prevent infinite recursion in some pathological cases (https://github.com/binaryage/cljs-devtools/issues/2)
 ; b) to keep track of printed objects to visually signal circular data structures
 ;
-; We dynamically bind *current-config* to active config when entering calls to our API methods.
-; But there is a catch. Our printing methods usually do not print everything at once.
-; We can include "object references" which can be expanded later by DevTools (when user clicks a disclosure triangle).
-; For proper continuation in rendering of those references we have to carry our state over.
-; We use custom-formatters' "config" feature to carry over a data structure for continued rendering after expansion.
-;
+; We dynamically bind *current-config* to the config passed from "outside" when entering calls to our API methods.
+; Initially the state is empty, but we accumulate there a history of seen values when rendering individual values
+; in depth-first traversal order. See alt-printer-impl where we re-bind *current-config* for each traversal level.
+; But there is a catch. For larger data structures our printing methods usually do not print everything at once.
+; We can include so called "object references" which are just placeholders which can be expanded later
+; by DevTools UI (when user clicks a disclosure triangle).
+; For proper continuation in rendering of those references we have to carry our existing state over.
+; We use "config" feature of custom formatters system to pass current state to future API calls.
 
 (def ^:dynamic *current-state* nil)
 
@@ -320,7 +322,7 @@
     (satisfies? IDevtoolsFormat value) (-body value)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
-; RAW API config-aware
+; RAW API config-aware, see state management documentation above
 
 (defn config-wrapper [raw-fn]
   (fn [value config]
