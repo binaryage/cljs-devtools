@@ -15,6 +15,7 @@
    :install-dirac-support            false
    :sanity-hint-min-length           128
    :max-print-level                  2
+   :body-line-max-print-level        3
    :max-header-elements              5
    :seqables-always-expandable       true
    :min-sequable-count-for-expansion 3

@@ -173,7 +173,7 @@
                      (template :ol ol-style (map #(template :li li-style %) lines)))))
 
 (defn body-line-template [index value]
-  [(index-template index) (pref :spacer) (managed-pr-str value :item-style 3)])
+  [(index-template index) (pref :spacer) (managed-pr-str value :item-style (inc (pref :body-line-max-print-level)))])
 
 (defn prepare-body-lines [data starting-index]
   (loop [work data
