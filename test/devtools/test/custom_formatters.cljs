@@ -3,6 +3,7 @@
             [devtools.custom-formatters :as cf]))
 
 (deftest test-install-and-uninstall
+  (set! cf/available? (constantly true))
   (testing "install/uninstall when devtoolsFormatters was not previously set"
     (is (nil? (aget js/window cf/formatter-key)))
     (is (= (cf/present?) false))

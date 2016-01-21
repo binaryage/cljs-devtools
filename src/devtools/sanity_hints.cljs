@@ -1,7 +1,10 @@
 (ns devtools.sanity-hints
   (:require [devtools.prefs :refer [pref]]
             [cljs.stacktrace :as stacktrace]
-            [clojure.string :as str]))
+            [goog.labs.userAgent.browser :as ua]))
+
+(defn ^:dynamic available? []
+  true)
 
 ; Question: How much time have you lost staring at "Cannot read property 'call' of null" kind of errors?
 ;
@@ -113,9 +116,10 @@
     (set! (.-toString prototype) type-error-to-string)))
 
 (defn install! []
-  (when-not *installed?*
+  (when (and (not *installed?*) (available?))
     (set! *installed?* true)
-    (install-type-error-enhancer)))
+    (install-type-error-enhancer)
+    true))
 
 (defn uninstall! []
   (when *installed?*

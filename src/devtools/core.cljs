@@ -1,9 +1,10 @@
 (ns devtools.core
   (:require [devtools.prefs :as prefs]
-            [devtools.sanity-hints :as hints]
+            [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
             [devtools.dirac :as dirac]
-            [devtools.util :as util]))
+            [devtools.util :as util]
+            [goog.userAgent :as ua]))
 
 (def known-features
   {:custom-formatters :install-custom-formatters
@@ -14,20 +15,29 @@
   (str "No such feature '" feature "' is currently available in cljs-devtools. "
        "List of supported features:" (keys known-features)))
 
+(defn ^:dynamic warn-feature-not-available [feature]
+  (.warn js/console (str "Feature '" (name feature) "' cannot be installed. Unsupported browser " (ua/getUserAgentString) ".")))
+
 ; -- public API -------------------------------------------------------------------------------------------------------------
 
 (defn install! []
   (util/display-banner "Installing cljs-devtools:" known-features)
   (if (prefs/pref :install-custom-formatters)
-    (custom-formatters/install!))
+    (if (custom-formatters/available?)
+      (custom-formatters/install!)
+      (warn-feature-not-available :custom-formatters)))
   (if (prefs/pref :install-sanity-hints)
-    (hints/install!))
+    (if (sanity-hints/available?)
+      (sanity-hints/install!)
+      (warn-feature-not-available :sanity-hints)))
   (if (prefs/pref :install-dirac-support)
-    (dirac/install!)))
+    (if (dirac/available?)
+      (dirac/install!)
+      (warn-feature-not-available :dirac))))
 
 (defn uninstall! []
   (custom-formatters/uninstall!)
-  (hints/uninstall!)
+  (sanity-hints/uninstall!)
   (dirac/uninstall!))
 
 (defn set-prefs! [new-prefs]
@@ -57,6 +67,15 @@
 (defn disable-feature! [& features]
   (doseq [feature features]
     (disable-single-feature! feature)))
+
+(defn single-feature-available? [feature]
+  (case feature
+    :custom-formatters (custom-formatters/available?)
+    :dirac (dirac/available?)
+    :sanity-hints (sanity-hints/available?)))
+
+(defn feature-available? [& features]
+  (every? single-feature-available? features))
 
 ; -- deprecated API ---------------------------------------------------------------------------------------------------------
 

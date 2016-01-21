@@ -4,7 +4,11 @@
   (:require [goog.object]
             [clojure.browser.repl :as brepl]
             [devtools.prefs :refer [pref]]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [goog.labs.userAgent.browser :as ua]))
+
+(defn ^:dynamic available? []
+  (and (ua/isChrome) (ua/isVersionOrHigher 47)))                                                                              ; Chrome 47+
 
 ; ===========================================================================================================================
 
@@ -154,9 +158,10 @@
 ; -- install/uninstall ------------------------------------------------------------------------------------------------------
 
 (defn ^:export install! []
-  (when-not *installed?*
+  (when (and (not *installed?*) (available?))
     (set! *installed?* true)
-    (brepl/bootstrap)))
+    (brepl/bootstrap)
+    true))
 
 (defn ^:export uninstall! []
   (when *installed?*

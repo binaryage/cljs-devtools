@@ -1,6 +1,7 @@
 (ns devtools.custom-formatters
   (:require [devtools.prefs :as prefs]
-            [devtools.format :as format]))
+            [devtools.format :as format]
+            [goog.labs.userAgent.browser :as ua]))
 
 (def ^:dynamic *installed* false)
 (def ^:dynamic *sanitizer-enabled* true)
@@ -8,6 +9,9 @@
 
 (def formatter-key "devtoolsFormatters")
 (def obsolete-formatter-key "devtoolsFormatter")
+
+(defn ^:dynamic available? []
+  (and (ua/isChrome) (ua/isVersionOrHigher 47)))                                                                              ; Chrome 47+
 
 (deftype CLJSDevtoolsFormatter [])
 
@@ -85,9 +89,10 @@
     (aset js/window formatter-key new-formatters-js)))
 
 (defn install! []
-  (when-not *installed*
+  (when (and (not *installed*) (available?))
     (set! *installed* true)
-    (install-our-formatter! (build-cljs-formatter))))
+    (install-our-formatter! (build-cljs-formatter))
+    true))
 
 (defn uninstall! []
   (when *installed*
