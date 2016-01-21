@@ -32,6 +32,7 @@
    :circular-reference-wrapper-style ""
    :circular-reference-style         (str "background-color:#f88;"
                                           "color:#fff;"
+                                          "opacity: 0.5;"
                                           "margin-right: 3px;"
                                           "padding: 0px 4px 0px 4px;"
                                           "border-radius:2px;"
