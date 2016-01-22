@@ -59,8 +59,9 @@
    :ol                               "ol"
    :li                               "li"
    :cljs-style                       (str "background-color:" signature-background ";")
-   :header-style                     ""
+   :header-style                     "white-space: nowrap"                                                                    ; this prevents jumping of content when expanding sections due to content wrapping
    :item-style                       (str "display: inline-block;"
+                                          "white-space: nowrap;"
                                           "border-left: 2px solid rgba(100, 100, 100, 0.2);"
                                           "padding: 0px 4px 0px 4px;"
                                           "margin: 0px 0px 1px 0px;")

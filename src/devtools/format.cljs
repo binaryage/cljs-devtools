@@ -128,7 +128,7 @@
   (let [header-template (template :span :meta-style "meta")
         body-template (template :span :meta-body-style
                                 (build-header value))]
-    (template :span "" (reference (surrogate value header-template true body-template)))))
+    (template :span :meta-reference-style (reference (surrogate value header-template true body-template)))))
 
 (defn abbreviate-long-string [string]
   (str
@@ -186,7 +186,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
-    #js [(reference (surrogate obj (.concat (template :span "") group)))]
+    #js [(reference (surrogate obj (.concat (template :span :header-style) group)))]
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]

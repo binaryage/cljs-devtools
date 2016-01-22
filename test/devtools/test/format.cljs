@@ -153,7 +153,7 @@
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" {}
+          ["span" {"style" :header-style}
            "["
            (unroll (fn [i] [["span" {"style" :integer-style} (+ i 1)] :spacer]) (range 5))
            :more-marker
@@ -176,7 +176,7 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {}
+          ["span" {"style" :header-style}
            "("
            (unroll (fn [i] [["span" {"style" :integer-style} i] :spacer]) (range :max-header-elements))
            :more-marker
@@ -192,7 +192,7 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {}
+          ["span" {"style" :header-style}
            "("
            (unroll (fn [i] [["span" {"style" :integer-style} i] :spacer]) (range :max-header-elements))
            :more-marker
@@ -235,7 +235,7 @@
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
-            ["span" {}
+            ["span" {"style" :header-style}
              "[" :more-marker "]"]))))))
 
 (deftest test-deftype
@@ -334,7 +334,7 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" {}
+          ["span" {"style" :header-style}
            "["
            ["span" {"style" :integer-style} 1]
            " "
