@@ -87,8 +87,6 @@
                                           "margin-right: 3px;"
                                           "padding: 0px 4px 0px 4px;"
                                           "margin: 0px 0px 1px 0px;"
-                                          "border-top-left-radius: 2px;"
-                                          "border-bottom-left-radius: 2px;"
                                           "-webkit-user-select: none;")
    :nil-style                        "color:#808080"
    :nil-label                        "nil"
