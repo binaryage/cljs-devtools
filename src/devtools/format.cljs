@@ -143,8 +143,7 @@
         max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
     (if (<= (count inline-string) max-inline-string-size)
       (template :span :string-style (str dq inline-string dq))
-      (let [abbreviated-string-template (template :span :string-style
-                                                  (str dq (abbreviate-long-string inline-string) dq))
+      (let [abbreviated-string-template (template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
             body-template (template :span :expanded-string-style string-with-nl-markers)]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
@@ -252,15 +251,13 @@
     tmpl))
 
 (defn build-header [value]
-  (let [meta-data (if (pref :print-meta-data) (meta value))
-        value-template (managed-pr-str value :header-style (inc (pref :max-print-level)))]
-    (if meta-data
+  (let [value-template (managed-pr-str value :header-style (inc (pref :max-print-level)))]
+    (if-let [meta-data (if (pref :print-meta-data) (meta value))]
       (template :span :meta-wrapper-style value-template (meta-template meta-data))
       value-template)))
 
 (defn build-header-wrapped [value]
-  (template :span :cljs-style
-            (build-header value)))
+  (template :span :cljs-style (build-header value)))
 
 (defn standard-body-template
   ([lines] (standard-body-template lines true))
