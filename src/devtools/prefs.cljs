@@ -48,7 +48,7 @@
                                           "margin-top:0px;"
                                           "margin-bottom:0px;"
                                           "margin-left:0px")
-   :standard-li-style                "margin-left:0px"
+   :standard-li-style                "margin-left:16px"
    :standard-li-no-margin-style      "margin-left:0px"
    :spacer                           " "
    :span                             "span"
