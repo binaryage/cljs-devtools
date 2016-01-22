@@ -73,7 +73,6 @@
                                           "-webkit-user-select: none;")
    :body-style                       (str "display:inline-block;"
                                           "padding: 14px 6px 0px 6px;"
-                                          "border: 1px dashed " body-border-color ";"
                                           "border-top: 1px solid " body-border-color ";"
                                           "border-radius:1px;"
                                           "margin: -14px -2px 2px -2px;"
