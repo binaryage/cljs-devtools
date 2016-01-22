@@ -146,9 +146,7 @@
       (let [abbreviated-string-template (template :span :string-style
                                                   (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
-            body-template (template :ol :standard-ol-style
-                                    (template :li :standard-li-style
-                                              (template :span :string-style (str dq string-with-nl-markers dq))))]
+            body-template (template :span :expanded-string-style string-with-nl-markers)]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn bool? [value]

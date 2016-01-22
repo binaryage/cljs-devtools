@@ -2,12 +2,16 @@
   (:require [clojure.string :as str]))
 
 (def ^:const signature-color "rgba(100, 255, 100, 1);")
+(def ^:const string-color "rgba(255, 100, 100, 1);")
 
-(defn signature-color-with-opacity [opacity]
-  (str/replace signature-color "1);" (str opacity ");")))
+(defn color-with-opacity [color opacity]
+  (str/replace color "1);" (str opacity ");")))
 
-(def signature-background (signature-color-with-opacity 0.08))
-(def body-border-color (signature-color-with-opacity 0.4))
+(def signature-background (color-with-opacity signature-color 0.08))
+(def body-border-color (color-with-opacity signature-color 0.4))
+
+(def string-background (color-with-opacity string-color 0.08))
+(def string-border-color (color-with-opacity string-color 0.4))
 
 (def default-prefs
   {:install-custom-formatters        true                                                                                     ; the only feature enabled by default
@@ -88,6 +92,13 @@
                                           "padding: 0px 4px 0px 4px;"
                                           "margin: 0px 0px 1px 0px;"
                                           "-webkit-user-select: none;")
+   :expanded-string-style            (str "padding: 0px 12px 0px 12px;"
+                                          "color:#C41A16;"
+                                          "white-space: pre;"
+                                          "border-top: 1px solid " string-border-color ";"
+                                          "border-radius:1px;"
+                                          "margin: 0px 0px 2px 0px;"
+                                          "background-color:" string-background ";")
    :nil-style                        "color:#808080"
    :nil-label                        "nil"
    :keyword-style                    "color:#881391"

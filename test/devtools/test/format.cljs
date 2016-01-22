@@ -116,15 +116,11 @@
              "12345678901234" :new-line-string-replacer "67890"
              :dq)])
         (is-body ref
-          ["ol" {"style" :standard-ol-style}
-           ["li" {"style" :standard-li-style}
-            ["span" {"style" :string-style}
-             (str
-               :dq
-               "1234" :new-line-string-replacer
-               "\n6789012345678901234567890123456789012345678901234" :new-line-string-replacer
-               "\n67890"
-               :dq)]]])))))
+          ["span" {"style" :expanded-string-style}
+           (str
+             "1234" :new-line-string-replacer
+             "\n6789012345678901234567890123456789012345678901234" :new-line-string-replacer
+             "\n67890")])))))
 
 (deftest test-collections
   (testing "vectors"
