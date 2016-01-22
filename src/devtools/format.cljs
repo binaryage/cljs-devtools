@@ -2,6 +2,14 @@
   (:require-macros [devtools.util :refer [oget oset ocall oapply]])
   (:require [devtools.prefs :refer [pref]]))
 
+; ---------------------------------------------------------------------------------------------------------------------------
+; PROTOCOL SUPPORT
+
+(defprotocol IDevtoolsFormat
+  (-header [value])
+  (-has-body [value])
+  (-body [value]))
+
 ; - state management --------------------------------------------------------------------------------------------------------
 ;
 ; we have to maintain some state:
@@ -84,7 +92,7 @@
 (defn remove-positions [coll indices]
   (keep-indexed (fn [idx x] (if-not (contains? indices idx) x)) coll))
 
-(defn ^bool is-circular? [object]
+(defn ^bool is-circular?! [object]
   (let [current-state (get-current-state)]
     (if (:entered-reference current-state)
       (do
@@ -193,32 +201,48 @@
 ;   :else (write-all writer "#<" (str obj) ">")
 ; we want to wrap stringified obj in a reference for further inspection
 ;
+; this behaviour changed in https://github.com/clojure/clojurescript/commit/34c3b8985ed8197d90f441c46d168c4024a20eb8
+; newly functions and :else branch print "#object [" ... "]"
+;
 ; in some situations obj can still be a clojurescript value (e.g. deftypes)
 ; we have to implement a special flag to prevent infinite recursion
 ; see https://github.com/binaryage/cljs-devtools/issues/2
-(defn detect-else-case-and-patch-it [group obj]
-  (if (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))
+;     https://github.com/binaryage/cljs-devtools/issues/8
+(defn detect-edge-case-and-patch-it [group obj]
+  (cond
+    (or
+      (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
+      (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
+      (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
+    (do
+      (set-prevent-recursion!)
+      #js [(reference obj)])
+
+    (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
     (do
       (set-prevent-recursion!)
       #js [(aget group 0) (reference obj) (aget group 2)])
-    group))
+
+    :else group))
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
-    (let [circular? (is-circular? obj)]
-      (push-object-to-current-history! obj)
-      (if-let [tmpl (atomic-template obj)]
-        (-write writer tmpl)
-        (let [inner-writer (make-template-writer)
-              default-impl (:fallback-impl opts)
-              ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
-              inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
-          (default-impl obj inner-writer inner-opts)
-          (let [final-group (-> (.get-group inner-writer)
-                                (detect-else-case-and-patch-it obj)                                                           ; an ugly special case
-                                (wrap-group-in-reference-if-needed obj)
-                                (wrap-group-in-circular-warning-if-needed circular?))]
-            (.merge writer final-group)))))))
+    (if (and (not (:entered-reference *current-state*)) (satisfies? IDevtoolsFormat obj))                                     ; we have to wrap value in reference if detected IDevtoolsFormat
+      (-write writer (reference obj))                                                                                         ; :entered-reference is here for prevention of infinite recursion
+      (let [circular? (is-circular?! obj)]
+        (push-object-to-current-history! obj)
+        (if-let [tmpl (atomic-template obj)]
+          (-write writer tmpl)
+          (let [inner-writer (make-template-writer)
+                default-impl (:fallback-impl opts)
+                ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
+                inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
+            (default-impl obj inner-writer inner-opts)
+            (let [final-group (-> (.get-group inner-writer)
+                                  (detect-edge-case-and-patch-it obj)                                                         ; an ugly hack
+                                  (wrap-group-in-reference-if-needed obj)
+                                  (wrap-group-in-circular-warning-if-needed circular?))]
+              (.merge writer final-group))))))))
 
 (defn managed-pr-str [value style print-level]
   (let [tmpl (template :span style)
@@ -286,14 +310,6 @@
         (let [starting-index (or (aget value "startingIndex") 0)]
           (build-body target starting-index))
         (template :ol :standard-ol-style (template :li :standard-li-style (reference target)))))))
-
-; ---------------------------------------------------------------------------------------------------------------------------
-; PROTOCOL SUPPORT
-
-(defprotocol IDevtoolsFormat
-  (-header [value])
-  (-has-body [value])
-  (-body [value]))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API

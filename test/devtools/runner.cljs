@@ -2,7 +2,8 @@
   (:require [cljs.test :as test :refer-macros [run-tests] :refer [report inc-report-counter! testing-vars-str get-current-env testing-contexts-str]]
             [devtools.test.custom-formatters]
             [devtools.test.format]
-            [devtools.test.prefs]))
+            [devtools.test.prefs]
+            [devtools.test.cljs]))
 
 (enable-console-print!)
 
@@ -95,6 +96,7 @@
 
 (test/run-tests
   (cljs.test/empty-env ::test/default)
+  'devtools.test.cljs
   'devtools.test.custom-formatters
   'devtools.test.format
   'devtools.test.prefs)

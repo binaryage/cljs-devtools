@@ -248,9 +248,10 @@
       (is-header type-instance
         ["span" {"style" :cljs-style}
          ["span" {"style" :header-style}
-          "#object["
-          "devtools.test.format.SimpleType"
-          "]"]]))))
+          REF]]
+        (fn [ref config]
+          (is (:prevent-recursion config))
+          (is (not (surrogate? ref))))))))
 
 (deftest test-handlers
   (let [handled-output (clj->js (remove-empty-styles ["span" {"style" (pref :cljs-style)}
