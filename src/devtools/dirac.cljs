@@ -28,8 +28,11 @@
 (defonce api-version 1)                                                                                                       ; internal API version
 
 (def default-config
-  {:dirac-agent-host "localhost"
-   :dirac-agent-port "8231"})
+  {:dirac-agent-host             "localhost"
+   :dirac-agent-port             "8231"
+   :dirac-agent-verbose          false
+   :dirac-agent-auto-connect     true
+   :dirac-agent-response-timeout 5000})
 
 (defonce static-config (gen-config))                                                                                          ; this config is comming from environment and system properties
 
