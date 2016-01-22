@@ -72,10 +72,10 @@
                                           "margin: 1px 0px 0px 0px;"
                                           "-webkit-user-select: none;")
    :body-style                       (str "display:inline-block;"
-                                          "padding: 14px 6px 0px 6px;"
+                                          "padding: 0px;"
                                           "border-top: 1px solid " body-border-color ";"
                                           "border-radius:1px;"
-                                          "margin: -14px -2px 2px -2px;"
+                                          "margin: 0px 0px 2px 0px;"
                                           "background-color:" signature-background ";")
    :index-style                      (str "min-width: 50px;"
                                           "display: inline-block;"
