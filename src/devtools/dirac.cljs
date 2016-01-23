@@ -31,10 +31,10 @@
   {:dirac-agent-host             "localhost"
    :dirac-agent-port             "8231"
    :dirac-agent-verbose          false
-   :dirac-agent-auto-connect     true
+   :dirac-agent-auto-reconnect   true
    :dirac-agent-response-timeout 5000
    :dirac-weasel-verbose         false
-   :dirac-weasel-auto-connect    false
+   :dirac-weasel-auto-reconnect  false
    :dirac-weasel-pre-eval-delay  100})
 
 (defonce static-config (gen-config))                                                                                          ; this config is comming from environment and system properties
