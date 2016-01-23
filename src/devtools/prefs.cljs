@@ -64,7 +64,7 @@
                                           "white-space: nowrap;"
                                           "border-left: 2px solid rgba(100, 100, 100, 0.2);"
                                           "padding: 0px 4px 0px 4px;"
-                                          "margin: 0px 0px 1px 0px;")
+                                          "margin: 1px 0px 0px 0px;")
    :body-items-more-label-style      (str "background-color:#999;"
                                           "min-width: 50px;"
                                           "display: inline-block;"
@@ -91,7 +91,7 @@
                                           "opacity: 0.5;"
                                           "margin-right: 3px;"
                                           "padding: 0px 4px 0px 4px;"
-                                          "margin: 0px 0px 1px 0px;"
+                                          "margin: 1px 0px 0px 0px;"
                                           "-webkit-user-select: none;")
    :expanded-string-style            (str "padding: 0px 12px 0px 12px;"
                                           "color:#C41A16;"
