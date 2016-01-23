@@ -7,21 +7,21 @@
             [clojure.string :as string]
             [goog.labs.userAgent.browser :as ua]))
 
-(defn ^:dynamic available? []
-  (and (ua/isChrome) (ua/isVersionOrHigher 47)))                                                                              ; Chrome 47+
-
 ; ===========================================================================================================================
 
-; Dirac is a codename for our DevTools fork
+; Dirac is a codename for our DevTools fork.
 ;
-; we didn't want to introduce new protocol methods for websocket connection between DevTools front-end and back-end
-; so instead we tunnel our messages through console.log calls
+; We didn't want to introduce new protocol methods for websocket connection between DevTools front-end and back-end.
+; So instead we tunnel our messages through console.log calls.
 ;
-; when first paramter of the log message mentions our magic word, we treat the call differently:
+; If first parameter of the log message mentions our magic word, we treat the call differently:
 ; 1) "~~$DIRAC-MSG$~~" is for control messages
 ;                      these are taken outside of message processing and do not affect console model
-; 2) "~~$DIRAC-LOG$~~" is for favored version of normal log statements (they will have green cljs-ish background)
+; 2) "~~$DIRAC-LOG$~~" is for flavored version of normal log statements (they will have green cljs-ish background)
 ;                      we let these bubble through as real log messages but decorate them slightly for our purposes
+
+(defn ^:dynamic available? []
+  (and (ua/isChrome) (ua/isVersionOrHigher 47)))                                                                              ; Chrome 47+
 
 (defonce ^:dynamic *installed?* false)
 
