@@ -10,7 +10,7 @@
 
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.170" :scope "provided"]
-                 [environ "1.0.1" :scope "provided"]]
+                 [environ "1.0.1"]]
 
   :clean-targets ^{:protect false} ["target"
                                     "test/_generated"]
