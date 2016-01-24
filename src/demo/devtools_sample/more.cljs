@@ -8,6 +8,8 @@
 
 (def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
 
+(def v nil)
+
 (def circular1 (atom nil))
 (reset! circular1 circular1)
 
@@ -55,7 +57,8 @@ last line")
   (log [::namespaced-keyword])
   (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
   (log circular1)
-  (log circular2))
+  (log circular2)
+  (log (var v)))
 
 (defn fn-returns-nil [])
 
