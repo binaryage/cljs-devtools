@@ -8,7 +8,7 @@
   :scm {:name "git"
         :url  "https://github.com/binaryage/cljs-devtools"}
 
-  :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.228" :scope "provided"]
                  [environ "1.0.1"]]
 
@@ -51,5 +51,4 @@
                                                           :optimizations :none
                                                           :pretty-print  true
                                                           :source-map    true}}}
-                          :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}}}}
-  )
+                          :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}}}})
