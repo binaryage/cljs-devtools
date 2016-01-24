@@ -49,7 +49,7 @@
 ; -- tunneling messages to Dirac DevTools -----------------------------------------------------------------------------------
 
 (defn console-tunnel [method & args]
-  (.apply (oget js/console method) js/console (apply array args)))
+  (.apply (oget js/console method) js/console (into-array args)))
 
 (defn dirac-msg-args [name args]
   (concat ["~~$DIRAC-MSG$~~" name] args))
@@ -152,17 +152,17 @@
   Also we have to be careful to not enter into infinite printing with cyclic data structures.
   We limit printing level and length."
   [value]
-  (binding [cljs.core/*print-level* (pref :dirac-print-level)
-            cljs.core/*print-length* (pref :dirac-print-length)]
+  (binding [*print-level* (pref :dirac-print-level)
+            *print-length* (pref :dirac-print-length)]
     #js {:status "success"
          :value  (str value)}))
 
-(defn ^:export postprocess-unsuccessful-eval [e]
+(defn ^:export postprocess-unsuccessful-eval [ex]
   "Same as postprocess-successful-eval but prepares response for evaluation attempt with exception."
   #js {:status     "exception"
-       :value      (pr-str e)
-       :stacktrace (if (.hasOwnProperty e "stack")
-                     (.-stack e)
+       :value      (pr-str ex)
+       :stacktrace (if (.hasOwnProperty ex "stack")
+                     (.-stack ex)
                      "No stacktrace available.")})
 
 ; -- install/uninstall ------------------------------------------------------------------------------------------------------
