@@ -25,7 +25,7 @@
 
 (defonce ^:dynamic *installed?* false)
 
-(defonce api-version 1)                                                                                                       ; internal API version
+(defonce api-version 2)                                                                                                       ; internal API version
 
 (def default-config
   {:agent-host                            "localhost"
@@ -167,12 +167,15 @@
 
 ; -- install/uninstall ------------------------------------------------------------------------------------------------------
 
+(defn ^:export installed? []
+  *installed?*)
+
 (defn ^:export install! []
-  (when (and (not *installed?*) (available?))
-    (set! *installed?* true)
+  (when (and (not (installed?)) (available?))
     (brepl/bootstrap)
+    (set! *installed?* true)
     true))
 
 (defn ^:export uninstall! []
-  (when *installed?*
+  (when (installed?)
     (set! *installed?* false)))
