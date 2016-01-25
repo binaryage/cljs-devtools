@@ -4,5 +4,5 @@
 (defmacro debug? []
   (boolean (env :devtools-debug)))
 
-(defmacro figwheel? []
-  (boolean (env :devtools-figwheel)))
+(defmacro weasel? []
+  (boolean (env :devtools-weasel)))

@@ -1,3 +1,4 @@
+/.cljs_rhino_repl
 /.lein-env
 pom.xml
 *jar
