@@ -1,4 +1,4 @@
-# cljs-devtools-sample [![MIT License](https://img.shields.io/badge/license-MIT-007EC7.svg?style=flat-square)](/license.txt)
+# cljs-devtools-sample [![GitHub license](https://img.shields.io/github/license/binaryage/cljs-devtools-sample.svg)](license.txt)
 
 This project is an example of integration of [**cljs-devtools**](https://github.com/binaryage/cljs-devtools) into a
 Leiningen-based ClojureScript project.
