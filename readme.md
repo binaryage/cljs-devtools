@@ -45,7 +45,7 @@ Check out the **[sample project](https://github.com/binaryage/cljs-devtools-samp
 Available in [**Chrome 47 and higher**](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
 
   * Open DevTools
-  * Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings `F1` > Console)
+  * Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings `F1` > General > Console)
   * Check-in "Enable custom formatters"
   * Close DevTools
   * Open DevTools
