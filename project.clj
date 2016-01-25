@@ -2,8 +2,8 @@
   :description "An example integration of cljs-devtools"
   :url "https://github.com/binaryage/cljs-devtools-sample"
 
-  :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.170"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/clojurescript "1.7.228"]
                  [binaryage/devtools "0.5.2"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.39"]
