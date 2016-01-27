@@ -32,69 +32,69 @@
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
 
   :profiles {; --------------------------------------------------------------------------------------------------------------
-             :dev        {:dependencies [[org.clojure/tools.logging "0.3.1"]
-                                         [clj-logging-config "1.9.12"]
-                                         [http-kit "2.1.21-alpha2"]
-                                         [org.clojure/tools.nrepl "0.2.12"]
-                                         [binaryage/dirac "0.1.1"]]
-                          :repl-options {:port             8230
-                                         :nrepl-middleware [dirac.nrepl.middleware/dirac-repl]
-                                         :init             (do
-                                                             (require 'dirac.agent)
-                                                             (dirac.agent/boot!))}}
+             :dev
+             {:dependencies [[binaryage/dirac "0.1.2"]]
+              :repl-options {:port             8230
+                             :nrepl-middleware [dirac.nrepl.middleware/dirac-repl]
+                             :init             (do
+                                                 (require 'dirac.agent)
+                                                 (dirac.agent/boot!))}}
 
              ; --------------------------------------------------------------------------------------------------------------
              ; reference piggieback + weasel configuration
-             :piggieback {:dependencies [[org.clojure/tools.nrepl "0.2.12"]
-                                         [com.cemerick/piggieback "0.2.1"]
-                                         [weasel "0.7.0" :exclusions [org.clojure/clojurescript]]]
-                          :repl-options {:port             8530
-                                         :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
-                                         :init             (do
-                                                             (require 'weasel.repl.websocket)
-                                                             (import '(java.util TimerTask Timer))
-                                                             (let [repl-env (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001)
-                                                                   start-repl (fn [] (cemerick.piggieback/cljs-repl repl-env))
-                                                                   print-usage (fn [] (println "copy&paste this:\n(cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"0.0.0.0\" :port 9001))"))
-                                                                   task (proxy [TimerTask] [] (run []                         ; http://stackoverflow.com/a/16385066/84283
-                                                                                                (print-usage)
-                                                                                                #_(start-repl)))]             ; doesn't work for some reason
-                                                               (. (new Timer) (schedule task (long 2000)))))}}
+             :piggieback
+             {:dependencies [[org.clojure/tools.nrepl "0.2.12"]
+                             [com.cemerick/piggieback "0.2.1"]
+                             [weasel "0.7.0" :exclusions [org.clojure/clojurescript]]]
+              :repl-options {:port             8530
+                             :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+                             :init             (do
+                                                 (require 'weasel.repl.websocket)
+                                                 (import '(java.util TimerTask Timer))
+                                                 (let [repl-env (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001)
+                                                       start-repl (fn [] (cemerick.piggieback/cljs-repl repl-env))
+                                                       print-usage (fn [] (println "copy&paste this:\n(cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"0.0.0.0\" :port 9001))"))
+                                                       task (proxy [TimerTask] [] (run []                                     ; http://stackoverflow.com/a/16385066/84283
+                                                                                    (print-usage)
+                                                                                    #_(start-repl)))]                         ; doesn't work for some reason
+                                                   (. (new Timer) (schedule task (long 2000)))))}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :demo
-                         {:cljsbuild {:builds {:demo
-                                               {:source-paths ["src/demo"]
-                                                :compiler     {:output-to     "resources/public/_compiled/demo/devtools_sample.js"
-                                                               :output-dir    "resources/public/_compiled/demo"
-                                                               :asset-path    "_compiled/demo"
-                                                               :optimizations :none
-                                                               :source-map    true}}}}}
+             {:cljsbuild {:builds {:demo
+                                   {:source-paths ["src/demo"]
+                                    :compiler     {:output-to     "resources/public/_compiled/demo/devtools_sample.js"
+                                                   :output-dir    "resources/public/_compiled/demo"
+                                                   :asset-path    "_compiled/demo"
+                                                   :optimizations :none
+                                                   :source-map    true}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :checkouts
-                         {:cljsbuild {:builds {:demo
-                                               {:source-paths ["checkouts/cljs-devtools/src"]}}}}
+             {:cljsbuild {:builds {:demo
+                                   {:source-paths ["checkouts/cljs-devtools/src"]}}}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :debug
-                         {:env {:devtools-debug true}}
+             {:env {:devtools-debug       true
+                    :dirac-weasel-verbose true
+                    :dirac-agent-verbose  true}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
-                         {:cljsbuild {:builds {:demo
-                                               {:figwheel true}}}}
+             {:cljsbuild {:builds {:demo
+                                   {:figwheel true}}}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :weasel
-                         {:env       {:devtools-weasel true}
-                          :cljsbuild {:builds {:demo
-                                               {:source-paths ["src/weasel"]}}}}
+             {:env       {:devtools-weasel true}
+              :cljsbuild {:builds {:demo
+                                   {:source-paths ["src/weasel"]}}}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :devel
-                         {:cljsbuild {:builds {:demo
-                                               {:source-paths ["src/debug"
-                                                               "checkouts/cljs-devtools/src-debug"]}}}}}
+             {:cljsbuild {:builds {:demo
+                                   {:source-paths ["src/debug"
+                                                   "checkouts/cljs-devtools/src-debug"]}}}}}
 
   ; =========================================================================================================================
 
