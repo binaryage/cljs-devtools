@@ -69,6 +69,14 @@
                                                    :optimizations :none
                                                    :source-map    true}}}}}
              ; --------------------------------------------------------------------------------------------------------------
+             :demo-advanced
+             {:cljsbuild {:builds {:demo-advanced
+                                   {:source-paths ["src/demo"]
+                                    :compiler     {:output-to     "resources/public/_compiled/demo_advanced/devtools_sample.js"
+                                                   :output-dir    "resources/public/_compiled/demo_advanced"
+                                                   :asset-path    "_compiled/demo_advanced"
+                                                   :optimizations :advanced}}}}}
+             ; --------------------------------------------------------------------------------------------------------------
              :checkouts
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["checkouts/cljs-devtools/src"]}}}}
@@ -104,6 +112,9 @@
             "cljs"            ["with-profile" "+demo"
                                "do" "clean,"
                                "cljsbuild" "auto"]
+            "demo-advanced"   ["with-profile" "+demo-advanced,+checkouts"
+                               "do" "clean,"
+                               "cljsbuild" "once"]
             "dirac"           ["with-profile" "+demo,+figwheel"
                                "do" "clean,"
                                "figwheel"]
