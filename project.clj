@@ -33,7 +33,7 @@
 
   :profiles {; --------------------------------------------------------------------------------------------------------------
              :dev
-             {:dependencies [[binaryage/dirac "0.1.2"]]
+             {:dependencies [[binaryage/dirac "0.1.3"]]
               :repl-options {:port             8230
                              :nrepl-middleware [dirac.nrepl.middleware/dirac-repl]
                              :init             (do
