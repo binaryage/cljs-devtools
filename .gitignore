@@ -11,6 +11,7 @@ pom.xml
 .lein-plugins/
 .repl*
 /checkouts/
+/checkouts_/
 /resources/public/_compiled
 .idea
 *.iml
