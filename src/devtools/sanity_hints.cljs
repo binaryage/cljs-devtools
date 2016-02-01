@@ -90,14 +90,13 @@
       ; silently fail in case of troubles parsing stack trace
       false)))
 
-(defn type-error-to-string []
-  (this-as self
-    (if *processed-errors*
-      (when-not (.has *processed-errors* self)
-        (.add *processed-errors* self)
-        (when-let [sense (error-object-sense self)]
-          (set! (.-message self) (str (.-message self) ", a sanity hint:\n" sense)))))                                        ; this is dirty, patch message field before it gets used
-    (.call *original-type-error-prototype-to-string* self)))
+(defn type-error-to-string [self]
+  (if *processed-errors*
+    (when-not (.has *processed-errors* self)
+      (.add *processed-errors* self)
+      (when-let [sense (error-object-sense self)]
+        (set! (.-message self) (str (.-message self) ", a sanity hint:\n" sense)))))                                          ; this is dirty, patch message field before it gets used
+  (.call *original-type-error-prototype-to-string* self))
 
 (defn global-error-handler [message url line column error]
   (let [res (if *original-global-error-handler*
@@ -113,7 +112,7 @@
   (set! (.-onerror js/window) global-error-handler)
   (let [prototype (.-prototype js/TypeError)]
     (set! *original-type-error-prototype-to-string* (.-toString prototype))
-    (set! (.-toString prototype) type-error-to-string)))
+    (set! (.-toString prototype) #(this-as self (type-error-to-string self)))))                                               ; work around http://dev.clojure.org/jira/browse/CLJS-1545
 
 (defn install! []
   (when (and (not *installed?*) (available?))
