@@ -28,18 +28,20 @@
 (defonce api-version 2)                                                                                                       ; internal API version
 
 (def default-config
-  {:agent-host                            "localhost"
-   :agent-port                            "8231"
-   :agent-verbose                         false
-   :agent-auto-reconnect                  true
-   :agent-response-timeout                5000
-   :weasel-verbose                        false
-   :weasel-auto-reconnect                 false
-   :weasel-pre-eval-delay                 100
-   :install-check-total-time-limit        5000
-   :install-check-next-trial-waiting-time 500
-   :install-check-eval-time-limit         300
-   :eval-time-limit                       10000})
+  {:agent-host                                  "localhost"
+   :agent-port                                  "8231"
+   :agent-verbose                               false
+   :agent-auto-reconnect                        true
+   :agent-response-timeout                      5000
+   :weasel-verbose                              false
+   :weasel-auto-reconnect                       false
+   :weasel-pre-eval-delay                       100
+   :install-check-total-time-limit              5000
+   :install-check-next-trial-waiting-time       500
+   :install-check-eval-time-limit               300
+   :context-availablity-total-time-limit        3000
+   :context-availablity-next-trial-waiting-time 10
+   :eval-time-limit                             10000})
 
 (defonce static-config (gen-config))                                                                                          ; this config is comming from environment and system properties
 

@@ -12,6 +12,8 @@
 (def ^:dynamic *install-check-total-time-limit* (env :dirac-install-check-total-time-limit))
 (def ^:dynamic *install-check-next-trial-waiting-time* (env :dirac-install-check-next-trial-waiting-time))
 (def ^:dynamic *install-check-eval-time-limit* (env :dirac-install-check-eval-time-limit))
+(def ^:dynamic *context-availablity-total-time-limit* (env :dirac-context-availablity-total-time-limit))
+(def ^:dynamic *context-availablity-next-trial-waiting-time* (env :context-availablity-next-trial-waiting-time))
 (def ^:dynamic *eval-time-limit* (env :dirac-eval-time-limit))
 
 (defmacro gen-config []
@@ -27,4 +29,6 @@
          (if *install-check-total-time-limit* [:install-check-total-time-limit (int *install-check-total-time-limit*)])
          (if *install-check-next-trial-waiting-time* [:install-check-next-trial-waiting-time (int *install-check-next-trial-waiting-time*)])
          (if *install-check-eval-time-limit* [:install-check-eval-time-limit (int *install-check-eval-time-limit*)])
+         (if *context-availablity-total-time-limit* [:context-availablity-total-time-limit (int *context-availablity-total-time-limit*)])
+         (if *context-availablity-next-trial-waiting-time* [:context-availablity-next-trial-waiting-time (int *context-availablity-next-trial-waiting-time*)])
          (if *eval-time-limit* [:eval-time-limit (int *eval-time-limit*)])))
