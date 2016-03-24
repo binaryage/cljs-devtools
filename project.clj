@@ -84,6 +84,7 @@
                                     :compiler     {:output-to     "resources/public/_compiled/advanced-unconditional-install/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/advanced-unconditional-install"
                                                    :asset-path    "_compiled/advanced-unconditional-install"
+                                                   :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names  true
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
@@ -93,6 +94,7 @@
                                     :compiler     {:output-to     "resources/public/_compiled/advanced-conditional-install/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/advanced-conditional-install"
                                                    :asset-path    "_compiled/advanced-conditional-install"
+                                                   :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names  true
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
@@ -102,6 +104,7 @@
                                     :compiler     {:output-to     "resources/public/_compiled/advanced-no-install/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/advanced-no-install"
                                                    :asset-path    "_compiled/advanced-no-install"
+                                                   :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names  true
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
