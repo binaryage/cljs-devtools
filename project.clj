@@ -75,6 +75,34 @@
                                     :compiler     {:output-to     "resources/public/_compiled/demo_advanced/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/demo_advanced"
                                                    :asset-path    "_compiled/demo_advanced"
+                                                   :pseudo-names  true
+                                                   :optimizations :advanced}}}}}
+             ; --------------------------------------------------------------------------------------------------------------
+             :advanced-unconditional-install
+             {:cljsbuild {:builds {:advanced-unconditional-install
+                                   {:source-paths ["src/advanced-unconditional-install"]
+                                    :compiler     {:output-to     "resources/public/_compiled/advanced-unconditional-install/devtools_sample.js"
+                                                   :output-dir    "resources/public/_compiled/advanced-unconditional-install"
+                                                   :asset-path    "_compiled/advanced-unconditional-install"
+                                                   :pseudo-names  true
+                                                   :optimizations :advanced}}}}}
+             ; --------------------------------------------------------------------------------------------------------------
+             :advanced-conditional-install
+             {:cljsbuild {:builds {:advanced-unconditional-install
+                                   {:source-paths ["src/advanced-conditional-install"]
+                                    :compiler     {:output-to     "resources/public/_compiled/advanced-conditional-install/devtools_sample.js"
+                                                   :output-dir    "resources/public/_compiled/advanced-conditional-install"
+                                                   :asset-path    "_compiled/advanced-conditional-install"
+                                                   :pseudo-names  true
+                                                   :optimizations :advanced}}}}}
+             ; --------------------------------------------------------------------------------------------------------------
+             :advanced-no-install
+             {:cljsbuild {:builds {:advanced-unconditional-install
+                                   {:source-paths ["src/advanced-no-install"]
+                                    :compiler     {:output-to     "resources/public/_compiled/advanced-no-install/devtools_sample.js"
+                                                   :output-dir    "resources/public/_compiled/advanced-no-install"
+                                                   :asset-path    "_compiled/advanced-no-install"
+                                                   :pseudo-names  true
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :checkouts
@@ -106,22 +134,19 @@
 
   ; =========================================================================================================================
 
-  :aliases {"demo"            ["with-profile" "+demo,+figwheel"
-                               "do" "clean,"
-                               "figwheel"]
-            "cljs"            ["with-profile" "+demo"
-                               "do" "clean,"
-                               "cljsbuild" "auto"]
-            "demo-advanced"   ["with-profile" "+demo-advanced,+checkouts"
-                               "do" "clean,"
-                               "cljsbuild" "once"]
-            "dirac"           ["with-profile" "+demo,+figwheel"
-                               "do" "clean,"
-                               "figwheel"]
-            "piggieback"      ["with-profile" "+demo,+figwheel,-dev,+piggieback,+weasel"
-                               "do" "clean,"
-                               "figwheel"]
-            "piggieback-repl" ["with-profile" "+demo,+figwheel,-dev,+piggieback,+weasel"
-                               "repl"]
-            "debug"           ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel"
-                               "figwheel"]})
+  :aliases {"demo"                           ["with-profile" "+demo,+figwheel" "figwheel"]
+            "cljs"                           ["with-profile" "+demo" "cljsbuild" "auto"]
+            "demo-advanced"                  ["with-profile" "+demo-advanced,+checkouts" "cljsbuild" "once"]
+            "dirac"                          ["with-profile" "+demo,+figwheel" "figwheel"]
+            "piggieback"                     ["with-profile" "+demo,+figwheel,-dev,+piggieback,+weasel" "figwheel"]
+            "piggieback-repl"                ["with-profile" "+demo,+figwheel,-dev,+piggieback,+weasel" "repl"]
+            "advanced-unconditional-install" ["with-profile" "+advanced-unconditional-install" "cljsbuild" "once"]
+            "advanced-conditional-install"   ["with-profile" "+advanced-conditional-install" "cljsbuild" "once"]
+            "advanced-no-install"            ["with-profile" "+advanced-no-install" "cljsbuild" "once"]
+            "advanced-compare"               ["do"
+                                              "clean,"
+                                              "advanced-unconditional-install,"
+                                              "advanced-conditional-install,"
+                                              "advanced-no-install,"
+                                              "shell" "scripts/compare-advanced-builds.sh"]
+            "debug"                          ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel" "figwheel"]})
