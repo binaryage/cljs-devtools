@@ -9,7 +9,7 @@ NO_INSTALL_OUTPUT="$COMPILED_PATH/advanced-no-install/devtools_sample.js"
 
 function keywords {
   echo "     file: $1"
-  cat "$1" | perl -pe 's/\$\$/\$\$\n/g' | grep -o 'devtools\$.*' | sort | uniq -c
+  cat "$1" | perl -pe 's/(\$|\d+)\$/\1\$\n/g' | grep -o 'devtools\$.*' | sort | uniq -c
 }
 
 echo "no-install:"
