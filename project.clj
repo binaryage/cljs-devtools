@@ -12,7 +12,7 @@
 
   ;:jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
 
-  :plugins [[lein-cljsbuild "1.1.1"]
+  :plugins [[lein-cljsbuild "1.1.3"]
             [lein-figwheel "0.5.1"]
             [lein-shell "0.5.0"]
             [lein-environ "1.0.2"]]
