@@ -1,4 +1,4 @@
-(defproject binaryage/devtools "0.5.4"
+(defproject binaryage/devtools "0.5.5-SNAPSHOT"
   :description "Chrome DevTools utilities for ClojureScript"
   :url "https://github.com/binaryage/cljs-devtools"
   :license {:name         "MIT License"
