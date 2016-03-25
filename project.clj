@@ -15,13 +15,13 @@
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/_compiled"]
 
-  :plugins [[lein-cljsbuild "1.1.2"]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-shell "0.5.0"]]
+
   :hooks [leiningen.cljsbuild]
 
   :source-paths ["src"]
   :test-paths ["test/src/test"]
-
-  :aliases {"test" ["with-profile" "test" "test"]}
 
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
 
@@ -34,24 +34,33 @@
                                                    :optimizations :none
                                                    :source-map    true}}}}}
 
-             :test
-             {:cljsbuild {:builds        {:tests
-                                          {:source-paths ["src"
-                                                          "test/src/tests"]
-                                           :compiler     {:output-to     "test/resources/_compiled/tests/build.js"
-                                                          :output-dir    "test/resources/_compiled/tests"
-                                                          :asset-path    "_compiled/tests"
-                                                          :main          devtools.runner
-                                                          :optimizations :none
-                                                          :pretty-print  true
-                                                          :source-map    true}}
-                                          :dead-code-elimination
-                                          {:source-paths ["src"
-                                                          "test/src/dead-code-elimination"]
-                                           :compiler     {:output-to       "test/resources/_compiled/dead-code-elimination/build.js"
-                                                          :output-dir      "test/resources/_compiled/dead-code-elimination"
-                                                          :asset-path      "_compiled/dead-code-elimination"
-                                                          :closure-defines {"goog.DEBUG" false}
-                                                          :pseudo-names    true
-                                                          :optimizations   :advanced}}}
-                          :test-commands {"unit" ["phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]}}}})
+             :testing
+             {:cljsbuild {:builds {:tests
+                                   {:source-paths ["src"
+                                                   "test/src/tests"]
+                                    :compiler     {:output-to     "test/resources/_compiled/tests/build.js"
+                                                   :output-dir    "test/resources/_compiled/tests"
+                                                   :asset-path    "_compiled/tests"
+                                                   :main          devtools.runner
+                                                   :optimizations :none
+                                                   :pretty-print  true
+                                                   :source-map    true}}
+                                   :dead-code-elimination
+                                   {:source-paths ["src"
+                                                   "test/src/dead-code-elimination"]
+                                    :compiler     {:output-to       "test/resources/_compiled/dead-code-elimination/build.js"
+                                                   :output-dir      "test/resources/_compiled/dead-code-elimination"
+                                                   :asset-path      "_compiled/dead-code-elimination"
+                                                   :closure-defines {"goog.DEBUG" false}
+                                                   :pseudo-names    true
+                                                   :optimizations   :advanced}}}}}}
+
+  :aliases {"test"           ["do"
+                              "test-phantom,"
+                              "test-dead-code"]
+            "test-dead-code" ["do"
+                              "with-profile" "+testing" "cljsbuild" "once" "dead-code-elimination,"
+                              "shell" "test/scripts/dead-code-check.sh"]
+            "test-phantom"   ["do"
+                              "with-profile" "+testing" "cljsbuild" "once" "tests,"
+                              "shell" "phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]})
