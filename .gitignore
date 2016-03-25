@@ -4,4 +4,4 @@ target/
 .lein*
 pom.xml.*
 .idea
-test/_generated
+test/resources/_compiled

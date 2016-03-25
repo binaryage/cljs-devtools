@@ -1,4 +1,4 @@
-(ns devtools.test.prefs
+(ns devtools.tests.prefs
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll]]
             [devtools.format :refer [surrogate?]]

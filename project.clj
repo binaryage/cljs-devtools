@@ -13,13 +13,13 @@
                  [environ "1.0.1"]]
 
   :clean-targets ^{:protect false} ["target"
-                                    "test/_generated"]
+                                    "test/resources/_compiled"]
 
   :plugins [[lein-cljsbuild "1.1.2"]]
   :hooks [leiningen.cljsbuild]
 
   :source-paths ["src"]
-  :test-paths ["test"]
+  :test-paths ["test/src/test"]
 
   :aliases {"test" ["with-profile" "test" "test"]}
 
@@ -27,28 +27,31 @@
 
   :profiles {:devel
              {:cljsbuild {:builds {:devel
-                                   {:source-paths ["src", "src-debug"]
+                                   {:source-paths ["src"
+                                                   "src-debug"]
                                     :compiler     {:output-to     "target/devel/cljs_devtools.js"
                                                    :output-dir    "target/devel"
                                                    :optimizations :none
                                                    :source-map    true}}}}}
 
-             :release
-             {:cljsbuild {:builds {:release
-                                   {:source-paths ["src"]
-                                    :compiler     {:output-to     "target/release/cljs_devtools.min.js"
-                                                   :output-dir    "target/release"
-                                                   :optimizations :advanced
-                                                   :source-map    "out/prod/cljs_devtools.min.js.map"}}}}}
-
              :test
-             {:cljsbuild {:builds        {:test
-                                          {:source-paths ["src", "test"]
-                                           :compiler     {:output-to     "test/_generated/cljs_devtools.test.js"
-                                                          :output-dir    "test/_generated"
+             {:cljsbuild {:builds        {:tests
+                                          {:source-paths ["src"
+                                                          "test/src/tests"]
+                                           :compiler     {:output-to     "test/resources/_compiled/tests/build.js"
+                                                          :output-dir    "test/resources/_compiled/tests"
+                                                          :asset-path    "_compiled/tests"
                                                           :main          devtools.runner
-                                                          :asset-path    "_generated"
                                                           :optimizations :none
                                                           :pretty-print  true
-                                                          :source-map    true}}}
-                          :test-commands {"unit" ["phantomjs" "test/phantom.js" "test/runner.html"]}}}})
+                                                          :source-map    true}}
+                                          :dead-code-elimination
+                                          {:source-paths ["src"
+                                                          "test/src/dead-code-elimination"]
+                                           :compiler     {:output-to       "test/resources/_compiled/dead-code-elimination/build.js"
+                                                          :output-dir      "test/resources/_compiled/dead-code-elimination"
+                                                          :asset-path      "_compiled/dead-code-elimination"
+                                                          :closure-defines {"goog.DEBUG" false}
+                                                          :pseudo-names    true
+                                                          :optimizations   :advanced}}}
+                          :test-commands {"unit" ["phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]}}}})

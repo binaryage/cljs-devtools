@@ -1,9 +1,11 @@
 (ns devtools.runner
-  (:require [cljs.test :as test :refer-macros [run-tests] :refer [report inc-report-counter! testing-vars-str get-current-env testing-contexts-str]]
-            [devtools.test.custom-formatters]
-            [devtools.test.format]
-            [devtools.test.prefs]
-            [devtools.test.cljs]))
+  (:require [cljs.test :as test
+             :refer-macros [run-tests]
+             :refer [report inc-report-counter! testing-vars-str get-current-env testing-contexts-str]]
+            [devtools.tests.custom-formatters]
+            [devtools.tests.format]
+            [devtools.tests.prefs]
+            [devtools.tests.cljs]))
 
 (enable-console-print!)
 
@@ -60,7 +62,7 @@
 
 (defmethod report [::test/default :summary] [m]
   (println "\nRan" (:test m) "tests containing"
-    (+ (:pass m) (:fail m) (:error m)) "assertions.")
+           (+ (:pass m) (:fail m) (:error m)) "assertions.")
   (println (:fail m) "failures," (:error m) "errors.")
   (aset js/window "test-failures" (+ (:fail m) (:error m))))
 
@@ -96,7 +98,7 @@
 
 (test/run-tests
   (cljs.test/empty-env ::test/default)
-  'devtools.test.cljs
-  'devtools.test.custom-formatters
-  'devtools.test.format
-  'devtools.test.prefs)
+  'devtools.tests.cljs
+  'devtools.tests.custom-formatters
+  'devtools.tests.format
+  'devtools.tests.prefs)

@@ -1,4 +1,4 @@
-(ns devtools.test.format
+(ns devtools.tests.format
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                        ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is]]
@@ -71,7 +71,7 @@
     (is-header ::auto-namespaced-keyword
       ["span" {"style" :cljs-style}
        ["span" {"style" :header-style}
-        ["span" {"style" :keyword-style} ":devtools.test.format/auto-namespaced-keyword"]]])
+        ["span" {"style" :keyword-style} ":devtools.tests.format/auto-namespaced-keyword"]]])
     (is-header :devtools/fully-qualified-keyword
       ["span" {"style" :cljs-style}
        ["span" {"style" :header-style}

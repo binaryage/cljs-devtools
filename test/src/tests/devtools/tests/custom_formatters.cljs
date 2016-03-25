@@ -1,4 +1,4 @@
-(ns devtools.test.custom-formatters
+(ns devtools.tests.custom-formatters
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.custom-formatters :as cf]))
 
