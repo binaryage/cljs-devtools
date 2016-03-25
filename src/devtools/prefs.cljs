@@ -1,11 +1,8 @@
 (ns devtools.prefs
-  (:require [clojure.string :as str]))
+  (:require-macros [devtools.prefs :refer [color-with-opacity]]))
 
 (def ^:const signature-color "rgba(100, 255, 100, 1);")
 (def ^:const string-color "rgba(255, 100, 100, 1);")
-
-(defn color-with-opacity [color opacity]
-  (str/replace color "1);" (str opacity ");")))
 
 (def signature-background (color-with-opacity signature-color 0.08))
 (def body-border-color (color-with-opacity signature-color 0.4))
