@@ -23,9 +23,9 @@
 (defn ^:dynamic available? []
   (and (ua/isChrome) (ua/isVersionOrHigher 47)))                                                                              ; Chrome 47+
 
-(defonce ^:dynamic *installed?* false)
+(def ^:dynamic *installed?* false)
 
-(defonce api-version 2)                                                                                                       ; internal API version
+(def api-version 2)                                                                                                           ; internal API version
 
 (def default-config
   {:agent-host                                  "localhost"
@@ -43,7 +43,7 @@
    :context-availablity-next-trial-waiting-time 10
    :eval-time-limit                             10000})
 
-(defonce static-config (gen-config))                                                                                          ; this config is comming from environment and system properties
+(def static-config (gen-config))                                                                                              ; this config is comming from environment and system properties
 
 ; keep in mind that we want to avoid any state at all
 ; javascript running this code can be reloaded anytime, same with devtools front-end
