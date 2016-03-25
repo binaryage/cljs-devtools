@@ -112,31 +112,31 @@
 
 ; -- public API -------------------------------------------------------------------------------------------------------------
 
-(defn ^:export get-effective-config []
+(defn get-effective-config []
   (clj->js (build-effective-config default-config static-config)))
 
-(defn ^:export get-api-version []
+(defn get-api-version []
   api-version)
 
-(defn ^:export present-repl-result
+(defn present-repl-result
   "Called by our nREPL boilerplate when we capture REPL evaluation result."
   [request-id value]
   (log request-id "result" value)
   value)
 
-(defn ^:export present-repl-exception
+(defn present-repl-exception
   "Called by our nREPL boilerplate when we capture REPL evaluation exception."
   [request-id exception]
   (error request-id "exception" exception))
 
-(defn ^:export present-in-dirac-repl [request-id value]
+(defn present-in-dirac-repl [request-id value]
   (try
     (js/devtools.dirac.present_repl_result request-id value)
     (catch :default e
       (js/devtools.dirac.present_repl_exception request-id e)
       (throw e))))
 
-(defn ^:export present-output [request-id kind text]
+(defn present-output [request-id kind text]
   (case kind
     "java-trace" (present-java-trace request-id text)
     (if-let [warning-msg (detect-and-strip "WARNING:" text)]
@@ -145,7 +145,7 @@
         (error request-id "error" error-msg)
         (log request-id kind text)))))
 
-(defn ^:export postprocess-successful-eval
+(defn postprocess-successful-eval
   "This is a postprocessing function wrapping weasel javascript evaluation attempt.
   This structure is needed for building response to nREPL server (see dirac.implant.weasel in Dirac project)
   In our case weasel is running in the context of Dirac DevTools and could potentially have different version of cljs runtime.
@@ -159,7 +159,7 @@
     #js {:status "success"
          :value  (str value)}))
 
-(defn ^:export postprocess-unsuccessful-eval [ex]
+(defn postprocess-unsuccessful-eval [ex]
   "Same as postprocess-successful-eval but prepares response for evaluation attempt with exception."
   #js {:status     "exception"
        :value      (pr-str ex)
@@ -169,15 +169,15 @@
 
 ; -- install/uninstall ------------------------------------------------------------------------------------------------------
 
-(defn ^:export installed? []
+(defn installed? []
   *installed?*)
 
-(defn ^:export install! []
+(defn install! []
   (when (and (not (installed?)) (available?))
     (brepl/bootstrap)
     (set! *installed?* true)
     true))
 
-(defn ^:export uninstall! []
+(defn uninstall! []
   (when (installed?)
     (set! *installed?* false)))
