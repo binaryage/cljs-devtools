@@ -29,11 +29,24 @@
 ;
 ; note: Tested under Chrome only
 
-(defonce ^:dynamic *installed?* false)
-(defonce ^:dynamic *original-global-error-handler* nil)
-(defonce ^:dynamic *original-type-error-prototype-to-string* nil)
+(def ^:dynamic *installed?* false)
+(def ^:dynamic *original-global-error-handler* nil)
+(def ^:dynamic *original-type-error-prototype-to-string* nil)
 
-(defonce *processed-errors* (if (exists? js/WeakSet) (js/WeakSet.)))                                                          ; note: phantomjs does not have WeakSet yet
+(def processed-errors (volatile! nil))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
+(defn set-processed-errors! [val]
+  (vreset! processed-errors val))
+
+(defn get-processed-errors! []
+  (if-let [val @processed-errors]
+    val
+    (if (exists? js/WeakSet)
+      (set-processed-errors! (js/WeakSet.)))))
+
+; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn empty-as-nil [str]
   (if (empty? str) nil str))
@@ -91,9 +104,9 @@
       false)))
 
 (defn type-error-to-string [self]
-  (if *processed-errors*
-    (when-not (.has *processed-errors* self)
-      (.add *processed-errors* self)
+  (if-let [seen-errors (get-processed-errors!)]
+    (when-not (.has seen-errors self)
+      (.add seen-errors self)
       (when-let [sense (error-object-sense self)]
         (set! (.-message self) (str (.-message self) ", a sanity hint:\n" sense)))))                                          ; this is dirty, patch message field before it gets used
   (.call *original-type-error-prototype-to-string* self))
@@ -113,6 +126,8 @@
   (let [prototype (.-prototype js/TypeError)]
     (set! *original-type-error-prototype-to-string* (.-toString prototype))
     (set! (.-toString prototype) #(this-as self (type-error-to-string self)))))                                               ; work around http://dev.clojure.org/jira/browse/CLJS-1545
+
+; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn install! []
   (when (and (not *installed?*) (available?))
