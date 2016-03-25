@@ -10,8 +10,7 @@ pom.xml
 .lein-repl-history
 .lein-plugins/
 .repl*
-/checkouts/
-/checkouts_/
+/checkouts*
 /resources/public/_compiled
 .idea
 *.iml
