@@ -89,7 +89,7 @@
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :advanced-conditional-install
-             {:cljsbuild {:builds {:advanced-unconditional-install
+             {:cljsbuild {:builds {:advanced-conditional-install
                                    {:source-paths ["src/advanced-conditional-install"]
                                     :compiler     {:output-to     "resources/public/_compiled/advanced-conditional-install/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/advanced-conditional-install"
@@ -99,7 +99,7 @@
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :advanced-no-install
-             {:cljsbuild {:builds {:advanced-unconditional-install
+             {:cljsbuild {:builds {:advanced-no-install
                                    {:source-paths ["src/advanced-no-install"]
                                     :compiler     {:output-to     "resources/public/_compiled/advanced-no-install/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/advanced-no-install"
