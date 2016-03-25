@@ -1,14 +1,10 @@
-(ns devtools.prefs
-  (:require-macros [devtools.prefs :refer [color-with-opacity]]))
+(ns devtools.prefs)
 
-(def ^:const signature-color "rgba(100, 255, 100, 1);")
-(def ^:const string-color "rgba(255, 100, 100, 1);")
+(def signature-background "rgba(100, 255, 100, 0.08)")
+(def body-border-color "rgba(100, 255, 100, 0.4)")
 
-(def signature-background (color-with-opacity signature-color 0.08))
-(def body-border-color (color-with-opacity signature-color 0.4))
-
-(def string-background (color-with-opacity string-color 0.08))
-(def string-border-color (color-with-opacity string-color 0.4))
+(def string-background "rgba(255, 100, 100, 0.08)")
+(def string-border-color "rgba(255, 100, 100, 0.4)")
 
 (def default-prefs
   {:install-custom-formatters        true                                                                                     ; the only feature enabled by default
