@@ -1,4 +1,4 @@
-# cljs-devtools [![GitHub license](https://img.shields.io/github/license/binaryage/cljs-devtools.svg)](license.txt) [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools) [![Travis](https://img.shields.io/travis/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools)
+# cljs-devtools [![GitHub license](https://img.shields.io/github/license/binaryage/cljs-devtools.svg)](license.txt) [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools) [![Travis](https://img.shields.io/travis/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) [![Sample Project](https://img.shields.io/badge/project-example-ff69b4.svg)](https://github.com/binaryage/cljs-devtools-sample)
 
 * Better presentation of ClojureScript values in Chrome DevTools (custom formatters)
 * More informative exceptions (sanity hints)
