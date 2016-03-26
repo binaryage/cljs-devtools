@@ -7,9 +7,7 @@
 (def string-border-color "rgba(255, 100, 100, 0.4)")
 
 (def default-prefs
-  {:install-custom-formatters        true                                                                                     ; the only feature enabled by default
-   :install-sanity-hints             false
-   :sanity-hint-min-length           128
+  {:sanity-hint-min-length           128
    :max-print-level                  2
    :body-line-max-print-level        3
    :max-header-elements              5

@@ -1,15 +1,12 @@
 (ns devtools.util
   (:require [devtools.prefs :as prefs]))
 
-(defn feature-for-display [known-features feature]
-  (let [feature-installation-key (feature known-features)
-        enabled? (prefs/pref feature-installation-key)
-        color (if enabled? "color:#0000ff" "color:#aaaaaa")]
-    ["%c%s" [color (name feature)]]))
+(defn feature-for-display [installed-features feature]
+  (let [color (if (some #{feature} installed-features) "color:#0000ff" "color:#ccc")]
+    ["%c%s" [color (str feature)]]))
 
-(defn feature-list-display [known-features]
-  (let [features (keys known-features)
-        labels (map (partial feature-for-display known-features) features)
+(defn feature-list-display [installed-features known-features]
+  (let [labels (map (partial feature-for-display installed-features) known-features)
         * (fn [accum val]
             [(str (first accum) " " (first val))
              (concat (second accum) (second val))])]
@@ -18,7 +15,7 @@
 (defn log-info [& args]
   (.apply (.-info js/console) js/console (to-array args)))
 
-(defn display-banner [prefix known-features]
+(defn display-banner [prefix installed-features known-features]
   (when-not (prefs/pref :dont-display-banner)
-    (let [[fmt-str params] (feature-list-display known-features)]
+    (let [[fmt-str params] (feature-list-display installed-features known-features)]
       (apply log-info (str prefix " " fmt-str) params))))

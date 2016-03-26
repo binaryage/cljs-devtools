@@ -23,18 +23,43 @@ Add devtools dependency into your Leiningen's `project.clj`
 
 [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools)
 
-To install it. You have to call `install!` from `devtools.core` namespace. Ideally run this as early as possible during
-launch time of your app.
+CLJS devtools is meant to be used only under development builds. You call `install!` it from `devtools.core` namespace.
+A good technique is to use an independent namespace and require it before your core namespace (but after goog/base.js):
 
 ```clojure
-(ns your-project.core
+(ns your-project.devtools
   (:require [devtools.core :as devtools]))
 
-; this enables additional features, :custom-formatters is enabled by default
-(devtools/enable-feature! :sanity-hints)
 (devtools/install!)
 
 (.log js/console (range 200))
+```
+
+Your dev index.html could look like this:
+
+```html
+<!doctype html>
+<html>
+<head>
+    <script src="compiled/goog/base.js" type="text/javascript"></script>
+    <script src="compiled/your_project.js" type="text/javascript"></script>
+</head>
+<body>
+<script>goog.require('your_project.devtools')</script>
+<script>goog.require('your_project.core')</script>
+...
+</body>
+</html>
+```
+
+This will ensure that `devtools/install!` is called before your normal code gets any chance to run. It does not rely on
+namespace dependencies where you cannot force exact ordering and it will work even if you happen to run side-effecting code
+during requiring your code or libraries (for example you are logging something to javascript console during namespace require).
+
+By default only `:custom-formatters` feature is installed. You can call `install!` with explicit list of features to enable.
+
+```clojure
+(devtools/install! [:custom-formatters :sanity-hints]) ; to enable all features
 ```
 
 Check out the **[sample project](https://github.com/binaryage/cljs-devtools-sample)**.
