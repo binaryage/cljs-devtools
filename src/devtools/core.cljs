@@ -2,13 +2,11 @@
   (:require [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.dirac :as dirac]
             [devtools.util :as util]
             [goog.userAgent :as ua]))
 
 (def known-features
   {:custom-formatters :install-custom-formatters
-   :dirac             :install-dirac-support
    :sanity-hints      :install-sanity-hints})
 
 (defn ^:dynamic missing-feature-warning [feature known-features]
@@ -29,16 +27,11 @@
   (if (prefs/pref :install-sanity-hints)
     (if (sanity-hints/available?)
       (sanity-hints/install!)
-      (warn-feature-not-available :sanity-hints)))
-  (if (prefs/pref :install-dirac-support)
-    (if (dirac/available?)
-      (dirac/install!)
-      (warn-feature-not-available :dirac))))
+      (warn-feature-not-available :sanity-hints))))
 
 (defn uninstall! []
   (custom-formatters/uninstall!)
-  (sanity-hints/uninstall!)
-  (dirac/uninstall!))
+  (sanity-hints/uninstall!))
 
 (defn set-prefs! [new-prefs]
   (prefs/set-prefs! new-prefs))
@@ -71,7 +64,6 @@
 (defn single-feature-available? [feature]
   (case feature
     :custom-formatters (custom-formatters/available?)
-    :dirac (dirac/available?)
     :sanity-hints (sanity-hints/available?)))
 
 (defn feature-available? [& features]

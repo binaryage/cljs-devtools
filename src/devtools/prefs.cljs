@@ -9,7 +9,6 @@
 (def default-prefs
   {:install-custom-formatters        true                                                                                     ; the only feature enabled by default
    :install-sanity-hints             false
-   :install-dirac-support            false
    :sanity-hint-min-length           128
    :max-print-level                  2
    :body-line-max-print-level        3
@@ -125,9 +124,7 @@
    :has-body-post-handler            nil
    :body-pre-handler                 nil
    :body-post-handler                nil
-   :java-trace-header-style          "color:red"
-   :dirac-print-level                1
-   :dirac-print-length               10})
+   :java-trace-header-style          "color:red"})
 
 (def ^:dynamic *prefs* default-prefs)
 
