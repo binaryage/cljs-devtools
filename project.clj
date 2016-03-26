@@ -63,4 +63,11 @@
                               "shell" "test/scripts/dead-code-check.sh"]
             "test-phantom"   ["do"
                               "with-profile" "+testing" "cljsbuild" "once" "tests,"
-                              "shell" "phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]})
+                              "shell" "phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]
+            "release"        ["do"
+                              "shell" "scripts/check-versions.sh,"
+                              "clean,"
+                              "test,"
+                              "jar,"
+                              "shell" "scripts/check-release.sh,"
+                              "deploy clojars"]})
