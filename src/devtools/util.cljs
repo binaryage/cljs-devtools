@@ -11,11 +11,3 @@
             [(str (first accum) " " (first val))
              (concat (second accum) (second val))])]
     (reduce * (first labels) (rest labels))))
-
-(defn log-info [& args]
-  (.apply (.-info js/console) js/console (to-array args)))
-
-(defn display-banner [prefix installed-features known-features]
-  (when-not (prefs/pref :dont-display-banner)
-    (let [[fmt-str params] (feature-list-display installed-features known-features)]
-      (apply log-info (str prefix " " fmt-str) params))))

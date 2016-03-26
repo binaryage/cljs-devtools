@@ -22,3 +22,8 @@
            target# ~(if (seq keys) `(devtools.util/oget ~obj-sym ~@keys) obj-sym)]
        (assert target# (str "unable to locate object path " ~keys " in " ~obj-sym))
        (goog.object/set target# (last ~ks) ~val))))
+
+(defmacro display-banner [installed-features known-features prefix-fmt & prefix-params]
+  `(when-not (devtools.prefs/pref :dont-display-banner)
+     (let [[fmt-str# params#] (feature-list-display ~installed-features ~known-features)]
+       (.apply (.-info js/console) js/console (into-array (concat [(str ~prefix-fmt " " fmt-str#) ~@prefix-params] params#))))))

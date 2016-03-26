@@ -1,15 +1,23 @@
 (ns devtools.core
-  (:require [devtools.prefs :as prefs]
+  (:require [devtools.version :refer [get-current-version]]
+            [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.util :as util]
+            [devtools.util :as util :refer-macros [display-banner]]
             [goog.userAgent :as ua]))
 
 (def known-features [:custom-formatters :sanity-hints])
-(def features-installed-by-default [:custom-formatters])
+(def features-to-install-by-default [:custom-formatters])
+
+(defn ^:dynamic make-version-info []
+  (let [version (get-current-version)]
+    (str "v" version)))
+
+(defn ^:dynamic make-lib-info []
+  (str "CLJS DevTools " (make-version-info)))
 
 (defn ^:dynamic missing-feature-warning [feature known-features]
-  (str "No such feature " feature " is currently available in CLJS devtools. "
+  (str "No such feature " feature " is currently available in " (make-lib-info) ". "
        "The list of supported features is " (pr-str known-features)))
 
 (defn ^:dynamic warn-feature-not-available [feature]
@@ -34,8 +42,12 @@
 (defn install!
   ([] (install! nil))
   ([features]
-   (let [features-to-install (or features features-installed-by-default)]
-     (util/display-banner "Installing CLJS devtools with enabled features" features-to-install known-features)
+   (let [features-to-install (or features features-to-install-by-default)
+         banner (str "Installing %c%s%c and enabling features")
+         lib-info (make-lib-info)
+         lib-info-style "color:black;font-weight:bold;"
+         reset-style "color:black"]
+     (display-banner features-to-install known-features banner lib-info-style lib-info reset-style)
      (if (some #{:custom-formatters} features-to-install)
        (if (is-feature-available? :custom-formatters)
          (custom-formatters/install!)
@@ -53,45 +65,45 @@
 
 (defn enable! []
   (.warn js/console (str "devtools.core/enable! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> remove the call")))
 
 (defn disable! []
   (.warn js/console (str "devtools.core/disable! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> remove the call")))
 
 (defn set-single-feature! [_feature _val]
   (.warn js/console (str "devtools.core/set-single-feature! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use (devtools.core/install! features) to install custom features")))
 
 (defn enable-single-feature! [_feature]
   (.warn js/console (str "devtools.core/enable-single-feature! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use (devtools.core/install! features) to install custom features")))
 
 (defn disable-single-feature! [_feature]
   (.warn js/console (str "devtools.core/disable-single-feature! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use (devtools.core/install! features) to install custom features")))
 
 (defn enable-feature! [& _features]
   (.warn js/console (str "devtools.core/enable-feature! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use (devtools.core/install! features) to install custom features")))
 
 (defn disable-feature! [& _features]
   (.warn js/console (str "devtools.core/disable-feature! was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use (devtools.core/install! features) to install custom features")))
 
 (defn single-feature-available? [_feature]
   (.warn js/console (str "devtools.core/single-feature-available? was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use devtools.core/is-feature-available? instead")))
 
 (defn feature-available? [& _features]
   (.warn js/console (str "devtools.core/feature-available? was removed "
-                         "and has no effect in current version of CLJS devtools "
+                         "and has no effect in " (make-lib-info) " "
                          "=> use devtools.core/is-feature-available? instead")))
