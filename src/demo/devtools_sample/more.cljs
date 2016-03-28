@@ -1,6 +1,7 @@
 (ns devtools-sample.more
   (:require-macros [devtools-sample.logging :refer [log]])
-  (:require [devtools.format :as format]))
+  (:require [devtools.format :as format]
+            [devtools.toolbox :as toolbox]))
 
 (deftype SomeType [some-field])
 
@@ -42,6 +43,12 @@
        "\n"
        "last line"))
 
+(def busy-obj
+  (js-obj
+    "a" 1
+    "s" "string"
+    "f" (fn some-fn [] (str "do" "something"))))
+
 (def state (atom []))
 
 (defn simple-fn [count]
@@ -61,7 +68,13 @@
   (log [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]])
   (log circular1)
   (log circular2)
-  (log (var v)))
+  (log (var v))
+  (log (toolbox/envelope (range 20)))
+  (log (toolbox/envelope js/window "win envelope with a custom header"))
+  (log (toolbox/envelope busy-obj
+                         "busy js-object envelope with a custom style"
+                         "color:white;background-color:purple;padding:0px 4px;"
+                         "div")))
 
 (defn fn-returns-nil [])
 
