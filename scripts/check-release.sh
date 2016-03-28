@@ -18,12 +18,14 @@ unzip -l "$JAR_FILE"
 echo "----------------------------"
 echo ""
 
-if [[ "$LEIN_VERSION" =~ SNAPSHOT ]]; then
+if [[ "$LEIN_VERSION" =~ "SNAPSHOT" ]]; then
   echo "Publishing SNAPSHOT versions is not allowed. Bump current version $LEIN_VERSION to a non-snapshot version."
   exit 2
 fi
 
-read -n 1 -r -p "Are you sure to publish version $LEIN_VERSION via 'lein publish clojars'? [Yy] "
+# http://stackoverflow.com/a/1885534/84283
+echo "Are you sure to publish version ${LEIN_VERSION}? [Yy]"
+read -n 1 -r
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
   exit 0
 else

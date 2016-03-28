@@ -70,4 +70,4 @@
                               "test,"
                               "jar,"
                               "shell" "scripts/check-release.sh,"
-                              "deploy clojars"]})
+                              "deploy" "clojars"]})
