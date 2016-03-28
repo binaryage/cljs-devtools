@@ -2,8 +2,6 @@
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools.format :as format]))
 
-(defn log [& args] (.apply (aget js/console "log") js/console (into-array args)))
-
 (deftype SomeType [some-field])
 
 (def test-interleaved #js {"js" true "nested" {:js false :nested #js {"js2" true "nested2" {:js2 false}}}})
