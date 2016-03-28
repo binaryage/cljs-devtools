@@ -46,6 +46,7 @@
    :standard-li-no-margin-style      "margin-left:0px"
    :spacer                           " "
    :span                             "span"
+   :div                              "div"
    :ol                               "ol"
    :li                               "li"
    :cljs-style                       (str "background-color:" signature-background ";")
@@ -122,7 +123,8 @@
    :has-body-post-handler            nil
    :body-pre-handler                 nil
    :body-post-handler                nil
-   :java-trace-header-style          "color:red"})
+   :java-trace-header-style          "color:red"
+   :default-envelope-header          "\uD83D\uDCE8"})
 
 (def ^:dynamic *prefs* default-prefs)
 

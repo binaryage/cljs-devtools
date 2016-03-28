@@ -297,6 +297,9 @@
       (template :span :body-style result)
       result)))
 
+(defn standard-reference [target]
+  (template :ol :standard-ol-style (template :li :standard-li-style (reference target))))
+
 (defn build-surrogate-body [value]
   (if-let [body-template (aget value "bodyTemplate")]
     body-template
@@ -304,7 +307,7 @@
       (if (seqable? target)
         (let [starting-index (or (aget value "startingIndex") 0)]
           (build-body target starting-index))
-        (template :ol :standard-ol-style (template :li :standard-li-style (reference target)))))))
+        (standard-reference target)))))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API
