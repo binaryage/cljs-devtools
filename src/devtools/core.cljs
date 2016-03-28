@@ -40,10 +40,9 @@
     :sanity-hints (sanity-hints/available?)))
 
 (defn install!
-  ([] (install! nil))
-  ([features]
-   (let [features-to-install (or features features-to-install-by-default)
-         banner (str "Installing %c%s%c and enabling features")
+  ([] (install! features-to-install-by-default))
+  ([features-to-install]
+   (let [banner (str "Installing %c%s%c and enabling features")
          lib-info (make-lib-info)
          lib-info-style "color:black;font-weight:bold;"
          reset-style "color:black"]
