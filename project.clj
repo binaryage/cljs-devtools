@@ -32,34 +32,6 @@
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
 
   :profiles {; --------------------------------------------------------------------------------------------------------------
-             :dev
-             {:dependencies [[binaryage/dirac "0.1.3"]]
-              :repl-options {:port             8230
-                             :nrepl-middleware [dirac.nrepl.middleware/dirac-repl]
-                             :init             (do
-                                                 (require 'dirac.agent)
-                                                 (dirac.agent/boot!))}}
-
-             ; --------------------------------------------------------------------------------------------------------------
-             ; reference piggieback + weasel configuration
-             :piggieback
-             {:dependencies [[org.clojure/tools.nrepl "0.2.12"]
-                             [com.cemerick/piggieback "0.2.1"]
-                             [weasel "0.7.0" :exclusions [org.clojure/clojurescript]]]
-              :repl-options {:port             8530
-                             :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
-                             :init             (do
-                                                 (require 'weasel.repl.websocket)
-                                                 (import '(java.util TimerTask Timer))
-                                                 (let [repl-env (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001)
-                                                       start-repl (fn [] (cemerick.piggieback/cljs-repl repl-env))
-                                                       print-usage (fn [] (println "copy&paste this:\n(cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"0.0.0.0\" :port 9001))"))
-                                                       task (proxy [TimerTask] [] (run []                                     ; http://stackoverflow.com/a/16385066/84283
-                                                                                    (print-usage)
-                                                                                    #_(start-repl)))]                         ; doesn't work for some reason
-                                                   (. (new Timer) (schedule task (long 2000)))))}}
-
-             ; --------------------------------------------------------------------------------------------------------------
              :demo
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["src/demo"]
@@ -114,20 +86,12 @@
 
              ; --------------------------------------------------------------------------------------------------------------
              :debug
-             {:env {:devtools-debug       "true"
-                    :dirac-weasel-verbose "true"
-                    :dirac-agent-verbose  "true"}}
+             {:env {:devtools-debug "true"}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
              {:cljsbuild {:builds {:demo
                                    {:figwheel true}}}}
-
-             ; --------------------------------------------------------------------------------------------------------------
-             :weasel
-             {:env       {:devtools-weasel "true"}
-              :cljsbuild {:builds {:demo
-                                   {:source-paths ["src/weasel"]}}}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :devel
@@ -139,10 +103,8 @@
 
   :aliases {"demo"                           ["with-profile" "+demo,+figwheel" "figwheel"]
             "cljs"                           ["with-profile" "+demo" "cljsbuild" "auto"]
-            "demo-advanced"                  ["with-profile" "+demo-advanced,+checkouts" "cljsbuild" "once"]
+            "demo-advanced"                  ["with-profile" "+demo-advanced,+checkouts""cljsbuild" "once"]
             "dirac"                          ["with-profile" "+demo,+figwheel" "figwheel"]
-            "piggieback"                     ["with-profile" "+demo,+figwheel,-dev,+piggieback,+weasel" "figwheel"]
-            "piggieback-repl"                ["with-profile" "+demo,+figwheel,-dev,+piggieback,+weasel" "repl"]
             "advanced-unconditional-install" ["with-profile" "+advanced-unconditional-install" "cljsbuild" "once"]
             "advanced-conditional-install"   ["with-profile" "+advanced-conditional-install" "cljsbuild" "once"]
             "advanced-no-install"            ["with-profile" "+advanced-no-install" "cljsbuild" "once"]

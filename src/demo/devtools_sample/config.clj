@@ -3,6 +3,3 @@
 
 (defmacro debug? []
   (boolean (env :devtools-debug)))
-
-(defmacro weasel? []
-  (boolean (env :devtools-weasel)))
