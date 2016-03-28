@@ -26,16 +26,21 @@
 ; reify with IDevtoolsFormat
 (def test-reify (reify
                   format/IDevtoolsFormat
-                  (-header [_] (format/template "span" "color:white; background-color:brown; padding: 0px 4px" "testing reify"))
+                  (-header [_] (format/template "span"
+                                                "color:white; background-color:brown; padding: 0px 4px"
+                                                "testing reify"))
                   (-has-body [_] false)
                   (-body [_])))
 
 (def long-string
-  "First line
-second line
-third line is really looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong looooooooooooooooooooooooooooooooooooooooooooooooooooooooong
-
-last line")
+  (str "First line\n"
+       "second line\n"
+       "third line is really "
+       "looooooooooooooooooooooooooooooooooooooooooooooooooooooooong "
+       "looooooooooooooooooooooooooooooooooooooooooooooooooooooooong "
+       "looooooooooooooooooooooooooooooooooooooooooooooooooooooooong \n"
+       "\n"
+       "last line"))
 
 (def state (atom []))
 
