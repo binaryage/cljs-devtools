@@ -1,5 +1,5 @@
 (ns devtools.util
-  (:require [devtools.prefs :as prefs]))
+  (:require [devtools.prefs]))
 
 (defn feature-for-display [installed-features feature]
   (let [color (if (some #{feature} installed-features) "color:#0000ff" "color:#ccc")]

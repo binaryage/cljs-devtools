@@ -3,7 +3,7 @@
             [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.util :as util :refer-macros [display-banner]]
+            [devtools.util :refer-macros [display-banner]]
             [goog.userAgent :as ua]))
 
 (def known-features [:custom-formatters :sanity-hints])
