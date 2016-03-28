@@ -32,6 +32,5 @@
     (log "devtools-sample: enabled debug mode")
     (set! custom-formatters/*monitor-enabled* true)
     (set! custom-formatters/*sanitizer-enabled* false))
-  (devtools/enable-feature! :dirac :sanity-hints)
-  (devtools/install!)
+  (devtools/install! [:custom-formatters :sanity-hints])
   (fetch-source-code))
