@@ -17,6 +17,6 @@
   ([obj header style tag]
    (reify
      format/IDevtoolsFormat
-     (-header [_] (format/template tag style header))
+     (-header [_] (format/template tag style (if (fn? header) (header obj) header)))
      (-has-body [_] true)
      (-body [_] (format/standard-reference obj)))))
