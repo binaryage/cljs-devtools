@@ -8,8 +8,6 @@
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.39"]
                  [environ "1.0.2"]
-
-  ;:jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
                  [figwheel "0.5.2"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
@@ -19,13 +17,12 @@
 
   ; =========================================================================================================================
 
-  :figwheel {:server-port    7000
-             :server-logfile ".figwheel_server.log"}
-
   :source-paths ["src"]
 
   :clean-targets ^{:protect false} ["resources/public/_compiled"
                                     "target"]
+
+  :checkout-deps-shares ^:replace []                                                                                          ; http://jakemccrary.com/blog/2015/03/24/advanced-leiningen-checkouts-configuring-what-ends-up-on-your-classpath/
 
   ; =========================================================================================================================
 
@@ -81,8 +78,13 @@
                                                    :optimizations   :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :checkouts
-             {:cljsbuild {:builds {:demo
-                                   {:source-paths ["checkouts/cljs-devtools/src"]}}}}
+             {:checkout-deps-shares ^:replace [:source-paths
+                                               :test-paths
+                                               :resource-paths
+                                               :compile-path
+                                               #=(eval leiningen.core.classpath/checkout-deps-paths)]
+              :cljsbuild            {:builds {:demo
+                                              {:source-paths ["checkouts/cljs-devtools/src"]}}}}
 
              ; --------------------------------------------------------------------------------------------------------------
              :debug
@@ -90,7 +92,9 @@
 
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
-             {:cljsbuild {:builds {:demo
+             {:figwheel  {:server-port    7000
+                          :server-logfile ".figwheel_server.log"}
+              :cljsbuild {:builds {:demo
                                    {:figwheel true}}}}
 
              ; --------------------------------------------------------------------------------------------------------------
@@ -101,17 +105,28 @@
 
   ; =========================================================================================================================
 
-  :aliases {"demo"                           ["with-profile" "+demo,+figwheel" "figwheel"]
-            "cljs"                           ["with-profile" "+demo" "cljsbuild" "auto"]
-            "demo-advanced"                  ["with-profile" "+demo-advanced,+checkouts""cljsbuild" "once"]
-            "dirac"                          ["with-profile" "+demo,+figwheel" "figwheel"]
-            "advanced-unconditional-install" ["with-profile" "+advanced-unconditional-install" "cljsbuild" "once"]
-            "advanced-conditional-install"   ["with-profile" "+advanced-conditional-install" "cljsbuild" "once"]
-            "advanced-no-install"            ["with-profile" "+advanced-no-install" "cljsbuild" "once"]
+  :aliases {"demo"                           ["with-profile" "+demo,+figwheel"
+                                              "figwheel"]
+            "demo-advanced"                  ["with-profile" "+demo-advanced" "do"
+                                              "cljsbuild" "once,"
+                                              "shell" "scripts/dev-server.sh"]
+            "cljs"                           ["with-profile" "+demo"
+                                              "cljsbuild" "auto"]
+            "present"                        ["with-profile" "+demo"
+                                              "do"
+                                              "cljsbuild" "once,"
+                                              "shell" "scripts/dev-server.sh"]
+            "advanced-unconditional-install" ["with-profile" "+advanced-unconditional-install"
+                                              "cljsbuild" "once"]
+            "advanced-conditional-install"   ["with-profile" "+advanced-conditional-install"
+                                              "cljsbuild" "once"]
+            "advanced-no-install"            ["with-profile" "+advanced-no-install"
+                                              "cljsbuild" "once"]
             "advanced-compare"               ["do"
                                               "clean,"
                                               "advanced-unconditional-install,"
                                               "advanced-conditional-install,"
                                               "advanced-no-install,"
                                               "shell" "scripts/compare-advanced-builds.sh"]
-            "debug"                          ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel" "figwheel"]})
+            "debug"                          ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel"
+                                              "figwheel"]})
