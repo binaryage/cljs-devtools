@@ -2,8 +2,8 @@
 
 A collection of Chrome DevTools enhancements for ClojureScript developers:
 
-  * Better presentation of ClojureScript values in Chrome DevTools (`:custom-formatters`)
-  * More informative exceptions (`:sanity-hints`)
+  * Better presentation of ClojureScript values in Chrome DevTools
+  * More informative exceptions
 
 ### Documentation
 
