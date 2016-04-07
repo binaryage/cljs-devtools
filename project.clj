@@ -85,21 +85,16 @@
                                                #=(eval leiningen.core.classpath/checkout-deps-paths)]
               :cljsbuild            {:builds {:demo
                                               {:source-paths ["checkouts/cljs-devtools/src"]}}}}
-
-             ; --------------------------------------------------------------------------------------------------------------
-             :debug
-             {:env {:devtools-debug "true"}}
-
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
              {:figwheel  {:server-port    7000
                           :server-logfile ".figwheel_server.log"}
               :cljsbuild {:builds {:demo
                                    {:figwheel true}}}}
-
              ; --------------------------------------------------------------------------------------------------------------
              :devel
-             {:cljsbuild {:builds {:demo
+             {:env       {:devtools-debug "true"}
+              :cljsbuild {:builds {:demo
                                    {:source-paths ["src/debug"
                                                    "checkouts/cljs-devtools/src-debug"]}}}}}
 
@@ -128,5 +123,5 @@
                                               "advanced-conditional-install,"
                                               "advanced-no-install,"
                                               "shell" "scripts/compare-advanced-builds.sh"]
-            "debug"                          ["with-profile" "+demo,+checkouts,+devel,+debug,+figwheel"
+            "devel"                          ["with-profile" "+demo,+checkouts,+devel,+figwheel"
                                               "figwheel"]})
