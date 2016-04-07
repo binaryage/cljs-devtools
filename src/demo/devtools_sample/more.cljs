@@ -71,6 +71,7 @@
   (log (var v))
   (log (toolbox/envelope (range 20)))
   (log (toolbox/envelope js/window "win envelope with a custom header"))
+  (log (toolbox/envelope "hello!" #(str "envelope with a custom header function, the wrapped value is '" % "'")))
   (log (toolbox/envelope busy-obj
                          "busy js-object envelope with a custom style"
                          "color:white;background-color:purple;padding:0px 4px;"
