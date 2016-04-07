@@ -8,12 +8,12 @@
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.39"]
                  [environ "1.0.2"]
-                 [figwheel "0.5.1"]]
 
   ;:jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
+                 [figwheel "0.5.2"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-figwheel "0.5.1"]
+            [lein-figwheel "0.5.2"]
             [lein-shell "0.5.0"]
             [lein-environ "1.0.2"]]
 
