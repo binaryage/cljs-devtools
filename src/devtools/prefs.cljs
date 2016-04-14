@@ -123,7 +123,6 @@
    :has-body-post-handler            nil
    :body-pre-handler                 nil
    :body-post-handler                nil
-   :java-trace-header-style          "color:red"
    :default-envelope-header          "\uD83D\uDCE8"})
 
 (def ^:dynamic *prefs* default-prefs)
