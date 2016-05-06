@@ -75,7 +75,16 @@
   (log (toolbox/envelope busy-obj
                          "busy js-object envelope with a custom style"
                          "color:white;background-color:purple;padding:0px 4px;"
-                         "div")))
+                         "div"))
+
+  ; see https://github.com/binaryage/cljs-devtools/issues/14#issuecomment-217485305
+  (.log js/console {:value "b"
+                    :map {:some-key "some-val"}
+                    :vec [{:1 "1-val"
+                           :2 "2-val"
+                           :3 {:3-val-k "3-val"}
+                           ;; :4 (range 0 20)
+                           }]}))
 
 (defn fn-returns-nil [])
 
