@@ -127,7 +127,10 @@
     (set! *original-type-error-prototype-to-string* (.-toString prototype))
     (set! (.-toString prototype) #(this-as self (type-error-to-string self)))))                                               ; work around http://dev.clojure.org/jira/browse/CLJS-1545
 
-; ---------------------------------------------------------------------------------------------------------------------------
+; -- installation -----------------------------------------------------------------------------------------------------------
+
+(defn installed? []
+  *installed?*)
 
 (defn install! []
   (when (and (not *installed?*) (available?))
