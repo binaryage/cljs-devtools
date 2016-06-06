@@ -133,7 +133,7 @@
   *installed?*)
 
 (defn install! []
-  (when (and (not *installed?*) (available?))
+  (when-not *installed?*
     (set! *installed?* true)
     (install-type-error-enhancer)
     true))

@@ -74,6 +74,6 @@
 
 (defn install-feature! [feature features-to-install available-fn install-fn]
   (if (some #{feature} features-to-install)
-    (if (available-fn feature)
+    (if (or (prefs/pref :bypass-availability-checks) (available-fn feature))
       (install-fn)
       (.warn js/console (feature-not-available-msg feature)))))

@@ -123,7 +123,8 @@
    :has-body-post-handler            nil
    :body-pre-handler                 nil
    :body-post-handler                nil
-   :default-envelope-header          "\uD83D\uDCE8"})
+   :default-envelope-header          "\uD83D\uDCE8"
+   :bypass-availability-checks       false})
 
 (def ^:dynamic *prefs* default-prefs)
 

@@ -70,3 +70,21 @@
       (devtools/install! [:custom-formatters])
       (is (nil? (last (get-captured-console-messages))))
       (devtools/uninstall!)))
+  (binding [custom-formatters/available? (constantly false)
+            sanity-hints/available? (constantly false)]
+    (testing "working availability checks"
+      (clear-captured-console-output!)
+      (devtools/install! :all)
+      (is (= (count (get-captured-console-messages)) 3))
+      (is (every? #(re-matches #".*cannot be installed.*" %) (rest (get-captured-console-messages))))
+      (devtools/uninstall!))
+    (testing "bypass availability checks"
+      (with-prefs {:bypass-availability-checks true}
+        (clear-captured-console-output!)
+        (devtools/install! :all)
+        (is (= (count (get-captured-console-messages)) 1))
+        (is (every? #(not (re-matches #".*cannot be installed.*" %)) (rest (get-captured-console-messages))))
+        (is (= (devtools/installed? :all) true))
+        (is (= (devtools/installed? :custom-formatters) true))
+        (is (= (devtools/installed? :sanity-hints) true))
+        (devtools/uninstall!)))))
