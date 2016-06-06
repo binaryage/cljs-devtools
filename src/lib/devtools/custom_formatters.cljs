@@ -88,6 +88,11 @@
         new-formatters-js (if (empty? new-formatters) nil (into-array new-formatters))]
     (aset js/window formatter-key new-formatters-js)))
 
+; -- installation -----------------------------------------------------------------------------------------------------------
+
+(defn installed? []
+  *installed*)
+
 (defn install! []
   (when (and (not *installed*) (available?))
     (set! *installed* true)
