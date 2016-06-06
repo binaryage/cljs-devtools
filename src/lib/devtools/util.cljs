@@ -21,6 +21,18 @@
 (defn get-lib-info []
   (make-lib-info))
 
+(def formatter-key "devtoolsFormatters")
+
+(defn get-formatters-safe []
+  (let [formatters (aget js/window formatter-key)]
+    (if (array? formatters)                                                                                                   ; TODO: maybe issue a warning if formatters are anything else than array or nil
+      formatters
+      #js [])))
+
+(defn set-formatters-safe! [new-formatters]
+  {:pre [(or (nil? new-formatters) (array? new-formatters))]}
+  (aset js/window formatter-key (if (empty? new-formatters) nil new-formatters)))
+
 ; -- banner -----------------------------------------------------------------------------------------------------------------
 
 (defn feature-for-display [installed-features feature]

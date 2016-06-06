@@ -1,13 +1,13 @@
 (ns devtools.custom-formatters
   (:require [devtools.prefs :as prefs]
             [devtools.format :as format]
+            [devtools.util :refer [get-formatters-safe set-formatters-safe!]]
             [goog.labs.userAgent.browser :as ua]))
 
 (def ^:dynamic *installed* false)
 (def ^:dynamic *sanitizer-enabled* true)
 (def ^:dynamic *monitor-enabled* false)
 
-(def formatter-key "devtoolsFormatters")
 (def obsolete-formatter-key "devtoolsFormatter")
 
 (defn ^:dynamic available? []
@@ -66,12 +66,6 @@
 (defn- is-ours? [o]
   (instance? CLJSDevtoolsFormatter o))
 
-(defn- get-formatters-safe []
-  (let [formatters (aget js/window formatter-key)]
-    (if (array? formatters)                                                                                                   ; TODO: maybe issue a warning if formatters are anything else than array or nil
-      formatters
-      #js [])))
-
 (defn- present? []
   (let [formatters (get-formatters-safe)]
     (boolean (some is-ours? formatters))))
@@ -79,14 +73,14 @@
 (defn- install-our-formatter! [formatter]
   (let [formatters (.slice (get-formatters-safe))]                                                                            ; slice effectively duplicates the array
     (.push formatters formatter)                                                                                              ; acting on duplicated array
-    (aset js/window formatter-key formatters)
+    (set-formatters-safe! formatters)
     (if (prefs/pref :legacy-formatter)
       (aset js/window obsolete-formatter-key formatter))))
 
 (defn- uninstall-our-formatters! []
   (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))
         new-formatters-js (if (empty? new-formatters) nil (into-array new-formatters))]
-    (aset js/window formatter-key new-formatters-js)))
+    (set-formatters-safe! new-formatters-js)))
 
 ; -- installation -----------------------------------------------------------------------------------------------------------
 
