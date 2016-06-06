@@ -17,9 +17,8 @@
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-shell "0.5.0"]]
 
-  :hooks [leiningen.cljsbuild]
-
   :source-paths ["src"]
+
   :test-paths ["test/src/test"]
 
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
