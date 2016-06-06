@@ -29,7 +29,7 @@
 ;
 ; note: Tested under Chrome only
 
-(def ^:dynamic *installed?* false)
+(def ^:dynamic *installed* false)
 (def ^:dynamic *original-global-error-handler* nil)
 (def ^:dynamic *original-type-error-prototype-to-string* nil)
 
@@ -130,17 +130,17 @@
 ; -- installation -----------------------------------------------------------------------------------------------------------
 
 (defn installed? []
-  *installed?*)
+  *installed*)
 
 (defn install! []
-  (when-not *installed?*
-    (set! *installed?* true)
+  (when-not *installed*
+    (set! *installed* true)
     (install-type-error-enhancer)
     true))
 
 (defn uninstall! []
-  (when *installed?*
-    (set! *installed?* false)
+  (when *installed*
+    (set! *installed* false)
     (assert *original-type-error-prototype-to-string*)
     (set! (.-onerror js/window) *original-global-error-handler*)
     (let [prototype (.-prototype js/TypeError)]
