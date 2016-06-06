@@ -17,7 +17,8 @@
 
   ; =========================================================================================================================
 
-  :source-paths ["src"]
+  :source-paths ["src/demo"
+                 "src/debug"]
 
   :clean-targets ^{:protect false} ["resources/public/_compiled"
                                     "target"]
@@ -84,7 +85,7 @@
                                                :compile-path
                                                #=(eval leiningen.core.classpath/checkout-deps-paths)]
               :cljsbuild            {:builds {:demo
-                                              {:source-paths ["checkouts/cljs-devtools/src"]}}}}
+                                              {:source-paths ["checkouts/cljs-devtools/src/lib"]}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
              {:figwheel  {:server-port    7000
@@ -96,7 +97,7 @@
              {:env       {:devtools-debug "true"}
               :cljsbuild {:builds {:demo
                                    {:source-paths ["src/debug"
-                                                   "checkouts/cljs-devtools/src-debug"]}}}}}
+                                                   "checkouts/cljs-devtools/src/debug"]}}}}}
 
   ; =========================================================================================================================
 
