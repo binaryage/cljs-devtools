@@ -4,6 +4,7 @@
             [goog.array :as garr]
             [goog.json :as json]
             [goog.object :as gobj]
+            [devtools.util :refer-macros [oset oget]]
             [devtools.format :as f]
             [devtools.prefs :refer [pref]]))
 
@@ -134,3 +135,52 @@
 
 (defn unroll [& args]
   (apply partial (concat [mapcat] args)))
+
+; -- console capture --------------------------------------------------------------------------------------------------------
+
+(defonce captured-console-output (atom []))
+(defonce original-console-api (atom nil))
+
+(defn console-handler [orig kind & args]
+  (let [transcript (str kind args)]
+    (swap! captured-console-output conj transcript)
+    (.apply orig js/console (to-array args))))
+
+(defn store-console-api []
+  {"log"   (oget js/window "console" "log")
+   "warn"  (oget js/window "console" "warn")
+   "info"  (oget js/window "console" "info")
+   "error" (oget js/window "console" "error")})
+
+(defn captured-console-api [original-api]
+  {"log"   (partial console-handler (get original-api "log") "LOG: ")
+   "warn"  (partial console-handler (get original-api "warn") "WARN: ")
+   "info"  (partial console-handler (get original-api "info") "INFO: ")
+   "error" (partial console-handler (get original-api "error") "ERROR: ")})
+
+(defn set-console-api! [api]
+  (oset js/window ["console" "log"] (get api "log"))
+  (oset js/window ["console" "warn"] (get api "warn"))
+  (oset js/window ["console" "info"] (get api "info"))
+  (oset js/window ["console" "error"] (get api "error")))
+
+(defn start-console-capture! []
+  {:pre [(nil? @original-console-api)]}
+  (reset! original-console-api (store-console-api))
+  (set-console-api! (captured-console-api @original-console-api)))
+
+(defn stop-console-capture! []
+  {:pre [(some? @original-console-api)]}
+  (set-console-api! @original-console-api)
+  (reset! original-console-api nil))
+
+(defn clear-captured-console-output! []
+  (reset! captured-console-output []))
+
+(defn get-last-captured-console-message []
+  (last @captured-console-output))
+
+(defn with-captured-console [f]
+  (start-console-capture!)
+  (f)
+  (stop-console-capture!))
