@@ -14,3 +14,10 @@
 (defmacro < [& args] (resolver 'cljs.core/< args))
 (defmacro + [& args] (resolver 'cljs.core/+ args))
 (defmacro str [& args] (resolver 'cljs.core/str args))
+
+(defmacro with-prefs [prefs & body]
+  `(let [orig-prefs# (devtools.core/get-prefs)
+         new-prefs# (merge orig-prefs# ~prefs)]
+     (devtools.core/set-prefs! new-prefs#)
+     ~@body
+     (devtools.core/set-prefs! orig-prefs#)))
