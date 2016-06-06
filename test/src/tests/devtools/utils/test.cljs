@@ -177,8 +177,8 @@
 (defn clear-captured-console-output! []
   (reset! captured-console-output []))
 
-(defn get-last-captured-console-message []
-  (last @captured-console-output))
+(defn get-captured-console-messages []
+  @captured-console-output)
 
 (defn with-captured-console [f]
   (start-console-capture!)

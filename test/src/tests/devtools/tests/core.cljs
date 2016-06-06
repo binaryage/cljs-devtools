@@ -3,14 +3,15 @@
   (:require [cljs.test :refer-macros [deftest testing is use-fixtures]]
             [devtools.utils.test :refer [with-captured-console
                                          clear-captured-console-output!
-                                         get-last-captured-console-message]]
+                                         get-captured-console-messages]]
             [devtools.core :as devtools]
-            [devtools.custom-formatters :as cf]))
+            [devtools.custom-formatters :as custom-formatters]
+            [devtools.sanity-hints :as sanity-hints]))
 
 (use-fixtures :once with-captured-console)
 
 (deftest test-core-install-and-uninstall
-  (set! cf/available? (constantly true))                                                                                      ; this is needed to fake availability check in phantomjs env
+  (set! custom-formatters/available? (constantly true))                                                                       ; this is needed to fake availability check in phantomjs env
   (testing "install/uninstall :all features"
     (devtools/install! :all)
     (is (= (devtools/installed? :all) true))
@@ -61,11 +62,11 @@
   (testing "banner printing during install"
     (clear-captured-console-output!)
     (devtools/install! [:custom-formatters])
-    (is (re-matches #".*Installing.*CLJS DevTools.*" (get-last-captured-console-message)))
+    (is (re-matches #".*Installing.*CLJS DevTools.*" (last (get-captured-console-messages))))
     (devtools/uninstall!))
   (testing "banner printing supression during install"
     (with-prefs {:dont-display-banner true}
       (clear-captured-console-output!)
       (devtools/install! [:custom-formatters])
-      (is (nil? (get-last-captured-console-message)))
-      (devtools/uninstall!))))
+      (is (nil? (last (get-captured-console-messages))))
+      (devtools/uninstall!)))
