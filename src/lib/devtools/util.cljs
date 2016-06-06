@@ -3,6 +3,10 @@
             [devtools.version :refer [get-current-version]]
             [devtools.prefs :as prefs]))
 
+(def ^:dynamic *custom-formatters-active* false)
+
+(def cf-help-url "https://github.com/binaryage/cljs-devtools/blob/master/docs/install.md#enable-custom-formatters-in-chrome")
+
 (defn ^:dynamic make-version-info []
   (let [version (get-current-version)]
     (str "v" version)))
@@ -18,6 +22,11 @@
   (str "Feature " feature " cannot be installed. "
        "Unsupported browser " (ua/getUserAgentString) "."))
 
+(defn ^:dynamic custom-formatters-not-active-msg []
+  (str "Custom formatters functionality does not seem to be active in your DevTools.\n"
+       "Please make sure you have \"custom formatters\" option enabled in your DevTools settings (disabled by default).\n"
+       cf-help-url))
+
 (defn get-lib-info []
   (make-lib-info))
 
@@ -32,6 +41,54 @@
 (defn set-formatters-safe! [new-formatters]
   {:pre [(or (nil? new-formatters) (array? new-formatters))]}
   (aset js/window formatter-key (if (empty? new-formatters) nil new-formatters)))
+
+; -- custom formatters detection --------------------------------------------------------------------------------------------
+
+(deftype CustomFormattersDetector [])
+
+; https://github.com/binaryage/cljs-devtools/issues/16
+(defn install-detector! []
+  (let [formatters (get-formatters-safe)
+        detector (CustomFormattersDetector.)]
+    (aset detector "header" (fn [_object _config] (set! *custom-formatters-active* true) nil))
+    (aset detector "hasBody" (constantly false))
+    (aset detector "body" (constantly nil))
+    (.push formatters detector)
+    (set-formatters-safe! formatters)))
+
+(defn uninstall-detector! []
+  ; play it safe here, this method is called asynchronously
+  ; in theory someone else could have installed additional custom formatters
+  ; we have to be careful removing only ours formatters
+  (let [current-formatters (aget js/window formatter-key)]
+    (if (array? current-formatters)
+      (let [new-formatters (.filter current-formatters #(not (instance? CustomFormattersDetector %)))]
+        (set-formatters-safe! new-formatters)))))
+
+(defn check-custom-formatters-active! []
+  (if-not *custom-formatters-active*
+    (.warn js/console (custom-formatters-not-active-msg))))
+
+(defn uninstall-detector-and-check-custom-formatters-active! []
+  (uninstall-detector!)
+  (check-custom-formatters-active!))
+
+(defn wrap-with-custom-formatter-detection! [f]
+  (if-not (prefs/pref :dont-detect-custom-formatters)
+    (do
+      ; this is a tricky business here
+      ; we cannot ask DevTools if custom formatters are available and/or enabled
+      ; we abuse the fact that we are printing info banner upon cljs-devtools installation anyways
+      ; we install a special CustomFormattersDetector formatter which just records calls to it
+      ; but does not format anything, it skips the opportunity to format the output so it has no visual effect
+      ; this way we are able to detect if custom formatters are active and record it in *custom-formatters-active*
+      ; for later check
+      (install-detector!)
+      (f)
+      ; note that custom formatters are applied asynchronously
+      ; we have to uninstall our detector a bit later
+      (js/setTimeout uninstall-detector-and-check-custom-formatters-active! 0))
+    (f)))
 
 ; -- banner -----------------------------------------------------------------------------------------------------------------
 
@@ -49,14 +106,17 @@
 (defn display-banner! [installed-features feature-groups fmt & params]
   (let [[fmt-str fmt-params] (feature-list-display installed-features feature-groups)
         items (concat [(str fmt " " fmt-str)] params fmt-params)]
-    (.apply (.-info js/console) js/console (into-array items))))
+    (wrap-with-custom-formatter-detection! #(.apply (.-info js/console) js/console (into-array items)))))
 
 (defn display-banner-if-needed! [features-to-install feature-groups]
-  (when-not (prefs/pref :dont-display-banner)
-    (let [banner (str "Installing %c%s%c and enabling features")
-          lib-info-style "color:black;font-weight:bold;"
-          reset-style "color:black"]
-      (display-banner! features-to-install feature-groups banner lib-info-style (get-lib-info) reset-style))))
+  (if-not (prefs/pref :dont-display-banner)
+    (do
+      (let [banner (str "Installing %c%s%c and enabling features")
+            lib-info-style "color:black;font-weight:bold;"
+            reset-style "color:black"]
+        (display-banner! features-to-install feature-groups banner lib-info-style (get-lib-info) reset-style)))
+    ; detection cannot be performed if we are not allowed to print something to console => assume active
+    (set! *custom-formatters-active* true)))
 
 ; -- unknown features -------------------------------------------------------------------------------------------------------
 
