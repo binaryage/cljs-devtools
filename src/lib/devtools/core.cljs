@@ -1,29 +1,53 @@
 (ns devtools.core
-  (:require [devtools.version :refer [get-current-version]]
-            [devtools.prefs :as prefs]
+  (:require [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.util :refer-macros [display-banner]]
-            [goog.userAgent :as ua]))
+            [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info]]))
 
 (def known-features [:custom-formatters :sanity-hints])
-(def features-to-install-by-default [:custom-formatters])
-
-(defn ^:dynamic make-version-info []
-  (let [version (get-current-version)]
-    (str "v" version)))
-
-(defn ^:dynamic make-lib-info []
-  (str "CLJS DevTools " (make-version-info)))
-
-(defn ^:dynamic missing-feature-warning [feature known-features]
-  (str "No such feature " feature " is currently available in " (make-lib-info) ". "
-       "The list of supported features is " (pr-str known-features)))
-
-(defn ^:dynamic warn-feature-not-available [feature]
-  (.warn js/console (str "Feature " feature " cannot be installed. Unsupported browser " (ua/getUserAgentString) ".")))
+(def default-features [:custom-formatters])
+(def feature-groups {:all     known-features
+                     :default default-features})
 
 ; -- public API -------------------------------------------------------------------------------------------------------------
+
+(defn is-feature-available? [feature]
+  (case feature
+    :custom-formatters (custom-formatters/available?)
+    :sanity-hints (sanity-hints/available?)))
+
+(defn available?
+  ([] (available? :default))
+  ([features-desc]
+   (let [features (resolve-features! features-desc feature-groups)]
+     (if (empty? features)
+       false
+       (every? is-feature-available? features)))))
+
+(defn is-feature-installed? [feature]
+  (case feature
+    :custom-formatters (custom-formatters/installed?)
+    :sanity-hints (sanity-hints/installed?)))
+
+(defn installed?
+  ([] (installed? :default))
+  ([features-desc]
+   (let [features (resolve-features! features-desc feature-groups)]
+     (if (empty? features)
+       false
+       (every? is-feature-installed? features)))))
+
+(defn install!
+  ([] (install! :default))
+  ([features-desc]
+   (let [features (resolve-features! features-desc feature-groups)]
+     (display-banner-if-needed! features feature-groups)
+     (install-feature! :custom-formatters features is-feature-available? custom-formatters/install!)
+     (install-feature! :sanity-hints features is-feature-available? sanity-hints/install!))))
+
+(defn uninstall! []
+  (custom-formatters/uninstall!)
+  (sanity-hints/uninstall!))
 
 (defn set-prefs! [new-prefs]
   (prefs/set-prefs! new-prefs))
@@ -33,32 +57,6 @@
 
 (defn set-pref! [pref val]
   (prefs/set-pref! pref val))
-
-(defn is-feature-available? [feature]
-  (case feature
-    :custom-formatters (custom-formatters/available?)
-    :sanity-hints (sanity-hints/available?)))
-
-(defn install!
-  ([] (install! features-to-install-by-default))
-  ([features-to-install]
-   (let [banner (str "Installing %c%s%c and enabling features")
-         lib-info (make-lib-info)
-         lib-info-style "color:black;font-weight:bold;"
-         reset-style "color:black"]
-     (display-banner features-to-install known-features banner lib-info-style lib-info reset-style)
-     (if (some #{:custom-formatters} features-to-install)
-       (if (is-feature-available? :custom-formatters)
-         (custom-formatters/install!)
-         (warn-feature-not-available :custom-formatters)))
-     (if (some #{:sanity-hints} features-to-install)
-       (if (is-feature-available? :sanity-hints)
-         (sanity-hints/install!)
-         (warn-feature-not-available :sanity-hints))))))
-
-(defn uninstall! []
-  (custom-formatters/uninstall!)
-  (sanity-hints/uninstall!))
 
 ; -- deprecated API ---------------------------------------------------------------------------------------------------------
 
