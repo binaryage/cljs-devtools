@@ -40,7 +40,6 @@
                                     :compiler     {:output-to     "test/resources/_compiled/tests/build.js"
                                                    :output-dir    "test/resources/_compiled/tests"
                                                    :asset-path    "_compiled/tests"
-                                                   :main          devtools.runner
                                                    :optimizations :none
                                                    :pretty-print  true
                                                    :source-map    true}}
@@ -52,7 +51,10 @@
                                                    :asset-path      "_compiled/dead-code-elimination"
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
-                                                   :optimizations   :advanced}}}}}}
+                                                   :optimizations   :advanced}}}}}
+             :auto-testing
+             {:cljsbuild {:builds {:tests
+                                   {:notify-command ["lein" "run-phantom"]}}}}}
 
   :aliases {"test"           ["do"
                               "test-phantom,"
@@ -62,7 +64,11 @@
                               "shell" "test/scripts/dead-code-check.sh"]
             "test-phantom"   ["do"
                               "with-profile" "+testing" "cljsbuild" "once" "tests,"
-                              "shell" "phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]
+                              "run-phantom"]
+            "run-phantom"    ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]
+            "auto-test"      ["do"
+                              "clean,"
+                              "with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]
             "release"        ["do"
                               "shell" "scripts/check-versions.sh,"
                               "clean,"

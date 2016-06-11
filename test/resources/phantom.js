@@ -1,6 +1,6 @@
 var system = require('system');
 
-if (system.args.length != 2) {
+if (system.args.length < 2) {
     console.log('Expected a target URL parameter.');
     phantom.exit(1);
 }

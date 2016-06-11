@@ -8,8 +8,6 @@
             [devtools.tests.prefs]
             [devtools.tests.cljs]))
 
-(enable-console-print!)
-
 ; taken from https://github.com/pjlegato/clansi/blob/7c9a525f5a72d928031573586cbce9a5f5699e15/src/clansi/core.clj
 (def ANSI-CODES
   {:reset             "[0m"
@@ -96,6 +94,8 @@
   (println "expected:" (ansi :green) (pr-str (:expected m)) (ansi :reset))
   (println "  actual:" (ansi :yellow) (pr-str (:actual m)) (ansi :reset))
   (present-diff-if-applicable (:actual m)))
+
+; -- entry point ------------------------------------------------------------------------------------------------------------
 
 (test/run-tests
   (cljs.test/empty-env ::test/default)
