@@ -91,13 +91,16 @@
      "bodyTemplate" body-template)))
 
 (defn get-target-object [value]
-  (if (surrogate? value) (oget value "target") value))
+  (if (surrogate? value)
+    (oget value "target") value))
 
 (defn positions [pred coll]
-  (keep-indexed (fn [idx x] (if (pred x) idx)) coll))
+  (keep-indexed (fn [idx x]
+                  (if (pred x) idx)) coll))
 
 (defn remove-positions [coll indices]
-  (keep-indexed (fn [idx x] (if-not (contains? indices idx) x)) coll))
+  (keep-indexed (fn [idx x]
+                  (if-not (contains? indices idx) x)) coll))
 
 (defn ^bool is-circular?! [object]
   (let [current-state (get-current-state)]
@@ -134,7 +137,7 @@
 (defn meta-template [value]
   (let [header-template (template :span :meta-style "meta")
         body-template (template :span :meta-body-style
-                                (build-header value))]
+                        (build-header value))]
     (template :span :meta-reference-style (reference (surrogate value header-template true body-template)))))
 
 (defn abbreviate-long-string [string]
@@ -322,9 +325,9 @@
 ; RAW API
 
 (defn want-value?* [value]
-  (if (prevent-recursion?)
-    false                                                                                                                     ; the value won't be rendered by our custom formatter
-    (or (cljs-value? value) (surrogate? value))))
+  (cond
+    (prevent-recursion?) false                                                                                                ; the value won't be rendered by our custom formatter
+    :else (or (cljs-value? value) (surrogate? value))))
 
 (defn header* [value]
   (cond
