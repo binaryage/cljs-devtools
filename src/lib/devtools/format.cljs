@@ -62,9 +62,10 @@
         style (resolve-pref style)
         js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
     (doseq [child children]
-      (if (coll? child)
-        (.apply (aget js-array "push") js-array (into-array child))                                                           ; convenience helper to splat cljs collections
-        (.push js-array (resolve-pref child))))
+      (if (some? child)
+        (if (coll? child)
+          (.apply (aget js-array "push") js-array (into-array child))                                                         ; convenience helper to splat cljs collections
+          (.push js-array (resolve-pref child)))))
     js-array))
 
 (defn surrogate? [value]
