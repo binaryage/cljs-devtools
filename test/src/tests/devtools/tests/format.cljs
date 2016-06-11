@@ -366,12 +366,12 @@
           "{"
           ["span" {"style" :keyword-style} ":val"] " "
           ["span" {"style" :circular-reference-wrapper-style}
-           ["span" {"style" :circular-reference-style} :circular-reference-label]
+           ["span" {"style" :circular-reference-symbol-style} :circular-reference-symbol]
            "#object [cljs.core.Atom "
            "{"
            ["span" {"style" :keyword-style} ":val"] " "
            ["span" {"style" :circular-reference-wrapper-style}
-            ["span" {"style" :circular-reference-style} :circular-reference-label]
+            ["span" {"style" :circular-reference-symbol-style} :circular-reference-symbol]
             "#object [cljs.core.Atom "
             REF
             "]"]

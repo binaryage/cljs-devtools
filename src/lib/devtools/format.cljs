@@ -114,10 +114,9 @@
         (some #(identical? % object) history)))))
 
 (defn circular-reference-template [content-group]
-  (.concat
-    (template :span :circular-reference-wrapper-style)
-    #js [(template :span :circular-reference-style (str (pref :circular-reference-label)))]
-    content-group))
+  (let [base-template (template :span :circular-reference-wrapper-style
+                        (template :span :circular-reference-symbol-style :circular-reference-symbol))]
+    (concat-templates base-template content-group)))
 
 (defn reference [object & [state-override]]
   #js ["object" #js {"object" object

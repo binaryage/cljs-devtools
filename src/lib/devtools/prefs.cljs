@@ -1,4 +1,5 @@
-(ns devtools.prefs)
+(ns devtools.prefs
+  (:require-macros [devtools.prefs :refer [symbol-style]]))
 
 (def signature-background "rgba(100, 255, 100, 0.08)")
 (def body-border-color "rgba(100, 255, 100, 0.4)")
@@ -22,16 +23,10 @@
    :new-line-string-replacer         "↵"
    :line-index-separator             ""
    :dq                               "\""
-   :circular-reference-label         "∞"
+   :circular-reference-symbol        "∞"
    :circular-reference-wrapper-style ""
-   :circular-reference-style         (str "background-color:#f88;"
-                                          "color:#fff;"
-                                          "opacity: 0.5;"
-                                          "margin-right: 3px;"
-                                          "padding: 0px 4px 0px 4px;"
-                                          "border-radius:2px;"
-                                          "-webkit-user-select: none;")
    :surrogate-key                    "$$this-is-cljs-devtools-surrogate"
+   :circular-reference-symbol-style  (symbol-style "#f88")
    :standard-ol-style                (str "list-style-type:none;"
                                           "padding-left:0px;"
                                           "margin-top:0px;"
