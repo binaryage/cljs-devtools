@@ -33,7 +33,8 @@
    :fn-ns-symbol                     "in"
    :fn-ns-symbol-style               (symbol-style "#999")
    :fn-ns-name-style                 (str "color:#999")
-   :fn-name-style                    (str "color: #282;")
+   :fn-name-style                    (str "color: #282;"
+                                          "margin-right:3px;")
    :fn-native-symbol                 "js"
    :fn-native-symbol-style           (symbol-style "#990099")
    :fn-args-style                    (str "color: #960;")
