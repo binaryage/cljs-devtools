@@ -44,7 +44,7 @@
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn cljs-function? [value]
-  (and (fn? value) (munging/cljs-fn? value)))
+  (and (not (pref :disable-cljs-fn-formatting)) (fn? value) (munging/cljs-fn? value)))
 
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
