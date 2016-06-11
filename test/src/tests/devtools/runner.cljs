@@ -85,7 +85,7 @@
           dmp (diff-match-patch-class.)
           diffs (.diff_main dmp json-b json-a)]
       (.diff_cleanupSemantic dmp diffs)
-      (println (ansi :bg-white) (ansi :black) (pretty-print-diffs diffs :black) (ansi :reset)))))
+      (println (ansi :black) (pretty-print-diffs diffs :black) (ansi :reset)))))
 
 (defmethod report [::test/default :fail] [m]
   (test/inc-report-counter! :fail)
