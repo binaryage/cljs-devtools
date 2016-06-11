@@ -119,10 +119,12 @@
     #js [(template :span :circular-reference-style (str (pref :circular-reference-label)))]
     content-group))
 
-(defn reference [object]
-  (update-current-state! assoc :entered-reference true)                                                                       ; this is a flag for is-circular? check
+(defn reference [object & [state-override]]
   #js ["object" #js {"object" object
-                     "config" (get-current-state)}])
+                     "config" (merge (get-current-state) {:entered-reference true} state-override)}])
+
+(defn native-reference [object]
+  (reference object {:prevent-recursion true}))
 
 (defn index-template [value]
   (template :span :index-style value :line-index-separator))
@@ -221,14 +223,10 @@
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
       (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
-    (do
-      (set-prevent-recursion!)
-      #js [(reference obj)])
+    #js [(native-reference obj)]
 
     (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
-    (do
-      (set-prevent-recursion!)
-      #js [(aget group 0) (reference obj) (aget group 2)])
+    #js [(aget group 0) (native-reference obj) (aget group 2)]
 
     :else group))
 
