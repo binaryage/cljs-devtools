@@ -20,6 +20,7 @@
    :more-marker                      "…"
    :body-items-more-label            "more…"
    :string-abbreviation-marker       " … "
+   :multi-arity-marker               "[…]"
    :new-line-string-replacer         "↵"
    :line-index-separator             ""
    :dq                               "\""
@@ -27,6 +28,19 @@
    :circular-reference-wrapper-style ""
    :surrogate-key                    "$$this-is-cljs-devtools-surrogate"
    :circular-reference-symbol-style  (symbol-style "#f88")
+   :fn-symbol                        "fn"
+   :fn-symbol-style                  (symbol-style "#282")
+   :fn-ns-symbol                     "in"
+   :fn-ns-symbol-style               (symbol-style "#999")
+   :fn-ns-name-style                 (str "color:#999")
+   :fn-name-style                    (str "color: #282;")
+   :fn-native-symbol                 "js"
+   :fn-native-symbol-style           (symbol-style "#990099")
+   :fn-args-style                    (str "color: #960;")
+   :fn-multi-arity-args-indent-style (str "visibility:hidden;"
+                                          "padding-left: 1px;")
+   :fn-lambda-symbol                 "λ"
+   :fn-lambda-symbol-style           (symbol-style "#282")
    :standard-ol-style                (str "list-style-type:none;"
                                           "padding-left:0px;"
                                           "margin-top:0px;"
@@ -39,6 +53,7 @@
                                           "margin-left:0px")
    :standard-li-style                "margin-left:16px"
    :standard-li-no-margin-style      "margin-left:0px"
+   :aligned-li-style                 "margin-left:12px"
    :spacer                           " "
    :span                             "span"
    :div                              "div"
@@ -63,10 +78,10 @@
                                           "margin: 1px 0px 0px 0px;"
                                           "-webkit-user-select: none;")
    :body-style                       (str "display:inline-block;"
-                                          "padding: 0px;"
+                                          "padding: 3px 0px 3px 0px;"
                                           "border-top: 1px solid " body-border-color ";"
                                           "border-radius:1px;"
-                                          "margin: 0px 0px 2px 0px;"
+                                          "margin: 0;"
                                           "background-color:" signature-background ";")
    :index-style                      (str "min-width: 50px;"
                                           "display: inline-block;"
@@ -109,6 +124,7 @@
                                           "top:-1px;"
                                           "margin-left:-1px;"
                                           "padding:1px;"
+                                          "padding-left: 14px;"
                                           "border-bottom-left-radius:2px;"
                                           "border-bottom-right-radius:2px;")
    :file-reader                      nil

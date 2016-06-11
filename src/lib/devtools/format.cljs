@@ -1,6 +1,8 @@
 (ns devtools.format
   (:require-macros [devtools.util :refer [oget oset ocall oapply]])
-  (:require [devtools.prefs :refer [pref]]))
+  (:require [devtools.prefs :refer [pref]]
+            [devtools.munging :as munging]
+            [clojure.string :as string]))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; PROTOCOL SUPPORT
@@ -41,20 +43,22 @@
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
+(defn cljs-function? [value]
+  (and (fn? value) (munging/cljs-fn? value)))
+
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
 ; [14:04:34] dnolen: there is a very low level thing you can check
 ; [14:04:36] dnolen: https://github.com/clojure/clojurescript/blob/c2550c4fdc94178a7957497e2bfde54e5600c457/src/clj/cljs/core.clj#L901
 ; [14:05:00] dnolen: this property is unlikely to change - still it's probably not something anything anyone should use w/o a really good reason
 (defn cljs-value? [value]
-  (if (goog/isObject value)                                                                                                   ; see http://stackoverflow.com/a/22482737/84283
-    (oget value "constructor" "cljs$lang$type")))
+  (or
+    (if (goog/isObject value)                                                                                                 ; see http://stackoverflow.com/a/22482737/84283
+      (oget value "constructor" "cljs$lang$type"))
+    (cljs-function? value)))
 
 (defn ^bool prevent-recursion? []
   (boolean (:prevent-recursion (get-current-state))))
-
-(defn set-prevent-recursion! []
-  (update-current-state! assoc :prevent-recursion true))
 
 (defn template [tag style & children]
   (let [resolve-pref (fn [pref-or-val] (if (keyword? pref-or-val) (pref pref-or-val) pref-or-val))
@@ -159,6 +163,44 @@
             body-template (template :span :expanded-string-style string-with-nl-markers)]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
+(defn cljs-function-body-template [fn-obj ns _name args prefix-template]
+  (let [make-args-template (fn [args]
+                             (template :li :aligned-li-style
+                               (template :span :fn-multi-arity-args-indent-style prefix-template)
+                               (template :span :fn-args-style args)))
+        args-lists-templates (if (> (count args) 1) (map make-args-template args))
+        ns-template (if-not (empty? ns)
+                      (template :li :aligned-li-style
+                        (template :span :fn-ns-symbol-style :fn-ns-symbol)
+                        (template :span :fn-ns-name-style ns)))
+        native-template (template :li :aligned-li-style
+                          (template :span :fn-native-symbol-style :fn-native-symbol)
+                          (native-reference fn-obj))]
+    (template :span :body-style
+      (template :ol :standard-ol-no-margin-style
+        args-lists-templates
+        ns-template
+        native-template))))
+
+(defn cljs-function-template [fn-obj]
+  (if-let [[ns name] (munging/parse-fn-info fn-obj)]
+    (let [arities (or (munging/collect-fn-arities fn-obj) {:naked fn-obj})
+          multi-arity? (> (count arities) 1)
+          args-lists (munging/arities-to-args-lists arities true)
+          args-strings (munging/args-lists-to-strings args-lists)
+          args (map #(str "[" % "]") args-strings)
+          args-template (template :span :fn-args-style (if multi-arity? :multi-arity-marker (first args)))
+          lambda? (empty? name)
+          fn-name (if-not lambda?
+                    (template :span :fn-name-style name))
+          symbol-template (if lambda?
+                            (template :span :lambda-symbol-style :lambda-symbol)
+                            (template :span :fn-symbol-style :fn-symbol))
+          prefix-template (template :span :fn-prefix-style symbol-template fn-name)
+          header-template (template :span :fn-header-style prefix-template args-template)
+          body-template (partial cljs-function-body-template fn-obj ns name args prefix-template)]
+      (reference (surrogate fn-obj header-template true body-template)))))
+
 (defn bool? [value]
   (or (true? value) (false? value)))
 
@@ -169,7 +211,8 @@
     (string? value) (string-template value)
     (number? value) (number-template value)
     (keyword? value) (template :span :keyword-style (str value))
-    (symbol? value) (template :span :symbol-style (str value))))
+    (symbol? value) (template :span :symbol-style (str value))
+    (cljs-function? value) (cljs-function-template value)))
 
 (defn abbreviated? [template]
   (some #(= (pref :more-marker) %) template))
@@ -197,7 +240,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
-    #js [(reference (surrogate obj (.concat (template :span :header-style) group)))]
+    #js [(reference (surrogate obj (concat-templates (template :span :header-style) group)))]
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
