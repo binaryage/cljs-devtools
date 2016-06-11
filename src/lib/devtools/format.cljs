@@ -302,7 +302,9 @@
 
 (defn build-surrogate-body [value]
   (if-let [body-template (aget value "bodyTemplate")]
-    body-template
+    (if (fn? body-template)
+      (body-template)
+      body-template)
     (let [target (aget value "target")]
       (if (seqable? target)
         (let [starting-index (or (aget value "startingIndex") 0)]
