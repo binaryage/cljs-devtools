@@ -68,6 +68,12 @@
           (.push js-array (resolve-pref child)))))
     js-array))
 
+(defn concat-templates [template & templates]
+  (.apply (oget template "concat") template (into-array (map into-array templates))))
+
+(defn extend-template [template & args]
+  (concat-templates template args))
+
 (defn surrogate? [value]
   (and
     (not (nil? value))
