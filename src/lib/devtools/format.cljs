@@ -44,7 +44,9 @@
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn cljs-function? [value]
-  (and (not (pref :disable-cljs-fn-formatting)) (fn? value) (munging/cljs-fn? value)))
+  (and (not (pref :disable-cljs-fn-formatting))
+       (not (var? value))                                                                                                     ; HACK: vars have IFn protocol and would act as functions TODO: implement custom rendering for vars
+       (munging/cljs-fn? value)))
 
 ; IRC #clojurescript @ freenode.net on 2015-01-27:
 ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
@@ -183,23 +185,29 @@
         native-template))))
 
 (defn cljs-function-template [fn-obj]
-  (if-let [[ns name] (munging/parse-fn-info fn-obj)]
-    (let [arities (or (munging/collect-fn-arities fn-obj) {:naked fn-obj})
-          multi-arity? (> (count arities) 1)
-          args-lists (munging/arities-to-args-lists arities true)
-          args-strings (munging/args-lists-to-strings args-lists)
-          args (map #(str "[" % "]") args-strings)
-          args-template (template :span :fn-args-style (if multi-arity? :multi-arity-marker (first args)))
-          lambda? (empty? name)
-          fn-name (if-not lambda?
-                    (template :span :fn-name-style name))
-          symbol-template (if lambda?
-                            (template :span :lambda-symbol-style :lambda-symbol)
-                            (template :span :fn-symbol-style :fn-symbol))
-          prefix-template (template :span :fn-prefix-style symbol-template fn-name)
-          header-template (template :span :fn-header-style prefix-template args-template)
-          body-template (partial cljs-function-body-template fn-obj ns name args prefix-template)]
-      (reference (surrogate fn-obj header-template true body-template)))))
+  (let [[ns name] (munging/parse-fn-info fn-obj)
+        arities (or (munging/collect-fn-arities fn-obj) {:naked fn-obj})
+        multi-arity? (> (count arities) 1)
+        args-open-symbol (pref :args-open-symbol)
+        args-close-symbol (pref :args-close-symbol)
+        multi-arity-symbol (pref :multi-arity-symbol)
+        spacer-symbol (pref :spacer)
+        rest-symbol (pref :rest-symbol)
+        args-lists (munging/arities-to-args-lists arities true)
+        args-strings (munging/args-lists-to-strings args-lists spacer-symbol multi-arity-symbol rest-symbol)
+        args (map #(str args-open-symbol % args-close-symbol) args-strings)
+        multi-arity-marker (str args-open-symbol multi-arity-symbol args-close-symbol)
+        args-template (template :span :fn-args-style (if multi-arity? multi-arity-marker (first args)))
+        lambda? (empty? name)
+        fn-name (if-not lambda?
+                  (template :span :fn-name-style name))
+        symbol-template (if lambda?
+                          (template :span :fn-lambda-symbol-style :fn-lambda-symbol)
+                          (template :span :fn-symbol-style :fn-symbol))
+        prefix-template (template :span :fn-prefix-style symbol-template fn-name)
+        header-template (template :span :fn-header-style prefix-template args-template)
+        body-template (partial cljs-function-body-template fn-obj ns name args prefix-template)]
+    (reference (surrogate fn-obj header-template true body-template))))
 
 (defn bool? [value]
   (or (true? value) (false? value)))

@@ -17,29 +17,32 @@
     (if-let [[_ name args] (re-find #"(.*?)\((.*)\)" meat)]
       [name args])))
 
-(defn get-fn-source-safe [f]
+(defn get-fn-source-safely [f]
   (try
     (ocall f "toString")
-    (catch :default _)))
+    (catch :default _
+      "")))
 
 (defn trivial-fn-source? [fn-source]
-  (or (= fn-source "function () {}")
-      (= fn-source "function Function() { [native code] }")))
+  {:pre [(string? fn-source)]}
+  (or (some? (re-matches #"function\s*\(\s*\)\s*\{\s*\}\s*" fn-source))                                                       ; that space between ) and { is important to distingush built-in fns and user-specified fns
+      (some? (re-matches #"function.*\(\)\s*\{\s*\[native code\]\s*\}\s*" fn-source))))
 
 (defn cljs-fn? [f]
-  (let [name (oget f name)]
-    (if-not (empty? name)
-      (cljs-fn-name? name)
-      (let [fn-source (get-fn-source-safe f)
-            [name] (parse-fn-source fn-source)]
-        (if-not (empty? name)
-          (cljs-fn-name? name)
-          (not (trivial-fn-source? fn-source)))))))                                                                           ; we assume non-trivial anonymous functions to come from cljs
+  (if (fn? f)
+    (let [name (oget f name)]
+      (if-not (empty? name)
+        (cljs-fn-name? name)
+        (let [fn-source (get-fn-source-safely f)]
+          (let [[name] (parse-fn-source fn-source)]
+            (if-not (empty? name)
+              (cljs-fn-name? name)
+              (not (trivial-fn-source? fn-source)))))))))                                                                     ; we assume non-trivial anonymous functions to come from cljs
 
 (defn dollar-preserving-demunge [munged-name]
   (-> munged-name
       (string/replace "$" dollar-replacement)
-      (demunge)
+      (demunge)                                                                                                               ; note: demunge is too aggressive in replacing dollars
       (string/replace dollar-replacement "$")))
 
 (defn demunge-ns [munged-name]
@@ -76,41 +79,57 @@
   (if-let [[munged-name args] (parse-fn-source fn-source)]
     (let [[ns name] (break-and-demunge-name munged-name)
           demunged-args (map (comp dollar-preserving-demunge string/trim) (string/split args #","))]
-      (concat [ns name] demunged-args))))
+      (concat [ns name] demunged-args))
+    ["" ""]))
 
 (defn parse-fn-info [f]
-  (let [fn-source (get-fn-source-safe f)]
+  (let [fn-source (get-fn-source-safely f)]
     (parse-fn-source-info fn-source)))
+
+(declare collect-fn-arities)
+
+(defn parse-fn-info-deep [f]
+  (let [fn-info (parse-fn-info f)
+        arities (collect-fn-arities f)]
+    (if (some? arities)
+      (if (> (count arities) 1)
+        (concat (take 2 fn-info) ::multi-arity)
+        (concat (take 2 fn-info) (drop 2 (parse-fn-info-deep (second (first arities))))))
+      fn-info)))
 
 (defn char-to-subscript [char]
   {:pre [(string? char)
          (= (count char) 1)]}
-  (let [char-code (.charCodeAt char 0)                                                                                        ;(ocall char "charCodeAt" 0)
-        subscript-code (+ 8321 -49 char-code)]                                                                                ; 'SUBSCRIPT ZERO' (U+2080)
+  (let [char-code (ocall (js/String. char) "charCodeAt" 0)                                                                    ; this is an ugly trick to overcome a bug, char string may not be a string "object"
+        subscript-code (+ 8322 -49 char-code)]                                                                                ; 'SUBSCRIPT ZERO' (U+2080), start with subscript '2'
     (ocall js/String "fromCharCode" subscript-code)))
 
-(defn decorate [n]
-  {:pre [(number? n)]}
-  (string/join (map char-to-subscript (str n))))
+(defn decorate-with-subscript [subscript]
+  {:pre [(number? subscript)]}
+  (string/join (map char-to-subscript (str subscript))))
 
 (defn find-index-of-human-prefix [name]
-  (.indexOf name "--"))                                                                                                       ; TODO: better heuristics here
+  (let [sep-start (.indexOf name "--")
+        num-prefix (count (second (re-find #"(.*?)\d{2,}" name)))
+        finds (filter pos? [sep-start num-prefix])]
+    (if-not (empty? finds)
+      (apply min finds))))
 
 (defn humanize-name [state name]
   (let [index (find-index-of-human-prefix name)]
     (if (> index 0)
       (let [stripped-name (.substring name 0 index)]
-        (if-let [decorator (get state stripped-name)]
+        (if-let [subscript (get state stripped-name)]
           (-> state
-              (update :result conj (str stripped-name (decorate decorator)))
+              (update ::result conj (str stripped-name (decorate-with-subscript subscript)))
               (update stripped-name inc))
           (-> state
-              (update :result conj stripped-name)
+              (update ::result conj stripped-name)
               (assoc stripped-name 1))))
-      (update state :result conj name))))
+      (update state ::result conj name))))
 
 (defn humanize-names [names]
-  (with-meta (:result (reduce humanize-name {:result []} names)) (meta names)))
+  (with-meta (::result (reduce humanize-name {::result []} names)) (meta names)))
 
 (defn get-fn-fixed-arity [f n]
   (oget f (str "cljs$core$IFn$_invoke$arity$" n)))
@@ -129,30 +148,35 @@
 
 (defn collect-fn-variadic-arity [f]
   (if-let [variadic-arity (get-fn-variadic-arity f)]
-    {:variadic variadic-arity}))
+    {::variadic variadic-arity}))
 
 (defn collect-fn-arities [f]
-  (if-let [max-fixed-arity (oget f "cljs$lang$maxFixedArity")]
-    (let [fixed-arities (collect-fn-fixed-arities f max-fixed-arity)
-          variadic-arity (collect-fn-variadic-arity f)]
-      (merge fixed-arities variadic-arity))))
+  (let [max-fixed-arity (oget f "cljs$lang$maxFixedArity")
+        fixed-arities (collect-fn-fixed-arities f (or max-fixed-arity 64))                                                    ; we cannot rely on cljs$lang$maxFixedArity when people implement IFn protocol
+        variadic-arity (collect-fn-variadic-arity f)
+        result (merge fixed-arities variadic-arity)]
+    (if-not (empty? result)
+      result)))
+
+(defn arities-key-comparator [x y]
+  (let [kx? (keyword? x)
+        ky? (keyword? y)]
+    (cond
+      (and kx? ky?) (cond
+                      (= ::variadic x) 1
+                      (= ::variadic y) -1
+                      :else (compare (name x) (name y)))
+      kx? 1
+      ky? -1
+      :else (compare x y))))
 
 (defn arities-to-args-lists* [arities]
-  (let [comparator (fn [x y]
-                     (cond
-                       (and (keyword? x) (keyword? y)) (cond
-                                                         (= :variadic x) 1
-                                                         (= :variadic y) -1
-                                                         :else (compare (name x) (name y)))
-                       (keyword? x) 1
-                       (keyword? y) -1
-                       :else (compare x y)))
-        sorted-keys (sort comparator (keys arities))
+  (let [sorted-keys (sort arities-key-comparator (keys arities))
         sorted-fns (map #(get arities %) sorted-keys)
-        infos (map parse-fn-info sorted-fns)
+        infos (map parse-fn-info-deep sorted-fns)
         args-lists (map #(drop 2 %) infos)]
-    (if (= (last sorted-keys) :variadic)
-      (concat (butlast args-lists) [(vary-meta (last args-lists) assoc :variadic true)])
+    (if (= (last sorted-keys) ::variadic)
+      (concat (butlast args-lists) [(vary-meta (last args-lists) assoc ::variadic true)])
       args-lists)))
 
 (defn arities-to-args-lists [arities & [humanize?]]
@@ -161,9 +185,13 @@
       (map humanize-names args-lists)
       args-lists)))
 
-(defn args-lists-to-strings [args-lists]
-  (let [printer (fn [args-list]
-                  (if (:variadic (meta args-list))
-                    (string/trim (str (string/join " " (butlast args-list)) " & " (last args-list)))
-                    (string/join " " args-list)))]
+(defn args-lists-to-strings [args-lists spacer-symbol multi-arity-symbol rest-symbol]
+  (let [mapper #(case %
+                 ::multi-arity multi-arity-symbol
+                 %)
+        printer (fn [args-list]
+                  (let [args-strings (map mapper args-list)]
+                    (if (::variadic (meta args-strings))
+                      (string/trim (str (string/join spacer-symbol (butlast args-strings)) rest-symbol (last args-strings)))
+                      (string/join spacer-symbol args-strings))))]
     (map printer args-lists)))
