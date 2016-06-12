@@ -31,6 +31,8 @@
    :circular-reference-wrapper-style ""
    :surrogate-key                    "$$this-is-cljs-devtools-surrogate"
    :circular-reference-symbol-style  (symbol-style "#f88")
+   :fn-header-style                  ""
+   :fn-prefix-style                  ""
    :fn-symbol                        "fn"
    :fn-symbol-style                  (symbol-style "#282")
    :fn-ns-symbol                     "in"
