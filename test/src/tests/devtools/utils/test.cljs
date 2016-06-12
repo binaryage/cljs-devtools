@@ -136,6 +136,16 @@
 (defn unroll [& args]
   (apply partial (concat [mapcat] args)))
 
+(defn match? [[returned expected]]
+  (cond
+    (string? expected) (= expected returned)
+    (regexp? expected) (some? (re-matches expected returned))
+    :else (throw (ex-info "invalid expected data type" {:expected expected :type (type expected)}))))
+
+(defn match-seqs? [c1 c2]
+  (if (= (count c1) (count c2))
+    (every? match? (partition 2 (interleave c1 c2)))))
+
 ; -- console capture --------------------------------------------------------------------------------------------------------
 
 (defonce captured-console-output (atom []))
