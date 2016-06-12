@@ -57,9 +57,9 @@
                                           "margin-top:0px;"
                                           "margin-bottom:0px;"
                                           "margin-left:0px")
-   :standard-li-style                "margin-left:16px"
+   :standard-li-style                "margin-left:0px;"
    :standard-li-no-margin-style      "margin-left:0px"
-   :aligned-li-style                 "margin-left:12px"
+   :aligned-li-style                 "margin-left:0px"
    :spacer                           " "
    :span                             "span"
    :div                              "div"
@@ -84,7 +84,7 @@
                                           "margin: 1px 0px 0px 0px;"
                                           "-webkit-user-select: none;")
    :body-style                       (str "display:inline-block;"
-                                          "padding: 3px 0px 3px 0px;"
+                                          "padding: 3px 13px 3px 13px;"
                                           "border-top: 1px solid " body-border-color ";"
                                           "border-radius:1px;"
                                           "margin: 0;"
