@@ -1,11 +1,12 @@
 (ns devtools.tests.format
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                        ; prefs aware versions
-  (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles]]
+  (:require [cljs.test :refer-macros [deftest testing is are]]
+            [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
             [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
-            [devtools.format :as f]))
+            [devtools.format :as f]
+            [devtools.utils.batteries :as b]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
@@ -379,3 +380,141 @@
            "]"]
           "}"
           "]"]]))))
+
+(deftest test-function-formatting
+  (testing "cljs-function?"
+    (testing "these should NOT be recognized as cljs functions"
+      (are [f] (not (f/cljs-function? f))
+        b/simplest-fn))
+    (testing "these should be recognized as cljs functions"
+      (are [f] (f/cljs-function? f)
+        b/minimal-fn
+        b/cljs-lambda-multi-arity
+        b/clsj-fn-with-fancy-name#$%!?
+        b/cljs-fn-var
+        b/cljs-fn-multi-arity-var
+        b/cljs-fn-multi-arity
+        b/cljs-fn-with-vec-destructuring
+        b/inst-type-ifn0
+        b/inst-type-ifn1
+        b/inst-type-ifn2
+        b/inst-type-ifn2va
+        b/inst-type-ifn4va))
+    (testing "these should be recognized as cljs functions"
+      (set-pref! :disable-cljs-fn-formatting true)
+      (are [f] (not (f/cljs-function? f))
+        b/minimal-fn
+        b/clsj-fn-with-fancy-name#$%!?
+        b/cljs-fn-var
+        b/cljs-fn-multi-arity-var
+        b/cljs-fn-multi-arity
+        b/cljs-fn-with-vec-destructuring
+        b/inst-type-ifn0
+        b/inst-type-ifn1
+        b/inst-type-ifn2
+        b/inst-type-ifn2va
+        b/inst-type-ifn4va)
+      (set-prefs! default-prefs)))
+  (testing "minimal function formatting"
+    (is-header b/minimal-fn
+      ["span"
+       {"style" :cljs-style}
+       ["span" {"style" :header-style}
+        REF]]
+      (fn [ref]
+        (is (surrogate? ref))
+        (has-body? ref true)
+        (is-header ref
+          ["span" {"style" :fn-header-style}
+           ["span" {"style" :fn-prefix-style}
+            ["span" {"style" :fn-lambda-symbol-style} :fn-lambda-symbol]]
+           ["span" {"style" :fn-args-style} (pref-str :args-open-symbol :args-close-symbol)]])
+        (is-body ref
+          ["span" {"style" :body-style}
+           ["ol" {"style" :standard-ol-no-margin-style}
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-native-symbol-style} :fn-native-symbol]
+             REF]]]))))
+  (testing "cljs-lambda-multi-arity function formatting"
+    (is-header b/cljs-lambda-multi-arity
+      ["span"
+       {"style" :cljs-style}
+       ["span" {"style" :header-style}
+        REF]]
+      (fn [ref]
+        (is (surrogate? ref))
+        (has-body? ref true)
+        (is-header ref
+          ["span" {"style" :fn-header-style}
+           ["span" {"style" :fn-prefix-style}
+            ["span" {"style" :fn-lambda-symbol-style} :fn-lambda-symbol]]
+           ["span" {"style" :fn-args-style} (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
+        (is-body ref
+          ["span" {"style" :body-style}
+           ["ol" {"style" :standard-ol-no-margin-style}
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-lambda-symbol-style} :fn-lambda-symbol]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-lambda-symbol-style} :fn-lambda-symbol]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol "a b" :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-lambda-symbol-style} :fn-lambda-symbol]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-native-symbol-style} :fn-native-symbol]
+             REF]]]))))
+  (testing "cljs-fn-multi-arity-var function formatting"
+    (is-header b/cljs-fn-multi-arity-var
+      ["span"
+       {"style" :cljs-style}
+       ["span" {"style" :header-style}
+        REF]]
+      (fn [ref]
+        (is (surrogate? ref))
+        (has-body? ref true)
+        (is-header ref
+          ["span" {"style" :fn-header-style}
+           ["span" {"style" :fn-prefix-style}
+            ["span" {"style" :fn-symbol-style} :fn-symbol]
+            ["span" {"style" :fn-name-style} "cljs-fn-multi-arity-var"]]
+           ["span" {"style" :fn-args-style} (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
+        (is-body ref
+          ["span" {"style" :body-style}
+           ["ol" {"style" :standard-ol-no-margin-style}
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-symbol-style} :fn-symbol]
+               ["span" {"style" :fn-name-style} "cljs-fn-multi-arity-var"]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol "a1" :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-symbol-style} :fn-symbol]
+               ["span" {"style" :fn-name-style} "cljs-fn-multi-arity-var"]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol "a2-1 a2-2" :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-symbol-style} :fn-symbol]
+               ["span" {"style" :fn-name-style} "cljs-fn-multi-arity-var"]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol "a3-1 a3-2 a3-3 a3-4" :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-multi-arity-args-indent-style}
+              ["span" {"style" :fn-prefix-style}
+               ["span" {"style" :fn-symbol-style} :fn-symbol]
+               ["span" {"style" :fn-name-style} "cljs-fn-multi-arity-var"]]]
+             ["span" {"style" :fn-args-style} (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-ns-symbol-style} :fn-ns-symbol]
+             ["span" {"style" :fn-ns-name-style} "devtools.utils.batteries"]]
+            ["li" {"style" :aligned-li-style}
+             ["span" {"style" :fn-native-symbol-style} :fn-native-symbol]
+             REF]]])))))

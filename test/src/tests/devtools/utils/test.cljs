@@ -1,6 +1,7 @@
 (ns devtools.utils.test
   (:require [cljs.test :refer-macros [is]]
             [clojure.walk :refer [postwalk]]
+            [cljs.pprint :refer [pprint]]
             [goog.array :as garr]
             [goog.json :as json]
             [goog.object :as gobj]
@@ -30,12 +31,23 @@
                         false))))
 
 (defn replace-refs [template placeholder]
-  (let [filter (fn [key value] (if (= key "object") placeholder value))]
-    (json/parse (json/serialize template filter))))
+  (let [replacer (fn [v]
+                   (if (and (vector? v)
+                            (= 2 (count v))
+                            (= (first v) "object")
+                            (not (some? (get (second v) "object"))))
+                     ["object" placeholder]
+                     v))]
+    (postwalk replacer template)))
 
 (defn replace-configs [template placeholder]
-  (let [filter (fn [key value] (if (= key "config") placeholder value))]
-    (json/parse (json/serialize template filter))))
+  (let [replacer (fn [v]
+                   (if (and (vector? v)
+                            (= 2 (count v))
+                            (= (first v) "config"))
+                     ["config" placeholder]
+                     v))]
+    (postwalk replacer template)))
 
 (defn collect-refs [template]
   (let [refs (atom [])
@@ -69,15 +81,21 @@
                                 x))]
     (postwalk empty-style-remover v)))
 
+(defn should-unroll? [o]
+  (and (fn? o)
+       (:unroll (meta o))))
+
 (defn unroll-fns [v]
   (if (vector? v)
-    (mapcat (fn [item] (if (fn? item) (unroll-fns (item)) [(unroll-fns item)])) v)
+    (mapcat (fn [item] (if (should-unroll? item) (unroll-fns (item)) [(unroll-fns item)])) v)
     v))
 
 (defn is-template [template expected & callbacks]
   (let [sanitized-template (-> template
+                               (js->clj)
                                (replace-refs "##REF##")
-                               (replace-configs "##CONFIG##"))
+                               (replace-configs "##CONFIG##")
+                               (clj->js))
         refs (collect-refs template)
         expected-template (-> expected
                               (unroll-fns)
@@ -134,7 +152,7 @@
         (str (pr-str value) " SHOULD return false to hasBody call"))))
 
 (defn unroll [& args]
-  (apply partial (concat [mapcat] args)))
+  (with-meta (apply partial (concat [mapcat] args)) {:unroll true}))
 
 (defn match? [[returned expected]]
   (cond
@@ -145,6 +163,9 @@
 (defn match-seqs? [c1 c2]
   (if (= (count c1) (count c2))
     (every? match? (partition 2 (interleave c1 c2)))))
+
+(defn pref-str [& args]
+  (apply str (map #(if (keyword? %) (pref %) %) args)))
 
 ; -- console capture --------------------------------------------------------------------------------------------------------
 

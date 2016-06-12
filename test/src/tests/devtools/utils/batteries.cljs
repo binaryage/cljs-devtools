@@ -86,10 +86,19 @@
 (defn cljs-fn-multi-arity
   ([a1])
   ([a2_1 a2-2])
-  ([a3_1 a3-2 a3-3 a3-4]))
+  ([a3_1 a3--2 a3--3 a3-4]))
 
 (defn cljs-fn-multi-arity-var
   ([a1])
   ([a2_1 a2-2])
   ([a3_1 a3-2 a3-3 a3-4])
   ([va1 va2 & rest]))
+
+(def cljs-lambda-multi-arity (fn
+                               ([] 1)
+                               ([a b])
+                               ([c d e f])))
+
+(def cljs-lambda-multi-arity-var (fn
+                                   ([p1] 1)
+                                   ([first & rest])))

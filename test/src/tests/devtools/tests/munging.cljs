@@ -197,7 +197,7 @@
       b/cljs-fn-with-map-destructuring ["p"]
       b/cljs-fn-with-map-destructuring-var ["& p"]
       b/cljs-fn-var ["first second & rest"]
-      b/cljs-fn-multi-arity ["a1" "a2-1 a2-2" "a3-1 a3-2 a3-3 a3-4"]
+      b/cljs-fn-multi-arity ["a1" "a2-1 a2-2" "a3-1 a3 a3₂ a3-4"]
       b/cljs-fn-multi-arity-var ["a1" "a2-1 a2-2" "a3-1 a3-2 a3-3 a3-4" "va1 va2 & rest"]
       b/inst-type-ifn0 [""]
       b/inst-type-ifn1 ["p1"]
