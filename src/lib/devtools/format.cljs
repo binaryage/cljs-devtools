@@ -1,8 +1,7 @@
 (ns devtools.format
   (:require-macros [devtools.util :refer [oget oset ocall oapply]])
   (:require [devtools.prefs :refer [pref]]
-            [devtools.munging :as munging]
-            [clojure.string :as string]))
+            [devtools.munging :as munging]))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; PROTOCOL SUPPORT
@@ -186,15 +185,13 @@
 
 (defn cljs-function-template [fn-obj]
   (let [[ns name] (munging/parse-fn-info fn-obj)
-        arities (or (munging/collect-fn-arities fn-obj) {:naked fn-obj})
-        multi-arity? (> (count arities) 1)
         args-open-symbol (pref :args-open-symbol)
         args-close-symbol (pref :args-close-symbol)
         multi-arity-symbol (pref :multi-arity-symbol)
         spacer-symbol (pref :spacer)
         rest-symbol (pref :rest-symbol)
-        args-lists (munging/arities-to-args-lists arities true)
-        args-strings (munging/args-lists-to-strings args-lists spacer-symbol multi-arity-symbol rest-symbol)
+        args-strings (munging/extract-args-strings fn-obj true spacer-symbol multi-arity-symbol rest-symbol)
+        multi-arity? (> (count args-strings) 1)
         args (map #(str args-open-symbol % args-close-symbol) args-strings)
         multi-arity-marker (str args-open-symbol multi-arity-symbol args-close-symbol)
         args-template (template :span :fn-args-style (if multi-arity? multi-arity-marker (first args)))

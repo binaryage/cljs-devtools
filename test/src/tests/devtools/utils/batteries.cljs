@@ -36,13 +36,6 @@
 (def inst-type-ifn2va (TypeIFn2va.))
 (def inst-type-ifn4va (TypeIFn4va.))
 
-(deftype ATypeWithIFn []
-  Fn
-  IFn
-  (-invoke [this param1])
-  (-invoke [this p1 p2])
-  (-invoke [this px---1 px---2 & rest]))
-
 (def simple-cljs-fn-source "function devtools_sample$core$hello(name){
   return [cljs.core.str(\"hello, \"),cljs.core.str(name),cljs.core.str(\"!\")].join('');
 }")
@@ -59,6 +52,8 @@
 
 (deftype SomeType [some-field])
 
+(def inst-some-type (SomeType. "xxx"))
+
 ; defrecord with IDevtoolsFormat
 (defrecord Language [lang]
   f/IDevtoolsFormat
@@ -72,7 +67,29 @@
 (def test-reify (reify
                   f/IDevtoolsFormat
                   (-header [_] (f/template "span"
-                                           "color:white; background-color:brown; padding: 0px 4px"
-                                           "testing reify"))
+                                 "color:white; background-color:brown; padding: 0px 4px"
+                                 "testing reify"))
                   (-has-body [_] false)
                   (-body [_])))
+
+
+(defn cljs-fn-with-vec-destructuring [[a b c & rest]])
+(defn cljs-fn-with-vec-destructuring-var [& [a b c & rest]])
+(defn cljs-fn-with-map-destructuring [{:keys [a b c]}])
+(defn cljs-fn-with-map-destructuring-var [& {:keys [a b c]}])
+
+(defn clsj-fn-with-fancy-name#$%!? [arg1! arg? *&mo_re]
+  (str "hello!"))
+
+(defn cljs-fn-var [first second & rest])
+
+(defn cljs-fn-multi-arity
+  ([a1])
+  ([a2_1 a2-2])
+  ([a3_1 a3-2 a3-3 a3-4]))
+
+(defn cljs-fn-multi-arity-var
+  ([a1])
+  ([a2_1 a2-2])
+  ([a3_1 a3-2 a3-3 a3-4])
+  ([va1 va2 & rest]))
