@@ -1,13 +1,24 @@
 <!doctype html>
 <html>
 <head>
-  <title>CLJS DevTools Sample</title>
-  <style>
-    body, html, code, pre { padding: 0; margin: 0 }
-    html { background-color: #1d1f21 }
-    code { margin:0; font-family: Menlo, monospace; font-size: 11px }
-  </style>
-  <link rel="stylesheet" href="css/hybrid.css">
+    <title>CLJS DevTools Sample</title>
+    <style>
+        body, html, code, pre {
+            padding: 0;
+            margin: 0
+        }
+
+        html {
+            background-color: #1d1f21
+        }
+
+        code {
+            margin: 0;
+            font-family: Menlo, monospace;
+            font-size: 11px
+        }
+    </style>
+    <link rel="stylesheet" href="css/hybrid.css">
 </head>
 <body>
 <pre><code></code></pre>
@@ -15,10 +26,10 @@
 <script src="_compiled/demo/goog/base.js" type="text/javascript"></script>
 <script src="_compiled/demo/devtools_sample.js" type="text/javascript"></script>
 <script>
-  goog.require('devtools_sample.core');
+    goog.require('devtools_sample.core');
 </script>
 <br>
-<button onclick="devtools_sample.more.sanity_test_handler()">sanity test</button>
-<button onclick="devtools_sample.more.breakpoint_test_handler()">breakpoint test</button>
+<button onclick="devtools_sample.core.sanity_test_handler()">sanity test</button>
+<button onclick="devtools_sample.core.breakpoint_test_handler()">breakpoint test</button>
 </body>
 </html>

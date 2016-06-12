@@ -21,16 +21,19 @@
 (defn get-meat [source-code]
   (trim-newlines (nth (extract-meat (str "-" "->([^]*?); <-") source-code) 1)))
 
-(defn fetch-source-code []
-  (go (let [response (<! (http/get "/src/demo/devtools_sample/core.cljs"))
-            block (.querySelector js/document "code")]
-        (aset block "innerHTML" (escape-html (get-meat (:body response))))
-        (.highlightBlock js/hljs block))))
+(defn fetch-source-code [source-path]
+  (go
+    (let [response (<! (http/get source-path))
+          block (.querySelector js/document "code")]
+      (aset block "innerHTML" (escape-html (get-meat (:body response))))
+      (.highlightBlock js/hljs block))))
 
-(defn boot! []
+(defn boot! [source-path]
   (when (debug?)
     (log "devtools-sample: enabled debug mode")
     (set! custom-formatters/*monitor-enabled* true)
-    (set! custom-formatters/*sanitizer-enabled* false))
-  (devtools/install! [:custom-formatters :sanity-hints])
-  (fetch-source-code))
+    (set! custom-formatters/*sanitizer-enabled* false)
+    #_(js/goog.require "devtools_sample.debug"))
+  (enable-console-print!)
+  (devtools/install! :all)
+  (fetch-source-code source-path))
