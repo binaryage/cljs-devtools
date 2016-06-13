@@ -76,7 +76,7 @@
 
 (defn remove-empty-styles [v]
   (let [empty-style-remover (fn [x]
-                              (if (and (map? x) (= (get x "style") ""))
+                              (if (and (map? x) (or (= (get x "style") "") (nil? (get x "style"))))
                                 (dissoc x "style")
                                 x))]
     (postwalk empty-style-remover v)))
