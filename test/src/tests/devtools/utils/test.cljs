@@ -71,8 +71,14 @@
     (str (pr-str value) " SHOULD be processed by devtools custom formatter")
     (str (pr-str value) " SHOULD NOT be processed by devtools custom formatter")))
 
+(defn resolve-keyword [k]
+  ; we have a convention to convert :devtools.tests.style/something to {"style" :something-style}
+  (if (= (namespace k) "devtools.tests.style")
+    {"style" (pref (keyword (str (name k) "-style")))}
+    (pref k)))
+
 (defn resolve-prefs [v]
-  (postwalk #(if (keyword? %) (pref %) %) v))
+  (postwalk #(if (keyword? %) (resolve-keyword %) %) v))
 
 (defn remove-empty-styles [v]
   (let [empty-style-remover (fn [x]

@@ -3,6 +3,7 @@
             [devtools.util :refer-macros [oget oset ocall]]
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
+            [devtools.tests.style :as style]
             [devtools.toolbox :as t]
             [devtools.utils.batteries :as b :refer [REF]]))
 
@@ -16,59 +17,59 @@
 (deftest test-envelope
   (testing "default-envelope rendering"
     (is-header default-envelope
-      [:default-envelope-tag {"style" :default-envelope-style} :default-envelope-header])
+      [:default-envelope-tag ::style/default-envelope :default-envelope-header])
     (has-body? default-envelope true)
     (is-body default-envelope
-      [:ol {"style" :standard-ol-style}
-       [:li {"style" :standard-li-style}
+      [:ol ::style/standard-ol
+       [:li ::style/standard-li
         REF]]
       (fn [ref]
         (is-header ref
-          [:span {"style" :cljs-style}
-           [:span {"style" :header-style}
-            [:span {"style" :string-style}
+          [:span ::style/cljs
+           [:span ::style/header
+            [:span ::style/string
              "\"default-envelope\""]]]))))
   (testing "custom-header-envelope rendering"
     (is-header custom-header-envelope
-      [:default-envelope-tag {"style" :default-envelope-style} "custom header"])
+      [:default-envelope-tag ::style/default-envelope "custom header"])
     (has-body? custom-header-envelope true)
     (is-body custom-header-envelope
-      [:ol {"style" :standard-ol-style}
-       [:li {"style" :standard-li-style}
+      [:ol ::style/standard-ol
+       [:li ::style/standard-li
         REF]]
       (fn [ref]
         (is-header ref
-          [:span {"style" :cljs-style}
-           [:span {"style" :header-style}
-            [:span {"style" :string-style}
+          [:span ::style/cljs
+           [:span ::style/header
+            [:span ::style/string
              "\"custom-header-envelope\""]]]))))
   (testing "fn-header-envelope rendering"
     (is-header fn-header-envelope
-      [:default-envelope-tag {"style" :default-envelope-style} "HEADER: fn-header-envelope"])
+      [:default-envelope-tag ::style/default-envelope "HEADER: fn-header-envelope"])
     (has-body? fn-header-envelope true)
     (is-body fn-header-envelope
-      [:ol {"style" :standard-ol-style}
-       [:li {"style" :standard-li-style}
+      [:ol ::style/standard-ol
+       [:li ::style/standard-li
         REF]]
       (fn [ref]
         (is-header ref
-          [:span {"style" :cljs-style}
-           [:span {"style" :header-style}
-            [:span {"style" :string-style}
+          [:span ::style/cljs
+           [:span ::style/header
+            [:span ::style/string
              "\"fn-header-envelope\""]]]))))
   (testing "fully-custom-envelope"
     (is-header fully-custom-envelope
       ["div" {"style" "color:purple"} "header"])
     (has-body? fully-custom-envelope true)
     (is-body fully-custom-envelope
-      [:ol {"style" :standard-ol-style}
-       [:li {"style" :standard-li-style}
+      [:ol ::style/standard-ol
+       [:li ::style/standard-li
         REF]]
       (fn [ref]
         (is-header ref
-          [:span {"style" :cljs-style}
-           [:span {"style" :header-style}
-            [:span {"style" :string-style}
+          [:span ::style/cljs
+           [:span ::style/header
+            [:span ::style/string
              "\"fully-custom-envelope\""]]])))))
 
 ; -- force-format -----------------------------------------------------------------------------------------------------------
@@ -87,29 +88,29 @@
 (deftest test-force-format
   (testing "force-format rendering for string"
     (is-header ff-string
-      [:span {"style" :header-style}
-       [:span {"style" :string-style}
+      [:span ::style/header
+       [:span ::style/string
         (str "\"" string-val "\"")]])
     (has-body? ff-string false))
   (testing "force-format rendering for integer"
     (is-header ff-integer
-      [:span {"style" :header-style}
-       [:span {"style" :integer-style}
+      [:span ::style/header
+       [:span ::style/integer
         integer-val]])
     (has-body? ff-string false))
   (testing "force-format rendering for float"
     (is-header ff-float
-      [:span {"style" :header-style}
-       [:span {"style" :float-style}
+      [:span ::style/header
+       [:span ::style/float
         float-val]])
     (has-body? ff-float false))
   (testing "force-format rendering for nil"
     (is-header ff-nil
-      [:span {"style" :header-style}
-       [:span {"style" :nil-style}
+      [:span ::style/header
+       [:span ::style/nil
         "nil"]])
     (has-body? ff-nil false))
   (testing "force-format rendering for regexp"
     (is-header ff-regexp
-      [:span {"style" :header-style} "#\"" "regexp" "\""])
+      [:span ::style/header "#\"" "regexp" "\""])
     (has-body? ff-regexp false)))
