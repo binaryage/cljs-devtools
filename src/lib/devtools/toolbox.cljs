@@ -1,6 +1,5 @@
 (ns devtools.toolbox
-  (:require [devtools.format :as format]
-            [devtools.prefs :as prefs]))
+  (:require [devtools.format :as format]))
 
 (defn envelope
   "This is a simple wrapper for logging \"busy\" objects.
@@ -9,11 +8,11 @@
   console output pretty busy. By using envelope you can force your own short header and let the details expand on demand
   via a disclosure triangle. The header can be styled and you can optionally specify preferred wrapping tag (advanced)."
   ([obj]
-   (envelope obj (prefs/pref :default-envelope-header)))
+   (envelope obj :default-envelope-header))
   ([obj header]
-   (envelope obj header ""))
+   (envelope obj header :default-envelope-style))
   ([obj header style]
-   (envelope obj header style "span"))
+   (envelope obj header style :default-envelope-tag))
   ([obj header style tag]
    (reify
      format/IDevtoolsFormat

@@ -141,6 +141,8 @@
    :body-pre-handler                 nil
    :body-post-handler                nil
    :default-envelope-header          "\uD83D\uDCE8"
+   :default-envelope-style           nil
+   :default-envelope-tag             "span"
    :bypass-availability-checks       false})
 
 (def ^:dynamic *prefs* default-prefs)
