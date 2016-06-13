@@ -73,4 +73,43 @@
 
 ; -- force-format -----------------------------------------------------------------------------------------------------------
 
-;(deftest test-force-format)
+(def string-val "string")
+(def ff-string (t/force-format string-val))
+(def integer-val 100)
+(def ff-integer (t/force-format integer-val))
+(def float-val 1.1)
+(def ff-float (t/force-format float-val))
+(def nil-val nil)
+(def ff-nil (t/force-format nil-val))
+(def regexp-val #"regexp")
+(def ff-regexp (t/force-format regexp-val))
+
+(deftest test-force-format
+  (testing "force-format rendering for string"
+    (is-header ff-string
+      [:span {"style" :header-style}
+       [:span {"style" :string-style}
+        (str "\"" string-val "\"")]])
+    (has-body? ff-string false))
+  (testing "force-format rendering for integer"
+    (is-header ff-integer
+      [:span {"style" :header-style}
+       [:span {"style" :integer-style}
+        integer-val]])
+    (has-body? ff-string false))
+  (testing "force-format rendering for float"
+    (is-header ff-float
+      [:span {"style" :header-style}
+       [:span {"style" :float-style}
+        float-val]])
+    (has-body? ff-float false))
+  (testing "force-format rendering for nil"
+    (is-header ff-nil
+      [:span {"style" :header-style}
+       [:span {"style" :nil-style}
+        "nil"]])
+    (has-body? ff-nil false))
+  (testing "force-format rendering for regexp"
+    (is-header ff-regexp
+      [:span {"style" :header-style} "#\"" "regexp" "\""])
+    (has-body? ff-regexp false)))
