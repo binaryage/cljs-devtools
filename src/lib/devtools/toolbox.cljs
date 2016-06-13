@@ -20,3 +20,17 @@
      (-header [_] (format/template tag style (if (fn? header) (header obj) header)))
      (-has-body [_] true)
      (-body [_] (format/standard-reference obj)))))
+
+(defn force-format
+  "Forces object to be rendered by cljs-devtools during console logging.
+
+  Unfortunately custom formatters subsystem in DevTools is not applied to primitive values like numbers, strings, null, etc.
+  This wrapper can be used as a workaround if you really need to force cljs-devtools rendering:
+
+    (.log js/console nil) ; will render 'null'
+    (.log js/console (force-format nil)) ; will render 'nil' and not 'null'
+
+  See https://github.com/binaryage/cljs-devtools/issues/17
+  "
+  [obj]
+  (format/surrogate obj (format/build-header obj) false))
