@@ -50,12 +50,6 @@
        "\n"
        "last line"))
 
-(def busy-obj
-  (js-obj
-    "a" 1
-    "s" "string"
-    "f" (fn some-fn [] (str "do" "something"))))
-
 (def state (atom []))
 
 (defn simple-fn [count]
@@ -112,13 +106,6 @@
 (log circular1)
 (log circular2)
 (log (var v))
-(log (toolbox/envelope (range 20)))
-(log (toolbox/envelope js/window "win envelope with a custom header"))
-(log (toolbox/envelope "hello!" #(str "envelope with a custom header function, the wrapped value is '" % "'")))
-(log (toolbox/envelope busy-obj
-                       "busy js-object envelope with a custom style"
-                       "color:white;background-color:purple;padding:0px 4px;"
-                       "div"))
 
 ; see https://github.com/binaryage/cljs-devtools/issues/14#issuecomment-217485305
 (.log js/console {:value "b"
