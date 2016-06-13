@@ -8,7 +8,7 @@
 (boot! "/src/demo/devtools_sample/lab.cljs")
 
 ; --- MEAT STARTS HERE -->
-; note: (log ...) function is a shorthand for (.log js/console ...)
+; note: (log ...) expands to (.log js/console ...)
 
 (deftype SomeType [some-field])
 

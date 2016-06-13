@@ -7,7 +7,7 @@
 (boot! "/src/demo/devtools_sample/core.cljs")
 
 ; --- MEAT STARTS HERE -->
-; note: (log ...) function is a shorthand for (.log js/console ...)
+; note: (log ...) expands to (.log js/console ...)
 
 (defn hello [name]
   (str "hello, " name "!"))
