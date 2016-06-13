@@ -16,7 +16,7 @@
   If you discovered breakage or a new case which should be covered by this code, please open an issue:
     https://github.com/binaryage/cljs-devtools/issues"
   (:require [clojure.string :as string]
-            [devtools.util :refer-macros [oget oset ocall]]))
+            [devtools.util :refer-macros [oget oset ocall safe-call]]))
 
 (declare collect-fn-arities)
 
@@ -78,7 +78,7 @@
     2. and name must be cljs-fn-name? (name can come from f.name or parsed out of function source)
     3. or if anonymous function, must be non-trivial"
   [f]
-  (if (fn? f)
+  (if (safe-call fn? false f)                                                                                                       ; calling fn? on window object could throw for some weird reason
     (let [name (oget f name)]
       (if-not (empty? name)
         (cljs-fn-name? name)

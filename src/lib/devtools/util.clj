@@ -23,3 +23,9 @@
        (assert target# (str "unable to locate object path " ~keys " in " ~obj-sym))
        (goog.object/set target# (last ~ks) ~val)
        ~obj-sym)))
+
+(defmacro safe-call [f exceptional-result & args]
+  `(try
+     (~f ~@args)
+     (catch :default e#
+       ~exceptional-result)))

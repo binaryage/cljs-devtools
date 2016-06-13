@@ -1,5 +1,5 @@
 (ns devtools.format
-  (:require-macros [devtools.util :refer [oget oset ocall oapply]])
+  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.munging :as munging]))
 
@@ -279,7 +279,7 @@
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
-    (if (and (not (:entered-reference *current-state*)) (satisfies? IDevtoolsFormat obj))                                     ; we have to wrap value in reference if detected IDevtoolsFormat
+    (if (and (not (:entered-reference *current-state*)) (safe-call satisfies? false IDevtoolsFormat obj))                     ; we have to wrap value in reference if detected IDevtoolsFormat
       (-write writer (reference obj))                                                                                         ; :entered-reference is here for prevention of infinite recursion
       (let [circular? (is-circular?! obj)]
         (push-object-to-current-history! obj)
@@ -377,20 +377,20 @@
 (defn header* [value]
   (cond
     (surrogate? value) (aget value "header")
-    (satisfies? IDevtoolsFormat value) (-header value)
+    (safe-call satisfies? false IDevtoolsFormat value) (-header value)
     :else (build-header-wrapped value)))
 
 (defn has-body* [value]
   ; note: body is emulated using surrogate references
   (cond
     (surrogate? value) (aget value "hasBody")
-    (satisfies? IDevtoolsFormat value) (-has-body value)
+    (safe-call satisfies? false IDevtoolsFormat value) (-has-body value)
     :else false))
 
 (defn body* [value]
   (cond
     (surrogate? value) (build-surrogate-body value)
-    (satisfies? IDevtoolsFormat value) (-body value)))
+    (safe-call satisfies? false IDevtoolsFormat value) (-body value)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API config-aware, see state management documentation above
