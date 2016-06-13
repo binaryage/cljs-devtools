@@ -1,6 +1,9 @@
 (ns devtools.utils.batteries
   (:require [devtools.format :as f]))
 
+(def REF ["object" {"object" "##REF##"
+                    "config" "##CONFIG##"}])
+
 (deftype TypeIFn0 []
   Fn
   IFn

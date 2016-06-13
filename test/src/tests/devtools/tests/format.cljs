@@ -6,10 +6,7 @@
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
             [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.format :as f]
-            [devtools.utils.batteries :as b]))
-
-(def REF ["object" {"object" "##REF##"
-                    "config" "##CONFIG##"}])
+            [devtools.utils.batteries :as b :refer [REF]]))
 
 (deftype SimpleType [some-field])
 
