@@ -20,9 +20,10 @@
       [:default-envelope-tag ::style/default-envelope :default-envelope-header])
     (has-body? default-envelope true)
     (is-body default-envelope
-      [:ol ::style/standard-ol
-       [:li ::style/standard-li
-        REF]]
+      [:span ::style/body
+       [:ol ::style/standard-ol
+        [:li ::style/standard-li
+         REF]]]
       (fn [ref]
         (is-header ref
           [:span ::style/cljs
@@ -34,9 +35,10 @@
       [:default-envelope-tag ::style/default-envelope "custom header"])
     (has-body? custom-header-envelope true)
     (is-body custom-header-envelope
-      [:ol ::style/standard-ol
-       [:li ::style/standard-li
-        REF]]
+      [:span ::style/body
+       [:ol ::style/standard-ol
+        [:li ::style/standard-li
+         REF]]]
       (fn [ref]
         (is-header ref
           [:span ::style/cljs
@@ -48,9 +50,10 @@
       [:default-envelope-tag ::style/default-envelope "HEADER: fn-header-envelope"])
     (has-body? fn-header-envelope true)
     (is-body fn-header-envelope
-      [:ol ::style/standard-ol
-       [:li ::style/standard-li
-        REF]]
+      [:span ::style/body
+       [:ol ::style/standard-ol
+        [:li ::style/standard-li
+         REF]]]
       (fn [ref]
         (is-header ref
           [:span ::style/cljs
@@ -62,9 +65,10 @@
       ["div" {"style" "color:purple"} "header"])
     (has-body? fully-custom-envelope true)
     (is-body fully-custom-envelope
-      [:ol ::style/standard-ol
-       [:li ::style/standard-li
-        REF]]
+      [:span ::style/body
+       [:ol ::style/standard-ol
+        [:li ::style/standard-li
+         REF]]]
       (fn [ref]
         (is-header ref
           [:span ::style/cljs
