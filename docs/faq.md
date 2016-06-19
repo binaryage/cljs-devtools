@@ -9,6 +9,25 @@ can output rich formatting / expandable-structure (JsonML).
 
 Read more in [this Google Doc](https://docs.google.com/document/d/1FTascZXT9cxfetuPRT2eXPQKXui4nWFivUnS_335T3U).
 
+### Why some custom formatters were not rendered?
+
+First, custom formatters must be enabled in DevTools Settings:
+
+`> DevTools menu > Settings (F1) > Console > Enable custom formatters`
+
+The feature is disabled by default and it is easy to forget to enable it after starting with a new Chrome profile.
+
+Second, please note that custom formatters is a feature of DevTools UI, but console logging is a general feature of Javascript runtime.
+When logging happens while DevTools is not attached a different logging system is used for recoding console logs in background.
+When DevTools later attaches, existing recorded logs are replayed in the DevTools Console UI. Unfortunately during this replay process
+no custom formatters are applied, so you can see only raw logs. There are probably some technical reasons for this behaviour.
+
+To see properly formatted logs you have to refresh your page while DevTools are attached. Any newly printed logs should have
+custom formatters applied assuming you have enabled the feature in the DevTools Settings.
+
+This behaviour caused some confusion among users so I implemented a detection and since v0.7 we print a warning
+when custom formatters seem not to get rendered.
+
 ### What is the `:sanity-hints` feature?
 
 Sometimes your DevTools displays cryptic errors like `Cannot read property 'call' of null`. The problem is in the way how ClojureScript compiler emits function calls.
