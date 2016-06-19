@@ -8,8 +8,6 @@
 (def ^:dynamic *console-open* false)
 (def ^:dynamic *custom-formatters-warning-reported* false)
 
-(def cf-help-url "https://github.com/binaryage/cljs-devtools/blob/master/docs/install.md#enable-custom-formatters-in-chrome")
-
 (defn ^:dynamic make-version-info []
   (let [version (get-current-version)]
     (str "v" version)))
@@ -26,10 +24,8 @@
        "Unsupported browser " (ua/getUserAgentString) "."))
 
 (defn ^:dynamic custom-formatters-not-active-msg []
-  (str "Custom formatters functionality does not seem to be active in your DevTools.\n"
-       "Please make sure you have \"custom formatters\" option enabled in your DevTools settings:\n"
-       "> DevTools menu > Settings (F1) > Console > Enable custom formatters (it is disabled by default)\n"
-       cf-help-url))
+  (str "CLJS DevTools: some custom formatters were not rendered.\n"
+       "https://github.com/binaryage/cljs-devtools/blob/master/docs/faq.md#why-some-custom-formatters-were-not-rendered"))
 
 (defn get-lib-info []
   (make-lib-info))
