@@ -40,6 +40,44 @@
 (defn get-fn-max-fixed-arity [f]
   (oget f "cljs$lang$maxFixedArity"))
 
+(defn char-to-subscript
+  "Given a character with a single digit converts it into a subscript character.
+  Zero chracter maps to unicode 'SUBSCRIPT ZERO' (U+2080)."
+  [char]
+  {:pre [(string? char)
+         (= (count char) 1)]}
+  (let [char-code (ocall (js/String. char) "charCodeAt" 0)                                                                    ; this is an ugly trick to overcome a V8? bug, char string might not be a real string "object"
+        num-code (- char-code 48)
+        subscript-code (+ 0x2080 num-code)]
+    (ocall js/String "fromCharCode" subscript-code)))
+
+(defn make-subscript
+  "Given a subscript number converts it into a string representation consisting of unicode subscript characters (digits)."
+  [subscript]
+  {:pre [(number? subscript)]}
+  (string/join (map char-to-subscript (str subscript))))
+
+(defn char-to-superscript
+  "Given a character with a single digit converts it into a superscript character.
+  Zero chracter maps to unicode 'SUPERSCRIPT ZERO' (U+2070)."
+  [char]
+  {:pre [(string? char)
+         (= (count char) 1)]}
+  (let [char-code (ocall (js/String. char) "charCodeAt" 0)                                                                    ; this is an ugly trick to overcome a V8? bug, char string might not be a real string "object"
+        num-code (- char-code 48)
+        superscript-code (case num-code                                                                                       ; see https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
+                           1 0x00B9
+                           2 0x00B2
+                           3 0x00B3
+                           (+ 0x2070 num-code))]
+    (ocall js/String "fromCharCode" superscript-code)))
+
+(defn make-superscript
+  "Given a superscript number converts it into a string representation consisting of unicode superscript characters (digits)."
+  [superscript]
+  {:pre [(number? superscript)]}
+  (string/join (map char-to-superscript (str superscript))))
+
 ; -- cljs naming conventions ------------------------------------------------------------------------------------------------
 
 (defn cljs-fn-name?
@@ -78,7 +116,7 @@
     2. and name must be cljs-fn-name? (name can come from f.name or parsed out of function source)
     3. or if anonymous function, must be non-trivial"
   [f]
-  (if (safe-call fn? false f)                                                                                                       ; calling fn? on window object could throw for some weird reason
+  (if (safe-call fn? false f)                                                                                                 ; calling fn? on window object could throw for some weird reason
     (let [name (oget f name)]
       (if-not (empty? name)
         (cljs-fn-name? name)
@@ -115,30 +153,77 @@
   remaining-parts is a vector of remaing input parts not included in the detected-ns concatenation.
 
   For given input [\"cljs\" \"core\" \"first\"] returns [\"cljs.core\" [\"first\"]] (asumming cljs.core exists)"
-  [parts]
-  (loop [name-parts []
-         remaining-parts parts]
-    (if (empty? remaining-parts)
-      ["" name-parts]
-      (let [ns-name (string/join "." remaining-parts)]
-        (if (ns-exists? ns-name)
-          [ns-name name-parts]
-          (recur (concat [(last remaining-parts)] name-parts) (butlast remaining-parts)))))))
+  [tokens & [ns-detector]]
+  (let [effective-detector (or ns-detector ns-exists?)]
+    (loop [name-tokens []
+           remaining-tokens tokens]
+      (if (empty? remaining-tokens)
+        ["" name-tokens]
+        (let [ns-name (string/join "." remaining-tokens)]
+          (if (effective-detector ns-name)
+            [ns-name name-tokens]
+            (recur (concat [(last remaining-tokens)] name-tokens) (butlast remaining-tokens))))))))
+
+(defn normalize-arity [arity-tokens]
+  (if-not (empty? arity-tokens)
+    (let [arity (first arity-tokens)]
+      (case arity
+        "variadic" arity
+        (ocall js/window "parseInt" arity 10)))))
+
+(defn strip-arity [tokens]
+  (let [[prefix-tokens arity-tokens] (split-with #(not= % "arity") tokens)]
+    [prefix-tokens (normalize-arity (rest arity-tokens))]))
+
+(defn parse-protocol [tokens detector]
+  (loop [remaining-tokens tokens
+         name-tokens []]
+    (if (empty? remaining-tokens)
+      [name-tokens]
+      (let [[protocol-ns name-and-method-tokens] (detect-namespace-prefix remaining-tokens detector)]
+        (if (empty? protocol-ns)
+          (recur (rest remaining-tokens) (conj name-tokens (first remaining-tokens)))
+          [name-tokens protocol-ns (first name-and-method-tokens) (rest name-and-method-tokens)])))))                         ; we assume protocol names are always a single-token
 
 (defn break-munged-name
-  "Given a munged-name from Javascript lands attempts to break it into a namespace part and remaining short name."
-  [munged-name]
-  (let [parts (vec (.split munged-name "$"))
-        [munged-ns name-parts] (detect-namespace-prefix parts)
-        munged-name (string/join "$" name-parts)]
-    [munged-ns munged-name]))
+  "Given a munged-name from Javascript lands attempts to break it into:
+  [fn-ns fn-name protocol-ns protocol-name protocol-method arity].
+
+  Protocol and arity elements are optional. Function elements are always present or \"\".
+
+  examples for input:
+    cljs$core$rest => ['cljs.core', 'rest']
+    cljs.core.reduce$cljs$core$IFn$_invoke$arity$3 => ['cljs.core' 'reduce' 'cljs.core' 'IFn' '_invoke' 3]"
+  ([munged-name]
+   (break-munged-name munged-name nil))
+  ([munged-name ns-detector]
+   (if (empty? munged-name)
+     ["" ""]
+     (let [effective-detector (or ns-detector ns-exists?)
+           tokens (vec (.split munged-name #"[$.]"))
+           [tokens arity] (strip-arity tokens)
+           [fn-ns tokens] (detect-namespace-prefix tokens effective-detector)
+           ; remianing parts contains function name,
+           ; but may be optionally followed by protocol namespace, protocol name and protocol method
+           [fn-name-tokens protocol-ns protocol-name protocol-method-tokens] (parse-protocol tokens effective-detector)
+           fn-name (string/join "$" fn-name-tokens)
+           protocol-method (if protocol-method-tokens (string/join "$" protocol-method-tokens))]
+       [fn-ns fn-name protocol-ns protocol-name protocol-method arity]))))
 
 (defn break-and-demunge-name
-  "Given a munged-name from Javascript lands attempts to brek it into a namespace part and remaining short name.
+  "Given a munged-name from Javascript lands attempts to break it into a namespace part and remaining short name.
   Then applies appropriate demunging on them and returns ClojureScript versions of the names."
-  [munged-name]
-  (let [[munged-ns munged-name] (break-munged-name munged-name)]
-    [(demunge-ns munged-ns) (dollar-preserving-demunge munged-name)]))
+  ([munged-name]
+   (break-and-demunge-name munged-name nil))
+  ([munged-name ns-detector]
+   (let [result (break-munged-name munged-name ns-detector)
+         [munged-ns munged-name munged-protocol-ns munged-protocol-name munged-protocol-method arity] result]
+     [(demunge-ns munged-ns)
+      (dollar-preserving-demunge munged-name)
+      (if munged-protocol-ns (demunge-ns munged-protocol-ns))
+      (if munged-protocol-name (demunge munged-protocol-name))                                                                ; we assume protocol names don't have dollars
+      (if munged-protocol-method (dollar-preserving-demunge munged-protocol-method))
+      arity])))
 
 ; -- fn info ----------------------------------------------------------------------------------------------------------------
 
@@ -183,22 +268,6 @@
       fn-info)))
 
 ; -- support for human-readable names ---------------------------------------------------------------------------------------
-
-(defn char-to-subscript
-  "Given a character with a single digit converts it into a subscript character.
-  Zero chracter maps to unicode 'SUBSCRIPT ZERO' (U+2080)."
-  [char]
-  {:pre [(string? char)
-         (= (count char) 1)]}
-  (let [char-code (ocall (js/String. char) "charCodeAt" 0)                                                                    ; this is an ugly trick to overcome a V8? bug, char string might not be a real string "object"
-        subscript-code (+ 8320 -48 char-code)]                                                                                ; 'SUBSCRIPT ZERO' (U+2080), start with subscript '1'
-    (ocall js/String "fromCharCode" subscript-code)))
-
-(defn make-subscript
-  "Given a subscript number converts it into a string representation consisting of unicod subscript characters (digits)."
-  [subscript]
-  {:pre [(number? subscript)]}
-  (string/join (map char-to-subscript (str subscript))))
 
 (defn find-index-of-human-prefix
   "Given a demunged ClojureScript parameter name. Tries to detect human readable part and returns the index where it ends.
@@ -343,3 +412,39 @@
   (-> (or (collect-fn-arities f) {:naked f})
       (arities-to-args-lists humanize?)
       (args-lists-to-strings spacer-symbol multi-arity-symbol rest-symbol)))
+
+(defn common-protocol? [protocol-ns protocol-name]
+  (and (= protocol-ns "cljs.core")
+       (= protocol-name "IFn")))
+
+(defn present-fn-part [fn-ns fn-name include-ns?]
+  (str
+    (if (and include-ns? (not (empty? fn-ns))) (str fn-ns "/"))
+    fn-name))
+
+(defn present-protocol-part [protocol-ns protocol-name protocol-method include-protocol-ns?]
+  (str (if include-protocol-ns? protocol-ns)
+       (if-not (empty? protocol-name) (str (if include-protocol-ns? ".") protocol-name))
+       (if-not (empty? protocol-method) (str (if (or include-protocol-ns? (not (empty? protocol-name))) ":")
+                                             protocol-method))))
+
+(defn present-function-name
+  "Given javascript function name tries to present it as plain string for display in UI on best effort basis."
+  [munged-name options]
+  (let [{:keys [include-ns? include-protocol-ns? silence-common-protocols? ns-detector]} options
+        [fn-ns fn-name protocol-ns protocol-name protocol-method arity] (break-and-demunge-name munged-name ns-detector)
+        arity-str (if (some? arity)
+                    (if (= arity "variadic")
+                      "\u207F"                                                                                                ; 'SUPERSCRIPT LATIN SMALL LETTER N' (U+207F)
+                      (make-superscript arity)))]
+    (if (empty? fn-name)
+      munged-name
+      (let [fn-part (present-fn-part fn-ns fn-name include-ns?)
+            protocol-part (if (and protocol-ns
+                                   (not (and silence-common-protocols?
+                                             (common-protocol? protocol-ns protocol-name))))
+                            (present-protocol-part protocol-ns protocol-name protocol-method include-protocol-ns?))]
+        (str
+          (or protocol-part fn-part)
+          arity-str
+          (if protocol-part (str " (" fn-part ")")))))))
