@@ -28,6 +28,12 @@ custom formatters applied assuming you have enabled the feature in the DevTools 
 This behaviour caused some confusion among users so I implemented a detection and since v0.7 we print a warning
 when custom formatters seem not to get rendered.
 
+You can disable this warning by setting this pref prior installation:
+
+```clojure
+(devtools.core/set-pref! :dont-detect-custom-formatters true)
+```
+
 ### What is the `:sanity-hints` feature?
 
 Sometimes your DevTools displays cryptic errors like `Cannot read property 'call' of null`. The problem is in the way how ClojureScript compiler emits function calls.
