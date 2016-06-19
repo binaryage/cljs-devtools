@@ -54,10 +54,10 @@ Note `<<< ☢ RETURNED NULL ☢ <<< ` part which points to error location. The u
   ((fn-returns-nil) "param"))
 ```
 
-You can enable the feature by setting this pref prior calling `install!`:
+You can enable the feature when calling `install!`:
 
 ```clojure
-(devtools/install! [:custom-formatters :sanity-hints])
+(devtools.core/install! [:custom-formatters :sanity-hints])
 ```
 
 Technical details are described in [the source file](https://github.com/binaryage/cljs-devtools/blob/master/src/devtools/sanity_hints.cljs).
