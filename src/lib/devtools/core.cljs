@@ -17,7 +17,7 @@
     :sanity-hints (sanity-hints/available?)))
 
 (defn available?
-  ([] (available? :default))
+  ([] (available? (prefs/pref :features-to-install)))
   ([features-desc]
    (let [features (resolve-features! features-desc feature-groups)]
      (if (empty? features)
@@ -30,7 +30,7 @@
     :sanity-hints (sanity-hints/installed?)))
 
 (defn installed?
-  ([] (installed? :default))
+  ([] (installed? (prefs/pref :features-to-install)))
   ([features-desc]
    (let [features (resolve-features! features-desc feature-groups)]
      (if (empty? features)
@@ -38,7 +38,7 @@
        (every? is-feature-installed? features)))))
 
 (defn install!
-  ([] (install! :default))
+  ([] (install! (prefs/pref :features-to-install)))
   ([features-desc]
    (let [features (resolve-features! features-desc feature-groups)]
      (display-banner-if-needed! features feature-groups)
