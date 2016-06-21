@@ -8,7 +8,10 @@
 (def string-border-color "rgba(255, 100, 100, 0.4)")
 
 (def default-prefs
-  {:sanity-hint-min-length           128
+  {:features-to-install              :default
+   :suppress-preload-install         false
+   :print-config-overrides           false
+   :sanity-hint-min-length           128
    :max-print-level                  2
    :body-line-max-print-level        3
    :max-header-elements              5
