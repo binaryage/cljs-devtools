@@ -5,7 +5,7 @@
   (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [clojure.string :as string]
-            [devtools.core :as devtools]
+            [devtools.core] ; TODO: review this later
             [devtools.custom-formatters :as custom-formatters]))
 
 (defn extract-meat [re s]
@@ -35,5 +35,4 @@
     (set! custom-formatters/*sanitizer-enabled* false)
     #_(js/goog.require "devtools_sample.debug"))
   (enable-console-print!)
-  (devtools/install! :all)
   (fetch-source-code source-path))

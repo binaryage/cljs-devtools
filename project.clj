@@ -3,8 +3,8 @@
   :url "https://github.com/binaryage/cljs-devtools-sample"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.76"]
-                 [binaryage/devtools "0.7.1"]
+                 [org.clojure/clojurescript "1.9.85"]
+                 [binaryage/devtools "0.7.2"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.41"]
                  [environ "1.0.3"]
@@ -36,6 +36,8 @@
                                     :compiler     {:output-to     "resources/public/_compiled/demo/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/demo"
                                                    :asset-path    "_compiled/demo"
+                                                   :main          devtools-sample.core
+                                                   :preloads      [devtools.preload]
                                                    :optimizations :none
                                                    :source-map    true}}}}}
              ; --------------------------------------------------------------------------------------------------------------
