@@ -2,7 +2,8 @@
   (:require [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info]]))
+            [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
+                                   print-config-overrides-if-requested!]]))
 
 (def known-features [:custom-formatters :sanity-hints])
 (def default-features [:custom-formatters])
@@ -42,6 +43,7 @@
   ([features-desc]
    (let [features (resolve-features! features-desc feature-groups)]
      (display-banner-if-needed! features feature-groups)
+     (print-config-overrides-if-requested! "config overrides prior install:\n")
      (install-feature! :custom-formatters features is-feature-available? custom-formatters/install!)
      (install-feature! :sanity-hints features is-feature-available? sanity-hints/install!))))
 

@@ -1,6 +1,8 @@
 (ns devtools.util
   (:require-macros [devtools.util :refer [oget ocall oset]])
   (:require [goog.userAgent :as ua]
+            [clojure.data :as data]
+            [cljs.pprint :refer [pprint]]
             [devtools.version :refer [get-current-version]]
             [devtools.prefs :as prefs]))
 
@@ -41,6 +43,12 @@
 (defn set-formatters-safe! [new-formatters]
   {:pre [(or (nil? new-formatters) (array? new-formatters))]}
   (aset js/window formatter-key (if (empty? new-formatters) nil new-formatters)))
+
+(defn print-config-overrides-if-requested! [msg]
+  (when (prefs/pref :print-config-overrides)
+    (let [diff (second (data/diff prefs/default-prefs (prefs/get-prefs)))]
+      (if-not (empty? diff)
+        (.info js/console msg (with-out-str (pprint diff)))))))
 
 ; -- custom formatters detection --------------------------------------------------------------------------------------------
 
