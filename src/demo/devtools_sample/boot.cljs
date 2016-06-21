@@ -3,9 +3,7 @@
                    [devtools-sample.logging :refer [log]])
   (:require [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
-            [clojure.string :as string]
-            [devtools.core] ; TODO: review this later
-            [devtools.custom-formatters :as custom-formatters]))
+            [clojure.string :as string]))
 
 (defn extract-meat [re s]
   (let [rex (js/RegExp. re "igm")]
