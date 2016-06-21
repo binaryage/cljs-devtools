@@ -1,7 +1,7 @@
-(ns devtools.dead-code-elimination.core
+(ns devtools.dead-code.core
   (:require [devtools.core :as devtools]))
 
-; we use :closure-defines to elide (devtools/install!) calls (see project.clj :dead-code-elimination build
+; we use :closure-defines to elide (devtools/install!) calls (see project.clj :dead-code build
 ; the because there is no other reference to devtools code,
 ; it should be completely eliminated as dead code in advanced builds
 

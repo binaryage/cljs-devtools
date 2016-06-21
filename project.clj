@@ -40,15 +40,31 @@
                                     :compiler     {:output-to     "test/resources/_compiled/tests/build.js"
                                                    :output-dir    "test/resources/_compiled/tests"
                                                    :asset-path    "_compiled/tests"
+                                                   :main          devtools.main
                                                    :optimizations :none
                                                    :pretty-print  true
                                                    :source-map    true}}
-                                   :dead-code-elimination
+                                   :tests-with-config
                                    {:source-paths ["src/lib"
-                                                   "test/src/dead-code-elimination"]
-                                    :compiler     {:output-to       "test/resources/_compiled/dead-code-elimination/build.js"
-                                                   :output-dir      "test/resources/_compiled/dead-code-elimination"
-                                                   :asset-path      "_compiled/dead-code-elimination"
+                                                   "test/src/tests"]
+                                    :compiler     {:output-to      "test/resources/_compiled/tests-with-config/build.js"
+                                                   :output-dir     "test/resources/_compiled/tests-with-config"
+                                                   :asset-path     "_compiled/tests-with-config"
+                                                   :main           devtools.main
+                                                   :optimizations  :none
+                                                   :tooling-config {:devtools/config {:features-to-install    [:sanity-hints]
+                                                                                      :fn-symbol              "F"
+                                                                                      :print-config-overrides true}}
+                                                   :preloads       [devtools.preload]                                         ; CLJS-1688
+                                                   :pretty-print   true
+                                                   :source-map     true}}
+                                   :dead-code
+                                   {:source-paths ["src/lib"
+                                                   "test/src/dead-code"]
+                                    :compiler     {:output-to       "test/resources/_compiled/dead-code/build.js"
+                                                   :output-dir      "test/resources/_compiled/dead-code"
+                                                   :asset-path      "_compiled/dead-code"
+                                                   :main            devtools.main
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
                                                    :optimizations   :advanced}}}}}
@@ -56,23 +72,26 @@
              {:cljsbuild {:builds {:tests
                                    {:notify-command ["lein" "run-phantom"]}}}}}
 
-  :aliases {"test"           ["do"
-                              "test-phantom,"
-                              "test-dead-code"]
-            "test-dead-code" ["do"
-                              "with-profile" "+testing" "cljsbuild" "once" "dead-code-elimination,"
-                              "shell" "test/scripts/dead-code-check.sh"]
-            "test-phantom"   ["do"
-                              "with-profile" "+testing" "cljsbuild" "once" "tests,"
-                              "run-phantom"]
-            "run-phantom"    ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/runner.html"]
-            "auto-test"      ["do"
-                              "clean,"
-                              "with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]
-            "release"        ["do"
-                              "shell" "scripts/check-versions.sh,"
-                              "clean,"
-                              "test,"
-                              "jar,"
-                              "shell" "scripts/check-release.sh,"
-                              "deploy" "clojars"]})
+  :aliases {"test"                   ["do"
+                                      "test-tests,"
+                                      "test-tests-with-config,"
+                                      "test-dead-code"]
+            "test-dead-code"         ["do"
+                                      "with-profile" "+testing" "cljsbuild" "once" "dead-code,"
+                                      "shell" "test/scripts/dead-code-check.sh"]
+            "test-tests"             ["do"
+                                      "with-profile" "+testing" "cljsbuild" "once" "tests,"
+                                      "shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]
+            "test-tests-with-config" ["do"
+                                      "with-profile" "+testing" "cljsbuild" "once" "tests-with-config,"
+                                      "shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]
+            "auto-test"              ["do"
+                                      "clean,"
+                                      "with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]
+            "release"                ["do"
+                                      "shell" "scripts/check-versions.sh,"
+                                      "clean,"
+                                      "test,"
+                                      "jar,"
+                                      "shell" "scripts/check-release.sh,"
+                                      "deploy" "clojars"]})

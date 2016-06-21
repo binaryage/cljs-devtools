@@ -8,7 +8,8 @@
             [devtools.tests.format]
             [devtools.tests.prefs]
             [devtools.tests.toolbox]
-            [devtools.tests.cljs]))
+            [devtools.tests.cljs]
+            [devtools.tests.config]))
 
 ; taken from https://github.com/pjlegato/clansi/blob/7c9a525f5a72d928031573586cbce9a5f5699e15/src/clansi/core.clj
 (def ANSI-CODES
@@ -99,12 +100,22 @@
 
 ; -- entry point ------------------------------------------------------------------------------------------------------------
 
-(test/run-tests
-  (cljs.test/empty-env ::test/default)
-  'devtools.tests.core
-  'devtools.tests.cljs
-  'devtools.tests.prefs
-  'devtools.tests.munging
-  'devtools.tests.custom-formatters
-  'devtools.tests.format
-  'devtools.tests.toolbox)
+(defn run-normal-tests []
+  (test/run-tests
+    (cljs.test/empty-env ::test/default)
+    'devtools.tests.core
+    'devtools.tests.cljs
+    'devtools.tests.prefs
+    'devtools.tests.munging
+    'devtools.tests.custom-formatters
+    'devtools.tests.format
+    'devtools.tests.toolbox))
+
+(defn run-config-tests []
+  (test/run-tests
+    (cljs.test/empty-env ::test/default)
+    'devtools.tests.config))
+
+(case (.-selectedTestSuite js/window)
+  "config-tests" (run-config-tests)
+  (run-normal-tests))
