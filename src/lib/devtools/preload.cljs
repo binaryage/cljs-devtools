@@ -8,11 +8,7 @@
 
 (def config (gen-config))
 
-(defn apply-config! [prefs-overrides]
-  (when-not (empty? prefs-overrides)
-    (prefs/merge-prefs! prefs-overrides)))
-
-(apply-config! config)
+(prefs/merge-prefs! config)
 
 (if-not (prefs/pref :suppress-preload-install)
   (core/install!))
