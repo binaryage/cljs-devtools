@@ -4,7 +4,9 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.88"]
+                 [org.clojure/core.async "0.2.385"]
                  [binaryage/devtools "0.7.2"]
+                 [binaryage/dirac "0.6.1"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [cljs-http "0.1.41"]
                  [environ "1.0.3"]
@@ -33,13 +35,14 @@
              :demo
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["src/demo"]
-                                    :compiler     {:output-to     "resources/public/_compiled/demo/devtools_sample.js"
-                                                   :output-dir    "resources/public/_compiled/demo"
-                                                   :asset-path    "_compiled/demo"
-                                                   :main          devtools-sample.boot
-                                                   :preloads      [devtools.preload]
-                                                   :optimizations :none
-                                                   :source-map    true}}}}}
+                                    :compiler     {:output-to      "resources/public/_compiled/demo/devtools_sample.js"
+                                                   :output-dir     "resources/public/_compiled/demo"
+                                                   :asset-path     "_compiled/demo"
+                                                   :main           devtools-sample.boot
+                                                   :tooling-config {:devtools/config {:features-to-install :all}}
+                                                   :preloads       [devtools.preload]
+                                                   :optimizations  :none
+                                                   :source-map     true}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :demo-advanced
              {:cljsbuild {:builds {:demo-advanced
