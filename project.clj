@@ -36,7 +36,7 @@
                                     :compiler     {:output-to     "resources/public/_compiled/demo/devtools_sample.js"
                                                    :output-dir    "resources/public/_compiled/demo"
                                                    :asset-path    "_compiled/demo"
-                                                   :main          devtools-sample.core
+                                                   :main          devtools-sample.boot
                                                    :preloads      [devtools.preload]
                                                    :optimizations :none
                                                    :source-map    true}}}}}
