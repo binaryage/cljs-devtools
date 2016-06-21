@@ -73,6 +73,7 @@
                                    {:notify-command ["lein" "run-phantom"]}}}}}
 
   :aliases {"test"                   ["do"
+                                      "clean,"
                                       "test-tests,"
                                       "test-tests-with-config,"
                                       "test-dead-code"]
