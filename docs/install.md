@@ -60,7 +60,7 @@ By default only `:custom-formatters` feature is installed. You can call `install
 (devtools/install! [:custom-formatters :sanity-hints]) ; to enable all features
 ```
 
-The [list of all `known-features` is here](https://github.com/binaryage/cljs-devtools/blob/master/src/devtools/core.cljs#L9).
+The [list of all `known-features` is here](https://github.com/binaryage/cljs-devtools/blob/master/src/lib/devtools/core.cljs#L9).
 
 Check out the **[sample project](https://github.com/binaryage/cljs-devtools-sample)**.
 
