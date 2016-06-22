@@ -6,7 +6,8 @@
                                          get-captured-console-messages]]
             [devtools.core :as devtools]
             [devtools.custom-formatters :as custom-formatters]
-            [devtools.sanity-hints :as sanity-hints]))
+            [devtools.sanity-hints :as sanity-hints]
+            [devtools.async :as async]))
 
 (use-fixtures :once with-captured-console)
 
@@ -73,11 +74,12 @@
         (is (nil? (last (get-captured-console-messages))))
         (devtools/uninstall!)))
     (binding [custom-formatters/available? (constantly false)
-              sanity-hints/available? (constantly false)]
+              sanity-hints/available? (constantly false)
+              async/available? (constantly false)]
       (testing "working availability checks"
         (clear-captured-console-output!)
         (devtools/install! :all)
-        (is (= (count (get-captured-console-messages)) 3))
+        (is (= (count (get-captured-console-messages)) 4))
         (is (every? #(re-matches #".*cannot be installed.*" %) (rest (get-captured-console-messages))))
         (devtools/uninstall!))
       (testing "bypass availability checks"
