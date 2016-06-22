@@ -21,7 +21,12 @@ Add devtools dependency into your Leiningen's `project.clj`
 
 ### Dev builds
 
-CLJS devtools is meant to be used only with development builds. You call `install!` it from `devtools.core` namespace.
+CLJS devtools is meant to be used only with development builds.
+
+A bleeding edge note: [here is described a new way](https://github.com/binaryage/cljs-devtools/releases/tag/v0.7.2) how to
+install devtools using [`preloads` feature](https://github.com/clojure/clojurescript/wiki/Compiler-Options#preloads).
+
+You call `install!` it from `devtools.core` namespace.
 A good technique is to use an independent namespace and require it before your core namespace (but after goog/base.js):
 
 ```clojure
