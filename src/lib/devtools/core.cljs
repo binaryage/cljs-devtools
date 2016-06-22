@@ -2,10 +2,11 @@
   (:require [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.custom-formatters :as custom-formatters]
+            [devtools.async :as async]
             [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
                                    print-config-overrides-if-requested!]]))
 
-(def known-features [:custom-formatters :sanity-hints])
+(def known-features [:custom-formatters :sanity-hints :async])
 (def default-features [:custom-formatters])
 (def feature-groups {:all     known-features
                      :default default-features})
@@ -15,7 +16,8 @@
 (defn is-feature-available? [feature]
   (case feature
     :custom-formatters (custom-formatters/available?)
-    :sanity-hints (sanity-hints/available?)))
+    :sanity-hints (sanity-hints/available?)
+    :async (sanity-hints/available?)))
 
 (defn available?
   ([] (available? (prefs/pref :features-to-install)))
@@ -28,7 +30,8 @@
 (defn is-feature-installed? [feature]
   (case feature
     :custom-formatters (custom-formatters/installed?)
-    :sanity-hints (sanity-hints/installed?)))
+    :sanity-hints (sanity-hints/installed?)
+    :async (async/installed?)))
 
 (defn installed?
   ([] (installed? (prefs/pref :features-to-install)))
@@ -45,11 +48,13 @@
      (display-banner-if-needed! features feature-groups)
      (print-config-overrides-if-requested! "config overrides prior install:\n")
      (install-feature! :custom-formatters features is-feature-available? custom-formatters/install!)
-     (install-feature! :sanity-hints features is-feature-available? sanity-hints/install!))))
+     (install-feature! :sanity-hints features is-feature-available? sanity-hints/install!)
+     (install-feature! :async features is-feature-available? async/install!))))
 
 (defn uninstall! []
   (custom-formatters/uninstall!)
-  (sanity-hints/uninstall!))
+  (sanity-hints/uninstall!)
+  (async/uninstall!))
 
 (defn set-prefs! [new-prefs]
   (prefs/set-prefs! new-prefs))
