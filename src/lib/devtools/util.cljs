@@ -19,7 +19,7 @@
 
 (defn ^:dynamic unknown-feature-msg [feature known-features lib-info]
   (str "No such feature " feature " is currently available in " lib-info ". "
-       "The list of supported features is " (pr-str known-features)))
+       "The list of supported features is " (pr-str known-features) "."))
 
 (defn ^:dynamic feature-not-available-msg [feature]
   (str "Feature " feature " cannot be installed. "
