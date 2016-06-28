@@ -204,3 +204,155 @@
       b/inst-type-ifn2 ["p1" "p1 p2"]
       b/inst-type-ifn2va ["p1 p2 & rest"]
       b/inst-type-ifn4va ["" "p1" "p p₂ p₃ p₄" "p p₂ p₃ p₄ & p₅"])))
+
+(deftest test-present-function-name
+  (let [known-namespaces #{"dirac.tests.scenarios.core_async"
+                           "cljs.core.async.impl.channels"
+                           "cljs.core.async.impl.timers"
+                           "dirac.automation.scenario"
+                           "cljs.core.async.impl.ioc_helpers"
+                           "cljs.core.async"
+                           "cljs.core.async.impl.dispatch"
+                           "cljs.core.async.impl.protocols"
+                           "devtools.async"}
+        ns-detector (fn [ns]
+                      (some? (known-namespaces ns)))]
+    (testing "exercise presentation of a core-async stack trace (with namespaces)"
+      (let [present-opts {:include-ns?               true
+                          :include-protocol-ns?      true
+                          :silence-common-protocols? false
+                          :ns-detector               ns-detector}]
+        (are [munged-name expected] (= (m/present-function-name munged-name present-opts) expected)
+          "dirac$tests$scenarios$core_async$break_here_BANG_" "dirac.tests.scenarios.core-async/break-here!"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto____1" "dirac.tests.scenarios.core-async/break-async-$-state-machine--34559--auto----1"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto__" "dirac.tests.scenarios.core-async/break-async-$-state-machine--34559--auto--"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine" "cljs.core.async.impl.ioc-helpers/run-state-machine"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine_wrapped" "cljs.core.async.impl.ioc-helpers/run-state-machine-wrapped"
+          "cljs$core$async$impl$dispatch$process_messages" "cljs.core.async.impl.dispatch/process-messages"
+          "devtools$async$promise_based_set_immediate" "devtools.async/promise-based-set-immediate"
+          "cljs$core$async$impl$dispatch$queue_dispatcher" "cljs.core.async.impl.dispatch/queue-dispatcher"
+          "cljs$core$async$impl$dispatch$run" "cljs.core.async.impl.dispatch/run"
+          "cljs.core.async.impl.channels.ManyToManyChannel.cljs$core$async$impl$protocols$Channel$close_BANG_$arity$1" "cljs.core.async.impl.protocols.Channel:close!¹ (cljs.core.async.impl.channels/ManyToManyChannel)"
+          "cljs$core$async$impl$protocols$close_BANG_" "cljs.core.async.impl.protocols/close!"
+          "cljs$core$async$impl$dispatch$queue_delay" "cljs.core.async.impl.dispatch/queue-delay"
+          "cljs$core$async$impl$timers$timeout" "cljs.core.async.impl.timers/timeout"
+          "cljs$core$async$timeout" "cljs.core.async/timeout"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto____1" "dirac.tests.scenarios.core-async/break-async-$-state-machine--34559--auto----1"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto__" "dirac.tests.scenarios.core-async/break-async-$-state-machine--34559--auto--"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine" "cljs.core.async.impl.ioc-helpers/run-state-machine"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine_wrapped" "cljs.core.async.impl.ioc-helpers/run-state-machine-wrapped"
+          "cljs$core$async$impl$dispatch$process_messages" "cljs.core.async.impl.dispatch/process-messages"
+          "devtools$async$promise_based_set_immediate" "devtools.async/promise-based-set-immediate"
+          "cljs$core$async$impl$dispatch$queue_dispatcher" "cljs.core.async.impl.dispatch/queue-dispatcher"
+          "cljs$core$async$impl$dispatch$run" "cljs.core.async.impl.dispatch/run"
+          "dirac$tests$scenarios$core_async$break_async" "dirac.tests.scenarios.core-async/break-async"
+          "dirac$tests$scenarios$core_async$break_async_handler" "dirac.tests.scenarios.core-async/break-async-handler"
+          "dirac$automation$scenario$call_trigger_BANG_" "dirac.automation.scenario/call-trigger!")))
+    (testing "exercise presentation of a core-async stack trace (without namespaces)"
+      (let [present-opts {:include-ns?               false
+                          :include-protocol-ns?      false
+                          :silence-common-protocols? false
+                          :ns-detector               ns-detector}]
+        (are [munged-name expected] (= (m/present-function-name munged-name present-opts) expected)
+          "dirac$tests$scenarios$core_async$break_here_BANG_" "break-here!"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto____1" "break-async-$-state-machine--34559--auto----1"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto__" "break-async-$-state-machine--34559--auto--"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine" "run-state-machine"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine_wrapped" "run-state-machine-wrapped"
+          "cljs$core$async$impl$dispatch$process_messages" "process-messages"
+          "devtools$async$promise_based_set_immediate" "promise-based-set-immediate"
+          "cljs$core$async$impl$dispatch$queue_dispatcher" "queue-dispatcher"
+          "cljs$core$async$impl$dispatch$run" "run"
+          "cljs.core.async.impl.channels.ManyToManyChannel.cljs$core$async$impl$protocols$Channel$close_BANG_$arity$1" "Channel:close!¹ (ManyToManyChannel)"
+          "cljs$core$async$impl$protocols$close_BANG_" "close!"
+          "cljs$core$async$impl$dispatch$queue_delay" "queue-delay"
+          "cljs$core$async$impl$timers$timeout" "timeout"
+          "cljs$core$async$timeout" "timeout"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto____1" "break-async-$-state-machine--34559--auto----1"
+          "dirac$tests$scenarios$core_async$break_async_$_state_machine__34559__auto__" "break-async-$-state-machine--34559--auto--"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine" "run-state-machine"
+          "cljs$core$async$impl$ioc_helpers$run_state_machine_wrapped" "run-state-machine-wrapped"
+          "cljs$core$async$impl$dispatch$process_messages" "process-messages"
+          "devtools$async$promise_based_set_immediate" "promise-based-set-immediate"
+          "cljs$core$async$impl$dispatch$queue_dispatcher" "queue-dispatcher"
+          "cljs$core$async$impl$dispatch$run" "run"
+          "dirac$tests$scenarios$core_async$break_async" "break-async"
+          "dirac$tests$scenarios$core_async$break_async_handler" "break-async-handler"
+          "dirac$automation$scenario$call_trigger_BANG_" "call-trigger!"))))
+  (let [known-namespaces #{"dirac.tests.scenarios.breakpoint.core"
+                           "dirac.automation.scenario"}
+        ns-detector (fn [ns]
+                      (some? (known-namespaces ns)))]
+    (testing "exercise presentation of a common stack trace (with namespaces)"
+      (let [present-opts {:include-ns?               true
+                          :include-protocol-ns?      true
+                          :silence-common-protocols? false
+                          :ns-detector               ns-detector}]
+        (are [munged-name expected] (= (m/present-function-name munged-name present-opts) expected)
+          "dirac$tests$scenarios$breakpoint$core$breakpoint_demo" "dirac.tests.scenarios.breakpoint.core/breakpoint-demo"
+          "dirac$tests$scenarios$breakpoint$core$breakpoint_demo_handler" "dirac.tests.scenarios.breakpoint.core/breakpoint-demo-handler"
+          "dirac$automation$scenario$call_trigger_BANG_" "dirac.automation.scenario/call-trigger!")))
+    (testing "exercise presentation of a common stack trace (without namespaces)"
+      (let [present-opts {:include-ns?               false
+                          :include-protocol-ns?      false
+                          :silence-common-protocols? false
+                          :ns-detector               ns-detector}]
+        (are [munged-name expected] (= (m/present-function-name munged-name present-opts) expected)
+          "dirac$tests$scenarios$breakpoint$core$breakpoint_demo" "breakpoint-demo"
+          "dirac$tests$scenarios$breakpoint$core$breakpoint_demo_handler" "breakpoint-demo-handler"
+          "dirac$automation$scenario$call_trigger_BANG_" "call-trigger!"))))
+  (let [known-namespaces #{"dirac.tests.scenarios.exception.core"
+                           "cljs.core"
+                           "dirac.automation.scenario"}
+        ns-detector (fn [ns]
+                      (some? (known-namespaces ns)))]
+    (testing "exercise presentation of a non-trivial stack trace (with namespaces)"
+      (let [present-opts {:include-ns?               true
+                          :include-protocol-ns?      true
+                          :silence-common-protocols? false
+                          :ns-detector               ns-detector}]
+        (are [munged-name expected] (= (m/present-function-name munged-name present-opts) expected)
+          "dirac$tests$scenarios$exception$core$break_BANG_" "dirac.tests.scenarios.exception.core/break!"
+          "dirac$tests$scenarios$exception$core$crash_or_break_BANG_" "dirac.tests.scenarios.exception.core/crash-or-break!"
+          "dirac.tests.scenarios.exception.core.TestType.dirac$tests$scenarios$exception$core$ITestProtocol$_pmethod$arity$4" "dirac.tests.scenarios.exception.core.ITestProtocol:-pmethod⁴ (dirac.tests.scenarios.exception.core/TestType)"
+          "dirac.tests.scenarios.exception.core._pmethod.cljs$core$IFn$_invoke$arity$4" "cljs.core.IFn:-invoke⁴ (dirac.tests.scenarios.exception.core/-pmethod)"
+          "dirac$tests$scenarios$exception$core$_pmethod" "dirac.tests.scenarios.exception.core/-pmethod"
+          "dirac.tests.scenarios.exception.core.TestType.dirac$tests$scenarios$exception$core$ITestProtocol$_pmethod$arity$3" "dirac.tests.scenarios.exception.core.ITestProtocol:-pmethod³ (dirac.tests.scenarios.exception.core/TestType)"
+          "dirac.tests.scenarios.exception.core._pmethod.cljs$core$IFn$_invoke$arity$3" "cljs.core.IFn:-invoke³ (dirac.tests.scenarios.exception.core/-pmethod)"
+          "dirac$tests$scenarios$exception$core$_pmethod" "dirac.tests.scenarios.exception.core/-pmethod"
+          "dirac$tests$scenarios$exception$core$excercise_protocol_BANG_" "dirac.tests.scenarios.exception.core/excercise-protocol!"
+          "dirac.tests.scenarios.exception.core.multi_arity_fn.cljs$core$IFn$_invoke$arity$variadic" "cljs.core.IFn:-invokeⁿ (dirac.tests.scenarios.exception.core/multi-arity-fn)"
+          "dirac$tests$scenarios$exception$core$multi_arity_fn" "dirac.tests.scenarios.exception.core/multi-arity-fn"
+          "dirac.tests.scenarios.exception.core.multi_arity_fn.cljs$core$IFn$_invoke$arity$2" "cljs.core.IFn:-invoke² (dirac.tests.scenarios.exception.core/multi-arity-fn)"
+          "dirac$tests$scenarios$exception$core$multi_arity_fn" "dirac.tests.scenarios.exception.core/multi-arity-fn"
+          "dirac.tests.scenarios.exception.core.multi_arity_fn.cljs$core$IFn$_invoke$arity$0" "cljs.core.IFn:-invoke⁰ (dirac.tests.scenarios.exception.core/multi-arity-fn)"
+          "dirac$tests$scenarios$exception$core$multi_arity_fn" "dirac.tests.scenarios.exception.core/multi-arity-fn"
+          "dirac$tests$scenarios$exception$core$fancy_$_PERCENT_$_SHARP__PERCENT_$_SHARP__function_QMARK__QMARK__QMARK__name" "dirac.tests.scenarios.exception.core/fancy-$%$#%$#-function???-name"
+          "dirac$tests$scenarios$exception$core$breakpoint_demo_BANG_" "dirac.tests.scenarios.exception.core/breakpoint-demo!"
+          "dirac$tests$scenarios$exception$core$breakpoint_demo_handler" "dirac.tests.scenarios.exception.core/breakpoint-demo-handler"
+          "dirac$automation$scenario$call_trigger_BANG_" "dirac.automation.scenario/call-trigger!")))
+    (testing "exercise presentation of a non-trivial stack trace (without namespaces)"
+      (let [present-opts {:include-ns?               false
+                          :include-protocol-ns?      false
+                          :silence-common-protocols? false
+                          :ns-detector               ns-detector}]
+        (are [munged-name expected] (= (m/present-function-name munged-name present-opts) expected)
+          "dirac$tests$scenarios$exception$core$break_BANG_" "break!"
+          "dirac$tests$scenarios$exception$core$crash_or_break_BANG_" "crash-or-break!"
+          "dirac.tests.scenarios.exception.core.TestType.dirac$tests$scenarios$exception$core$ITestProtocol$_pmethod$arity$4" "ITestProtocol:-pmethod⁴ (TestType)"
+          "dirac.tests.scenarios.exception.core._pmethod.cljs$core$IFn$_invoke$arity$4" "IFn:-invoke⁴ (-pmethod)"
+          "dirac$tests$scenarios$exception$core$_pmethod" "-pmethod"
+          "dirac.tests.scenarios.exception.core.TestType.dirac$tests$scenarios$exception$core$ITestProtocol$_pmethod$arity$3" "ITestProtocol:-pmethod³ (TestType)"
+          "dirac.tests.scenarios.exception.core._pmethod.cljs$core$IFn$_invoke$arity$3" "IFn:-invoke³ (-pmethod)"
+          "dirac$tests$scenarios$exception$core$_pmethod" "-pmethod"
+          "dirac$tests$scenarios$exception$core$excercise_protocol_BANG_" "excercise-protocol!"
+          "dirac.tests.scenarios.exception.core.multi_arity_fn.cljs$core$IFn$_invoke$arity$variadic" "IFn:-invokeⁿ (multi-arity-fn)"
+          "dirac$tests$scenarios$exception$core$multi_arity_fn" "multi-arity-fn"
+          "dirac.tests.scenarios.exception.core.multi_arity_fn.cljs$core$IFn$_invoke$arity$2" "IFn:-invoke² (multi-arity-fn)"
+          "dirac$tests$scenarios$exception$core$multi_arity_fn" "multi-arity-fn"
+          "dirac.tests.scenarios.exception.core.multi_arity_fn.cljs$core$IFn$_invoke$arity$0" "IFn:-invoke⁰ (multi-arity-fn)"
+          "dirac$tests$scenarios$exception$core$multi_arity_fn" "multi-arity-fn"
+          "dirac$tests$scenarios$exception$core$fancy_$_PERCENT_$_SHARP__PERCENT_$_SHARP__function_QMARK__QMARK__QMARK__name" "fancy-$%$#%$#-function???-name"
+          "dirac$tests$scenarios$exception$core$breakpoint_demo_BANG_" "breakpoint-demo!"
+          "dirac$tests$scenarios$exception$core$breakpoint_demo_handler" "breakpoint-demo-handler"
+          "dirac$automation$scenario$call_trigger_BANG_" "call-trigger!")))))
