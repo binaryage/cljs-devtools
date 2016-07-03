@@ -8,9 +8,14 @@
 (def ^:dynamic *installed* false)
 (def ^:dynamic *original-set-immediate* nil)
 
+; see http://stackoverflow.com/a/30741722/84283
+(defn rethrow-outside-promise [e]
+  (js/setTimeout #(throw e) 0))
+
 (defn promise-based-set-immediate [callback]
   (-> (ocall js/Promise "resolve")
-      (ocall "then" callback))
+      (ocall "then" callback)
+      (ocall "catch" rethrow-outside-promise))
   nil)
 
 (defn install-async-set-immediate! []
