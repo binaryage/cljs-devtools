@@ -61,39 +61,79 @@
 (defn ^bool prevent-recursion? []
   (boolean (:prevent-recursion (get-current-state))))
 
-(defn template [tag style & children]
-  (let [resolve-pref (fn [pref-or-val] (if (keyword? pref-or-val) (pref pref-or-val) pref-or-val))
-        tag (resolve-pref tag)
+(defn resolve-pref [v]
+  (if (keyword? v)
+    (pref v)
+    v))
+
+; -- object tagging support -------------------------------------------------------------------------------------------------
+
+(defn tag-obj [obj tag-name]
+  (oset obj [tag-name] true)
+  obj)
+
+(defn tagged-obj? [obj tag-name]
+  (boolean
+    (and
+      (or (array? obj) (object? obj))
+      (oget obj tag-name))))
+
+(defn tag-group [value]
+  (tag-obj value (pref :tagged-group-key)))
+
+(defn group? [value]
+  (tagged-obj? value (pref :tagged-group-key)))
+
+(defn tag-template [value]
+  (tag-obj value (pref :tagged-template-key)))
+
+(defn template? [value]
+  (tagged-obj? value (pref :tagged-template-key)))
+
+(defn tag-surrogate [value]
+  (tag-obj value (pref :surrogate-key)))
+
+(defn surrogate? [value]
+  (tagged-obj? value (pref :surrogate-key)))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
+(defn make-group [& items]
+  (let [group (tag-group #js [])]
+    (doseq [item items]
+      (if (some? item)
+        (if (coll? item)
+          (.apply (aget group "push") group (tag-group (into-array item)))                                                    ; convenience helper to splat cljs collections
+          (.push group (resolve-pref item)))))
+    group))
+
+(defn template
+  [tag style & children]
+  (let [tag (resolve-pref tag)
         style (resolve-pref style)
-        js-array #js [tag (if (empty? style) #js {} #js {"style" style})]]
+        js-array (tag-template #js [tag (if (empty? style) #js {} #js {"style" style})])]
     (doseq [child children]
       (if (some? child)
         (if (coll? child)
-          (.apply (aget js-array "push") js-array (into-array child))                                                         ; convenience helper to splat cljs collections
+          (.apply (aget js-array "push") js-array (tag-template (into-array child)))                                          ; convenience helper to splat cljs collections
           (.push js-array (resolve-pref child)))))
     js-array))
 
 (defn concat-templates [template & templates]
-  (.apply (oget template "concat") template (into-array (map into-array templates))))
+  (tag-template (.apply (oget template "concat") template (into-array (map into-array templates)))))
 
 (defn extend-template [template & args]
   (concat-templates template args))
-
-(defn surrogate? [value]
-  (and
-    (not (nil? value))
-    (aget value (pref :surrogate-key))))
 
 (defn surrogate
   ([object header] (surrogate object header true))
   ([object header has-body] (surrogate object header has-body nil))
   ([object header has-body body-template]
-   (js-obj
-     (pref :surrogate-key) true
-     "target" object
-     "header" header
-     "hasBody" has-body
-     "bodyTemplate" body-template)))
+   (tag-surrogate (js-obj
+                    "target" object
+                    "header" header
+                    "hasBody" has-body
+                    "bodyTemplate" body-template))))
 
 (defn get-target-object [value]
   (if (surrogate? value)
@@ -124,8 +164,12 @@
     (concat-templates base-template content-group)))
 
 (defn reference [object & [state-override]]
-  #js ["object" #js {"object" object
-                     "config" (merge (get-current-state) {:entered-reference true} state-override)}])
+  (make-group "object" #js {"object" object
+                            "config" (merge (get-current-state) {:entered-reference true} state-override)}))
+
+(defn reference? [value]
+  (and (group? value)
+       (= (aget value 0) "object")))
 
 (defn native-reference [object]
   (reference object {:prevent-recursion true}))
@@ -241,16 +285,16 @@
   (-flush [_] nil))
 
 (defn make-template-writer []
-  (TemplateWriter. #js []))
+  (TemplateWriter. (make-group)))
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
-    #js [(reference (surrogate obj (concat-templates (template :span :header-style) group)))]
+    (make-group (reference (surrogate obj (concat-templates (template :span :header-style) group))))
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
   (if circular?
-    #js [(circular-reference-template group)]
+    (make-group (circular-reference-template group))
     group))
 
 ; default printer implementation can do this:
@@ -270,12 +314,23 @@
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
       (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
-    #js [(native-reference obj)]
+    (make-group (native-reference obj))
 
     (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
-    #js [(aget group 0) (native-reference obj) (aget group 2)]
+    (make-group (aget group 0) (native-reference obj) (aget group 2))
 
     :else group))
+
+(defn wrap-value-as-reference-if-needed [value]
+  (if (or (string? value) (template? value) (group? value))
+    value
+    (reference value)))
+
+(defn wrap-group-values-as-references-if-needed [group]
+  (let [result (make-group)]
+    (doseq [value group]
+      (.push result (wrap-value-as-reference-if-needed value)))
+    result))
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
@@ -292,6 +347,7 @@
             (default-impl obj inner-writer inner-opts)
             (let [final-group (-> (.get-group inner-writer)
                                   (detect-edge-case-and-patch-it obj)                                                         ; an ugly hack
+                                  (wrap-group-values-as-references-if-needed)                                                 ; issue #21
                                   (wrap-group-in-reference-if-needed obj)
                                   (wrap-group-in-circular-warning-if-needed circular?))]
               (.merge writer final-group))))))))

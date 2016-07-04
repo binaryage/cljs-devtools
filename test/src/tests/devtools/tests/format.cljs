@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                        ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
+            [goog.date]
             [devtools.tests.style :as style]
             [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
@@ -516,3 +517,62 @@
             ["li" ::style/aligned-li
              ["span" ::style/fn-native-symbol :fn-native-symbol]
              REF]]])))))
+
+(extend-protocol IPrintWithWriter
+  goog.date.Date
+  (-pr-writer [obj writer _opts]
+    (write-all writer
+               "#gdate "
+               [(.getYear obj)
+                (.getMonth obj)
+                (.getDate obj)]
+               #js ["test-array"]
+               (js-obj "some-key" "test-js-obj"))))
+
+(deftest test-alt-printer-impl
+  (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
+    (let [date-map {:date (goog.date.Date. 2016 6 1)}]
+      (is-header date-map
+        ["span" ::style/cljs
+         ["span" ::style/header
+          "{"
+          ["span" ::style/keyword ":date"]
+          :spacer
+          "#gdate "
+          REF
+          REF
+          REF
+          "}"]]
+        (fn [ref]
+          (is-header ref
+            ["span" ::style/cljs
+             ["span" ::style/header
+              REF]]
+            (fn [ref]
+              (has-body? ref true)
+              (is-header ref
+                ["span" ::style/header
+                 "["
+                 ["span" ::style/integer 2016]
+                 :spacer
+                 ["span" ::style/integer 6]
+                 :spacer
+                 ["span" ::style/integer 1]
+                 "]"]))))
+        (fn [ref]
+          (is-header ref
+            ["span" ::style/cljs
+              ["span" ::style/header
+               "#js ["
+               ["span" ::style/string "\"test-array\""]
+               "]"]]))
+        (fn [ref]
+          (is-header ref
+            ["span" ::style/cljs
+             ["span" ::style/header
+              "#js "
+              "{"
+              ["span" ::style/keyword ":some-key"]
+              :spacer
+              ["span" ::style/string "\"test-js-obj\""]
+              "}"]]))))))
