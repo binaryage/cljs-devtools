@@ -93,8 +93,9 @@
                                               {:source-paths ["checkouts/cljs-devtools/src/lib"]}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
-             {:figwheel  {:server-port    7000
-                          :server-logfile ".figwheel_server.log"}
+             {:figwheel  {:server-port     7000
+                          :server-logfile  ".figwheel_server.log"
+                          :validate-config false}
               :cljsbuild {:builds {:demo
                                    {:figwheel true}}}}
              ; --------------------------------------------------------------------------------------------------------------
