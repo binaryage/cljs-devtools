@@ -23,13 +23,9 @@
 
 (extend-dates)
 
-;; Does not work properly
-(.log js/console {:date (goog.date.Date.)})
-
-;; Sort of works but not really
-(.log js/console (goog.date.Date.))
-
-;; Works but no cljs-devtools sugar
-(println (goog.date.Date.))
+(.log js/console "a Date object embedded in a map:" {:date (goog.date.Date.)})
+(.log js/console "a raw Date object:" (goog.date.Date.))
+(.log js/console "pr-str of a raw Date object:" (pr-str (goog.date.Date.)))
+(println "println of a raw Date object:" (goog.date.Date.))
 
 ; <-- MEAT STOPS HERE ---
