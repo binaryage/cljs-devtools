@@ -8,3 +8,8 @@
 
 (defprotocol ISurrogate
   "Marker protocol indicating a devtools surrogate object.")
+
+(defprotocol IFormat
+  (-header [value])
+  (-has-body [value])
+  (-body [value]))

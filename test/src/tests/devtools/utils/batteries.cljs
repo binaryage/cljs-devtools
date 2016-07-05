@@ -1,5 +1,6 @@
 (ns devtools.utils.batteries
-  (:require [devtools.format :as f]))
+  (:require [devtools.format :as f]
+            [devtools.protocols :refer [IFormat]]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
@@ -57,18 +58,18 @@
 
 (def inst-some-type (SomeType. "xxx"))
 
-; defrecord with IDevtoolsFormat
+; defrecord with IFormat
 (defrecord Language [lang]
-  f/IDevtoolsFormat
+  IFormat
   (-header [_] (f/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
   (-has-body [_])
   (-body [_]))
 
 (def test-lang (Language. "ClojureScript"))
 
-; reify with IDevtoolsFormat
+; reify with IFormat
 (def test-reify (reify
-                  f/IDevtoolsFormat
+                  IFormat
                   (-header [_] (f/template "span"
                                  "color:white; background-color:brown; padding: 0px 4px"
                                  "testing reify"))

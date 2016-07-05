@@ -1,5 +1,6 @@
 (ns devtools.toolbox
-  (:require [devtools.format :as format]))
+  (:require [devtools.format :as format]
+            [devtools.protocols :refer [IFormat]]))
 
 (defn envelope
   "This is a simple wrapper for logging \"busy\" objects.
@@ -15,7 +16,7 @@
    (envelope obj header style :default-envelope-tag))
   ([obj header style tag]
    (reify
-     format/IDevtoolsFormat
+     IFormat
      (-header [_] (format/template tag style (if (fn? header) (header obj) header)))
      (-has-body [_] true)
      (-body [_] (format/template :span :body-style (format/standard-reference obj))))))
