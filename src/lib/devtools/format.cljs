@@ -119,9 +119,9 @@
 (defn extend-template [template & args]
   (concat-templates template args))
 
-(defn surrogate
-  ([object header] (surrogate object header true))
-  ([object header has-body] (surrogate object header has-body nil))
+(defn make-surrogate
+  ([object header] (make-surrogate object header true))
+  ([object header has-body] (make-surrogate object header has-body nil))
   ([object header has-body body-template]
    (mark-as-surrogate! (js-obj
                          "target" object
@@ -182,7 +182,7 @@
   (let [header-template (make-template :span :meta-style "meta")
         body-template (make-template :span :meta-body-style
                                      (build-header value))]
-    (make-template :span :meta-reference-style (reference (surrogate value header-template true body-template)))))
+    (make-template :span :meta-reference-style (reference (make-surrogate value header-template true body-template)))))
 
 (defn abbreviate-long-string [string]
   (str
@@ -200,7 +200,7 @@
       (let [abbreviated-string-template (make-template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
             body-template (make-template :span :expanded-string-style string-with-nl-markers)]
-        (reference (surrogate source-string abbreviated-string-template true body-template))))))
+        (reference (make-surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn cljs-function-body-template [fn-obj ns _name args prefix-template]
   (let [make-args-template (fn [args]
@@ -242,7 +242,7 @@
         prefix-template (make-template :span :fn-prefix-style symbol-template fn-name)
         header-template (make-template :span :fn-header-style prefix-template args-template)
         body-template (partial cljs-function-body-template fn-obj ns name args prefix-template)]
-    (reference (surrogate fn-obj header-template true body-template))))
+    (reference (make-surrogate fn-obj header-template true body-template))))
 
 (defn bool? [value]
   (or (true? value) (false? value)))
@@ -283,7 +283,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
-    (make-group (reference (surrogate obj (concat-templates (make-template :span :header-style) group))))
+    (make-group (reference (make-surrogate obj (concat-templates (make-template :span :header-style) group))))
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
@@ -393,7 +393,7 @@
     (if-not continue?
       lines
       (let [more-label-template (make-template :span :body-items-more-label-style (pref :body-items-more-label))
-            surrogate-object (surrogate rest more-label-template)]
+            surrogate-object (make-surrogate rest more-label-template)]
         (aset surrogate-object "startingIndex" (+ starting-index max-number-body-items))
         (conj lines (reference surrogate-object))))))
 

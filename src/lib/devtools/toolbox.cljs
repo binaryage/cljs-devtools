@@ -33,4 +33,4 @@
   See https://github.com/binaryage/cljs-devtools/issues/17
   "
   [obj]
-  (format/surrogate obj (format/build-header obj) false))
+  (format/make-surrogate obj (format/build-header obj) false))
