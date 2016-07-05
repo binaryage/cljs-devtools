@@ -1,7 +1,8 @@
 (ns devtools.format
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
   (:require [devtools.prefs :refer [pref]]
-            [devtools.munging :as munging]))
+            [devtools.munging :as munging]
+            [devtools.protocols :refer [ITemplate IGroup ISurrogate]]))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; PROTOCOL SUPPORT
@@ -68,33 +69,26 @@
 
 ; -- object tagging support -------------------------------------------------------------------------------------------------
 
-(defn tag-obj [obj tag-name]
-  (oset obj [tag-name] true)
-  obj)
-
-(defn tagged-obj? [obj tag-name]
-  (boolean
-    (and
-      (or (array? obj) (object? obj))
-      (oget obj tag-name))))
-
 (defn tag-group [value]
-  (tag-obj value (pref :tagged-group-key)))
+  (specify! value IGroup)
+  value)
 
 (defn group? [value]
-  (tagged-obj? value (pref :tagged-group-key)))
+  (satisfies? IGroup value))
 
 (defn tag-template [value]
-  (tag-obj value (pref :tagged-template-key)))
+  (specify! value ITemplate)
+  value)
 
 (defn template? [value]
-  (tagged-obj? value (pref :tagged-template-key)))
+  (satisfies? ITemplate value))
 
 (defn tag-surrogate [value]
-  (tag-obj value (pref :surrogate-key)))
+  (specify! value ISurrogate)
+  value)
 
 (defn surrogate? [value]
-  (tagged-obj? value (pref :surrogate-key)))
+  (satisfies? ISurrogate value))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 

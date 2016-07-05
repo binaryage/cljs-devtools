@@ -32,9 +32,6 @@
    :dq                               "\""
    :circular-reference-symbol        "∞"
    :circular-reference-wrapper-style ""
-   :surrogate-key                    "$$this-is-cljs-devtools-surrogate"
-   :tagged-group-key                 "$$this-is-cljs-devtools-tagged-group"
-   :tagged-template-key              "$$this-is-cljs-devtools-tagged-template"
    :circular-reference-symbol-style  (symbol-style "#f88")
    :fn-header-style                  ""
    :fn-prefix-style                  ""
