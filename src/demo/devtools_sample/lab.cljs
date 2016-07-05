@@ -2,8 +2,8 @@
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools-sample.boot :refer [boot!]]
             [devtools.format :as format]
-            [devtools.toolbox :as toolbox]))
-
+            [devtools.toolbox :as toolbox]
+            [devtools.protocols :refer [IFormat]]))
 
 (boot! "/src/demo/devtools_sample/lab.cljs")
 
@@ -22,21 +22,21 @@
 (def circular2 {:k (atom nil)})
 (reset! (:k circular2) circular2)
 
-; defrecord with IDevtoolsFormat
+; defrecord with IFormat
 (defrecord Language [lang]
-  format/IDevtoolsFormat
-  (-header [_] (format/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+  IFormat
+  (-header [_] (format/make-template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
   (-has-body [_])
   (-body [_]))
 
 (def test-lang (Language. "ClojureScript"))
 
-; reify with IDevtoolsFormat
+; reify with IFormat
 (def test-reify (reify
-                  format/IDevtoolsFormat
-                  (-header [_] (format/template "span"
-                                 "color:white; background-color:brown; padding: 0px 4px"
-                                 "testing reify"))
+                  IFormat
+                  (-header [_] (format/make-template "span"
+                                                     "color:white; background-color:brown; padding: 0px 4px"
+                                                     "testing reify"))
                   (-has-body [_] false)
                   (-body [_])))
 

@@ -1,4 +1,5 @@
 (ns devtools-sample.debug
+  (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools.debug :as debug]
             [devtools.custom-formatters :as custom-formatters]))
 

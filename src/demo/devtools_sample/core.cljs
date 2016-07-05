@@ -2,7 +2,8 @@
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [clojure.string :as string]
             [devtools-sample.boot :refer [boot!]]
-            [devtools.format :as format]))
+            [devtools.format :as format]
+            [devtools.protocols :refer [IFormat]]))
 
 (boot! "/src/demo/devtools_sample/core.cljs")
 
@@ -34,8 +35,8 @@
 
 ; custom formatter defined in user code
 (deftype Person [name address]
-  format/IDevtoolsFormat
-  (-header [_] (format/template "span" "color:white;background-color:#999;padding:0px 4px;" (str "Person: " name)))
+  IFormat
+  (-header [_] (format/make-template "span" "color:white;background-color:#999;padding:0px 4px;" (str "Person: " name)))
   (-has-body [_] (some? address))
   (-body [_] (format/standard-body-template (string/split-lines address))))
 

@@ -19,7 +19,9 @@
                  "#gdate "
                  [(.getYear obj)
                   (.getMonth obj)
-                  (.getDate obj)]))))
+                  (.getDate obj)]
+                 #js ["test"]
+                 (js-obj :test "js-obj")))))
 
 (extend-dates)
 
