@@ -101,17 +101,17 @@
           (.push group (resolve-pref item)))))
     group))
 
-(defn template
+(defn make-template
   [tag style & children]
   (let [tag (resolve-pref tag)
         style (resolve-pref style)
-        js-array (mark-as-template! #js [tag (if (empty? style) #js {} #js {"style" style})])]
+        template (mark-as-template! #js [tag (if (empty? style) #js {} #js {"style" style})])]
     (doseq [child children]
       (if (some? child)
         (if (coll? child)
-          (.apply (aget js-array "push") js-array (mark-as-template! (into-array child)))                                     ; convenience helper to splat cljs collections
-          (.push js-array (resolve-pref child)))))
-    js-array))
+          (.apply (aget template "push") template (mark-as-template! (into-array child)))                                     ; convenience helper to splat cljs collections
+          (.push template (resolve-pref child)))))
+    template))
 
 (defn concat-templates [template & templates]
   (mark-as-template! (.apply (oget template "concat") template (into-array (map into-array templates)))))
@@ -153,8 +153,8 @@
         (some #(identical? % object) history)))))
 
 (defn circular-reference-template [content-group]
-  (let [base-template (template :span :circular-reference-wrapper-style
-                        (template :span :circular-reference-symbol-style :circular-reference-symbol))]
+  (let [base-template (make-template :span :circular-reference-wrapper-style
+                                     (make-template :span :circular-reference-symbol-style :circular-reference-symbol))]
     (concat-templates base-template content-group)))
 
 (defn reference [object & [state-override]]
@@ -169,20 +169,20 @@
   (reference object {:prevent-recursion true}))
 
 (defn index-template [value]
-  (template :span :index-style value :line-index-separator))
+  (make-template :span :index-style value :line-index-separator))
 
 (defn number-template [value]
   (if (integer? value)
-    (template :span :integer-style value)
-    (template :span :float-style value)))
+    (make-template :span :integer-style value)
+    (make-template :span :float-style value)))
 
 (declare build-header)
 
 (defn meta-template [value]
-  (let [header-template (template :span :meta-style "meta")
-        body-template (template :span :meta-body-style
-                        (build-header value))]
-    (template :span :meta-reference-style (reference (surrogate value header-template true body-template)))))
+  (let [header-template (make-template :span :meta-style "meta")
+        body-template (make-template :span :meta-body-style
+                                     (build-header value))]
+    (make-template :span :meta-reference-style (reference (surrogate value header-template true body-template)))))
 
 (defn abbreviate-long-string [string]
   (str
@@ -196,30 +196,30 @@
         inline-string (.replace source-string re-nl (pref :new-line-string-replacer))
         max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
     (if (<= (count inline-string) max-inline-string-size)
-      (template :span :string-style (str dq inline-string dq))
-      (let [abbreviated-string-template (template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
+      (make-template :span :string-style (str dq inline-string dq))
+      (let [abbreviated-string-template (make-template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
             string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
-            body-template (template :span :expanded-string-style string-with-nl-markers)]
+            body-template (make-template :span :expanded-string-style string-with-nl-markers)]
         (reference (surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn cljs-function-body-template [fn-obj ns _name args prefix-template]
   (let [make-args-template (fn [args]
-                             (template :li :aligned-li-style
-                               (template :span :fn-multi-arity-args-indent-style prefix-template)
-                               (template :span :fn-args-style args)))
+                             (make-template :li :aligned-li-style
+                                            (make-template :span :fn-multi-arity-args-indent-style prefix-template)
+                                            (make-template :span :fn-args-style args)))
         args-lists-templates (if (> (count args) 1) (map make-args-template args))
         ns-template (if-not (empty? ns)
-                      (template :li :aligned-li-style
-                        (template :span :fn-ns-symbol-style :fn-ns-symbol)
-                        (template :span :fn-ns-name-style ns)))
-        native-template (template :li :aligned-li-style
-                          (template :span :fn-native-symbol-style :fn-native-symbol)
-                          (native-reference fn-obj))]
-    (template :span :body-style
-      (template :ol :standard-ol-no-margin-style
-        args-lists-templates
-        ns-template
-        native-template))))
+                      (make-template :li :aligned-li-style
+                                     (make-template :span :fn-ns-symbol-style :fn-ns-symbol)
+                                     (make-template :span :fn-ns-name-style ns)))
+        native-template (make-template :li :aligned-li-style
+                                       (make-template :span :fn-native-symbol-style :fn-native-symbol)
+                                       (native-reference fn-obj))]
+    (make-template :span :body-style
+                   (make-template :ol :standard-ol-no-margin-style
+                                  args-lists-templates
+                                  ns-template
+                                  native-template))))
 
 (defn cljs-function-template [fn-obj]
   (let [[ns name] (munging/parse-fn-info fn-obj)
@@ -232,15 +232,15 @@
         multi-arity? (> (count args-strings) 1)
         args (map #(str args-open-symbol % args-close-symbol) args-strings)
         multi-arity-marker (str args-open-symbol multi-arity-symbol args-close-symbol)
-        args-template (template :span :fn-args-style (if multi-arity? multi-arity-marker (first args)))
+        args-template (make-template :span :fn-args-style (if multi-arity? multi-arity-marker (first args)))
         lambda? (empty? name)
         fn-name (if-not lambda?
-                  (template :span :fn-name-style name))
+                  (make-template :span :fn-name-style name))
         symbol-template (if lambda?
-                          (template :span :fn-lambda-symbol-style :fn-lambda-symbol)
-                          (template :span :fn-symbol-style :fn-symbol))
-        prefix-template (template :span :fn-prefix-style symbol-template fn-name)
-        header-template (template :span :fn-header-style prefix-template args-template)
+                          (make-template :span :fn-lambda-symbol-style :fn-lambda-symbol)
+                          (make-template :span :fn-symbol-style :fn-symbol))
+        prefix-template (make-template :span :fn-prefix-style symbol-template fn-name)
+        header-template (make-template :span :fn-header-style prefix-template args-template)
         body-template (partial cljs-function-body-template fn-obj ns name args prefix-template)]
     (reference (surrogate fn-obj header-template true body-template))))
 
@@ -249,12 +249,12 @@
 
 (defn atomic-template [value]
   (cond
-    (nil? value) (template :span :nil-style :nil-label)
-    (bool? value) (template :span :bool-style value)
+    (nil? value) (make-template :span :nil-style :nil-label)
+    (bool? value) (make-template :span :bool-style value)
     (string? value) (string-template value)
     (number? value) (number-template value)
-    (keyword? value) (template :span :keyword-style (str value))
-    (symbol? value) (template :span :symbol-style (str value))
+    (keyword? value) (make-template :span :keyword-style (str value))
+    (symbol? value) (make-template :span :symbol-style (str value))
     (cljs-function? value) (cljs-function-template value)))
 
 (defn abbreviated? [template]
@@ -283,7 +283,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
-    (make-group (reference (surrogate obj (concat-templates (template :span :header-style) group))))
+    (make-group (reference (surrogate obj (concat-templates (make-template :span :header-style) group))))
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
@@ -349,7 +349,7 @@
               (.merge writer final-group))))))))
 
 (defn managed-pr-str [value style print-level]
-  (let [tmpl (template :span style)
+  (let [tmpl (make-template :span style)
         writer (TemplateWriter. tmpl)]
     (binding [*print-level* print-level]                                                                                      ; when printing do at most print-level deep recursion
       (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
@@ -360,17 +360,17 @@
 (defn build-header [value]
   (let [value-template (managed-pr-str value :header-style (inc (pref :max-print-level)))]
     (if-let [meta-data (if (pref :print-meta-data) (meta value))]
-      (template :span :meta-wrapper-style value-template (meta-template meta-data))
+      (make-template :span :meta-wrapper-style value-template (meta-template meta-data))
       value-template)))
 
 (defn build-header-wrapped [value]
-  (template :span :cljs-style (build-header value)))
+  (make-template :span :cljs-style (build-header value)))
 
 (defn standard-body-template
   ([lines] (standard-body-template lines true))
   ([lines margin?] (let [ol-style (if margin? :standard-ol-style :standard-ol-no-margin-style)
                          li-style (if margin? :standard-li-style :standard-li-no-margin-style)]
-                     (template :ol ol-style (map #(template :li li-style %) lines)))))
+                     (make-template :ol ol-style (map #(make-template :li li-style %) lines)))))
 
 (defn body-line-template [index value]
   [(index-template index) (managed-pr-str value :item-style (inc (pref :body-line-max-print-level)))])
@@ -392,7 +392,7 @@
         continue? (not (empty? (take 1 rest)))]
     (if-not continue?
       lines
-      (let [more-label-template (template :span :body-items-more-label-style (pref :body-items-more-label))
+      (let [more-label-template (make-template :span :body-items-more-label-style (pref :body-items-more-label))
             surrogate-object (surrogate rest more-label-template)]
         (aset surrogate-object "startingIndex" (+ starting-index max-number-body-items))
         (conj lines (reference surrogate-object))))))
@@ -401,11 +401,11 @@
   (let [is-body? (zero? starting-index)
         result (standard-body-template (body-lines-templates value starting-index) is-body?)]
     (if is-body?
-      (template :span :body-style result)
+      (make-template :span :body-style result)
       result)))
 
 (defn standard-reference [target]
-  (template :ol :standard-ol-style (template :li :standard-li-style (reference target))))
+  (make-template :ol :standard-ol-style (make-template :li :standard-li-style (reference target))))
 
 (defn build-surrogate-body [value]
   (if-let [body-template (aget value "bodyTemplate")]

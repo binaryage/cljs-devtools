@@ -61,7 +61,7 @@
 ; defrecord with IFormat
 (defrecord Language [lang]
   IFormat
-  (-header [_] (f/template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+  (-header [_] (f/make-template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
   (-has-body [_])
   (-body [_]))
 
@@ -70,9 +70,9 @@
 ; reify with IFormat
 (def test-reify (reify
                   IFormat
-                  (-header [_] (f/template "span"
-                                 "color:white; background-color:brown; padding: 0px 4px"
-                                 "testing reify"))
+                  (-header [_] (f/make-template "span"
+                                                "color:white; background-color:brown; padding: 0px 4px"
+                                                "testing reify"))
                   (-has-body [_] false)
                   (-body [_])))
 

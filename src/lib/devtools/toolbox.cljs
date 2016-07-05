@@ -17,9 +17,9 @@
   ([obj header style tag]
    (reify
      IFormat
-     (-header [_] (format/template tag style (if (fn? header) (header obj) header)))
+     (-header [_] (format/make-template tag style (if (fn? header) (header obj) header)))
      (-has-body [_] true)
-     (-body [_] (format/template :span :body-style (format/standard-reference obj))))))
+     (-body [_] (format/make-template :span :body-style (format/standard-reference obj))))))
 
 (defn force-format
   "Forces object to be rendered by cljs-devtools during console logging.
