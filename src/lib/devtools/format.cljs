@@ -113,11 +113,11 @@
           (.push template (resolve-pref child)))))
     template))
 
-(defn concat-templates [template & templates]
+(defn concat-templates! [template & templates]
   (mark-as-template! (.apply (oget template "concat") template (into-array (map into-array templates)))))
 
-(defn extend-template [template & args]
-  (concat-templates template args))
+(defn extend-template! [template & args]
+  (concat-templates! template args))
 
 (defn make-surrogate
   ([object header] (make-surrogate object header true))
@@ -155,7 +155,7 @@
 (defn circular-reference-template [content-group]
   (let [base-template (make-template :span :circular-reference-wrapper-style
                                      (make-template :span :circular-reference-symbol-style :circular-reference-symbol))]
-    (concat-templates base-template content-group)))
+    (concat-templates! base-template content-group)))
 
 (defn reference [object & [state-override]]
   (make-group "object" #js {"object" object
@@ -283,7 +283,7 @@
 
 (defn wrap-group-in-reference-if-needed [group obj]
   (if (or (expandable? obj) (abbreviated? group))
-    (make-group (reference (make-surrogate obj (concat-templates (make-template :span :header-style) group))))
+    (make-group (reference (make-surrogate obj (concat-templates! (make-template :span :header-style) group))))
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
