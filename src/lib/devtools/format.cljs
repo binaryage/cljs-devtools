@@ -67,23 +67,23 @@
     (pref v)
     v))
 
-; -- object tagging support -------------------------------------------------------------------------------------------------
+; -- object marking support -------------------------------------------------------------------------------------------------
 
-(defn tag-group [value]
+(defn mark-as-group! [value]
   (specify! value IGroup)
   value)
 
 (defn group? [value]
   (satisfies? IGroup value))
 
-(defn tag-template [value]
+(defn mark-as-template! [value]
   (specify! value ITemplate)
   value)
 
 (defn template? [value]
   (satisfies? ITemplate value))
 
-(defn tag-surrogate [value]
+(defn mark-as-surrogate! [value]
   (specify! value ISurrogate)
   value)
 
@@ -93,11 +93,11 @@
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn make-group [& items]
-  (let [group (tag-group #js [])]
+  (let [group (mark-as-group! #js [])]
     (doseq [item items]
       (if (some? item)
         (if (coll? item)
-          (.apply (aget group "push") group (tag-group (into-array item)))                                                    ; convenience helper to splat cljs collections
+          (.apply (aget group "push") group (mark-as-group! (into-array item)))                                               ; convenience helper to splat cljs collections
           (.push group (resolve-pref item)))))
     group))
 
@@ -105,16 +105,16 @@
   [tag style & children]
   (let [tag (resolve-pref tag)
         style (resolve-pref style)
-        js-array (tag-template #js [tag (if (empty? style) #js {} #js {"style" style})])]
+        js-array (mark-as-template! #js [tag (if (empty? style) #js {} #js {"style" style})])]
     (doseq [child children]
       (if (some? child)
         (if (coll? child)
-          (.apply (aget js-array "push") js-array (tag-template (into-array child)))                                          ; convenience helper to splat cljs collections
+          (.apply (aget js-array "push") js-array (mark-as-template! (into-array child)))                                     ; convenience helper to splat cljs collections
           (.push js-array (resolve-pref child)))))
     js-array))
 
 (defn concat-templates [template & templates]
-  (tag-template (.apply (oget template "concat") template (into-array (map into-array templates)))))
+  (mark-as-template! (.apply (oget template "concat") template (into-array (map into-array templates)))))
 
 (defn extend-template [template & args]
   (concat-templates template args))
@@ -123,11 +123,11 @@
   ([object header] (surrogate object header true))
   ([object header has-body] (surrogate object header has-body nil))
   ([object header has-body body-template]
-   (tag-surrogate (js-obj
-                    "target" object
-                    "header" header
-                    "hasBody" has-body
-                    "bodyTemplate" body-template))))
+   (mark-as-surrogate! (js-obj
+                         "target" object
+                         "header" header
+                         "hasBody" has-body
+                         "bodyTemplate" body-template))))
 
 (defn get-target-object [value]
   (if (surrogate? value)
