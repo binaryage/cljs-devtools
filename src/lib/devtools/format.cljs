@@ -48,16 +48,24 @@
        (not (var? value))                                                                                                     ; HACK: vars have IFn protocol and would act as functions TODO: implement custom rendering for vars
        (munging/cljs-fn? value)))
 
-; IRC #clojurescript @ freenode.net on 2015-01-27:
-; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
-; [14:04:34] dnolen: there is a very low level thing you can check
-; [14:04:36] dnolen: https://github.com/clojure/clojurescript/blob/c2550c4fdc94178a7957497e2bfde54e5600c457/src/clj/cljs/core.clj#L901
-; [14:05:00] dnolen: this property is unlikely to change - still it's probably not something anything anyone should use w/o a really good reason
+(defn has-formatting-protocol? [value]
+  (or (safe-call satisfies? false IPrintWithWriter value)
+      (safe-call satisfies? false IDevtoolsFormat value)
+      (safe-call satisfies? false IFormat value)))
+
+(defn cljs-land-value? [value]
+  (and (goog/isObject value)                                                                                                  ; see http://stackoverflow.com/a/22482737/84283
+       ; IRC #clojurescript @ freenode.net on 2015-01-27:
+       ; [13:40:09] darwin_: Hi, what is the best way to test if I'm handled ClojureScript data value or plain javascript object?
+       ; [14:04:34] dnolen: there is a very low level thing you can check
+       ; [14:04:36] dnolen: https://github.com/clojure/clojurescript/blob/c2550c4fdc94178a7957497e2bfde54e5600c457/src/clj/cljs/core.clj#L901
+       ; [14:05:00] dnolen: this property is unlikely to change - still it's probably not something anything anyone should use w/o a really good reason
+       (or (oget value "constructor" "cljs$lang$type")
+           (has-formatting-protocol? value))))                                                                                ; some raw js types can be extend-protocol to support cljs printing, see issue #21
+
 (defn cljs-value? [value]
-  (or
-    (if (goog/isObject value)                                                                                                 ; see http://stackoverflow.com/a/22482737/84283
-      (oget value "constructor" "cljs$lang$type"))
-    (cljs-function? value)))
+  (or (cljs-land-value? value)
+      (cljs-function? value)))
 
 (defn ^bool prevent-recursion? []
   (boolean (:prevent-recursion (get-current-state))))
