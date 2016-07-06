@@ -11,60 +11,63 @@
 
 (deftest test-wants
   (testing "these simple values SHOULD NOT be processed by our custom formatter"
-    (want? "some string" false)
-    (want? 0 false)
-    (want? 1000 false)
-    (want? -1000 false)
-    (want? 0.5 false)
-    (want? 0.0 false)
-    (want? -0.5 false)
-    (want? true false)
-    (want? false false)
-    (want? nil false)
-    (want? #js {} false)
-    (want? #js [] false)
-    (want? (goog.date.Interval.) false))                                                                                      ; this type was not extended to support IPrintWithWriter or IFormat
+    (are [v] (want? v false)
+      "some string"
+      0
+      1000
+      -1000
+      0.5
+      0.0
+      -0.5
+      true
+      false
+      nil
+      (goog.date.Interval.)                                                                                                   ; this type was not extended to support IPrintWithWriter or IFormat
+      #js {}
+      #js []))
   (testing "these values SHOULD be processed by our custom formatter"
-    (want? :keyword true)
-    (want? ::auto-namespaced-keyword true)
-    (want? :devtools/fully-qualified-keyword true)
-    (want? 'symbol true)
-    (want? [] true)
-    (want? '() true)
-    (want? {} true)
-    (want? #{} true)
-    (want? #(.-document js/window) true)
-    (want? (b/SimpleType. "some-value") true)
-    (want? (range :max-number-body-items) true)
-    (want? (goog.date.Date.) true)                                                                                            ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
-    (want? (goog.date.DateTime.) true)                                                                                        ; inherits from goog.date.Date
-    (want? (goog.Promise.) true)                                                                                              ; see extend-protocol IFormat for goog.Promise in batteries
-    (want? (b/get-raw-js-obj-implementing-iformat) true)
-    (want? (b/get-raw-js-obj-implementing-iprintwithwriter) true)))
+    (are [v] (want? v true)
+      :keyword
+      ::auto-namespaced-keyword
+      :devtools/fully-qualified-keyword
+      'symbol
+      []
+      '()
+      {}
+      #{}
+      #(.-document js/window)
+      (b/SimpleType. "some-value")
+      (range :max-number-body-items)
+      (goog.date.Date.)                                                                                                       ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
+      (goog.date.DateTime.)                                                                                                   ; inherits from goog.date.Date
+      (goog.Promise.)                                                                                                         ; see extend-protocol IFormat for goog.Promise in batteries
+      (b/get-raw-js-obj-implementing-iformat)
+      (b/get-raw-js-obj-implementing-iprintwithwriter))))
 
 (deftest test-bodies
   (testing "these values should not have body"
-    (has-body? "some string" false)
-    (has-body? 0 false)
-    (has-body? 1000 false)
-    (has-body? -1000 false)
-    (has-body? 0.5 false)
-    (has-body? 0.0 false)
-    (has-body? -0.5 false)
-    (has-body? true false)
-    (has-body? false false)
-    (has-body? nil false)
-    (has-body? #(.-document js/window) false)
-    (has-body? :keyword false)
-    (has-body? ::auto-namespaced-keyword false)
-    (has-body? :devtools/fully-qualified-keyword false)
-    (has-body? 'symbol false)
-    (has-body? [] false)
-    (has-body? '() false)
-    (has-body? {} false)
-    (has-body? #{} false)
-    (has-body? (b/SimpleType. "some-value") false)
-    (has-body? (range :max-number-body-items) false)))
+    (are [v] (has-body? v false)
+      "some string"
+      0
+      1000
+      -1000
+      0.5
+      0.0
+      -0.5
+      true
+      false
+      nil
+      #(.-document js/window)
+      :keyword
+      ::auto-namespaced-keyword
+      :devtools/fully-qualified-keyword
+      'symbol
+      []
+      '()
+      {}
+      #{}
+      (b/SimpleType. "some-value")
+      (range :max-number-body-items))))
 
 (deftest test-simple-atomic-values
   (testing "keywords"
