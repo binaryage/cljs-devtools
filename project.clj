@@ -65,7 +65,7 @@
                                                    :optimizations   :advanced}}}}}
              :auto-testing
              {:cljsbuild {:builds {:tests
-                                   {:notify-command ["lein" "run-phantom"]}}}}}
+                                   {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]}}}}}
 
   :aliases {"test"                   ["do"
                                       "clean,"
