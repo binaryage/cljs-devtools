@@ -1,16 +1,13 @@
 (ns devtools.tests.format
   (:refer-clojure :exclude [range = > < + str])
-  (:require-macros [devtools.utils.macros :refer [range = > < + str]])                                                        ; prefs aware versions
+  (:require-macros [devtools.utils.macros :refer [range = > < + str want?]])                                                  ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
-            [goog.date]
             [devtools.tests.style :as style]
-            [devtools.utils.test :refer [js-equals is-header want? is-body has-body? unroll remove-empty-styles pref-str]]
+            [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
             [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.format :as f]
             [devtools.utils.batteries :as b :refer [REF]]))
-
-(deftype SimpleType [some-field])
 
 (deftest test-wants
   (testing "these simple values SHOULD NOT be processed by our custom formatter"
@@ -24,8 +21,9 @@
     (want? true false)
     (want? false false)
     (want? nil false)
-    (want? (SimpleType. "some-value") false)
-    (want? #(.-document js/window) false))
+    (want? #js {} false)
+    (want? #js [] false)
+    (want? (goog.date.Interval.) false))                                                                                      ; this type was not extended to support IPrintWithWriter or IFormat
   (testing "these values SHOULD be processed by our custom formatter"
     (want? :keyword true)
     (want? ::auto-namespaced-keyword true)
@@ -35,8 +33,14 @@
     (want? '() true)
     (want? {} true)
     (want? #{} true)
-    (want? (SimpleType. "some-value") true)
-    (want? (range :max-number-body-items) true)))
+    (want? #(.-document js/window) true)
+    (want? (b/SimpleType. "some-value") true)
+    (want? (range :max-number-body-items) true)
+    (want? (goog.date.Date.) true)                                                                                            ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
+    (want? (goog.date.DateTime.) true)                                                                                        ; inherits from goog.date.Date
+    (want? (goog.Promise.) true)                                                                                              ; see extend-protocol IFormat for goog.Promise in batteries
+    (want? (b/get-raw-js-obj-implementing-iformat) true)
+    (want? (b/get-raw-js-obj-implementing-iprintwithwriter) true)))
 
 (deftest test-bodies
   (testing "these values should not have body"
@@ -59,7 +63,7 @@
     (has-body? '() false)
     (has-body? {} false)
     (has-body? #{} false)
-    (has-body? (SimpleType. "some-value") false)
+    (has-body? (b/SimpleType. "some-value") false)
     (has-body? (range :max-number-body-items) false)))
 
 (deftest test-simple-atomic-values
@@ -240,7 +244,7 @@
 
 (deftest test-deftype
   (testing "simple deftype"
-    (let [type-instance (SimpleType. "some-value")]
+    (let [type-instance (b/SimpleType. "some-value")]
       (is-header type-instance
         ["span" ::style/cljs
          ["span" ::style/header
@@ -518,20 +522,9 @@
              ["span" ::style/fn-native-symbol :fn-native-symbol]
              REF]]])))))
 
-(extend-protocol IPrintWithWriter
-  goog.date.Date
-  (-pr-writer [obj writer _opts]
-    (write-all writer
-               "#gdate "
-               [(.getYear obj)
-                (.getMonth obj)
-                (.getDate obj)]
-               #js ["test-array"]
-               (js-obj "some-key" "test-js-obj"))))
-
 (deftest test-alt-printer-impl
   (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
-    (let [date-map {:date (goog.date.Date. 2016 6 1)}]
+    (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                        ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
       (is-header date-map
         ["span" ::style/cljs
          ["span" ::style/header
@@ -562,10 +555,10 @@
         (fn [ref]
           (is-header ref
             ["span" ::style/cljs
-              ["span" ::style/header
-               "#js ["
-               ["span" ::style/string "\"test-array\""]
-               "]"]]))
+             ["span" ::style/header
+              "#js ["
+              ["span" ::style/string "\"test-array\""]
+              "]"]]))
         (fn [ref]
           (is-header ref
             ["span" ::style/cljs

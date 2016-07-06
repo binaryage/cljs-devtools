@@ -1,9 +1,13 @@
 (ns devtools.utils.batteries
   (:require [devtools.format :as f]
-            [devtools.protocols :refer [IFormat]]))
+            [devtools.protocols :refer [IFormat]]
+            [goog.date]
+            [goog.Promise]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
+
+(deftype SimpleType [some-field])
 
 (deftype TypeIFn0 []
   Fn
@@ -106,3 +110,37 @@
 (def cljs-lambda-multi-arity-var (fn
                                    ([p1] 1)
                                    ([first & rest])))
+
+(defn get-raw-js-obj-implementing-iprintwithwriter []
+  (reify
+    IPrintWithWriter
+    (-pr-writer [_obj writer _opts]
+      (write-all writer "I'm raw-js-type-implementing-iprintwithwriter"))))
+
+(defn get-raw-js-obj-implementing-iformat []
+  (reify
+    IFormat
+    (-header [_] (f/make-template "span"
+                                  "color:white; background-color:brown; padding: 0px 4px"
+                                  "testing reify"))
+    (-has-body [_] false)
+    (-body [_])))
+
+(extend-protocol IPrintWithWriter
+  goog.date.Date
+  (-pr-writer [obj writer _opts]
+    (write-all writer
+               "#gdate "
+               [(.getYear obj)
+                (.getMonth obj)
+                (.getDate obj)]
+               #js ["test-array"]
+               (js-obj "some-key" "test-js-obj"))))
+
+(extend-protocol IFormat
+  goog.Promise
+  (-header [_] (f/make-template "span"
+                                "color:white; background-color:brown; padding: 0px 4px"
+                                "I'm a goog.Promise with devtools.protocols.IFormat"))
+  (-has-body [_] false)
+  (-body [_]))
