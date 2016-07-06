@@ -44,15 +44,15 @@
                                    :tests-with-config
                                    {:source-paths ["src/lib"
                                                    "test/src/tests"]
-                                    :compiler     {:output-to      "test/resources/_compiled/tests-with-config/build.js"
-                                                   :output-dir     "test/resources/_compiled/tests-with-config"
-                                                   :asset-path     "_compiled/tests-with-config"
-                                                   :main           devtools.main
-                                                   :optimizations  :none
-                                                   :tooling-config {:devtools/config {:features-to-install    [:sanity-hints]
-                                                                                      :fn-symbol              "F"
-                                                                                      :print-config-overrides true}}
-                                                   :preloads       [devtools.preload]}}                                       ; CLJS-1688
+                                    :compiler     {:output-to       "test/resources/_compiled/tests-with-config/build.js"
+                                                   :output-dir      "test/resources/_compiled/tests-with-config"
+                                                   :asset-path      "_compiled/tests-with-config"
+                                                   :main            devtools.main
+                                                   :optimizations   :none
+                                                   :external-config {:devtools/config {:features-to-install    [:sanity-hints]
+                                                                                       :fn-symbol              "F"
+                                                                                       :print-config-overrides true}}
+                                                   :preloads        [devtools.preload]}}                                      ; CLJS-1688
                                    :dead-code
                                    {:source-paths ["src/lib"
                                                    "test/src/dead-code"]
