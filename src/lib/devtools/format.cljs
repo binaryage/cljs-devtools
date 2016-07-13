@@ -463,7 +463,9 @@
         fields (fetch-instance-fields value basis)
         fields-header-template (instance-fields-header-template fields (if custom-printing? 0))
         fields-body-template-fn #(instance-fields-body-template fields value)
-        instance-value-template (make-template :span :instance-value-style
+        instance-value-template (make-template :span (if custom-printing?
+                                                       :instance-value-with-custom-printing-style
+                                                       :instance-value-style)
                                                (reference-template (make-surrogate value
                                                                                    fields-header-template
                                                                                    true
