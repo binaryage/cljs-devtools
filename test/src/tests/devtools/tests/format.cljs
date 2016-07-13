@@ -306,9 +306,9 @@
   (testing "simple meta"
     (is-header (with-meta {} :meta)
       ["span" ::style/cljs
-       ["span" ::style/meta-wrapper
-        ["span" ::style/header "{" "}"]
-        ["span" {} REF]]]
+       ["span" ::style/header
+        ["span" ::style/meta-wrapper
+         "{" "}" ["span" ::style/meta-reference-style REF]]]]
       (fn [ref]
         (has-body? ref true)
         (is-header ref

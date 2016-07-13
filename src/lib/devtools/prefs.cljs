@@ -7,7 +7,7 @@
 (def string-background "rgba(255, 100, 100, 0.08)")
 (def string-border-color "rgba(255, 100, 100, 0.4)")
 
-(def body-line-common-style "min-height: 16px;")
+(def body-line-common-style "")
 
 (def default-prefs
   {:features-to-install                           :default

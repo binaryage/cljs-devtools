@@ -532,6 +532,12 @@
     (make-group (circular-reference-template group))
     group))
 
+(defn wrap-group-in-meta-if-needed [group value]
+  (if-let [meta-data (if (pref :print-meta-data)
+                       (meta value))]
+    (make-group (make-template :span :meta-wrapper-style (vec group) (meta-template meta-data)))
+    group))
+
 ; default printer implementation can do this:
 ;   :else (write-all writer "#<" (str obj) ">")
 ; we want to wrap stringified obj in a reference for further inspection
@@ -583,7 +589,8 @@
       (detect-edge-case-and-patch-it obj)                                                                                     ; an ugly hack
       (wrap-group-values-as-references-if-needed)                                                                             ; issue #21
       (wrap-group-in-reference-if-needed obj)
-      (wrap-group-in-circular-warning-if-needed circular?)))
+      (wrap-group-in-circular-warning-if-needed circular?)
+      (wrap-group-in-meta-if-needed obj)))
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
@@ -603,10 +610,7 @@
     tmpl))
 
 (defn build-header [value]
-  (let [value-template (managed-pr-str value :header-style (pref :max-print-level))]
-    (if-let [meta-data (if (pref :print-meta-data) (meta value))]
-      (make-template :span :meta-wrapper-style value-template (meta-template meta-data))
-      value-template)))
+  (managed-pr-str value :header-style (pref :max-print-level)))
 
 (defn build-header-wrapped [value]
   (make-template :span :cljs-style (build-header value)))
