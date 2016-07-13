@@ -53,11 +53,15 @@
   (let [refs (atom [])
         catch-next (atom false)
         filter (fn [_ value]
-                 (when @catch-next
-                   (reset! catch-next false)
-                   (reset! refs (conj @refs value)))
-                 (if (= value "object") (reset! catch-next true))
-                 value)]
+                 (if @catch-next
+                   (do
+                     (reset! catch-next false)
+                     (reset! refs (conj @refs value))
+                     nil)
+                   (do
+                     (if (= value "object")
+                       (reset! catch-next true))
+                     value)))]
     (json/serialize template filter)
     @refs))
 

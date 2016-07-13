@@ -15,8 +15,11 @@
 
   If you discovered breakage or a new case which should be covered by this code, please open an issue:
     https://github.com/binaryage/cljs-devtools/issues"
+  (:require-macros [devtools.munging :refer [get-fast-path-protocol-partitions-count
+                                             get-fast-path-protocols-lookup-table]])
   (:require [clojure.string :as string]
-            [devtools.util :refer-macros [oget oset ocall safe-call]]))
+            [devtools.util :refer-macros [oget oset ocall safe-call]]
+            [goog.object :as gobj]))
 
 (declare collect-fn-arities)
 
@@ -249,7 +252,7 @@
     (parse-fn-source-info fn-source)))
 
 (defn parse-fn-info-deep
-  "Given Javascript function object tries to retrieve [ns name & args] as in parse-fn-info (on best effort basis).
+  "Given a Javascript function object tries to retrieve [ns name & args] as in parse-fn-info (on best effort basis).
 
   The difference from parse-fn-info is that this function prefers to read args from arities if available.
   It recurses arbitrary deep following IFn protocol leads.
@@ -448,3 +451,119 @@
           (or protocol-part fn-part)
           arity-str
           (if protocol-part (str " (" fn-part ")")))))))
+
+; -- types ------------------------------------------------------------------------------------------------------------------
+
+(defn get-basis [f]
+  (ocall f "getBasis"))
+
+(defn parse-constructor-info
+  "Given a Javascript constructor function tries to retrieve [ns name basis]. Returns nil if not a cljs type."
+  [f]
+  (if (and (goog/isObject f) (oget f "cljs$lang$type"))
+    (let [type-name (type->str f)
+          parts (.split type-name #"/")
+          basis (safe-call get-basis [] f)]
+      (assert (<= (count parts) 2))
+      (while (< (count parts) 2)
+        (.unshift parts nil))
+      (conj (vec parts) basis))))
+
+; -- protocols --------------------------------------------------------------------------------------------------------------
+
+(defn protocol-path [protocol-selector]
+  (string/split protocol-selector #"\."))
+
+(defn get-protocol-object [protocol-selector]
+  (loop [obj js/window
+         path (protocol-path protocol-selector)]
+    (if (empty? path)
+      obj
+      (if (goog/isObject obj)
+        (recur (oget obj (first path)) (rest path))))))
+
+(defn protocol-exists? [protocol-selector]
+  (some? (get-protocol-object protocol-selector)))
+
+(defn get-protocol-selector [key]
+  (if-let [m (re-matches #"(.*)\$$" key)]
+    (if-not (string/includes? key "cljs$lang$protocol_mask$partition")
+      (let [protocol-selector (string/replace (second m) "$" ".")]
+        (if (protocol-exists? protocol-selector)
+          protocol-selector)))))
+
+(defn demunge-protocol-selector [protocol-selector]
+  (let [parts (map demunge (protocol-path protocol-selector))
+        _ (assert (>= (count parts) 2)
+                  (str "expected protocol selector to contain at least one dot: '" protocol-selector "'"))
+        ns (string/join "." (butlast parts))
+        name (last parts)]
+    [ns name protocol-selector]))
+
+(def fast-path-protocols-lookup-table (get-fast-path-protocols-lookup-table))
+
+(defn key-for-protocol-partition [partition]
+  (str "cljs$lang$protocol_mask$partition" partition "$"))
+
+(defn scan-fast-path-protocols-partition [obj partition]
+  {:pre [(number? partition)]}
+  (let [partition-key (key-for-protocol-partition partition)
+        partition-bits (or (oget obj partition-key) 0)]
+    (if (> partition-bits 0)
+      (let [lookup-table (get fast-path-protocols-lookup-table partition)
+            _ (assert (map? lookup-table)
+                      (str "fast-path-protocols-lookup-table does not contain lookup table for partition " partition))
+            * (fn [accum [bit protocol]]
+                (if (zero? (bit-and partition-bits bit))
+                  accum
+                  (conj accum protocol)))]
+        (reduce * [] lookup-table)))))
+
+(defn scan-fast-path-protocols [obj]
+  (apply concat (map (partial scan-fast-path-protocols-partition obj) (range (get-fast-path-protocol-partitions-count)))))
+
+(defn scan-slow-path-protocols [obj]
+  (let [keys (gobj/getKeys obj)
+        selectors (keep get-protocol-selector keys)]
+    (map demunge-protocol-selector selectors)))
+
+(defn make-protocol-descriptor [ns name selector fast?]
+  {:ns       ns
+   :name     name
+   :selector selector
+   :fast?    fast?})
+
+(defn convert-to-protocol-descriptor [fast? [ns name selector]]
+  (make-protocol-descriptor ns name selector fast?))
+
+(defn protocol-descriptors-comparator [a b]
+  (compare (:name a) (:name b)))
+
+(defn scan-protocols [obj]
+  (let [fast-path-protocols (map (partial convert-to-protocol-descriptor true) (scan-fast-path-protocols obj))
+        slow-path-protocols (map (partial convert-to-protocol-descriptor false) (scan-slow-path-protocols obj))
+        all-protocols (concat fast-path-protocols slow-path-protocols)]
+    (sort protocol-descriptors-comparator all-protocols)))
+
+
+(defn collect-protocol-methods [obj protocol-selector]
+  (let [key-prefix (string/replace protocol-selector #"\." "\\$")
+        pattern (re-pattern (str "^" key-prefix "\\$(.*)\\$arity\\$(\\d+)$"))
+        all-keys (gobj/getKeys obj)
+        matches (keep (partial re-matches pattern) all-keys)
+        methods (group-by second matches)
+        match-to-arity (fn [match]
+                         (let [arity (nth match 2)]
+                           (ocall js/window "parseInt" arity 10)))
+        match-arity-comparator (fn [a b]
+                                 (compare (match-to-arity a) (match-to-arity b)))
+        post-process (fn [[munged-name matches]]
+                       (let [name (demunge munged-name)
+                             sorted-matches (sort match-arity-comparator matches)
+                             sorted-fns (map #(oget obj (first %)) sorted-matches)]
+                         [name sorted-fns]))
+        by-name-comparator (fn [a b]
+                             (compare (first a) (first b)))]
+    ; TODO: he we could be able to retrieve parameter lists from protocol definition methods
+    ;       parameter names there are usually more consistent than parameters picked by protocol implementors
+    (sort by-name-comparator (map post-process methods))))
