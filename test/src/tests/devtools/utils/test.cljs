@@ -7,7 +7,11 @@
             [goog.object :as gobj]
             [devtools.util :refer-macros [oset oget]]
             [devtools.format :as f]
-            [devtools.prefs :refer [pref]]))
+            [devtools.prefs :refer [pref set-prefs!]]
+            [devtools.defaults :as defaults]))
+
+(defn reset-prefs-to-defaults! []
+  (set-prefs! defaults/prefs))
 
 ; taken from https://github.com/purnam/purnam/blob/62bec5207621779a31c5adf3593530268aebb7fd/src/purnam/native/functions.cljs#L128-L145
 ; Copyright © 2014 Chris Zheng

@@ -1,6 +1,6 @@
 (ns devtools.tests.config
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
+            [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.core :refer [installed?]]))
 
 (deftest test-config

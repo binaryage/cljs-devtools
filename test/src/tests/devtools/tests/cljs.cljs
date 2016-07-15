@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll]]
             [devtools.format :refer [surrogate?]]
-            [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
+            [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 
 ; test some fragile behaviours of CLJS printing we depend on
 ; mostly to catch changes in code like this:

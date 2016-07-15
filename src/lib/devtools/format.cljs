@@ -196,7 +196,7 @@
 
 (defn circular-reference-template [content-group]
   (let [base-template (make-template :span :circular-reference-wrapper-style
-                                     (make-template :span :circular-reference-symbol-style :circular-reference-symbol))]
+                                     :circular-ref-icon)]
     (concat-templates! base-template content-group)))
 
 (defn nil-template [_value]

@@ -3,9 +3,10 @@
   (:require-macros [devtools.utils.macros :refer [range = > < + str want?]])                                                  ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
             [devtools.tests.style :as style]
-            [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll remove-empty-styles pref-str]]
+            [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
+                                         remove-empty-styles pref-str]]
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
-            [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
+            [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.format :as f]
             [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
 
@@ -149,7 +150,7 @@
         (unroll (fn [i] [["span" ::style/integer (+ i 1)] :spacer]) (range 4))
         ["span" ::style/integer 5]
         "]"]])
-    (set-prefs! default-prefs)
+    (reset-prefs-to-defaults!)
     (is-header [1 2 3]
       ["span" ::style/cljs
        ["span" ::style/header
@@ -265,12 +266,12 @@
       (set-pref! :header-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
       (is (js-equals (header-api-call "javascript-value") handled-output))
       (is (not (js-equals (header-api-call "not-matching-javascript-value") handled-output)))
-      (set-prefs! default-prefs))
+      (reset-prefs-to-defaults!))
     (testing "header post-handler"
       (set-pref! :header-post-handler (fn [_value] "always-rewrite"))
       (is (= (header-api-call ["cljs-value"]) "always-rewrite"))
       (is (= (header-api-call "javascript-value") "always-rewrite"))
-      (set-prefs! default-prefs))
+      (reset-prefs-to-defaults!))
     (testing "has-body pre-handler"
       (set-pref! :has-body-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled)))
       (is (= (has-body-api-call ["cljs-value"]) false))
@@ -278,22 +279,22 @@
       (set-pref! :has-body-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
       (is (= (has-body-api-call "javascript-value") false))
       (is (= (has-body-api-call "not-matching-javascript-value") nil))
-      (set-prefs! default-prefs))
+      (reset-prefs-to-defaults!))
     (testing "has-body post-handler"
       (set-pref! :has-body-post-handler (fn [_value] "always-rewrite"))
       (is (= (has-body-api-call ["cljs-value"]) "always-rewrite"))
       (is (= (has-body-api-call "javascript-value") "always-rewrite"))
-      (set-prefs! default-prefs))
+      (reset-prefs-to-defaults!))
     (testing "body pre-handler"
       (set-pref! :body-pre-handler (fn [value] (if (= value ["cljs-value"]) ["handled-cljs-value"])))
       (is (= (body-api-call ["cljs-value"]) nil))
       (is (= (body-api-call ["non-matching-cljs-value"]) nil))
-      (set-prefs! default-prefs))
+      (reset-prefs-to-defaults!))
     (testing "header post-handler"
       (set-pref! :body-post-handler (fn [_value] "always-rewrite"))
       (is (= (body-api-call ["cljs-value"]) "always-rewrite"))
       (is (= (body-api-call "javascript-value") "always-rewrite"))
-      (set-prefs! default-prefs))))
+      (reset-prefs-to-defaults!))))
 
 (deftest test-meta
   (testing "meta is disabled"
@@ -302,7 +303,7 @@
       ["span" ::style/cljs
        ["span" ::style/header
         "{" "}"]])
-    (set-prefs! default-prefs))
+    (reset-prefs-to-defaults!))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
       ["span" ::style/cljs
@@ -358,7 +359,7 @@
         " "
         ["span" ::style/integer 3]
         "]"]])
-    (set-prefs! default-prefs)))
+    (reset-prefs-to-defaults!)))
 
 (deftest test-circular-data
   (testing "circulare data structure"
@@ -402,7 +403,7 @@
         b/inst-type-ifn2
         b/inst-type-ifn2va
         b/inst-type-ifn4va)
-      (set-prefs! default-prefs)))
+      (reset-prefs-to-defaults!)))
   (testing "minimal function formatting"
     (is-header b/minimal-fn
       ["span"

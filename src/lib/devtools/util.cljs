@@ -4,6 +4,7 @@
             [clojure.data :as data]
             [cljs.pprint :refer [pprint]]
             [devtools.version :refer [get-current-version]]
+            [devtools.defaults :as defaults]
             [devtools.prefs :as prefs]))
 
 (def ^:dynamic *custom-formatters-active* false)
@@ -46,7 +47,7 @@
 
 (defn print-config-overrides-if-requested! [msg]
   (when (prefs/pref :print-config-overrides)
-    (let [diff (second (data/diff prefs/default-prefs (prefs/get-prefs)))]
+    (let [diff (second (data/diff defaults/prefs (prefs/get-prefs)))]
       (if-not (empty? diff)
         (.info js/console msg (with-out-str (pprint diff)))))))
 
