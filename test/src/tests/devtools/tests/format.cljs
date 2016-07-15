@@ -7,7 +7,7 @@
             [devtools.format :refer [surrogate? header-api-call has-body-api-call body-api-call]]
             [devtools.prefs :refer [default-prefs merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.format :as f]
-            [devtools.utils.batteries :as b :refer [REF]]))
+            [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
 
 (deftest test-wants
   (testing "these simple values SHOULD NOT be processed by our custom formatter"
@@ -415,14 +415,15 @@
         (is-header ref
           ["span" ::style/fn-header
            ["span" ::style/fn-prefix
-            ["span" ::style/fn-lambda-symbol :fn-lambda-symbol]]
+            :lambda-icon]
            ["span" ::style/fn-args (pref-str :args-open-symbol :args-close-symbol)]])
         (is-body ref
           ["span" ::style/body
            ["ol" ::style/standard-ol-no-margin
             ["li" ::style/aligned-li
-             ["span" ::style/fn-native-symbol :fn-native-symbol]
-             REF]]]))))
+             :native-icon
+             NATIVE-REF]]]))))
+
   (testing "cljs-lambda-multi-arity function formatting"
     (is-header b/cljs-lambda-multi-arity
       ["span"
@@ -435,7 +436,7 @@
         (is-header ref
           ["span" ::style/fn-header
            ["span" ::style/fn-prefix
-            ["span" ::style/fn-lambda-symbol :fn-lambda-symbol]]
+            :lambda-icon]
            ["span" ::style/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
         (is-body ref
           ["span" ::style/body
@@ -443,21 +444,21 @@
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-lambda-symbol :fn-lambda-symbol]]]
+               :lambda-icon]]
              ["span" ::style/fn-args (pref-str :args-open-symbol :args-close-symbol)]]
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-lambda-symbol :fn-lambda-symbol]]]
+               :lambda-icon]]
              ["span" ::style/fn-args (pref-str :args-open-symbol "a b" :args-close-symbol)]]
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-lambda-symbol :fn-lambda-symbol]]]
+               :lambda-icon]]
              ["span" ::style/fn-args (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
             ["li" ::style/aligned-li
-             ["span" ::style/fn-native-symbol :fn-native-symbol]
-             REF]]]))))
+             :native-icon
+             NATIVE-REF]]]))))
   (testing "cljs-fn-multi-arity-var function formatting"
     (is-header b/cljs-fn-multi-arity-var
       ["span"
@@ -470,7 +471,7 @@
         (is-header ref
           ["span" ::style/fn-header
            ["span" ::style/fn-prefix
-            ["span" ::style/fn-symbol :fn-symbol]
+            :fn-icon
             ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]
            ["span" ::style/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
         (is-body ref
@@ -479,33 +480,33 @@
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-symbol :fn-symbol]
+               :fn-icon
                ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
              ["span" ::style/fn-args (pref-str :args-open-symbol "a1" :args-close-symbol)]]
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-symbol :fn-symbol]
+               :fn-icon
                ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
              ["span" ::style/fn-args (pref-str :args-open-symbol "a2-1 a2-2" :args-close-symbol)]]
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-symbol :fn-symbol]
+               :fn-icon
                ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
              ["span" ::style/fn-args (pref-str :args-open-symbol "a3-1 a3-2 a3-3 a3-4" :args-close-symbol)]]
             ["li" ::style/aligned-li
              ["span" ::style/fn-multi-arity-args-indent
               ["span" ::style/fn-prefix
-               ["span" ::style/fn-symbol :fn-symbol]
+               :fn-icon
                ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
              ["span" ::style/fn-args (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
             ["li" ::style/aligned-li
-             ["span" ::style/fn-ns-symbol :fn-ns-symbol]
+             :ns-icon
              ["span" ::style/fn-ns-name "devtools.utils.batteries"]]
             ["li" ::style/aligned-li
-             ["span" ::style/fn-native-symbol :fn-native-symbol]
-             REF]]])))))
+             :native-icon
+             NATIVE-REF]]])))))
 
 (deftest test-alt-printer-impl
   (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21

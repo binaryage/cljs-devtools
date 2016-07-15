@@ -1,11 +1,16 @@
 (ns devtools.utils.batteries
   (:require [devtools.format :as f]
             [devtools.protocols :refer [IFormat]]
+            [devtools.tests.style :as style]
             [goog.date]
             [goog.Promise]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
+
+(def NATIVE-REF ["span" ::style/native-reference-wrapper
+                 :native-reference-background
+                 REF])
 
 (deftype SimpleType [some-field])
 

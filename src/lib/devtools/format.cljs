@@ -138,13 +138,13 @@
     (doseq [child children]
       (if (some? child)
         (if (coll? child)
-          (.apply (aget template "push") template (mark-as-template! (into-array child)))                                     ; convenience helper to splat cljs collections
+          (.apply (aget template "push") template (mark-as-template! (into-array (keep resolve-pref child))))                 ; convenience helper to splat cljs collections
           (if-let [child-value (resolve-pref child)]
             (.push template child-value)))))
     template))
 
 (defn concat-templates! [template & templates]
-  (mark-as-template! (.apply (oget template "concat") template (into-array (map into-array templates)))))
+  (mark-as-template! (.apply (oget template "concat") template (into-array (map into-array (keep resolve-pref templates))))))
 
 (defn extend-template! [template & args]
   (concat-templates! template args))
@@ -212,7 +212,9 @@
                                 "config" sub-state}))))
 
 (defn native-reference-template [object]
-  (reference-template object {:prevent-recursion true}))
+  (make-template :span :native-reference-wrapper-style
+                 :native-reference-background
+                 (reference-template object {:prevent-recursion true})))
 
 (defn index-template [value]
   (make-template :span :index-style value :line-index-separator))
@@ -255,10 +257,10 @@
         args-lists-templates (if (> (count args) 1) (map make-args-template args))
         ns-template (if-not (empty? ns)
                       (make-template :li :aligned-li-style
-                                     (make-template :span :fn-ns-symbol-style :fn-ns-symbol)
+                                     :ns-icon
                                      (make-template :span :fn-ns-name-style ns)))
         native-template (make-template :li :aligned-li-style
-                                       (make-template :span :fn-native-symbol-style :fn-native-symbol)
+                                       :native-icon
                                        (native-reference-template fn-obj))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
@@ -279,28 +281,26 @@
         multi-arity-marker (str args-open-symbol multi-arity-symbol args-close-symbol)
         args-template (make-template :span :fn-args-style (if multi-arity? multi-arity-marker (first args)))
         lambda? (empty? name)
-        fn-name (if-not lambda?
-                  (make-template :span :fn-name-style name))
-        symbol-template (if lambda?
-                          (make-template :span :fn-lambda-symbol-style :fn-lambda-symbol)
-                          (make-template :span :fn-symbol-style :fn-symbol))
+        fn-name (if-not lambda? (make-template :span :fn-name-style name))
+        symbol-template (if lambda? :lambda-icon :fn-icon)
         prefix-template (make-template :span :fn-prefix-style symbol-template fn-name)
         header-template (make-template :span :fn-header-style prefix-template args-template)
         body-template (partial cljs-function-body-template fn-obj ns name args prefix-template)]
     (reference-template (make-surrogate fn-obj header-template true body-template))))
 
-(defn present-basis [basis]
-  (string/join " " (map name basis)))
+(defn make-basis-template [basis]
+  (make-template :span :type-basis-style
+                 (string/join " " (map name basis))))
 
 (defn cljs-type-body-template [constructor-fn ns _name basis]
   (let [ns-template (if-not (empty? ns)
                       (make-template :li :aligned-li-style
-                                     (make-template :span :fn-ns-symbol-style :fn-ns-symbol)
+                                     :ns-icon
                                      (make-template :span :fn-ns-name-style ns)))
         basis-template (if-not (empty? basis)
                          (make-template :li :aligned-li-style
-                                        (make-template :span :type-basis-symbol-style :type-basis-symbol)
-                                        (make-template :span :type-basis-style (present-basis basis))))
+                                        :basis-icon
+                                        (make-basis-template basis)))
         native-template (make-template :li :aligned-li-style
                                        (make-template :span :fn-native-symbol-style :fn-native-symbol)
                                        (native-reference-template constructor-fn))]
@@ -312,11 +312,15 @@
 
 (defn cljs-type-template [constructor-fn & [header-style]]
   (let [[ns name basis] (munging/parse-constructor-info constructor-fn)
-        symbol-template (make-template :span :type-symbol-style :type-symbol)
         type-name-template (make-template :span :type-name-style name)
-        header-template (make-template :span (or header-style :type-header-style) symbol-template type-name-template)
+        header-template (make-template :span (or header-style :type-header-style)
+                                       :type-symbol
+                                       type-name-template)
         body-template-fn (partial cljs-type-body-template constructor-fn ns name basis)]
-    (reference-template (make-surrogate constructor-fn header-template true body-template-fn))))
+    (make-template :span :type-wrapper
+                   :instance-type-header-background
+                   (make-template :span :type-ref-style
+                                  (reference-template (make-surrogate constructor-fn header-template true body-template-fn))))))
 
 (defn fetch-field [obj field]
   [field (oget obj (munge field))])
@@ -334,14 +338,13 @@
 
 (defn body-field-template [field]
   (let [[name value] field]
-    (make-template "tr" :body-field-tr-style
-                   (make-template "td" :body-field-td1-style
-                                  (make-template :span :body-field-symbol-style :body-field-symbol)
+    (make-template :tr :body-field-tr-style
+                   (make-template :td :body-field-td1-style
+                                  :body-field-symbol
                                   (make-template :span :body-field-name-style (str name)))
-                   (make-template "td" :body-field-td2-style
+                   (make-template :td :body-field-td2-style
                                   :body-field-value-spacer
-                                  (make-template :span :body-field-value-style (reference-template value))
-                                  :header-field-value-separator))))
+                                  (make-template :span :body-field-value-style (reference-template value))))))
 
 (defn instance-fields-header-template [fields & [max-fields]]
   (let [max-fields (or max-fields (pref :max-instance-header-fields))
@@ -369,7 +372,7 @@
         more? (> (count fns) max-fns)
         template (make-template :span :protocol-method-arities-header-style
                                 :protocol-method-arities-header-open-symbol
-                                (interpose (pref :protocol-method-arities-list-header-separator) header-templates)
+                                (interpose :protocol-method-arities-list-header-separator header-templates)
                                 (if more? :protocol-method-arities-more-symbol)
                                 :protocol-method-arities-header-close-symbol)]
     (if more?
@@ -379,7 +382,7 @@
 
 (defn make-protocol-method-template [[name fns]]
   (make-template :span :protocol-method-style
-                 :protocol-method-symbol
+                 :method-icon
                  (make-template :span :protocol-method-name-style name)
                  (make-protocol-method-arities-list-template fns)))
 
@@ -391,7 +394,7 @@
         protocol-obj (munging/get-protocol-object selector)
         native-template (if (some? protocol-obj)
                           (make-template :li :aligned-li-style
-                                         (make-template :span :protocol-native-symbol-style :protocol-native-symbol)
+                                         :native-icon
                                          (native-reference-template protocol-obj)))
         methods (munging/collect-protocol-methods obj selector)
         method-templates (map make-protocol-method-template methods)
@@ -402,14 +405,21 @@
                                   ns-template
                                   native-template))))
 
-(defn make-protocol-header-template [obj protocol]
+(defn make-protocol-template [obj protocol & [style]]
   (let [{:keys [ns name selector fast?]} protocol
-        header-template (make-template :span (if fast? :header-fast-protocol-style :header-slow-protocol-style) name)
-        body-template-fn (partial make-protocol-body-template obj ns name selector fast?)]
-    (reference-template (make-surrogate obj header-template true body-template-fn))))
+        header-template (make-template :span (or style :protocol-name-style) name)
+        main-template (make-template :span (if fast? :fast-protocol-style :slow-protocol-style)
+                                     :protocol-background)]
+    (if (some? obj)
+      (let [body-template-fn (partial make-protocol-body-template obj ns name selector fast?)]
+        (extend-template! main-template (reference-template (make-surrogate obj header-template true body-template-fn))))
+      (extend-template! main-template header-template))))
+
+(defn make-more-protocols-template [more-count]
+  (make-protocol-template nil {:name (str "+" more-count "…")} :protocol-more-style))
 
 (defn make-protocols-list-body-template [obj protocols]
-  (let [protocol-templates (map (partial make-protocol-header-template obj) protocols)
+  (let [protocol-templates (map (partial make-protocol-template obj) protocols)
         wrap #(make-template :li :aligned-li-style %)]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
@@ -417,13 +427,14 @@
 
 (defn make-protocols-list-template [obj protocols & [max-protocols]]
   (let [max-protocols (or max-protocols (pref :max-list-protocols))
-        protocols-header-templates (map (partial make-protocol-header-template obj) (take max-protocols protocols))
-        more? (> (count protocols) max-protocols)
+        protocols-header-templates (map (partial make-protocol-template obj) (take max-protocols protocols))
+        more-count (- (count protocols) max-protocols)
+        more? (pos? more-count)
         template (make-template :span :protocols-header-style
-                                :protocols-header-open-symbol
-                                (interpose (pref :header-protocol-separator) protocols-header-templates)
-                                (if more? :more-protocols-symbol)
-                                :protocols-header-close-symbol)]
+                                :protocols-list-open-symbol
+                                (interpose :header-protocol-separator protocols-header-templates)
+                                (if more? [:header-protocol-separator (make-more-protocols-template more-count)])
+                                :protocols-list-close-symbol)]
     (if more?
       (reference-template (make-surrogate obj template true (partial make-protocols-list-body-template obj protocols)))
       template)))
@@ -431,16 +442,17 @@
 (defn instance-fields-body-template [fields obj]
   (let [protocols (munging/scan-protocols obj)
         has-protocols? (not (empty? protocols))
+        fields-table-template (make-template :li :aligned-li-style
+                                             :fields-icon
+                                             (make-template :table :instance-body-fields-table-style
+                                                            (map body-field-template fields)))
         protocols-list-template (if has-protocols?
                                   (make-template :li :aligned-li-style
-                                                 :protocols-list-symbol
+                                                 :protocols-icon
                                                  (make-protocols-list-template obj protocols)))
         native-template (make-template :li :aligned-li-style
-                                       (make-template :span :fn-native-symbol-style :fn-native-symbol)
-                                       (native-reference-template obj))
-        fields-table-template (make-template :li :aligned-li-style
-                                             (make-template "table" :instance-body-fields-table-style
-                                                            (map body-field-template fields)))]
+                                       :native-icon
+                                       (native-reference-template obj))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   fields-table-template
@@ -463,16 +475,16 @@
         fields (fetch-instance-fields value basis)
         fields-header-template (instance-fields-header-template fields (if custom-printing? 0))
         fields-body-template-fn #(instance-fields-body-template fields value)
-        instance-value-template (make-template :span (if custom-printing?
-                                                       :instance-value-with-custom-printing-style
-                                                       :instance-value-style)
+        instance-value-template (make-template :span :instance-value-style
                                                (reference-template (make-surrogate value
                                                                                    fields-header-template
                                                                                    true
                                                                                    fields-body-template-fn)))
         custom-printing-template (if custom-printing?
-                                   (managed-print-via-protocol value
-                                                               :instance-custom-printing-style))
+                                   (make-template :span :instance-custom-printing-wrapper-style
+                                                  :instance-custom-printing-background
+                                                  (managed-print-via-protocol value
+                                                                              :instance-custom-printing-style)))
         header-template (make-template :span :instance-header-style
                                        type-template
                                        :instance-value-separator
