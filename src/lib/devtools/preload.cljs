@@ -4,7 +4,7 @@
             [devtools.core :as core]))
 
 ; this namespace is intended to be included in cljs compiler :preloads
-; overrides for default configuration can be specified in :tooling-config > :devtools/config
+; overrides for default configuration can be specified in :external-config > :devtools/config
 
 (def config (gen-config))
 

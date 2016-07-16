@@ -1,7 +1,7 @@
 (ns devtools.tests.prefs
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll reset-prefs-to-defaults!]]
-            [devtools.format :refer [surrogate?]]
+            [devtools.cfs.templating :refer [surrogate?]]
             [devtools.defaults :as defaults]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 

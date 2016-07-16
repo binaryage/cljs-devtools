@@ -147,7 +147,7 @@
 
 ; -- style macros -----------------------------------------------------------------------------------------------------------
 
-(defmacro symbol-style [color & [slim?]]
+(defmacro symbol-style [color & [kind]]
   `(str "background-color:" ~color ";"
         "color: #fff;"
         "width: 20px;"
@@ -160,7 +160,7 @@
         "margin-right: 3px;"
         "border-radius: 2px;"
         "-webkit-user-select: none;"
-        (if ~slim?
+        (if (= ~kind :slim)
           "padding: 0px 4px; top:2px;"
           "padding: 1px 4px; top:1px;")))
 

@@ -36,7 +36,7 @@
    :native-icon                                   (p/icon "js" (p/get-native-color))
    :lambda-icon                                   (p/icon "λ" (p/get-lambda-color))
    :fn-icon                                       (p/icon "fn" (p/get-fn-color))
-   :circular-ref-icon                             (p/icon "∞" (p/get-circular-ref-color) true)
+   :circular-ref-icon                             (p/icon "∞" (p/get-circular-ref-color) :slim)
 
    :header-field-value-spacer                     #js ["span" #js {"style" "color: #ccc"} "="]
    :header-field-separator                        " "
@@ -209,4 +209,19 @@
    :default-envelope-header                       "\uD83D\uDCE8"
    :default-envelope-style                        nil
    :default-envelope-tag                          "span"
-   :bypass-availability-checks                    false})
+   :bypass-availability-checks                    false
+
+
+   ; reusables
+   :nil-tag                                       [:span :nil-style]
+   :bool-tag                                      [:span :bool-style]
+   :keyword-tag                                   [:span :keyword-style]
+   :symbol-tag                                    [:span :symbol-style]
+   :integer-tag                                   [:span :integer-style]
+   :float-tag                                     [:span :float-style]
+   :string-tag                                    [:span :string-style]
+   :expanded-string-tag                           [:span :expanded-string-style]
+   :circular-reference-tag                        [:span :circular-reference-wrapper-style]
+   :native-reference-tag                          [:span :native-reference-wrapper-style]
+
+   })

@@ -1,6 +1,7 @@
 (ns devtools.utils.batteries
   (:require [devtools.format :as f]
             [devtools.protocols :refer [IFormat]]
+            [devtools.cfs.templating :refer [make-template]]
             [devtools.tests.style :as style]
             [goog.date]
             [goog.Promise]))
@@ -70,7 +71,7 @@
 ; defrecord with IFormat
 (defrecord Language [lang]
   IFormat
-  (-header [_] (f/make-template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+  (-header [_] (make-template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
   (-has-body [_])
   (-body [_]))
 
@@ -79,9 +80,9 @@
 ; reify with IFormat
 (def test-reify (reify
                   IFormat
-                  (-header [_] (f/make-template "span"
-                                                "color:white; background-color:brown; padding: 0px 4px"
-                                                "testing reify"))
+                  (-header [_] (make-template "span"
+                                              "color:white; background-color:brown; padding: 0px 4px"
+                                              "testing reify"))
                   (-has-body [_] false)
                   (-body [_])))
 
@@ -125,9 +126,9 @@
 (defn get-raw-js-obj-implementing-iformat []
   (reify
     IFormat
-    (-header [_] (f/make-template "span"
-                                  "color:white; background-color:brown; padding: 0px 4px"
-                                  "testing reify"))
+    (-header [_] (make-template "span"
+                                "color:white; background-color:brown; padding: 0px 4px"
+                                "testing reify"))
     (-has-body [_] false)
     (-body [_])))
 
@@ -144,8 +145,8 @@
 
 (extend-protocol IFormat
   goog.Promise
-  (-header [_] (f/make-template "span"
-                                "color:white; background-color:brown; padding: 0px 4px"
-                                "I'm a goog.Promise with devtools.protocols.IFormat"))
+  (-header [_] (make-template "span"
+                              "color:white; background-color:brown; padding: 0px 4px"
+                              "I'm a goog.Promise with devtools.protocols.IFormat"))
   (-has-body [_] false)
   (-body [_]))

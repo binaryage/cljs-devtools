@@ -1,5 +1,6 @@
 (ns devtools.toolbox
   (:require [devtools.format :as format]
+            [devtools.cfs.templating :refer [make-template make-surrogate]]
             [devtools.protocols :refer [IFormat]]))
 
 (defn envelope
@@ -17,9 +18,9 @@
   ([obj header style tag]
    (reify
      IFormat
-     (-header [_] (format/make-template tag style (if (fn? header) (header obj) header)))
+     (-header [_] (make-template tag style (if (fn? header) (header obj) header)))
      (-has-body [_] true)
-     (-body [_] (format/make-template :span :body-style (format/standard-reference obj))))))
+     (-body [_] (make-template :span :body-style (format/standard-reference obj))))))
 
 (defn force-format
   "Forces object to be rendered by cljs-devtools during console logging.
@@ -33,4 +34,4 @@
   See https://github.com/binaryage/cljs-devtools/issues/17
   "
   [obj]
-  (format/make-surrogate obj (format/build-header obj) false))
+  (make-surrogate obj (format/build-header obj) false))

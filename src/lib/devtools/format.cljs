@@ -3,7 +3,12 @@
   (:require [devtools.prefs :refer [pref]]
             [devtools.munging :as munging]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
-            [clojure.string :as string]))
+            [devtools.cfs.templating :refer [make-template make-group make-surrogate concat-templates! extend-template!
+                                             get-target-object
+                                             group? template? surrogate?]]
+            [clojure.string :as string]
+            [devtools.cfs.hiccup :refer [render-json-ml]]
+            [devtools.cfs.reusables :as reusables]))
 
 (declare alt-printer-impl)
 (declare build-header)
@@ -96,73 +101,6 @@
     (pref v)
     v))
 
-; -- object marking support -------------------------------------------------------------------------------------------------
-
-(defn mark-as-group! [value]
-  (specify! value IGroup)
-  value)
-
-(defn group? [value]
-  (satisfies? IGroup value))
-
-(defn mark-as-template! [value]
-  (specify! value ITemplate)
-  value)
-
-(defn template? [value]
-  (satisfies? ITemplate value))
-
-(defn mark-as-surrogate! [value]
-  (specify! value ISurrogate)
-  value)
-
-(defn surrogate? [value]
-  (satisfies? ISurrogate value))
-
-; ---------------------------------------------------------------------------------------------------------------------------
-
-(defn make-group [& items]
-  (let [group (mark-as-group! #js [])]
-    (doseq [item items]
-      (if (some? item)
-        (if (coll? item)
-          (.apply (aget group "push") group (mark-as-group! (into-array item)))                                               ; convenience helper to splat cljs collections
-          (.push group (resolve-pref item)))))
-    group))
-
-(defn make-template
-  [tag style & children]
-  (let [tag (resolve-pref tag)
-        style (resolve-pref style)
-        template (mark-as-template! #js [tag (if (empty? style) #js {} #js {"style" style})])]
-    (doseq [child children]
-      (if (some? child)
-        (if (coll? child)
-          (.apply (aget template "push") template (mark-as-template! (into-array (keep resolve-pref child))))                 ; convenience helper to splat cljs collections
-          (if-let [child-value (resolve-pref child)]
-            (.push template child-value)))))
-    template))
-
-(defn concat-templates! [template & templates]
-  (mark-as-template! (.apply (oget template "concat") template (into-array (map into-array (keep resolve-pref templates))))))
-
-(defn extend-template! [template & args]
-  (concat-templates! template args))
-
-(defn make-surrogate
-  ([object header] (make-surrogate object header true))
-  ([object header has-body] (make-surrogate object header has-body nil))
-  ([object header has-body body-template]
-   (mark-as-surrogate! (js-obj
-                         "target" object
-                         "header" header
-                         "hasBody" has-body
-                         "bodyTemplate" body-template))))
-
-(defn get-target-object [value]
-  (if (surrogate? value)
-    (oget value "target") value))
-
 (defn positions [pred coll]
   (keep-indexed (fn [idx x]
                   (if (pred x) idx)) coll))
@@ -194,35 +132,30 @@
 
 ; -- templates --------------------------------------------------------------------------------------------------------------
 
-(defn circular-reference-template [content-group]
-  (let [base-template (make-template :span :circular-reference-wrapper-style
-                                     :circular-ref-icon)]
-    (concat-templates! base-template content-group)))
+;(defn circular-reference-template [content-group]
+;  (let [base-template (make-template :span :circular-reference-wrapper-style
+;                                     :circular-ref-icon)]
+;    (concat-templates! base-template content-group)))
 
-(defn nil-template [_value]
-  (make-template :span :nil-style :nil-label))
+;(defn nil-template [_value]
+;  (make-template :span :nil-style :nil-label))
 
 (defn reference-template [object & [state-override]]
   (if (nil? object)
-    (nil-template object)
+    (render-json-ml (reusables/nil-markup))
     (let [sub-state (-> (get-current-state)
                         (merge state-override)
-                        (update :history conj ::reference))]
+                        #_(update :history conj ::reference))]
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
-(defn native-reference-template [object]
-  (make-template :span :native-reference-wrapper-style
-                 :native-reference-background
-                 (reference-template object {:prevent-recursion true})))
+;(defn native-reference-template [object]
+;  (make-template :span :native-reference-wrapper-style
+;                 :native-reference-background
+;                 (reference-template object {:prevent-recursion true})))
 
 (defn index-template [value]
   (make-template :span :index-style value :line-index-separator))
-
-(defn number-template [value]
-  (if (integer? value)
-    (make-template :span :integer-style value)
-    (make-template :span :float-style value)))
 
 (defn meta-template [value]
   (let [header-template (make-template :span :meta-style "meta")
@@ -231,23 +164,23 @@
     (make-template :span :meta-reference-style
                    (reference-template (make-surrogate value header-template true body-template)))))
 
-(defn abbreviate-long-string [string]
-  (str
-    (apply str (take (pref :string-prefix-limit) string))
-    (pref :string-abbreviation-marker)
-    (apply str (take-last (pref :string-postfix-limit) string))))
-
-(defn string-template [source-string]
-  (let [dq (pref :dq)
-        re-nl (js/RegExp. "\n" "g")
-        inline-string (.replace source-string re-nl (pref :new-line-string-replacer))
-        max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
-    (if (<= (count inline-string) max-inline-string-size)
-      (make-template :span :string-style (str dq inline-string dq))
-      (let [abbreviated-string-template (make-template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
-            string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
-            body-template (make-template :span :expanded-string-style string-with-nl-markers)]
-        (reference-template (make-surrogate source-string abbreviated-string-template true body-template))))))
+;(defn abbreviate-long-string [string]
+;  (str
+;    (apply str (take (pref :string-prefix-limit) string))
+;    (pref :string-abbreviation-marker)
+;    (apply str (take-last (pref :string-postfix-limit) string))))
+;
+;(defn string-template [source-string]
+;  (let [dq (pref :dq)
+;        re-nl (js/RegExp. "\n" "g")
+;        inline-string (.replace source-string re-nl (pref :new-line-string-replacer))
+;        max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
+;    (if (<= (count inline-string) max-inline-string-size)
+;      (make-template :span :string-style (str dq inline-string dq))
+;      (let [abbreviated-string-template (make-template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
+;            string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
+;            body-template (make-template :span :expanded-string-style string-with-nl-markers)]
+;        (reference-template (make-surrogate source-string abbreviated-string-template true body-template))))))
 
 (defn cljs-function-body-template [fn-obj ns _name args prefix-template]
   (let [make-args-template (fn [args]
@@ -261,7 +194,7 @@
                                      (make-template :span :fn-ns-name-style ns)))
         native-template (make-template :li :aligned-li-style
                                        :native-icon
-                                       (native-reference-template fn-obj))]
+                                       (render-json-ml (reusables/native-reference-markup fn-obj)))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   args-lists-templates
@@ -303,7 +236,7 @@
                                         (make-basis-template basis)))
         native-template (make-template :li :aligned-li-style
                                        (make-template :span :fn-native-symbol-style :fn-native-symbol)
-                                       (native-reference-template constructor-fn))]
+                                       (render-json-ml (reusables/native-reference-markup constructor-fn)))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   basis-template
@@ -395,7 +328,7 @@
         native-template (if (some? protocol-obj)
                           (make-template :li :aligned-li-style
                                          :native-icon
-                                         (native-reference-template protocol-obj)))
+                                         (render-json-ml (reusables/native-reference-markup protocol-obj))))
         methods (munging/collect-protocol-methods obj selector)
         method-templates (map make-protocol-method-template methods)
         wrap #(make-template :li :aligned-li-style %)]
@@ -452,7 +385,7 @@
                                                  (make-protocols-list-template obj protocols)))
         native-template (make-template :li :aligned-li-style
                                        :native-icon
-                                       (native-reference-template obj))]
+                                       (render-json-ml (reusables/native-reference-markup obj)))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   fields-table-template
@@ -495,15 +428,6 @@
 (defn bool? [value]
   (or (true? value) (false? value)))
 
-(defn bool-template [value]
-  (make-template :span :bool-style value))
-
-(defn keyword-template [value]
-  (make-template :span :keyword-style (str value)))
-
-(defn symbol-template [value]
-  (make-template :span :symbol-style (str value)))
-
 (defn instance-of-a-well-known-type? [value]
   (let [well-known-types (pref :well-known-types)
         constructor-fn (oget value "constructor")
@@ -513,12 +437,12 @@
 
 (defn atomic-template [value]
   (cond
-    (nil? value) (nil-template value)
-    (bool? value) (bool-template value)
-    (string? value) (string-template value)
-    (number? value) (number-template value)
-    (keyword? value) (keyword-template value)
-    (symbol? value) (symbol-template value)
+    (nil? value) (render-json-ml (reusables/nil-markup))
+    (bool? value) (render-json-ml (reusables/bool-markup value))
+    (string? value) (render-json-ml (reusables/string-markup value))
+    (number? value) (render-json-ml (reusables/number-markup value))
+    (keyword? value) (render-json-ml (reusables/keyword-markup value))
+    (symbol? value) (render-json-ml (reusables/symbol-markup value))
     (and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (cljs-instance-template value)
     (cljs-type? value) (cljs-type-template value)
     (cljs-function? value) (cljs-function-template value)))
@@ -543,7 +467,7 @@
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
   (if circular?
-    (make-group (circular-reference-template group))
+    (make-group (render-json-ml (reusables/circular-reference-markup group)))
     group))
 
 (defn wrap-group-in-meta-if-needed [group value]
@@ -569,10 +493,10 @@
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
       (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
-    (make-group (native-reference-template obj))
+    (make-group (render-json-ml (reusables/native-reference-markup obj)))
 
     (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
-    (make-group (aget group 0) (native-reference-template obj) (aget group 2))
+    (make-group (aget group 0) (render-json-ml (reusables/native-reference-markup obj)) (aget group 2))
 
     :else group))
 
