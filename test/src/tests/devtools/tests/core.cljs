@@ -5,7 +5,7 @@
                                          clear-captured-console-output!
                                          get-captured-console-messages]]
             [devtools.core :as devtools]
-            [devtools.custom-formatters :as custom-formatters]
+            [devtools.formatters :as custom-formatters]
             [devtools.sanity-hints :as sanity-hints]
             [devtools.async :as async]))
 

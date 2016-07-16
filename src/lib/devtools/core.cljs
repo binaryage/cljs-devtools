@@ -1,7 +1,7 @@
 (ns devtools.core
   (:require [devtools.prefs :as prefs]
             [devtools.sanity-hints :as sanity-hints]
-            [devtools.custom-formatters :as custom-formatters]
+            [devtools.formatters :as formatters]
             [devtools.async :as async]
             [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
                                    print-config-overrides-if-requested!]]))
@@ -15,7 +15,7 @@
 
 (defn is-feature-available? [feature]
   (case feature
-    :custom-formatters (custom-formatters/available?)
+    :custom-formatters (formatters/available?)
     :sanity-hints (sanity-hints/available?)
     :async (sanity-hints/available?)))
 
@@ -29,7 +29,7 @@
 
 (defn is-feature-installed? [feature]
   (case feature
-    :custom-formatters (custom-formatters/installed?)
+    :custom-formatters (formatters/installed?)
     :sanity-hints (sanity-hints/installed?)
     :async (async/installed?)))
 
@@ -47,12 +47,12 @@
    (let [features (resolve-features! features-desc feature-groups)]
      (display-banner-if-needed! features feature-groups)
      (print-config-overrides-if-requested! "config overrides prior install:\n")
-     (install-feature! :custom-formatters features is-feature-available? custom-formatters/install!)
+     (install-feature! :custom-formatters features is-feature-available? formatters/install!)
      (install-feature! :sanity-hints features is-feature-available? sanity-hints/install!)
      (install-feature! :async features is-feature-available? async/install!))))
 
 (defn uninstall! []
-  (custom-formatters/uninstall!)
+  (formatters/uninstall!)
   (sanity-hints/uninstall!)
   (async/uninstall!))
 

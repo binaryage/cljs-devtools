@@ -72,7 +72,7 @@
 
 ; TODO: rewire this
 (defn get-current-state []
-  (ocall (oget js/window "devtools" "format") "get_current_state"))
+  (ocall (oget js/window "devtools" "formatters" "core") "get_current_state"))
 
 (defn make-reference [object & [state-override]]
   (if (nil? object)

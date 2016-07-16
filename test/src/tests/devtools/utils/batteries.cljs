@@ -1,5 +1,5 @@
 (ns devtools.utils.batteries
-  (:require [devtools.format :as f]
+  (:require [devtools.formatters.core :as f]
             [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template]]
             [devtools.tests.style :as style]

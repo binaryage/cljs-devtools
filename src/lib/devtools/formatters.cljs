@@ -1,6 +1,6 @@
-(ns devtools.custom-formatters
+(ns devtools.formatters
   (:require [devtools.prefs :as prefs]
-            [devtools.format :as format]
+            [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.util :refer [get-formatters-safe set-formatters-safe!]]
             [goog.labs.userAgent.browser :as ua]))
 
@@ -58,9 +58,9 @@
         formatter (CLJSDevtoolsFormatter.)
         define! (fn [name fn]
                   (aset formatter name (wrap name fn)))]
-    (define! "header" format/header-api-call)
-    (define! "hasBody" format/has-body-api-call)
-    (define! "body" format/body-api-call)
+    (define! "header" header-api-call)
+    (define! "hasBody" has-body-api-call)
+    (define! "body" body-api-call)
     formatter))
 
 (defn- is-ours? [o]

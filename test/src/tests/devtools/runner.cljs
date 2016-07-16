@@ -4,7 +4,7 @@
              :refer [report inc-report-counter! testing-vars-str get-current-env testing-contexts-str]]
             [devtools.tests.core]
             [devtools.tests.munging]
-            [devtools.tests.custom-formatters]
+            [devtools.tests.formatters]
             [devtools.tests.format]
             [devtools.tests.prefs]
             [devtools.tests.toolbox]
@@ -107,7 +107,7 @@
     'devtools.tests.cljs
     'devtools.tests.prefs
     'devtools.tests.munging
-    'devtools.tests.custom-formatters
+    'devtools.tests.formatters
     'devtools.tests.format
     'devtools.tests.toolbox))
 

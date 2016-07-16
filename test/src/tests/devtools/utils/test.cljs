@@ -6,7 +6,7 @@
             [goog.json :as json]
             [goog.object :as gobj]
             [devtools.util :refer-macros [oset oget]]
-            [devtools.format :as f]
+            [devtools.formatters.core :as f]
             [devtools.prefs :refer [pref set-prefs!]]
             [devtools.defaults :as defaults]))
 

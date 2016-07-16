@@ -1,4 +1,4 @@
-(ns devtools.format
+(ns devtools.formatters.core
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.munging :as munging]

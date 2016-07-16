@@ -5,10 +5,9 @@
             [devtools.tests.style :as style]
             [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
                                          remove-empty-styles pref-str]]
-            [devtools.format :refer [header-api-call has-body-api-call body-api-call]]
+            [devtools.formatters.core :as f :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
-            [devtools.format :as f]
             [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
 
 (deftest test-wants

@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [deftest testing is are]]
             [devtools.util :refer-macros [oget oset ocall]]
             [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll remove-empty-styles pref-str]]
-            [devtools.format :refer [header-api-call has-body-api-call body-api-call]]
+            [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.tests.style :as style]
             [devtools.toolbox :as t]
             [devtools.utils.batteries :as b :refer [REF]]))

@@ -25,7 +25,7 @@
 (defmacro want? [value expected]
   `(let [v# ~value
          e# ~expected]
-     (cljs.test/is (cljs.core/= (devtools.format/want-value? v#) e#)
+     (cljs.test/is (cljs.core/= (devtools.formatters.core/want-value? v#) e#)
                    (if e#
                      (str ~(pr-str value) " SHOULD be processed by devtools custom formatter")
                      (str ~(pr-str value) " SHOULD NOT be processed by devtools custom formatter")))))

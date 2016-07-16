@@ -1,7 +1,7 @@
-(ns devtools.tests.custom-formatters
+(ns devtools.tests.formatters
   (:require-macros [devtools.utils.macros :refer [with-prefs]])
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.custom-formatters :as cf]
+            [devtools.formatters :as cf]
             [devtools.core]
             [devtools.util :refer [formatter-key]]))
 

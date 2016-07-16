@@ -1,5 +1,5 @@
 (ns devtools.toolbox
-  (:require [devtools.format :as format]
+  (:require [devtools.formatters.core :as format]
             [devtools.formatters.templating :refer [make-template make-surrogate]]
             [devtools.protocols :refer [IFormat]]))
 
