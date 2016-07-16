@@ -1,7 +1,6 @@
 (ns devtools.hints
   (:require [devtools.prefs :refer [pref]]
-            [cljs.stacktrace :as stacktrace]
-            [goog.labs.userAgent.browser :as ua]))
+            [cljs.stacktrace :as stacktrace]))
 
 (defn ^:dynamic available? []
   true)

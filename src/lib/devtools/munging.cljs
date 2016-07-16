@@ -411,7 +411,7 @@
          (map printer)
          (map string/trim))))
 
-(defn extract-args-strings [f humanize? spacer-symbol multi-arity-symbol rest-symbol]
+(defn extract-arities [f humanize? spacer-symbol multi-arity-symbol rest-symbol]
   (-> (or (collect-fn-arities f) {:naked f})
       (arities-to-args-lists humanize?)
       (args-lists-to-strings spacer-symbol multi-arity-symbol rest-symbol)))

@@ -121,13 +121,6 @@
 
 ; -- templates --------------------------------------------------------------------------------------------------------------
 
-;(defn meta-template [value]
-;  (let [header-template (make-template :span :meta-style "meta")
-;        body-template (make-template :span :meta-body-style
-;                                     (build-header value))]
-;    (make-template :span :meta-reference-style
-;                   (reference-template (make-surrogate value header-template true body-template)))))
-
 ;(defn cljs-function-body-template [fn-obj ns _name args prefix-template]
 ;  (let [make-args-template (fn [args]
 ;                             (make-template :li :aligned-li-style

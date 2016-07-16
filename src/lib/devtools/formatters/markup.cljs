@@ -1,9 +1,9 @@
 (ns devtools.formatters.markup
   (:refer-clojure :exclude [keyword symbol meta])
-  (:require [devtools.formatters.helpers :refer [pref abbreviate-long-string]]
-            [devtools.formatters.helpers :refer [bool?]]
-            [cljs.pprint]
-            [devtools.formatters.printing :refer [managed-pr-str]]))
+  (:require [cljs.pprint]
+            [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string]]
+            [devtools.formatters.printing :refer [managed-pr-str]]
+            [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
 
@@ -76,6 +76,60 @@
 (defn <index> [value]
   [:index-tag value :line-index-separator])
 
+(defn aligned-body [lines]
+  (let [align (fn [line]
+                (if line
+                  (concat [:aligned-li-tag] line)))
+        aligned-lines (keep align lines)]
+    [:body-tag
+     (concat [:standard-ol-no-margin-tag] aligned-lines)]))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
+(defn- wrap-arity [arity]
+  (let [args-open-symbol (pref :args-open-symbol)
+        args-close-symbol (pref :args-close-symbol)]
+    (str args-open-symbol arity args-close-symbol)))
+
+(defn <arity> [prefix arity]
+  [[:fn-multi-arity-args-indent-tag prefix]
+   [:fn-args-tag arity]])
+
+(defn <function-details> [fn-obj ns _name arities prefix]
+  {:pre [(fn? fn-obj)]}
+  (let [arities (map wrap-arity arities)
+        arities (if (> (count arities) 1)
+                  (map (partial <arity> prefix) arities))
+        ns (if-not (empty? ns)
+             [:ns-icon
+              [:fn-ns-name-tag ns]])
+        native [:native-icon (native-reference fn-obj)]]
+    (aligned-body (concat arities [ns native]))))
+
+(defn <arities> [arities]
+  (let [multi-arity? (> (count arities) 1)]
+    [:fn-args-tag (wrap-arity (if multi-arity?
+                                (pref :multi-arity-symbol)
+                                (first arities)))]))
+
+(defn <function> [fn-obj]
+  {:pre [(fn? fn-obj)]}
+  (let [[ns name] (munging/parse-fn-info fn-obj)
+        spacer-symbol (pref :spacer)
+        rest-symbol (pref :rest-symbol)
+        multi-arity-symbol (pref :multi-arity-symbol)
+        arities (munging/extract-arities fn-obj true spacer-symbol multi-arity-symbol rest-symbol)
+        arities-markup (<arities> arities)
+        lambda? (empty? name)
+        name-markup (if-not lambda? [:fn-name-tag name])
+        icon (if lambda? :lambda-icon :fn-icon)
+        prefix [:fn-prefix-tag icon name-markup]
+        preview [:fn-header-tag prefix arities-markup]
+        details (partial <function-details> fn-obj ns name arities prefix)]
+    (reference-surrogate fn-obj preview true details)))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn header [value]
@@ -137,8 +191,7 @@
     (symbol? value) (symbol value)
     ;(and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (cljs-instance-template value)
     ;(cljs-type? value) (cljs-type-template value)
-    ;(cljs-function? value) (cljs-function-template value)
-    ))
+    (cljs-function? value) (<function> value)))
 
 (def markup-map
   {:atomic              atomic

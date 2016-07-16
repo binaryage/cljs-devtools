@@ -29,7 +29,6 @@
   (-write [_ o] (.push group (wrap-value-as-reference-if-needed o)))
   (-flush [_] nil))
 
-
 (defn make-template-writer []
   (TemplateWriter. (make-group)))
 

@@ -234,7 +234,13 @@
    :standard-ol-no-margin-tag                     [:ol :standard-ol-no-margin-style]
    :standard-li-tag                               [:li :standard-li-style]
    :standard-li-no-margin-tag                     [:li :standard-li-no-margin-style]
+   :aligned-li-tag                                [:li :aligned-li-style]
    :body-items-more-tag                           [:span :body-items-more-style]
-
+   :fn-args-tag                                   [:span :fn-args-style]
+   :fn-name-tag                                   [:span :fn-name-style]
+   :fn-prefix-tag                                 [:span :fn-prefix-style]
+   :fn-header-tag                                 [:span :fn-header-style]
+   :fn-multi-arity-args-indent-tag                [:span :fn-multi-arity-args-indent-style]
+   :fn-ns-name-tag                                [:span :fn-ns-name-style]
    })
 

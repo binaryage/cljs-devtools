@@ -5,8 +5,9 @@
             [devtools.tests.style :as style]
             [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
                                          remove-empty-styles pref-str]]
-            [devtools.formatters.core :as f :refer [header-api-call has-body-api-call body-api-call]]
+            [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.formatters.templating :refer [surrogate?]]
+            [devtools.formatters.helpers :refer [cljs-function?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
 
@@ -370,13 +371,13 @@
          ["span" ::style/header
           REF]]))))                                                                                                           ; TODO
 
-#_(deftest test-function-formatting
+(deftest test-function-formatting
   (testing "cljs-function?"
     (testing "these should NOT be recognized as cljs functions"
-      (are [f] (not (f/cljs-function? f))
+      (are [f] (not (cljs-function? f))
         b/simplest-fn))
     (testing "these should be recognized as cljs functions"
-      (are [f] (f/cljs-function? f)
+      (are [f] (cljs-function? f)
         b/minimal-fn
         b/cljs-lambda-multi-arity
         b/clsj-fn-with-fancy-name#$%!?
@@ -391,7 +392,7 @@
         b/inst-type-ifn4va))
     (testing "these should be recognized as cljs functions"
       (set-pref! :disable-cljs-fn-formatting true)
-      (are [f] (not (f/cljs-function? f))
+      (are [f] (not (cljs-function? f))
         b/minimal-fn
         b/clsj-fn-with-fancy-name#$%!?
         b/cljs-fn-var

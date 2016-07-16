@@ -187,7 +187,7 @@
 
 (deftest test-ui-strings
   (testing "exercise args-lists-to-strings"
-    (are [f expected] (match-seqs? (m/extract-args-strings f true " " "..." " & ") expected)
+    (are [f expected] (match-seqs? (m/extract-arities f true " " "..." " & ") expected)
       b/minimal-fn [""]
       b/simplest-fn [""]
       b/clsj-fn-with-fancy-name#$%!? ["arg1! arg? *&mo-re"]
