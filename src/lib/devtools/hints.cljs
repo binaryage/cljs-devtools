@@ -1,4 +1,4 @@
-(ns devtools.sanity-hints
+(ns devtools.hints
   (:require [devtools.prefs :refer [pref]]
             [cljs.stacktrace :as stacktrace]
             [goog.labs.userAgent.browser :as ua]))

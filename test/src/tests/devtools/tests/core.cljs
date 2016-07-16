@@ -5,8 +5,8 @@
                                          clear-captured-console-output!
                                          get-captured-console-messages]]
             [devtools.core :as devtools]
-            [devtools.formatters :as custom-formatters]
-            [devtools.sanity-hints :as sanity-hints]
+            [devtools.formatters :as formatters]
+            [devtools.hints :as hints]
             [devtools.async :as async]))
 
 (use-fixtures :once with-captured-console)
@@ -14,7 +14,7 @@
 (deftest test-core-install-and-uninstall
   ; we have no straight-forward way how to test custom formatter detector
   (with-prefs {:dont-detect-custom-formatters true}
-    (set! custom-formatters/available? (constantly true))                                                                     ; this is needed to fake availability check in phantomjs env
+    (set! formatters/available? (constantly true))                                                                            ; this is needed to fake availability check in phantomjs env
     (testing "install/uninstall :all features"
       (devtools/install! :all)
       (is (= (devtools/installed? :all) true))
@@ -73,8 +73,8 @@
         (devtools/install! [:custom-formatters])
         (is (nil? (last (get-captured-console-messages))))
         (devtools/uninstall!)))
-    (binding [custom-formatters/available? (constantly false)
-              sanity-hints/available? (constantly false)
+    (binding [formatters/available? (constantly false)
+              hints/available? (constantly false)
               async/available? (constantly false)]
       (testing "working availability checks"
         (clear-captured-console-output!)
