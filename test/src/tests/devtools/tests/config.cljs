@@ -5,8 +5,8 @@
 
 (deftest test-config
   (testing "expected config overrides passed via compiler options are present"                                                ; see project.clj :tests-with-config profile >
-    (is (= (pref :features-to-install) [:sanity-hints]))
-    (is (= (installed? :sanity-hints) true))
-    (is (= (installed? :custom-formatters) false))
+    (is (= (pref :features-to-install) [:hints]))
+    (is (= (installed? :hints) true))
+    (is (= (installed? :formatters) false))
     (is (= (pref :fn-symbol) "F"))
     (is (= (pref :print-config-overrides) true))))

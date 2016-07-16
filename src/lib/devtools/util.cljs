@@ -156,8 +156,18 @@
 (defn is-known-feature? [known-features feature]
   (boolean (some #{feature} known-features)))
 
+(defn convert-legacy-feature [feature]
+  (case feature
+    :custom-formatters :formatters
+    :sanity-hints :hints
+    feature))
+
+(defn convert-legacy-features [features]
+  (map convert-legacy-feature features))
+
 (defn sanititze-features! [features feature-groups]
-  (let [known-features (:all feature-groups)]
+  (let [known-features (:all feature-groups)
+        features (convert-legacy-features features)]                                                                          ; new feature names were introduced in v0.8
     (report-unknown-features! features known-features)
     (filter (partial is-known-feature? known-features) features)))
 

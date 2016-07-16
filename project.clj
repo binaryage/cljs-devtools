@@ -49,7 +49,7 @@
                                                    :asset-path      "_compiled/tests-with-config"
                                                    :main            devtools.main
                                                    :optimizations   :none
-                                                   :external-config {:devtools/config {:features-to-install    [:sanity-hints]
+                                                   :external-config {:devtools/config {:features-to-install    [:hints]
                                                                                        :fn-symbol              "F"
                                                                                        :print-config-overrides true}}
                                                    :preloads        [devtools.preload]}}                                      ; CLJS-1688
