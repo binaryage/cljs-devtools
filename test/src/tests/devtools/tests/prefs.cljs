@@ -31,20 +31,20 @@
       (is (= (pref :max-print-level) (inc max-print-level)))
       (reset-prefs-to-defaults!)))
   (testing "merge prefs"
-    (merge-prefs! {:cljs-style "background-color:red" :keyword-style "color:white"})
-    (is (= (pref :cljs-style) "background-color:red"))
+    (merge-prefs! {:cljs-land-style "background-color:red" :keyword-style "color:white"})
+    (is (= (pref :cljs-land-style) "background-color:red"))
     (is (= (pref :keyword-style) "color:white"))
     (reset-prefs-to-defaults!)))
 
 (deftest test-render-with-changed-styles
   (testing "simple keyword styling"
     (is-header :keyword
-      ["span" {"style" :cljs-style}
+      ["span" {"style" :cljs-land-style}
        ["span" {"style" :header-style}
         ["span" {"style" :keyword-style} ":keyword"]]])
     (merge-prefs! {:header-style "background-color:red" :keyword-style "color:white"})
     (is-header :keyword
-      ["span" {"style" :cljs-style}
+      ["span" {"style" :cljs-land-style}
        ["span" {"style" "background-color:red"}
         ["span" {"style" "color:white"} ":keyword"]]])
     (reset-prefs-to-defaults!)))

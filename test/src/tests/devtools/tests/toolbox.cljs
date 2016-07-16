@@ -26,7 +26,7 @@
          REF]]]
       (fn [ref]
         (is-header ref
-          [:span ::style/cljs
+          [:span ::style/cljs-land
            [:span ::style/header
             [:span ::style/string
              "\"default-envelope\""]]]))))
@@ -41,7 +41,7 @@
          REF]]]
       (fn [ref]
         (is-header ref
-          [:span ::style/cljs
+          [:span ::style/cljs-land
            [:span ::style/header
             [:span ::style/string
              "\"custom-header-envelope\""]]]))))
@@ -56,7 +56,7 @@
          REF]]]
       (fn [ref]
         (is-header ref
-          [:span ::style/cljs
+          [:span ::style/cljs-land
            [:span ::style/header
             [:span ::style/string
              "\"fn-header-envelope\""]]]))))
@@ -71,7 +71,7 @@
          REF]]]
       (fn [ref]
         (is-header ref
-          [:span ::style/cljs
+          [:span ::style/cljs-land
            [:span ::style/header
             [:span ::style/string
              "\"fully-custom-envelope\""]]])))))

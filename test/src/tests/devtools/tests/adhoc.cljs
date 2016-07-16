@@ -14,7 +14,7 @@
   (testing "simple deftype"
     (let [type-instance (b/SimpleType. "some-value")]
       (is-header type-instance
-        ["span" ::style/cljs
+        ["span" ::style/cljs-land
          ["span" ::style/header
           NATIVE-REF]]))))                                                                                                    ; TODO!
 

@@ -132,7 +132,7 @@
    :table                                         "table"
    :td                                            "td"
    :tr                                            "tr"
-   :cljs-style                                    (str "background-color:" (p/get-signature-background-color) ";"
+   :cljs-land-style                               (str "background-color:" (p/get-signature-background-color) ";"
                                                        "border-radius: 2px;")
    :header-style                                  "white-space: nowrap"                                                       ; this prevents jumping of content when expanding sections due to content wrapping
    :item-style                                    (str "display: inline-block;"
@@ -140,7 +140,7 @@
                                                        "border-left: 2px solid rgba(100, 100, 100, 0.2);"
                                                        "padding: 0px 4px 0px 4px;"
                                                        "margin: 1px 0px 0px 0px;")
-   :body-items-more-label-style                   (str "background-color:#999;"
+   :body-more-style                               (str "background-color:#999;"
                                                        "min-width: 50px;"
                                                        "display: inline-block;"
                                                        "color: #fff;"
@@ -213,6 +213,7 @@
 
 
    ; markup tags
+   :cljs-land-tag                                 [:span :cljs-land-style]
    :nil-tag                                       [:span :nil-style]
    :bool-tag                                      [:span :bool-style]
    :keyword-tag                                   [:span :keyword-style]
@@ -227,5 +228,13 @@
    :meta-header-tag                               [:span :meta-style]
    :meta-body-tag                                 [:span :meta-body-style]
    :meta-reference-tag                            [:span :meta-reference-style]
+   :body-tag                                      [:span :body-style]
+   :index-tag                                     [:span :index-style]
+   :standard-ol-tag                               [:ol :standard-ol-style]
+   :standard-ol-no-margin-tag                     [:ol :standard-ol-no-margin-style]
+   :standard-li-tag                               [:li :standard-li-style]
+   :standard-li-no-margin-tag                     [:li :standard-li-no-margin-style]
+   :body-items-more-tag                           [:span :body-items-more-style]
 
    })
+

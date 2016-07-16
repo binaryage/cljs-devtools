@@ -2,11 +2,13 @@
   (:refer-clojure :exclude [keyword symbol meta])
   (:require [devtools.formatters.helpers :refer [pref abbreviate-long-string]]
             [devtools.formatters.helpers :refer [bool?]]
+            [cljs.pprint]
             [devtools.formatters.printing :refer [managed-pr-str]]))
 
 ; reusable hiccup-like templates
 
 (declare header)
+(declare markup-map)
 
 (defn surrogate [& args]
   (concat ["surrogate"] args))
@@ -16,6 +18,9 @@
 
 (defn reference-surrogate [& args]
   (reference (apply surrogate args)))
+
+(defn cljs-land [& children]
+  (concat [:cljs-land-tag] children))
 
 (defn <nil> []
   [:nil-tag :nil-label])
@@ -68,6 +73,60 @@
 (defn meta-wrapper [metadata & children]
   (concat [:meta-wrapper-tag] children [(meta metadata)]))
 
+(defn <index> [value]
+  [:index-tag value :line-index-separator])
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
+(defn header [value]
+  (managed-pr-str value :header-style (pref :max-print-level) markup-map))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
+(defn standard-body [lines & [no-margin?]]
+  (let [ol-tag (if no-margin? :standard-ol-no-margin-tag :standard-ol-tag)
+        li-tag (if no-margin? :standard-li-no-margin-tag :standard-li-tag)
+        * (fn [line]
+            (concat [li-tag] line))]
+    (concat [ol-tag] (map * lines))))
+
+(defn body-line [index value]
+  [(<index> index) (managed-pr-str value :item-style (pref :body-line-max-print-level) markup-map)])
+
+(defn prepare-body-lines [data starting-index]
+  (loop [work data
+         index starting-index
+         lines []]
+    (if (empty? work)
+      lines
+      (recur (rest work) (inc index) (conj lines (body-line index (first work)))))))
+
+(defn body-lines [value starting-index]
+  (let [seq (seq value)
+        max-number-body-items (pref :max-number-body-items)
+        chunk (take max-number-body-items seq)
+        rest (drop max-number-body-items seq)
+        lines (prepare-body-lines chunk starting-index)
+        continue? (not (empty? (take 1 rest)))]
+    (if-not continue?
+      lines
+      (let [more-label [:body-items-more-tag (pref :body-items-more-label)]
+            start-index (+ starting-index max-number-body-items)
+            more (reference-surrogate rest more-label true nil start-index)]
+        (conj lines [more])))))
+
+(defn details [value starting-index]
+  (let [continuation? (pos? starting-index)
+        body (standard-body (body-lines value starting-index) continuation?)]
+    (if continuation?
+      body
+      [:body-tag body])))
+
+(defn standard-body-reference [o]
+  (standard-body [[(reference o)]]))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
 (defn atomic [value]
   (cond
     (nil? value) (<nil>)
@@ -90,6 +149,3 @@
    :native-reference    native-reference
    :meta                meta
    :meta-wrapper        meta-wrapper})
-
-(defn header [value]
-  (managed-pr-str value :header-style (pref :max-print-level) markup-map))

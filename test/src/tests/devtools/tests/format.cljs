@@ -74,36 +74,36 @@
 (deftest test-simple-atomic-values
   (testing "keywords"
     (is-header :keyword
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/keyword ":keyword"]]])
     (is-header ::auto-namespaced-keyword
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/keyword ":devtools.tests.format/auto-namespaced-keyword"]]])
     (is-header :devtools/fully-qualified-keyword
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/keyword ":devtools/fully-qualified-keyword"]]]))
   (testing "symbols"
     (is-header 'symbol
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/symbol "symbol"]]])))
 
 (deftest test-strings
   (testing "short strings"
     (is-header "some short string"
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/string (str :dq "some short string" :dq)]]])
     (is-header "line1\nline2\n\nline4"
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/string (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]]))
   (testing "long strings"
     (is-header "123456789012345678901234567890123456789012345678901234567890"
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -111,7 +111,7 @@
         (is-header ref
           ["span" ::style/string (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -135,7 +135,7 @@
   (testing "vectors"
     (set-pref! :seqables-always-expandable false)
     (is-header [1 2 3]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         "["
         ["span" ::style/integer 1] :spacer
@@ -144,7 +144,7 @@
         "]"]])
     (is (= 5 :max-header-elements))
     (is-header [1 2 3 4 5]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         "["
         (unroll (fn [i] [["span" ::style/integer (+ i 1)] :spacer]) (range 4))
@@ -152,11 +152,11 @@
         "]"]])
     (reset-prefs-to-defaults!)
     (is-header [1 2 3]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]])
     (is-header [1 2 3 4 5 6]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -178,7 +178,7 @@
   (testing "ranges"
     (is (> 10 :max-header-elements))
     (is-header (range 10)
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -194,7 +194,7 @@
 (deftest test-continuations
   (testing "long range"
     (is-header (range (+ :max-number-body-items 1))
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -233,7 +233,7 @@
     (let [many-levels [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]]
       (has-body? many-levels false)
       (is-header many-levels
-        ["span" ::style/cljs
+        ["span" ::style/cljs-land
          ["span" ::style/header
           "[" ["span" ::style/integer 1] " "
           "[" ["span" ::style/integer 2] " "
@@ -251,12 +251,12 @@
   (testing "simple deftype"
     (let [type-instance (b/SimpleType. "some-value")]
       (is-header type-instance
-        ["span" ::style/cljs
+        ["span" ::style/cljs-land
          ["span" ::style/header
           REF]]))))                                                                                                           ; TODO!
 
 (deftest test-handlers
-  (let [handled-output (clj->js (remove-empty-styles ["span" {"style" (pref :cljs-style)}
+  (let [handled-output (clj->js (remove-empty-styles ["span" {"style" (pref :cljs-land-style)}
                                                       ["span" {"style" (pref :header-style)}
                                                        ["span" {"style" (pref :keyword-style)} ":handled"]]]))]
     (testing "header pre-handler"
@@ -300,13 +300,13 @@
   (testing "meta is disabled"
     (set-pref! :print-meta-data false)
     (is-header (with-meta {} :meta)
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         "{" "}"]])
     (reset-prefs-to-defaults!))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         ["span" ::style/meta-wrapper
          "{" "}" ["span" ::style/meta-reference-style REF]]]]
@@ -325,7 +325,7 @@
     (set-pref! :seqables-always-expandable true)
     (set-pref! :min-sequable-count-for-expansion 3)
     (is-header [1 2]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         "["
         ["span" ::style/integer 1]
@@ -333,7 +333,7 @@
         ["span" ::style/integer 2]
         "]"]])
     (is-header [1 2 3]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -350,7 +350,7 @@
            "]"])))
     (set-pref! :min-sequable-count-for-expansion 4)
     (is-header [1 2 3]
-      ["span" ::style/cljs
+      ["span" ::style/cljs-land
        ["span" ::style/header
         "["
         ["span" ::style/integer 1]
@@ -366,7 +366,7 @@
     (let [circular-ds (atom nil)]
       (reset! circular-ds circular-ds)
       (is-header circular-ds
-        ["span" ::style/cljs
+        ["span" ::style/cljs-land
          ["span" ::style/header
           REF]]))))                                                                                                           ; TODO
 
@@ -407,7 +407,7 @@
   (testing "minimal function formatting"
     (is-header b/minimal-fn
       ["span"
-       ::style/cljs
+       ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -428,7 +428,7 @@
   (testing "cljs-lambda-multi-arity function formatting"
     (is-header b/cljs-lambda-multi-arity
       ["span"
-       ::style/cljs
+       ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -463,7 +463,7 @@
   (testing "cljs-fn-multi-arity-var function formatting"
     (is-header b/cljs-fn-multi-arity-var
       ["span"
-       ::style/cljs
+       ::style/cljs-land
        ["span" ::style/header
         REF]]
       (fn [ref]
@@ -513,7 +513,7 @@
   (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
     (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                        ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
       (is-header date-map
-        ["span" ::style/cljs
+        ["span" ::style/cljs-land
          ["span" ::style/header
           "{"
           ["span" ::style/keyword ":date"]
@@ -525,7 +525,7 @@
           "}"]]
         (fn [ref]
           (is-header ref
-            ["span" ::style/cljs
+            ["span" ::style/cljs-land
              ["span" ::style/header
               REF]]
             (fn [ref]
@@ -541,14 +541,14 @@
                  "]"]))))
         (fn [ref]
           (is-header ref
-            ["span" ::style/cljs
+            ["span" ::style/cljs-land
              ["span" ::style/header
               "#js ["
               ["span" ::style/string "\"test-array\""]
               "]"]]))
         (fn [ref]
           (is-header ref
-            ["span" ::style/cljs
+            ["span" ::style/cljs-land
              ["span" ::style/header
               "#js "
               "{"

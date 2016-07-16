@@ -32,3 +32,7 @@
 (defn is-circular? [object]
   (let [history (get-current-history)]
     (some #(identical? % object) history)))
+
+(defn ^bool prevent-recursion? []
+  (boolean (:prevent-recursion (get-current-state))))
+
