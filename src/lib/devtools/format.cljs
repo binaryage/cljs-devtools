@@ -3,12 +3,12 @@
   (:require [devtools.prefs :refer [pref]]
             [devtools.munging :as munging]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
-            [devtools.cfs.templating :refer [make-template make-group make-surrogate concat-templates! extend-template!
-                                             get-target-object
-                                             group? template? surrogate?]]
+            [devtools.formatters.templating :refer [make-template make-group make-surrogate concat-templates! extend-template!
+                                                    get-target-object
+                                                    group? template? surrogate?]]
             [clojure.string :as string]
-            [devtools.cfs.hiccup :refer [render-json-ml]]
-            [devtools.cfs.reusables :as reusables]))
+            [devtools.formatters.hiccup :refer [render-json-ml]]
+            [devtools.formatters.reusables :as reusables]))
 
 (declare alt-printer-impl)
 (declare build-header)

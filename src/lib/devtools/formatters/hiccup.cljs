@@ -1,12 +1,12 @@
-(ns devtools.cfs.hiccup
+(ns devtools.formatters.hiccup
   (:require [clojure.walk :refer [postwalk prewalk]]
             [cljs.pprint :refer [pprint]]
-            [devtools.cfs.helpers :refer [pref]]
-            [devtools.cfs.templating :refer [make-template make-surrogate make-reference]]))
+            [devtools.formatters.helpers :refer [pref]]
+            [devtools.formatters.templating :refer [make-template make-surrogate make-reference]]))
 
-; a renderer from hiccup-like data structures to json-ml
+; a renderer from hiccup-like data markup to json-ml
 ;
-; [[tag style] child1 child2 ...]
+; [[tag style] child1 child2 ...] -> #js [tag #js {"style" ...} child1 child2 ...]
 ;
 
 (defn renderer [markup]

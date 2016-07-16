@@ -1,6 +1,6 @@
 (ns devtools.toolbox
   (:require [devtools.format :as format]
-            [devtools.cfs.templating :refer [make-template make-surrogate]]
+            [devtools.formatters.templating :refer [make-template make-surrogate]]
             [devtools.protocols :refer [IFormat]]))
 
 (defn envelope

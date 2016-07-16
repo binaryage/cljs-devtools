@@ -1,7 +1,7 @@
-(ns devtools.cfs.templating
+(ns devtools.formatters.templating
   (:require [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
-            [devtools.cfs.helpers :refer [pref]]))
+            [devtools.formatters.helpers :refer [pref]]))
 
 ; -- object marking support -------------------------------------------------------------------------------------------------
 

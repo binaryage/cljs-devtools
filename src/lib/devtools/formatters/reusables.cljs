@@ -1,5 +1,5 @@
-(ns devtools.cfs.reusables
-  (:require [devtools.cfs.helpers :refer [pref abbreviate-long-string]]))
+(ns devtools.formatters.reusables
+  (:require [devtools.formatters.helpers :refer [pref abbreviate-long-string]]))
 
 ; reusable hiccup-like templates
 

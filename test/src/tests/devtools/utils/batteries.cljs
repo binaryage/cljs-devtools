@@ -1,7 +1,7 @@
 (ns devtools.utils.batteries
   (:require [devtools.format :as f]
             [devtools.protocols :refer [IFormat]]
-            [devtools.cfs.templating :refer [make-template]]
+            [devtools.formatters.templating :refer [make-template]]
             [devtools.tests.style :as style]
             [goog.date]
             [goog.Promise]))

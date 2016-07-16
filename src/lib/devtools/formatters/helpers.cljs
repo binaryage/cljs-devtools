@@ -1,4 +1,4 @@
-(ns devtools.cfs.helpers
+(ns devtools.formatters.helpers
   (:require [devtools.prefs :as prefs]))
 
 (defn pref [v]
