@@ -9,7 +9,6 @@
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn abbreviate-long-string [string marker prefix-limit postfix-limit]
-  (str
-    (apply str (take prefix-limit string))
-    marker
-    (apply str (take-last postfix-limit string))))
+  (let [prefix (apply str (take prefix-limit string))
+        postfix (apply str (take-last postfix-limit string))]
+    (str prefix marker postfix)))
