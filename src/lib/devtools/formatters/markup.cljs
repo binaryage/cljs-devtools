@@ -1,35 +1,36 @@
 (ns devtools.formatters.markup
+  (:refer-clojure :exclude [keyword symbol])
   (:require [devtools.formatters.helpers :refer [pref abbreviate-long-string]]))
 
 ; reusable hiccup-like templates
 
-(defn surrogate-markup [& args]
+(defn surrogate [& args]
   (concat ["surrogate"] args))
 
-(defn reference-markup [& args]
+(defn reference [& args]
   (concat ["reference"] args))
 
-(defn reference-surrogate-markup [& args]
-  (reference-markup (apply surrogate-markup args)))
+(defn reference-surrogate [& args]
+  (reference (apply surrogate args)))
 
-(defn nil-markup []
+(defn <nil> []
   [:nil-tag :nil-label])
 
-(defn bool-markup [bool]
+(defn bool [bool]
   [:bool-tag bool])
 
-(defn keyword-markup [keyword]
+(defn keyword [keyword]
   [:keyword-tag (str keyword)])
 
-(defn symbol-markup [symbol]
+(defn symbol [symbol]
   [:symbol-tag (str symbol)])
 
-(defn number-markup [number]
+(defn number [number]
   (if (integer? number)
     [:integer-tag number]
     [:float-tag number]))
 
-(defn string-markup [string]
+(defn string [string]
   (let [dq (pref :dq)
         re-nl (js/RegExp. "\n" "g")
         nl-marker (pref :new-line-string-replacer)
@@ -45,12 +46,12 @@
             abbreviated-string-markup [:string-tag (quote-string abbreviated-string)]
             string-with-nl-markers (.replace string re-nl (str nl-marker "\n"))
             body-markup [:expanded-string-tag string-with-nl-markers]]
-        (reference-surrogate-markup string abbreviated-string-markup true body-markup))
+        (reference-surrogate string abbreviated-string-markup true body-markup))
       [:string-tag (quote-string inline-string)])))
 
-(defn circular-reference-markup [& children]
+(defn circular-reference [& children]
   (concat [:circular-reference-tag :circular-ref-icon] children))
 
-(defn native-reference-markup [object]
-  (let [reference (reference-markup object {:prevent-recursion true})]
+(defn native-reference [object]
+  (let [reference (reference object {:prevent-recursion true})]
     [:native-reference-tag :native-reference-background reference]))

@@ -134,7 +134,7 @@
 
 (defn reference-template [object & [state-override]]
   (if (nil? object)
-    (render-json-ml (markup/nil-markup))
+    (render-json-ml (markup/<nil>))
     (let [sub-state (-> (get-current-state)
                         (merge state-override)
                         #_(update :history conj ::reference))]
@@ -186,7 +186,7 @@
                                      (make-template :span :fn-ns-name-style ns)))
         native-template (make-template :li :aligned-li-style
                                        :native-icon
-                                       (render-json-ml (markup/native-reference-markup fn-obj)))]
+                                       (render-json-ml (markup/native-reference fn-obj)))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   args-lists-templates
@@ -228,7 +228,7 @@
                                         (make-basis-template basis)))
         native-template (make-template :li :aligned-li-style
                                        (make-template :span :fn-native-symbol-style :fn-native-symbol)
-                                       (render-json-ml (markup/native-reference-markup constructor-fn)))]
+                                       (render-json-ml (markup/native-reference constructor-fn)))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   basis-template
@@ -320,7 +320,7 @@
         native-template (if (some? protocol-obj)
                           (make-template :li :aligned-li-style
                                          :native-icon
-                                         (render-json-ml (markup/native-reference-markup protocol-obj))))
+                                         (render-json-ml (markup/native-reference protocol-obj))))
         methods (munging/collect-protocol-methods obj selector)
         method-templates (map make-protocol-method-template methods)
         wrap #(make-template :li :aligned-li-style %)]
@@ -377,7 +377,7 @@
                                                  (make-protocols-list-template obj protocols)))
         native-template (make-template :li :aligned-li-style
                                        :native-icon
-                                       (render-json-ml (markup/native-reference-markup obj)))]
+                                       (render-json-ml (markup/native-reference obj)))]
     (make-template :span :body-style
                    (make-template :ol :standard-ol-no-margin-style
                                   fields-table-template
@@ -429,12 +429,12 @@
 
 (defn atomic-template [value]
   (cond
-    (nil? value) (render-json-ml (markup/nil-markup))
-    (bool? value) (render-json-ml (markup/bool-markup value))
-    (string? value) (render-json-ml (markup/string-markup value))
-    (number? value) (render-json-ml (markup/number-markup value))
-    (keyword? value) (render-json-ml (markup/keyword-markup value))
-    (symbol? value) (render-json-ml (markup/symbol-markup value))
+    (nil? value) (render-json-ml (markup/<nil>))
+    (bool? value) (render-json-ml (markup/bool value))
+    (string? value) (render-json-ml (markup/string value))
+    (number? value) (render-json-ml (markup/number value))
+    (keyword? value) (render-json-ml (markup/keyword value))
+    (symbol? value) (render-json-ml (markup/symbol value))
     (and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (cljs-instance-template value)
     (cljs-type? value) (cljs-type-template value)
     (cljs-function? value) (cljs-function-template value)))
@@ -459,7 +459,7 @@
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
   (if circular?
-    (make-group (render-json-ml (markup/circular-reference-markup group)))
+    (make-group (render-json-ml (markup/circular-reference group)))
     group))
 
 (defn wrap-group-in-meta-if-needed [group value]
@@ -485,10 +485,10 @@
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
       (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
-    (make-group (render-json-ml (markup/native-reference-markup obj)))
+    (make-group (render-json-ml (markup/native-reference obj)))
 
     (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
-    (make-group (aget group 0) (render-json-ml (markup/native-reference-markup obj)) (aget group 2))
+    (make-group (aget group 0) (render-json-ml (markup/native-reference obj)) (aget group 2))
 
     :else group))
 
