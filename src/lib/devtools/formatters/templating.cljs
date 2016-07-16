@@ -83,3 +83,25 @@
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
+
+; -- JSON ML support --------------------------------------------------------------------------------------------------------
+
+; a renderer from hiccup-like data markup to json-ml
+;
+; [[tag style] child1 child2 ...] -> #js [tag #js {"style" ...} child1 child2 ...]
+;
+
+(defn json-ml-renderer [markup]
+  {:pre [(sequential? markup)]}
+  (let [tag-info (pref (first markup))
+        children (rest markup)]
+    (case tag-info
+      "surrogate" (apply make-surrogate children)
+      "reference" (apply make-reference children)
+      (let [[tag style] tag-info]
+        (apply make-template tag style (keep pref children))))))
+
+(defn render-json-ml [markup]
+  (if (sequential? markup)
+    (json-ml-renderer (map render-json-ml markup))
+    markup))

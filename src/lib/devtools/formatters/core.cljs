@@ -6,9 +6,8 @@
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.templating :refer [make-template make-group make-surrogate concat-templates! extend-template!
                                                     get-target-object
-                                                    group? template? surrogate?]]
+                                                    group? template? surrogate? render-json-ml]]
             [clojure.string :as string]
-            [devtools.formatters.hiccup :refer [render-json-ml]]
             [devtools.formatters.markup :as markup]))
 
 (declare alt-printer-impl)
