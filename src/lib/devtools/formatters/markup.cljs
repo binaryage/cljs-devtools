@@ -1,4 +1,4 @@
-(ns devtools.formatters.reusables
+(ns devtools.formatters.markup
   (:require [devtools.formatters.helpers :refer [pref abbreviate-long-string]]))
 
 ; reusable hiccup-like templates
