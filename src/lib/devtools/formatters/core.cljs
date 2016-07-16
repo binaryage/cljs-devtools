@@ -2,6 +2,7 @@
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.munging :as munging]
+            [devtools.format :refer [IDevtoolsFormat]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.templating :refer [make-template make-group make-surrogate concat-templates! extend-template!
                                                     get-target-object
@@ -12,14 +13,6 @@
 
 (declare alt-printer-impl)
 (declare build-header)
-
-; ---------------------------------------------------------------------------------------------------------------------------
-; PROTOCOL SUPPORT
-
-(defprotocol ^:deprecated IDevtoolsFormat                                                                                     ; use IFormat instead
-  (-header [value])
-  (-has-body [value])
-  (-body [value]))
 
 ; - state management --------------------------------------------------------------------------------------------------------
 ;
@@ -616,7 +609,7 @@
 (defn header* [value]
   (cond
     (surrogate? value) (aget value "header")
-    (safe-call satisfies? false IDevtoolsFormat value) (-header value)
+    (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-header value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-header value)
     :else (build-header-wrapped value)))
 
@@ -624,14 +617,14 @@
   ; note: body is emulated using surrogate references
   (cond
     (surrogate? value) (aget value "hasBody")
-    (safe-call satisfies? false IDevtoolsFormat value) (-has-body value)
+    (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-has-body value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-has-body value)
     :else false))
 
 (defn body* [value]
   (cond
     (surrogate? value) (build-surrogate-body value)
-    (safe-call satisfies? false IDevtoolsFormat value) (-body value)
+    (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-body value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-body value)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
