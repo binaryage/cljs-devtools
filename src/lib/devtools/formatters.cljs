@@ -1,8 +1,8 @@
 (ns devtools.formatters
-  (:require [devtools.prefs :as prefs]
-            [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
+  (:require [goog.labs.userAgent.browser :as ua]
+            [devtools.prefs :as prefs]
             [devtools.util :refer [get-formatters-safe set-formatters-safe!]]
-            [goog.labs.userAgent.browser :as ua]))
+            [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]))
 
 (def ^:dynamic *installed* false)
 (def ^:dynamic *sanitizer-enabled* true)
