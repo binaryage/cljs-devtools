@@ -466,7 +466,7 @@
 ;      (.merge writer (post-process-printed-output (.get-group inner-writer) obj circular?)))))
 
 (defn build-header-markup [value]
-  (markup/cljs-land (markup/header value)))
+  (markup/<cljs-land> (markup/<preview> value)))
 
 (defn build-surrogate-body-markup [value]
   (if-let [body-template (oget value "bodyTemplate")]
@@ -474,8 +474,8 @@
     (let [target (oget value "target")]
       (if (seqable? target)
         (let [starting-index (or (oget value "startIndex") 0)]
-          (markup/details target starting-index))
-        (markup/standard-body-reference target)))))
+          (markup/<details> target starting-index))
+        (markup/<standard-body-reference> target)))))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API

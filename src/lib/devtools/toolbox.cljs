@@ -2,7 +2,7 @@
   (:require [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template make-surrogate]]
             [devtools.formatters.templating :refer [render-markup]]
-            [devtools.formatters.markup :as markup]))
+            [devtools.formatters.markup :refer [<preview> <standard-body-reference>]]))
 
 ; TODO: convert envelope to use new markup apis
 
@@ -23,7 +23,7 @@
      IFormat
      (-header [_] (make-template tag style (if (fn? header) (header obj) header)))
      (-has-body [_] true)
-     (-body [_] (make-template :span :body-style (render-markup (markup/standard-body-reference obj)))))))
+     (-body [_] (make-template :span :body-style (render-markup (<standard-body-reference> obj)))))))
 
 (defn force-format
   "Forces object to be rendered by cljs-devtools during console logging.
@@ -37,4 +37,4 @@
   See https://github.com/binaryage/cljs-devtools/issues/17
   "
   [obj]
-  (make-surrogate obj (markup/header obj) false))
+  (make-surrogate obj (<preview> obj) false))

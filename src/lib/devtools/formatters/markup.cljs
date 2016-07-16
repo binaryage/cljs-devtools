@@ -7,46 +7,48 @@
 
 ; reusable hiccup-like templates
 
-(declare header)
 (declare markup-map)
 
-(defn surrogate [& args]
+(defn <surrogate> [& args]
   (concat ["surrogate"] args))
 
-(defn reference [& args]
+(defn <reference> [& args]
   (concat ["reference"] args))
 
-(defn reference-surrogate [& args]
-  (reference (apply surrogate args)))
+(defn <reference-surrogate> [& args]
+  (<reference> (apply <surrogate> args)))
 
-(defn cljs-land [& children]
+(defn <preview> [value]
+  (managed-pr-str value :header-style (pref :max-print-level) markup-map))
+
+(defn <cljs-land> [& children]
   (concat [:cljs-land-tag] children))
 
 (defn <nil> []
   [:nil-tag :nil-label])
 
-(defn bool [bool]
+(defn <bool> [bool]
   [:bool-tag bool])
 
-(defn keyword [keyword]
+(defn <keyword> [keyword]
   [:keyword-tag (str keyword)])
 
-(defn symbol [symbol]
+(defn <symbol> [symbol]
   [:symbol-tag (str symbol)])
 
-(defn number [number]
+(defn <number> [number]
   (if (integer? number)
     [:integer-tag number]
     [:float-tag number]))
 
-(defn circular-reference [& children]
+(defn <circular-reference> [& children]
   (concat [:circular-reference-tag :circular-ref-icon] children))
 
-(defn native-reference [object]
-  (let [reference (reference object {:prevent-recursion true})]
+(defn <native-reference> [object]
+  (let [reference (<reference> object {:prevent-recursion true})]
     [:native-reference-tag :native-reference-background reference]))
 
-(defn string [string]
+(defn <string> [string]
   (let [dq (pref :dq)
         re-nl (js/RegExp. "\n" "g")
         nl-marker (pref :new-line-string-replacer)
@@ -62,21 +64,21 @@
             abbreviated-string-markup [:string-tag (quote-string abbreviated-string)]
             string-with-nl-markers (.replace string re-nl (str nl-marker "\n"))
             body-markup [:expanded-string-tag string-with-nl-markers]]
-        (reference-surrogate string abbreviated-string-markup true body-markup))
+        (<reference-surrogate> string abbreviated-string-markup true body-markup))
       [:string-tag (quote-string inline-string)])))
 
-(defn meta [metadata]
-  (let [body [:meta-body-tag (header metadata)]
+(defn <meta> [metadata]
+  (let [body [:meta-body-tag (<preview> metadata)]
         header [:meta-header-tag "meta"]]
-    [:meta-reference-tag (reference-surrogate metadata header true body)]))
+    [:meta-reference-tag (<reference-surrogate> metadata header true body)]))
 
-(defn meta-wrapper [metadata & children]
-  (concat [:meta-wrapper-tag] children [(meta metadata)]))
+(defn <meta-wrapper> [metadata & children]
+  (concat [:meta-wrapper-tag] children [(<meta> metadata)]))
 
 (defn <index> [value]
   [:index-tag value :line-index-separator])
 
-(defn aligned-body [lines]
+(defn <aligned-body> [lines]
   (let [align (fn [line]
                 (if line
                   (concat [:aligned-li-tag] line)))
@@ -103,8 +105,8 @@
         ns (if-not (empty? ns)
              [:ns-icon
               [:fn-ns-name-tag ns]])
-        native [:native-icon (native-reference fn-obj)]]
-    (aligned-body (concat arities [ns native]))))
+        native [:native-icon (<native-reference> fn-obj)]]
+    (<aligned-body> (concat arities [ns native]))))
 
 (defn <arities> [arities]
   (let [multi-arity? (> (count arities) 1)]
@@ -126,28 +128,19 @@
         prefix [:fn-prefix-tag icon name-markup]
         preview [:fn-header-tag prefix arities-markup]
         details (partial <function-details> fn-obj ns name arities prefix)]
-    (reference-surrogate fn-obj preview true details)))
+    (<reference-surrogate> fn-obj preview true details)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
-; ---------------------------------------------------------------------------------------------------------------------------
-
-(defn header [value]
-  (managed-pr-str value :header-style (pref :max-print-level) markup-map))
-
-; ---------------------------------------------------------------------------------------------------------------------------
-
-(defn standard-body [lines & [no-margin?]]
+(defn <standard-body> [lines & [no-margin?]]
   (let [ol-tag (if no-margin? :standard-ol-no-margin-tag :standard-ol-tag)
-        li-tag (if no-margin? :standard-li-no-margin-tag :standard-li-tag)
-        * (fn [line]
-            (concat [li-tag] line))]
-    (concat [ol-tag] (map * lines))))
+        li-tag (if no-margin? :standard-li-no-margin-tag :standard-li-tag)]
+    (concat [ol-tag] (map #(concat [li-tag] %) lines))))
 
-(defn body-line [index value]
+(defn- body-line [index value]
   [(<index> index) (managed-pr-str value :item-style (pref :body-line-max-print-level) markup-map)])
 
-(defn prepare-body-lines [data starting-index]
+(defn- prepare-body-lines [data starting-index]
   (loop [work data
          index starting-index
          lines []]
@@ -155,7 +148,7 @@
       lines
       (recur (rest work) (inc index) (conj lines (body-line index (first work)))))))
 
-(defn body-lines [value starting-index]
+(defn- body-lines [value starting-index]
   (let [seq (seq value)
         max-number-body-items (pref :max-number-body-items)
         chunk (take max-number-body-items seq)
@@ -166,39 +159,41 @@
       lines
       (let [more-label [:body-items-more-tag (pref :body-items-more-label)]
             start-index (+ starting-index max-number-body-items)
-            more (reference-surrogate rest more-label true nil start-index)]
+            more (<reference-surrogate> rest more-label true nil start-index)]
         (conj lines [more])))))
 
-(defn details [value starting-index]
+(defn <details> [value starting-index]
   (let [continuation? (pos? starting-index)
-        body (standard-body (body-lines value starting-index) continuation?)]
+        body (<standard-body> (body-lines value starting-index) continuation?)]
     (if continuation?
       body
       [:body-tag body])))
 
-(defn standard-body-reference [o]
-  (standard-body [[(reference o)]]))
+(defn <standard-body-reference> [o]
+  (<standard-body> [[(<reference> o)]]))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
-(defn atomic [value]
+(defn <atomic> [value]
   (cond
     (nil? value) (<nil>)
-    (bool? value) (bool value)
-    (string? value) (string value)
-    (number? value) (number value)
-    (keyword? value) (keyword value)
-    (symbol? value) (symbol value)
+    (bool? value) (<bool> value)
+    (string? value) (<string> value)
+    (number? value) (<number> value)
+    (keyword? value) (<keyword> value)
+    (symbol? value) (<symbol> value)
     ;(and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (cljs-instance-template value)
     ;(cljs-type? value) (cljs-type-template value)
     (cljs-function? value) (<function> value)))
 
+; ---------------------------------------------------------------------------------------------------------------------------
+
 (def markup-map
-  {:atomic              atomic
-   :reference           reference
-   :surrogate           surrogate
-   :reference-surrogate reference-surrogate
-   :circular-reference  circular-reference
-   :native-reference    native-reference
-   :meta                meta
-   :meta-wrapper        meta-wrapper})
+  {:atomic              <atomic>
+   :reference           <reference>
+   :surrogate           <surrogate>
+   :reference-surrogate <reference-surrogate>
+   :circular-reference  <circular-reference>
+   :native-reference    <native-reference>
+   :meta                <meta>
+   :meta-wrapper        <meta-wrapper>})
