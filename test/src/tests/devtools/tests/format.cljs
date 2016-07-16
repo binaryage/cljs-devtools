@@ -247,7 +247,7 @@
             ["span" ::style/header
              "[" :more-marker "]"]))))))
 
-(deftest test-deftype
+#_(deftest test-deftype
   (testing "simple deftype"
     (let [type-instance (b/SimpleType. "some-value")]
       (is-header type-instance
@@ -361,7 +361,7 @@
         "]"]])
     (reset-prefs-to-defaults!)))
 
-(deftest test-circular-data
+#_(deftest test-circular-data
   (testing "circulare data structure"
     (let [circular-ds (atom nil)]
       (reset! circular-ds circular-ds)
@@ -370,7 +370,7 @@
          ["span" ::style/header
           REF]]))))                                                                                                           ; TODO
 
-(deftest test-function-formatting
+#_(deftest test-function-formatting
   (testing "cljs-function?"
     (testing "these should NOT be recognized as cljs functions"
       (are [f] (not (f/cljs-function? f))
@@ -509,7 +509,7 @@
              :native-icon
              NATIVE-REF]]])))))
 
-(deftest test-alt-printer-impl
+#_(deftest test-alt-printer-impl
   (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
     (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                        ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
       (is-header date-map

@@ -1,5 +1,6 @@
 (ns devtools.formatters.templating
-  (:require [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
+  (:require [cljs.pprint :refer [pprint]]
+            [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.helpers :refer [pref]]))
 
@@ -25,6 +26,10 @@
 
 (defn surrogate? [value]
   (satisfies? ISurrogate value))
+
+(defn reference? [value]
+  (and (group? value)
+       (= (aget value 0) "object")))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
@@ -83,7 +88,6 @@
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
-
 ; -- JSON ML support --------------------------------------------------------------------------------------------------------
 
 ; a renderer from hiccup-like data markup to json-ml
@@ -91,17 +95,64 @@
 ; [[tag style] child1 child2 ...] -> #js [tag #js {"style" ...} child1 child2 ...]
 ;
 
-(defn json-ml-renderer [markup]
-  {:pre [(sequential? markup)]}
-  (let [tag-info (pref (first markup))
-        children (rest markup)]
-    (case tag-info
-      "surrogate" (apply make-surrogate children)
-      "reference" (apply make-reference children)
-      (let [[tag style] tag-info]
-        (apply make-template tag style (keep pref children))))))
+(declare render-json-ml)
+;
+;(defn special? [markup]
+;  {:pre [(sequential? markup)]}
+;  (string? (first markup)))
+;
+;(defn json-ml-renderer [markup]
+;  {:pre [(sequential? markup)]}
+;  (let [tag-info (pref (first markup))
+;        children (rest markup)]
+;    (case tag-info
+;      "surrogate" (let [obj (first children)
+;                        converted-children (map render-json-ml (rest children))]
+;                    (apply make-surrogate (concat [obj] converted-children)))
+;      "reference" (apply make-reference children)
+;      (let [[tag style] tag-info]
+;        (apply make-template tag style (keep pref children))))))
+;
+;(defn render-json-ml2 [markup]
+;  (if (sequential? markup)
+;    (let [converted-markup (if (special? markup)
+;                             markup
+;                             (map render-json-ml markup))]
+;      (json-ml-renderer converted-markup))
+;    markup))
+
+(def ^:mutable *current-markup* nil)
+
+(defn pprint-markup [markup]
+  (with-out-str (pprint markup)))
+
+(defn assert-markup-error [msg]
+  (assert false (str msg "\n" (pprint-markup *current-markup*))))
+
+(defn render-special [name args]
+  (case name
+    "surrogate" (let [obj (first args)
+                      converted-args (map render-json-ml (rest args))]
+                  (apply make-surrogate (concat [obj] converted-args)))
+    "reference" (apply make-reference (map render-json-ml args))
+    (assert-markup-error (str "no matching special tag name: '" name "'"))))
+
+(defn render-sub [tag children]
+  (let [[html-tag style] tag]
+    (apply make-template html-tag style (map render-json-ml (keep pref children)))))
+
+(defn render-json-ml* [markup]
+  (if-not (sequential? markup)
+    markup
+    (let [tag (pref (first markup))]
+      (cond
+        (string? tag) (render-special tag (rest markup))
+        (sequential? tag) (render-sub tag (rest markup))
+        :else (assert-markup-error (str "invalid json-ml markup at\n " (pprint-markup markup) "\n"))))))
 
 (defn render-json-ml [markup]
-  (if (sequential? markup)
-    (json-ml-renderer (map render-json-ml markup))
-    markup))
+  (set! *current-markup* markup)
+  (let [res (render-json-ml* markup)]
+    (set! *current-markup* nil)
+    res))
+

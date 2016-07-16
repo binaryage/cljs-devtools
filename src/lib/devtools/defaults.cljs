@@ -212,7 +212,7 @@
    :bypass-availability-checks                    false
 
 
-   ; reusables
+   ; markup tags
    :nil-tag                                       [:span :nil-style]
    :bool-tag                                      [:span :bool-style]
    :keyword-tag                                   [:span :keyword-style]
@@ -223,5 +223,9 @@
    :expanded-string-tag                           [:span :expanded-string-style]
    :circular-reference-tag                        [:span :circular-reference-wrapper-style]
    :native-reference-tag                          [:span :native-reference-wrapper-style]
+   :meta-wrapper-tag                              [:span :meta-wrapper-style]
+   :meta-header-tag                               [:span :meta-style]
+   :meta-body-tag                                 [:span :meta-body-style]
+   :meta-reference-tag                            [:span :meta-reference-style]
 
    })

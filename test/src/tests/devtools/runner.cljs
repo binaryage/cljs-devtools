@@ -9,7 +9,8 @@
             [devtools.tests.prefs]
             [devtools.tests.toolbox]
             [devtools.tests.cljs]
-            [devtools.tests.config]))
+            [devtools.tests.config]
+            [devtools.tests.adhoc]))
 
 ; taken from https://github.com/pjlegato/clansi/blob/7c9a525f5a72d928031573586cbce9a5f5699e15/src/clansi/core.clj
 (def ANSI-CODES
@@ -116,6 +117,12 @@
     (cljs.test/empty-env ::test/default)
     'devtools.tests.config))
 
+(defn run-adhoc-tests []
+  (test/run-tests
+    (cljs.test/empty-env ::test/default)
+    'devtools.tests.adhoc))
+
 (case (.-selectedTestSuite js/window)
   "config-tests" (run-config-tests)
+  "adhoc-tests" (run-adhoc-tests)
   (run-normal-tests))

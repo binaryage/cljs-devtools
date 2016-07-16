@@ -65,7 +65,11 @@
                                                    :optimizations   :advanced}}}}}
              :auto-testing
              {:cljsbuild {:builds {:tests
-                                   {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]}}}}}
+                                   {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]}}}}
+
+             :adhoc-auto-testing
+             {:cljsbuild {:builds {:tests
+                                   {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests-adhoc.html"]}}}}}
 
   :aliases {"test"                   ["do"
                                       "clean,"
@@ -84,6 +88,9 @@
             "auto-test"              ["do"
                                       "clean,"
                                       "with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]
+            "adhoc-auto-test"        ["do"
+                                      "clean,"
+                                      "with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]
             "release"                ["do"
                                       "shell" "scripts/check-versions.sh,"
                                       "clean,"

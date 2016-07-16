@@ -8,7 +8,9 @@
                                                     get-target-object
                                                     group? template? surrogate? render-json-ml]]
             [clojure.string :as string]
-            [devtools.formatters.markup :as markup]))
+            [devtools.formatters.markup :as markup]
+    ;[devtools.formatters.printing :refer [managed-pr-str]]
+            ))
 
 (declare alt-printer-impl)
 (declare build-header)
@@ -109,29 +111,6 @@
   (and (group? value)
        (= (aget value 0) "object")))
 
-; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
-
-(deftype TemplateWriter [group]
-  Object
-  (merge [_ a] (.apply (.-push group) group a))
-  (get-group [_] group)
-  IWriter
-  (-write [_ o] (.push group o))
-  (-flush [_] nil))
-
-(defn make-template-writer []
-  (TemplateWriter. (make-group)))
-
-; -- templates --------------------------------------------------------------------------------------------------------------
-
-;(defn circular-reference-template [content-group]
-;  (let [base-template (make-template :span :circular-reference-wrapper-style
-;                                     :circular-ref-icon)]
-;    (concat-templates! base-template content-group)))
-
-;(defn nil-template [_value]
-;  (make-template :span :nil-style :nil-label))
-
 (defn reference-template [object & [state-override]]
   (if (nil? object)
     (render-json-ml (markup/<nil>))
@@ -141,38 +120,35 @@
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
-;(defn native-reference-template [object]
-;  (make-template :span :native-reference-wrapper-style
-;                 :native-reference-background
-;                 (reference-template object {:prevent-recursion true})))
+; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
+
+(defn wrap-value-as-reference-if-needed [value]
+  (if (cljs-value? value)
+    (reference-template value)
+    value))
+
+(deftype TemplateWriter [group]
+  Object
+  (merge [_ a] (.apply (.-push group) group a))
+  (get-group [_] group)
+  IWriter
+  (-write [_ o] (.push group (wrap-value-as-reference-if-needed o)))
+  (-flush [_] nil))
+
+(defn make-template-writer []
+  (TemplateWriter. (make-group)))
+
+; -- templates --------------------------------------------------------------------------------------------------------------
 
 (defn index-template [value]
   (make-template :span :index-style value :line-index-separator))
 
-(defn meta-template [value]
-  (let [header-template (make-template :span :meta-style "meta")
-        body-template (make-template :span :meta-body-style
-                                     (build-header value))]
-    (make-template :span :meta-reference-style
-                   (reference-template (make-surrogate value header-template true body-template)))))
-
-;(defn abbreviate-long-string [string]
-;  (str
-;    (apply str (take (pref :string-prefix-limit) string))
-;    (pref :string-abbreviation-marker)
-;    (apply str (take-last (pref :string-postfix-limit) string))))
-;
-;(defn string-template [source-string]
-;  (let [dq (pref :dq)
-;        re-nl (js/RegExp. "\n" "g")
-;        inline-string (.replace source-string re-nl (pref :new-line-string-replacer))
-;        max-inline-string-size (+ (pref :string-prefix-limit) (pref :string-postfix-limit))]
-;    (if (<= (count inline-string) max-inline-string-size)
-;      (make-template :span :string-style (str dq inline-string dq))
-;      (let [abbreviated-string-template (make-template :span :string-style (str dq (abbreviate-long-string inline-string) dq))
-;            string-with-nl-markers (.replace source-string re-nl (str (pref :new-line-string-replacer) "\n"))
-;            body-template (make-template :span :expanded-string-style string-with-nl-markers)]
-;        (reference-template (make-surrogate source-string abbreviated-string-template true body-template))))))
+;(defn meta-template [value]
+;  (let [header-template (make-template :span :meta-style "meta")
+;        body-template (make-template :span :meta-body-style
+;                                     (build-header value))]
+;    (make-template :span :meta-reference-style
+;                   (reference-template (make-surrogate value header-template true body-template)))))
 
 (defn cljs-function-body-template [fn-obj ns _name args prefix-template]
   (let [make-args-template (fn [args]
@@ -459,26 +435,14 @@
 
 (defn wrap-group-in-circular-warning-if-needed [group circular?]
   (if circular?
-    (make-group (render-json-ml (markup/circular-reference group)))
+    (make-group (render-json-ml (apply markup/circular-reference (vec group))))
     group))
 
 (defn wrap-group-in-meta-if-needed [group value]
-  (if-let [meta-data (if (pref :print-meta-data)
-                       (meta value))]
-    (make-group (make-template :span :meta-wrapper-style (vec group) (meta-template meta-data)))
+  (if-let [meta-data (if (pref :print-meta-data) (meta value))]
+    (make-group (render-json-ml (apply (partial markup/meta-wrapper meta-data) (vec group))))
     group))
 
-; default printer implementation can do this:
-;   :else (write-all writer "#<" (str obj) ">")
-; we want to wrap stringified obj in a reference for further inspection
-;
-; this behaviour changed in https://github.com/clojure/clojurescript/commit/34c3b8985ed8197d90f441c46d168c4024a20eb8
-; newly functions and :else branch print "#object [" ... "]"
-;
-; in some situations obj can still be a clojurescript value (e.g. deftypes)
-; we have to implement a special flag to prevent infinite recursion
-; see https://github.com/binaryage/cljs-devtools/issues/2
-;     https://github.com/binaryage/cljs-devtools/issues/8
 (defn detect-edge-case-and-patch-it [group obj]
   (cond
     (or
@@ -492,16 +456,16 @@
 
     :else group))
 
-(defn wrap-value-as-reference-if-needed [value]
-  (if (or (string? value) (template? value) (group? value))
-    value
-    (reference-template value)))
-
-(defn wrap-group-values-as-references-if-needed [group]
-  (let [result (make-group)]
-    (doseq [value group]
-      (.push result (wrap-value-as-reference-if-needed value)))
-    result))
+;(defn wrap-value-as-reference-if-needed [value]
+;  (if (or (string? value) (template? value) (group? value))
+;    value
+;    (reference-template value)))
+;
+;(defn wrap-group-values-as-references-if-needed [group]
+;  (let [result (make-group)]
+;    (doseq [value group]
+;      (.push result (wrap-value-as-reference-if-needed value)))
+;    result))
 
 (defn alt-printer-job [obj writer opts]
   (if (or (safe-call satisfies? false IDevtoolsFormat obj)
@@ -517,7 +481,7 @@
 (defn post-process-printed-output [output-group obj circular?]
   (-> output-group
       (detect-edge-case-and-patch-it obj)                                                                                     ; an ugly hack
-      (wrap-group-values-as-references-if-needed)                                                                             ; issue #21
+      ;      (wrap-group-values-as-references-if-needed)                                                                             ; issue #21
       (wrap-group-in-reference-if-needed obj)
       (wrap-group-in-circular-warning-if-needed circular?)
       (wrap-group-in-meta-if-needed obj)))
@@ -540,7 +504,8 @@
     tmpl))
 
 (defn build-header [value]
-  (managed-pr-str value :header-style (pref :max-print-level)))
+  ;(managed-pr-str value :header-style (pref :max-print-level))
+  (markup/header value))
 
 (defn build-header-wrapped [value]
   (make-template :span :cljs-style (build-header value)))
