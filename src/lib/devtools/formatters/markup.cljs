@@ -3,7 +3,7 @@
                    [devtools.formatters.markup :refer [emit-markup-map]])
   (:require [cljs.pprint]
             [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
-                                                 instance-of-a-well-known-type?]]
+                                                 instance-of-a-well-known-type? get-constructor]]
             [devtools.formatters.printing :refer [managed-pr-str managed-print-via-protocol]]
             [devtools.munging :as munging]))
 
@@ -271,7 +271,7 @@
     (<aligned-body> [fields-markup protocols-list-markup native-markup])))
 
 (defn <instance> [value]
-  (let [constructor-fn (oget value "constructor")
+  (let [constructor-fn (get-constructor value)
         [_ns _name basis] (munging/parse-constructor-info constructor-fn)
         custom-printing? (implements? IPrintWithWriter value)
         type-template (<type> constructor-fn :instance-type-header-style)

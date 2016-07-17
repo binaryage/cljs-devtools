@@ -10,6 +10,9 @@
     (recur (prefs/pref v))
     v))
 
+(defn get-constructor [o]
+  (oget o "constructor"))
+
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn is-prototype? [o]
@@ -40,7 +43,7 @@
 
 (defn cljs-instance? [value]
   (and (goog/isObject value)                                                                                                  ; see http://stackoverflow.com/a/22482737/84283
-       (cljs-type? (oget value "constructor"))))
+       (cljs-type? (get-constructor value))))
 
 (defn cljs-land-value? [value]
   (or (cljs-instance? value)
@@ -58,7 +61,7 @@
 
 (defn instance-of-a-well-known-type? [value]
   (let [well-known-types (pref :well-known-types)
-        constructor-fn (oget value "constructor")
+        constructor-fn (get-constructor value)
         [ns name] (munging/parse-constructor-info constructor-fn)
         fully-qualified-type-name (str ns "/" name)]
     (contains? well-known-types fully-qualified-type-name)))
@@ -69,4 +72,3 @@
   (let [prefix (apply str (take prefix-limit string))
         postfix (apply str (take-last postfix-limit string))]
     (str prefix marker postfix)))
-
