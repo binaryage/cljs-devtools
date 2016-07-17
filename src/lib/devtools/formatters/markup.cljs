@@ -1,10 +1,11 @@
 (ns devtools.formatters.markup
-  (:refer-clojure :exclude [keyword symbol meta])
+  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]]
+                   [devtools.formatters.markup :refer [emit-markup-map]])
   (:require [cljs.pprint]
-            [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type?]]
-            [devtools.formatters.printing :refer [managed-pr-str]]
-            [devtools.munging :as munging]
-            [clojure.string :as string]))
+            [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
+                                                 instance-of-a-well-known-type?]]
+            [devtools.formatters.printing :refer [managed-pr-str managed-print-via-protocol]]
+            [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
 
@@ -158,6 +159,136 @@
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
+(defn- fetch-field-value [obj field]
+  [field (oget obj (munge field))])
+
+(defn- fetch-fields-values [obj fields]
+  (map (partial fetch-field-value obj) fields))
+
+(defn <field> [field]
+  (let [[name value] field]
+    [:header-field-tag
+     [:header-field-name-tag (str name)]
+     :header-field-value-spacer
+     [:header-field-value-tag (<reference> value)]
+     :header-field-separator]))
+
+(defn <fields-details-row> [field]
+  (let [[name value] field]
+    [:body-field-tr-tag
+     [:body-field-td1-tag
+      :body-field-symbol
+      [:body-field-name-tag (str name)]]
+     [:body-field-td2-tag
+      :body-field-value-spacer
+      [:body-field-value-tag (<reference> value)]]]))
+
+(defn <fields> [fields & [max-fields]]
+  (let [max-fields (or max-fields (pref :max-instance-header-fields))
+        fields-markups (map <field> (take max-fields fields))
+        more? (> (count fields) max-fields)]
+    (concat [:fields-header-tag
+             :fields-header-open-symbol]
+            fields-markups
+            [(if more? :more-fields-symbol)
+             :fields-header-close-symbol])))
+
+(defn <protocol-method-arity> [arity-fn]
+  (<reference> arity-fn))
+
+(defn <protocol-method-arities-details> [fns]
+  (<aligned-body> (map <protocol-method-arity> fns)))
+
+(defn <protocol-method-arities> [fns & [max-fns]]
+  (let [max-fns (or max-fns (pref :max-protocol-method-arities-list))
+        aritites-markups (map <protocol-method-arity> (take max-fns fns))
+        more? (> (count fns) max-fns)
+        preview-markup (concat [:protocol-method-arities-header-tag :protocol-method-arities-header-open-symbol]
+                               (interpose :protocol-method-arities-list-header-separator aritites-markups)
+                               (if more? [:protocol-method-arities-more-symbol])
+                               [:protocol-method-arities-header-close-symbol])]
+    (if more?
+      (let [details-markup-fn (partial <protocol-method-arities-details> fns)]
+        (<reference-surrogate> #js {} preview-markup true details-markup-fn))
+      preview-markup)))
+
+(defn <protocol-method> [[name fns]]
+  [:protocol-method-tag
+   :method-icon
+   [:protocol-method-name-tag name]
+   (<protocol-method-arities> fns)])
+
+(defn <protocol-details> [obj ns _name selector _fast?]
+  (let [ns-markup (if-not (empty? ns) [:ns-icon [:protocol-ns-name-tag ns]])
+        protocol-obj (munging/get-protocol-object selector)
+        native-markup (if (some? protocol-obj) [:native-icon (<native-reference> protocol-obj)])
+        methods (munging/collect-protocol-methods obj selector)
+        methods-markups (map <protocol-method> methods)
+        wrap (fn [x] [x])]
+    (<aligned-body> (concat (map wrap methods-markups) [ns-markup native-markup]))))
+
+(defn <protocol> [obj protocol & [style]]
+  (let [{:keys [ns name selector fast?]} protocol
+        preview-markup [[:span (or style :protocol-name-style)] name]
+        prefix-markup [[:span (if fast? :fast-protocol-style :slow-protocol-style)] :protocol-background]]
+    (if (some? obj)
+      (let [details-markup-fn (partial <protocol-details> obj ns name selector fast?)]
+        (conj prefix-markup (<reference-surrogate> obj preview-markup true details-markup-fn)))
+      (conj prefix-markup preview-markup))))
+
+(defn <more-protocols> [more-count]
+  (let [fake-protocol {:name (str "+" more-count "…")}]
+    (<protocol> nil fake-protocol :protocol-more-style)))
+
+(defn <protocols-list-details> [obj protocols]
+  (let [protocols-markups (map (partial <protocol> obj) protocols)
+        wrap (fn [x] [x])]
+    (<aligned-body> (map wrap protocols-markups))))
+
+(defn <protocols-list> [obj protocols & [max-protocols]]
+  (let [max-protocols (or max-protocols (pref :max-list-protocols))
+        protocols-markups (map (partial <protocol> obj) (take max-protocols protocols))
+        more-count (- (count protocols) max-protocols)
+        more? (pos? more-count)
+        preview-markup (concat [:protocols-header-tag :protocols-list-open-symbol]
+                               (interpose :header-protocol-separator protocols-markups)
+                               (if more? [:header-protocol-separator (<more-protocols> more-count)])
+                               [:protocols-list-close-symbol])]
+    (if more?
+      (let [details-markup-fn (partial <protocols-list-details> obj protocols)]
+        (<reference-surrogate> obj preview-markup true details-markup-fn))
+      preview-markup)))
+
+(defn <fields-details> [fields obj]
+  (let [protocols (munging/scan-protocols obj)
+        has-protocols? (not (empty? protocols))
+        fields-markup [:fields-icon (concat [:instance-body-fields-table-tag] (map <fields-details-row> fields))]
+        protocols-list-markup (if has-protocols? [:protocols-icon (<protocols-list> obj protocols)])
+        native-markup [:native-icon (<native-reference> obj)]]
+    (<aligned-body> [fields-markup protocols-list-markup native-markup])))
+
+(defn <instance> [value]
+  (let [constructor-fn (oget value "constructor")
+        [_ns _name basis] (munging/parse-constructor-info constructor-fn)
+        custom-printing? (implements? IPrintWithWriter value)
+        type-template (<type> constructor-fn :instance-type-header-style)
+        fields (fetch-fields-values value basis)
+        fields-markup (<fields> fields (if custom-printing? 0))                                                               ; TODO: handle no fields properly
+        fields-details-markup-fn #(<fields-details> fields value)
+        fields-preview-markup [:instance-value-tag (<reference-surrogate> value fields-markup true fields-details-markup-fn)]
+        custom-printing-markup (if custom-printing?
+                                 [:instance-custom-printing-wrapper-tag
+                                  :instance-custom-printing-background
+                                  (managed-print-via-protocol value :instance-custom-printing-style markup-map)])
+        preview-markup [:instance-header-tag
+                        type-template
+                        :instance-value-separator
+                        fields-preview-markup
+                        custom-printing-markup]]
+    (<reference-surrogate> value preview-markup false)))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
 (defn <standard-body> [lines & [no-margin?]]
   (let [ol-tag (if no-margin? :standard-ol-no-margin-tag :standard-ol-tag)
         li-tag (if no-margin? :standard-li-no-margin-tag :standard-li-tag)]
@@ -208,7 +339,7 @@
     (number? value) (<number> value)
     (keyword? value) (<keyword> value)
     (symbol? value) (<symbol> value)
-    ;(and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (cljs-instance-template value)
+    (and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (<instance> value)
     (cljs-type? value) (<type> value)
     (cljs-function? value) (<function> value)))
 

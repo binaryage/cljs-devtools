@@ -56,6 +56,13 @@
 (defn bool? [value]
   (or (true? value) (false? value)))
 
+(defn instance-of-a-well-known-type? [value]
+  (let [well-known-types (pref :well-known-types)
+        constructor-fn (oget value "constructor")
+        [ns name] (munging/parse-constructor-info constructor-fn)
+        fully-qualified-type-name (str ns "/" name)]
+    (contains? well-known-types fully-qualified-type-name)))
+
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn abbreviate-long-string [string marker prefix-limit postfix-limit]
