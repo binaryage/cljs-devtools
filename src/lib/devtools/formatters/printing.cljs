@@ -126,22 +126,21 @@
       (alt-printer-job obj inner-writer opts)
       (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-fns circular?)))))
 
-(defn managed-pr-str [value style print-level markup-fns]
-  (let [tmpl (make-template :span style)
-        writer (TemplateWriter. tmpl)]
-    (binding [*print-level* (inc print-level)]                                                                                ; when printing do at most print-level deep recursion
-      (pr-seq-writer [value] writer {:alt-impl     alt-printer-impl
-                                     :markup-fns   markup-fns
-                                     :print-length (pref :max-header-elements)
-                                     :more-marker  (pref :more-marker)}))
-    tmpl))
+(defn managed-print [tag markup-fns printer]
+  (let [tag (pref tag)
+        template (make-template (first tag) (second tag))
+        writer (TemplateWriter. template)
+        opts {:alt-impl     alt-printer-impl
+              :markup-fns   markup-fns
+              :print-length (pref :max-header-elements)
+              :more-marker  (pref :more-marker)}]
+    (printer writer opts)
+    template))
 
-(defn managed-print-via-protocol [value style markup-fns]
-  (let [tmpl (make-template :span style)
-        writer (TemplateWriter. tmpl)]
-    (-pr-writer value writer {:alt-impl     alt-printer-impl
-                              :markup-fns   markup-fns
-                              :print-length (pref :max-header-elements)
-                              :more-marker  (pref :more-marker)})
-    tmpl))
+(defn managed-print-via-writer [value tag markup-fns]
+  (managed-print tag markup-fns (fn [writer opts]
+                                  (pr-seq-writer [value] writer opts))))
 
+(defn managed-print-via-protocol [value tag markup-fns]
+  (managed-print tag markup-fns (fn [writer opts]
+                                  (-pr-writer value writer opts))))

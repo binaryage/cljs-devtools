@@ -222,6 +222,8 @@
 
    ; markup tags
    :cljs-land-tag                                 [:span :cljs-land-style]
+   :header-tag                                    [:span :header-style]
+   :item-tag                                      [:span :item-style]
    :nil-tag                                       [:span :nil-style]
    :bool-tag                                      [:span :bool-style]
    :keyword-tag                                   [:span :keyword-style]
@@ -275,5 +277,6 @@
    :instance-custom-printing-wrapper-tag          [:span :instance-custom-printing-wrapper-style]
    :instance-header-tag                           [:span :instance-header-style]
    :list-tag                                      [:span :list-style]
+   :instance-custom-printing-tag                  [:span :instance-custom-printing-style]
    })
 

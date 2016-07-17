@@ -4,7 +4,7 @@
   (:require [cljs.pprint]
             [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
                                                  instance-of-a-well-known-type? get-constructor]]
-            [devtools.formatters.printing :refer [managed-pr-str managed-print-via-protocol]]
+            [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
             [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
@@ -27,6 +27,21 @@
 
 (defn- fetch-fields-values [obj fields]
   (map (partial fetch-field-value obj) fields))
+
+; -- cljs printing  ---------------------------------------------------------------------------------------------------------
+
+(defn print-with [method value tag & [max-level]]
+  (let [job-fn #(method value tag (get-markup-map))]
+    (if (some? max-level)
+      (binding [*print-level* (inc max-level)]                                                                                ; when printing do at most print-level deep recursion
+        (job-fn))
+      (job-fn))))
+
+(defn print-with-writer [value tag & [max-level]]
+  (print-with managed-print-via-writer value tag max-level))
+
+(defn print-with-writer-protocol [value tag & [max-level]]
+  (print-with managed-print-via-protocol value tag max-level))
 
 ; -- references -------------------------------------------------------------------------------------------------------------
 
@@ -92,7 +107,7 @@
 ; -- generic preview markup -------------------------------------------------------------------------------------------------
 
 (defn <preview> [value]
-  (managed-pr-str value :header-style (pref :max-print-level) (get-markup-map)))
+  (print-with-writer value :header-tag (pref :max-print-level)))
 
 ; -- body-related templates -------------------------------------------------------------------------------------------------
 
@@ -122,7 +137,9 @@
   [:index-tag value :line-index-separator])
 
 (defn- body-line [index value]
-  [(<index> index) (managed-pr-str value :item-style (pref :body-line-max-print-level) (get-markup-map))])
+  (let [index-markup (<index> index)
+        value-markup (print-with-writer value :item-tag (pref :body-line-max-print-level))]
+    [index-markup value-markup]))
 
 ; TODO: this fn is screaming for rewrite
 (defn- prepare-body-lines [data starting-index]
@@ -363,7 +380,7 @@
         custom-printing-markup (if custom-printing?
                                  [:instance-custom-printing-wrapper-tag
                                   :instance-custom-printing-background
-                                  (managed-print-via-protocol value :instance-custom-printing-style (get-markup-map))])
+                                  (print-with-writer-protocol value :instance-custom-printing-tag)])
         preview-markup [:instance-header-tag
                         type-markup
                         :instance-value-separator
