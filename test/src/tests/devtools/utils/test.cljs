@@ -75,7 +75,7 @@
 
 (defn resolve-keyword [k]
   ; we have a convention to convert :devtools.tests.style/something to {"style" :something-style}
-  (if (= (namespace k) "devtools.tests.style")
+  (if (= (namespace k) "devtools.pseudo.style")
     {"style" (pref (keyword (str (name k) "-style")))}
     (pref k)))
 

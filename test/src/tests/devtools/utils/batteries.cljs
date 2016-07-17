@@ -2,7 +2,7 @@
   (:require [devtools.formatters.core :as f]
             [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template]]
-            [devtools.tests.style :as style]
+            [devtools.pseudo.style :as style]
             [goog.date]
             [goog.Promise]))
 
