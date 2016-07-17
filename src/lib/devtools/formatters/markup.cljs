@@ -269,27 +269,17 @@
       (conj prefix-markup preview-markup))))
 
 (defn <more-protocols> [more-count]
-  (let [fake-protocol {:name (str "+" more-count "…")}]
+  (let [fake-protocol {:name (get-more-marker more-count)}]
     (<protocol> nil fake-protocol :protocol-more-style)))
 
-(defn <protocols-list-details> [obj protocols]
-  (let [protocols-markups (map (partial <protocol> obj) protocols)
-        wrap (fn [x] [x])]
-    (<aligned-body> (map wrap protocols-markups))))
-
 (defn <protocols-list> [obj protocols & [max-protocols]]
-  (let [max-protocols (or max-protocols (pref :max-list-protocols))
-        protocols-markups (map (partial <protocol> obj) (take max-protocols protocols))
-        more-count (- (count protocols) max-protocols)
-        more? (pos? more-count)
-        preview-markup (concat [:protocols-header-tag :protocols-list-open-symbol]
-                               (interpose :header-protocol-separator protocols-markups)
-                               (if more? [:header-protocol-separator (<more-protocols> more-count)])
-                               [:protocols-list-close-symbol])]
-    (if more?
-      (let [details-markup-fn (partial <protocols-list-details> obj protocols)]
-        (<reference-surrogate> obj preview-markup true details-markup-fn))
-      preview-markup)))
+  (let [max-count (or max-protocols (pref :max-list-protocols))
+        markups (map (partial <protocol> obj) protocols)]
+    (<list> markups max-count {:tag          :protocols-header-tag
+                               :open-symbol  :protocols-list-open-symbol
+                               :close-symbol :protocols-list-close-symbol
+                               :separator    :header-protocol-separator
+                               :more-symbol  <more-protocols>})))
 
 (defn <fields-details> [fields obj]
   (let [protocols (munging/scan-protocols obj)
