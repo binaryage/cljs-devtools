@@ -18,6 +18,8 @@
    :body-items-more-label                         "more…"
    :string-abbreviation-marker                    " … "
    :multi-arity-symbol                            "…"
+   :more-symbol                                   "…"
+   :plus-symbol                                   "+"
    :well-known-types                              #{"cljs.core/PersistentVector"
                                                     "cljs.core/PersistentArrayMap"
                                                     "cljs.core/PersistentHashSet"
@@ -212,6 +214,11 @@
    :default-envelope-tag                          "span"
    :bypass-availability-checks                    false
 
+   :list-separator                                " "
+   :list-style                                    (str "background-color:red;")
+   :list-open-symbol                              nil
+   :list-close-symbol                             nil
+
 
    ; markup tags
    :cljs-land-tag                                 [:span :cljs-land-style]
@@ -267,5 +274,6 @@
    :instance-value-tag                            [:span :instance-value-style]
    :instance-custom-printing-wrapper-tag          [:span :instance-custom-printing-wrapper-style]
    :instance-header-tag                           [:span :instance-header-style]
+   :list-tag                                      [:span :list-style]
    })
 

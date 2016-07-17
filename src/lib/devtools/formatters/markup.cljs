@@ -88,6 +88,35 @@
     [:body-tag
      (concat [:standard-ol-no-margin-tag] aligned-lines)]))
 
+(defn <list-details> [items _opts]
+  (let [wrap (fn [x] [x])]
+    (<aligned-body> (map wrap items))))
+
+(defn- get-more-marker [more-count]
+  (str (pref :plus-symbol) more-count (pref :more-symbol)))
+
+(defn <list> [items max-count & [opts]]
+  (let [items-markups (take max-count items)
+        more-count (- (count items) max-count)
+        more? (pos? more-count)
+        separator (or (:separator opts) :list-separator)
+        more-symbol (if more?
+                      (if-let [more-symbol (:more-symbol opts)]
+                        (if (fn? more-symbol)
+                          (more-symbol more-count)
+                          more-symbol)
+                        (get-more-marker more-count)))
+        preview-markup (concat [(or (:tag opts) :list-tag)
+                                (or (:open-symbol opts) :list-open-symbol)]
+                               (interpose separator items-markups)
+                               (if more? [separator more-symbol])
+                               [(or (:close-symbol opts) :list-close-symbol)])]
+    (if more?
+      (let [details-markup (:details opts)
+            default-details-fn (partial <list-details> items opts)]
+        (<reference-surrogate> nil preview-markup true (or details-markup default-details-fn)))
+      preview-markup)))
+
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn- wrap-arity [arity]
