@@ -2,16 +2,14 @@
   (:require [devtools.formatters.core :as f]
             [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template]]
-            [devtools.pseudo.style :as style]
+            [devtools.pseudo.tag :as tag]
             [goog.date]
             [goog.Promise]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
 
-(def NATIVE-REF ["span" ::style/native-reference-wrapper
-                 :native-reference-background
-                 REF])
+(def NATIVE-REF [::tag/native-reference :native-reference-background REF])
 
 (deftype SimpleType [some-field])
 

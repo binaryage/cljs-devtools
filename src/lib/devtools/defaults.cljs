@@ -211,7 +211,6 @@
    :body-post-handler                             nil
    :default-envelope-header                       "\uD83D\uDCE8"
    :default-envelope-style                        nil
-   :default-envelope-tag                          "span"
    :bypass-availability-checks                    false
 
    :list-separator                                " "
@@ -278,5 +277,6 @@
    :instance-header-tag                           [:span :instance-header-style]
    :list-tag                                      [:span :list-style]
    :instance-custom-printing-tag                  [:span :instance-custom-printing-style]
+   :default-envelope-tag                          [:span :default-envelope-style]
    })
 

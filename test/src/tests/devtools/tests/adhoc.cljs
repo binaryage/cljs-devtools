@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str want?]])                                                  ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
-            [devtools.pseudo.style :as style]
+            [devtools.pseudo.tag :as tag]
             [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
                                          remove-empty-styles pref-str]]
             [devtools.formatters.core :as f :refer [header-api-call has-body-api-call body-api-call]]
@@ -14,7 +14,7 @@
   (testing "simple deftype"
     (let [type-instance (b/SimpleType. "some-value")]
       (is-header type-instance
-        ["span" ::style/cljs-land
-         ["span" ::style/header
-          NATIVE-REF]]))))                                                                                                    ; TODO!
+        [::tag/cljs-land
+         [::tag/header
+          NATIVE-REF]]))))
 

@@ -17,7 +17,7 @@
   ([obj header]
    (envelope obj header :default-envelope-style))
   ([obj header style]
-   (envelope obj header style :default-envelope-tag))
+   (envelope obj header style :span))
   ([obj header style tag]
    (reify
      IFormat
