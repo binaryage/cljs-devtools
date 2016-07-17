@@ -159,7 +159,7 @@
         continue? (not (empty? (take 1 rest)))]
     (if-not continue?
       lines
-      (let [more-label-markup [:body-items-more-tag (pref :body-items-more-label)]
+      (let [more-label-markup [:body-items-more-tag :body-items-more-label]
             start-index (+ starting-index max-number-body-items)
             more-markup (<reference-surrogate> rest more-label-markup true nil start-index)]
         (conj lines [more-markup])))))

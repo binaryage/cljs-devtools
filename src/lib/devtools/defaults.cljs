@@ -143,7 +143,7 @@
                                                        "border-left: 2px solid rgba(100, 100, 100, 0.2);"
                                                        "padding: 0px 4px 0px 4px;"
                                                        "margin: 1px 0px 0px 0px;")
-   :body-more-style                               (str "background-color:#999;"
+   :body-items-more-style                         (str "background-color:#999;"
                                                        "min-width: 50px;"
                                                        "display: inline-block;"
                                                        "color: #fff;"

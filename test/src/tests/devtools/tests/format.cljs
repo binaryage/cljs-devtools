@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str want?]])                                                  ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
-            [devtools.pseudo.style :as style]
             [devtools.pseudo.tag :as tag]
             [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
                                          remove-empty-styles pref-str]]
@@ -76,50 +75,50 @@
 (deftest test-simple-atomic-values
   (testing "keywords"
     (is-header :keyword
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/keyword ":keyword"]]])
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/keyword ":keyword"]]])
     (is-header ::auto-namespaced-keyword
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/keyword ":devtools.tests.format/auto-namespaced-keyword"]]])
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/keyword ":devtools.tests.format/auto-namespaced-keyword"]]])
     (is-header :devtools/fully-qualified-keyword
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/keyword ":devtools/fully-qualified-keyword"]]]))
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/keyword ":devtools/fully-qualified-keyword"]]]))
   (testing "symbols"
     (is-header 'symbol
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/symbol "symbol"]]])))
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/symbol "symbol"]]])))
 
 (deftest test-strings
   (testing "short strings"
     (is-header "some short string"
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/string (str :dq "some short string" :dq)]]])
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/string (str :dq "some short string" :dq)]]])
     (is-header "line1\nline2\n\nline4"
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/string (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]]))
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/string (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]]))
   (testing "long strings"
     (is-header "123456789012345678901234567890123456789012345678901234567890"
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" ::style/string (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)])))
+          [::tag/string (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" ::style/string
+          [::tag/string
            (str
              :dq
              "1234" :new-line-string-replacer "678901234567890"
@@ -127,7 +126,7 @@
              "12345678901234" :new-line-string-replacer "67890"
              :dq)])
         (is-body ref
-          ["span" ::style/expanded-string
+          [::tag/expanded-string
            (str
              "1234" :new-line-string-replacer
              "\n6789012345678901234567890123456789012345678901234" :new-line-string-replacer
@@ -137,108 +136,108 @@
   (testing "vectors"
     (set-pref! :seqables-always-expandable false)
     (is-header [1 2 3]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         "["
-        ["span" ::style/integer 1] :spacer
-        ["span" ::style/integer 2] :spacer
-        ["span" ::style/integer 3]
+        [::tag/integer 1] :spacer
+        [::tag/integer 2] :spacer
+        [::tag/integer 3]
         "]"]])
     (is (= 5 :max-header-elements))
     (is-header [1 2 3 4 5]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         "["
-        (unroll (fn [i] [["span" ::style/integer (+ i 1)] :spacer]) (range 4))
-        ["span" ::style/integer 5]
+        (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 4))
+        [::tag/integer 5]
         "]"]])
     (reset-prefs-to-defaults!)
     (is-header [1 2 3]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]])
     (is-header [1 2 3 4 5 6]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          ["span" ::style/header
+          [::tag/header
            "["
-           (unroll (fn [i] [["span" ::style/integer (+ i 1)] :spacer]) (range 5))
+           (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
            :more-marker
            "]"])
         (has-body? ref true)
         (is-body ref
-          ["span" ::style/body
-           ["ol" ::style/standard-ol
-            (unroll (fn [i] [["li" ::style/standard-li
-                              ["span" ::style/index i :line-index-separator]
-                              ["span" ::style/item
-                               ["span" ::style/integer (+ i 1)]]]]) (range 6))]]))))
+          [::tag/body
+           [::tag/standard-ol
+            (unroll (fn [i] [[::tag/standard-li
+                              [::tag/index i :line-index-separator]
+                              [::tag/item
+                               [::tag/integer (+ i 1)]]]]) (range 6))]]))))
   (testing "ranges"
     (is (> 10 :max-header-elements))
     (is-header (range 10)
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/header
+          [::tag/header
            "("
-           (unroll (fn [i] [["span" ::style/integer i] :spacer]) (range :max-header-elements))
+           (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
            :more-marker
            ")"])))))
 
 (deftest test-continuations
   (testing "long range"
     (is-header (range (+ :max-number-body-items 1))
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/header
+          [::tag/header
            "("
-           (unroll (fn [i] [["span" ::style/integer i] :spacer]) (range :max-header-elements))
+           (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
            :more-marker
            ")"])
         (is-body ref
-          ["span" ::style/body
-           ["ol" ::style/standard-ol
-            (unroll (fn [i] [["li" ::style/standard-li
-                              ["span" ::style/index i :line-index-separator]
-                              ["span" ::style/item
-                               ["span" ::style/integer i]]]]) (range :max-number-body-items))
-            ["li" ::style/standard-li
+          [::tag/body
+           [::tag/standard-ol
+            (unroll (fn [i] [[::tag/standard-li
+                              [::tag/index i :line-index-separator]
+                              [::tag/item
+                               [::tag/integer i]]]]) (range :max-number-body-items))
+            [::tag/standard-li
              REF]]]
           (fn [ref]
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              ["span" ::style/body-items-more-label
+              [::tag/body-items-more
                :body-items-more-label])
             (is-body ref
-              ["ol" ::style/standard-ol-no-margin
-               (unroll (fn [i] [["li" ::style/standard-li-no-margin
-                                 ["span" ::style/index :max-number-body-items :line-index-separator]
-                                 ["span" ::style/item
-                                  ["span" ::style/integer (+ i :max-number-body-items)]]]]) (range 1))])))))))
+              [::tag/standard-ol-no-margin
+               (unroll (fn [i] [[::tag/standard-li-no-margin
+                                 [::tag/index :max-number-body-items :line-index-separator]
+                                 [::tag/item
+                                  [::tag/integer (+ i :max-number-body-items)]]]]) (range 1))])))))))
 
 (deftest test-printing
   (testing "max print level"
     (let [many-levels [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]]
       (has-body? many-levels false)
       (is-header many-levels
-        ["span" ::style/cljs-land
-         ["span" ::style/header
-          "[" ["span" ::style/integer 1] " "
-          "[" ["span" ::style/integer 2] " "
+        [::tag/cljs-land
+         [::tag/header
+          "[" [::tag/integer 1] " "
+          "[" [::tag/integer 2] " "
           REF
           "]"
           "]"]]
@@ -246,16 +245,16 @@
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
-            ["span" ::style/header
+            [::tag/header
              "[" :more-marker "]"]))))))
 
 #_(deftest test-deftype
-  (testing "simple deftype"
-    (let [type-instance (b/SimpleType. "some-value")]
-      (is-header type-instance
-        ["span" ::style/cljs-land
-         ["span" ::style/header
-          REF]]))))                                                                                                           ; TODO!
+    (testing "simple deftype"
+      (let [type-instance (b/SimpleType. "some-value")]
+        (is-header type-instance
+          [::tag/cljs-land
+           [::tag/header
+            REF]]))))                                                                                                         ; TODO!
 
 (deftest test-handlers
   (let [handled-output (clj->js (remove-empty-styles ["span" {"style" (pref :cljs-land-style)}
@@ -302,24 +301,24 @@
   (testing "meta is disabled"
     (set-pref! :print-meta-data false)
     (is-header (with-meta {} :meta)
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         "{" "}"]])
     (reset-prefs-to-defaults!))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
-      ["span" ::style/cljs-land
-       ["span" ::style/header
-        ["span" ::style/meta-wrapper
-         "{" "}" ["span" ::style/meta-reference-style REF]]]]
+      [::tag/cljs-land
+       [::tag/header
+        [::tag/meta-wrapper
+         "{" "}" [::tag/meta-reference REF]]]]
       (fn [ref]
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/meta "meta"])
+          [::tag/meta-header "meta"])
         (is-body ref
-          ["span" ::style/meta-body
-           ["span" ::style/header
-            ["span" ::style/keyword ":meta"]]])))))
+          [::tag/meta-body
+           [::tag/header
+            [::tag/keyword ":meta"]]])))))
 
 (deftest test-sequables
   (testing "min-sequable-count-for-expansion"
@@ -327,50 +326,50 @@
     (set-pref! :seqables-always-expandable true)
     (set-pref! :min-sequable-count-for-expansion 3)
     (is-header [1 2]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         "["
-        ["span" ::style/integer 1]
+        [::tag/integer 1]
         " "
-        ["span" ::style/integer 2]
+        [::tag/integer 2]
         "]"]])
     (is-header [1 2 3]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/header
+          [::tag/header
            "["
-           ["span" ::style/integer 1]
+           [::tag/integer 1]
            " "
-           ["span" ::style/integer 2]
+           [::tag/integer 2]
            " "
-           ["span" ::style/integer 3]
+           [::tag/integer 3]
            "]"])))
     (set-pref! :min-sequable-count-for-expansion 4)
     (is-header [1 2 3]
-      ["span" ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         "["
-        ["span" ::style/integer 1]
+        [::tag/integer 1]
         " "
-        ["span" ::style/integer 2]
+        [::tag/integer 2]
         " "
-        ["span" ::style/integer 3]
+        [::tag/integer 3]
         "]"]])
     (reset-prefs-to-defaults!)))
 
 #_(deftest test-circular-data
-  (testing "circulare data structure"
-    (let [circular-ds (atom nil)]
-      (reset! circular-ds circular-ds)
-      (is-header circular-ds
-        ["span" ::style/cljs-land
-         ["span" ::style/header
-          REF]]))))                                                                                                           ; TODO
+    (testing "circulare data structure"
+      (let [circular-ds (atom nil)]
+        (reset! circular-ds circular-ds)
+        (is-header circular-ds
+          [::tag/cljs-land
+           [::tag/header
+            REF]]))))                                                                                                         ; TODO
 
 (deftest test-function-formatting
   (testing "cljs-function?"
@@ -408,153 +407,128 @@
       (reset-prefs-to-defaults!)))
   (testing "minimal function formatting"
     (is-header b/minimal-fn
-      ["span"
-       ::style/cljs-land
-       ["span" ::style/header
-        REF]]
+      [::tag/cljs-land
+       [::tag/header REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/fn-header
-           ["span" ::style/fn-prefix
-            :lambda-icon]
-           ["span" ::style/fn-args (pref-str :args-open-symbol :args-close-symbol)]])
+          [::tag/fn-header
+           [::tag/fn-prefix :lambda-icon]
+           [::tag/fn-args (pref-str :args-open-symbol :args-close-symbol)]])
         (is-body ref
-          ["span" ::style/body
-           ["ol" ::style/standard-ol-no-margin
-            ["li" ::style/aligned-li
-             :native-icon
-             NATIVE-REF]]]))))
+          [::tag/body
+           [::tag/standard-ol-no-margin
+            [::tag/aligned-li :native-icon NATIVE-REF]]]))))
 
   (testing "cljs-lambda-multi-arity function formatting"
     (is-header b/cljs-lambda-multi-arity
-      ["span"
-       ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/fn-header
-           ["span" ::style/fn-prefix
+          [::tag/fn-header
+           [::tag/fn-prefix
             :lambda-icon]
-           ["span" ::style/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
+           [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
         (is-body ref
-          ["span" ::style/body
-           ["ol" ::style/standard-ol-no-margin
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :lambda-icon]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :lambda-icon]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol "a b" :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :lambda-icon]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             :native-icon
-             NATIVE-REF]]]))))
+          [::tag/body
+           [::tag/standard-ol-no-margin
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :lambda-icon]]
+             [::tag/fn-args (pref-str :args-open-symbol :args-close-symbol)]]
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :lambda-icon]]
+             [::tag/fn-args (pref-str :args-open-symbol "a b" :args-close-symbol)]]
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :lambda-icon]]
+             [::tag/fn-args (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
+            [::tag/aligned-li :native-icon NATIVE-REF]]]))))
   (testing "cljs-fn-multi-arity-var function formatting"
     (is-header b/cljs-fn-multi-arity-var
-      ["span"
-       ::style/cljs-land
-       ["span" ::style/header
+      [::tag/cljs-land
+       [::tag/header
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          ["span" ::style/fn-header
-           ["span" ::style/fn-prefix
-            :fn-icon
-            ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]
-           ["span" ::style/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
+          [::tag/fn-header
+           [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]
+           [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
         (is-body ref
-          ["span" ::style/body
-           ["ol" ::style/standard-ol-no-margin
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :fn-icon
-               ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol "a1" :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :fn-icon
-               ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol "a2-1 a2-2" :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :fn-icon
-               ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol "a3-1 a3-2 a3-3 a3-4" :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             ["span" ::style/fn-multi-arity-args-indent
-              ["span" ::style/fn-prefix
-               :fn-icon
-               ["span" ::style/fn-name "cljs-fn-multi-arity-var"]]]
-             ["span" ::style/fn-args (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
-            ["li" ::style/aligned-li
-             :ns-icon
-             ["span" ::style/fn-ns-name "devtools.utils.batteries"]]
-            ["li" ::style/aligned-li
-             :native-icon
-             NATIVE-REF]]])))))
+          [::tag/body
+           [::tag/standard-ol-no-margin
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]]
+             [::tag/fn-args (pref-str :args-open-symbol "a1" :args-close-symbol)]]
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]]
+             [::tag/fn-args (pref-str :args-open-symbol "a2-1 a2-2" :args-close-symbol)]]
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]]
+             [::tag/fn-args (pref-str :args-open-symbol "a3-1 a3-2 a3-3 a3-4" :args-close-symbol)]]
+            [::tag/aligned-li
+             [::tag/fn-multi-arity-args-indent
+              [::tag/fn-prefix :fn-icon
+               [::tag/fn-name "cljs-fn-multi-arity-var"]]]
+             [::tag/fn-args (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
+            [::tag/aligned-li :ns-icon [::tag/fn-ns-name "devtools.utils.batteries"]]
+            [::tag/aligned-li :native-icon NATIVE-REF]]])))))
 
 #_(deftest test-alt-printer-impl
-  (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
-    (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                        ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
-      (is-header date-map
-        ["span" ::style/cljs-land
-         ["span" ::style/header
-          "{"
-          ["span" ::style/keyword ":date"]
-          :spacer
-          "#gdate "
-          REF
-          REF
-          REF
-          "}"]]
-        (fn [ref]
-          (is-header ref
-            ["span" ::style/cljs-land
-             ["span" ::style/header
-              REF]]
-            (fn [ref]
-              (has-body? ref true)
-              (is-header ref
-                ["span" ::style/header
-                 "["
-                 ["span" ::style/integer 2016]
-                 :spacer
-                 ["span" ::style/integer 6]
-                 :spacer
-                 ["span" ::style/integer 1]
-                 "]"]))))
-        (fn [ref]
-          (is-header ref
-            ["span" ::style/cljs-land
-             ["span" ::style/header
-              "#js ["
-              ["span" ::style/string "\"test-array\""]
-              "]"]]))
-        (fn [ref]
-          (is-header ref
-            ["span" ::style/cljs-land
-             ["span" ::style/header
-              "#js "
-              "{"
-              ["span" ::style/keyword ":some-key"]
-              :spacer
-              ["span" ::style/string "\"test-js-obj\""]
-              "}"]]))))))
+    (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                         ; https://github.com/binaryage/cljs-devtools/issues/21
+      (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                      ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
+        (is-header date-map
+          [::tag/cljs-land
+           [::tag/header
+            "{"
+            [::tag/keyword ":date"]
+            :spacer
+            "#gdate "
+            REF
+            REF
+            REF
+            "}"]]
+          (fn [ref]
+            (is-header ref
+              [::tag/cljs-land
+               [::tag/header
+                REF]]
+              (fn [ref]
+                (has-body? ref true)
+                (is-header ref
+                  [::tag/header
+                   "["
+                   [::tag/integer 2016]
+                   :spacer
+                   [::tag/integer 6]
+                   :spacer
+                   [::tag/integer 1]
+                   "]"]))))
+          (fn [ref]
+            (is-header ref
+              [::tag/cljs-land
+               [::tag/header
+                "#js ["
+                [::tag/string "\"test-array\""]
+                "]"]]))
+          (fn [ref]
+            (is-header ref
+              [::tag/cljs-land
+               [::tag/header
+                "#js "
+                "{"
+                [::tag/keyword ":some-key"]
+                :spacer
+                [::tag/string "\"test-js-obj\""]
+                "}"]]))))))
