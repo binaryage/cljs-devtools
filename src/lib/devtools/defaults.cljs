@@ -56,7 +56,7 @@
    :instance-custom-printing-wrapper-style        (str "position: relative;"
                                                        "border-radius:2px;")
    :instance-custom-printing-background           #js ["span" #js {"style" (p/get-custom-printing-background)} ""]
-   :instance-type-header-background               #js ["span" #js {"style" (p/get-instance-type-header-background)} ""]
+   :type-header-background                        #js ["span" #js {"style" (p/get-instance-type-header-background)} ""]
    :instance-type-header-style                    (str (p/get-common-type-header-style)
                                                        "border-radius: 2px 0 0 2px;")
    :instance-body-fields-table-style              (str "border-spacing: 0;"
@@ -80,14 +80,15 @@
                                                        "position: relative;"
                                                        "margin-bottom: -3px;"
                                                        "top: -3px;")
-   :type-wrapper                                  (str "position: relative;"
+   :type-wrapper-style                            (str "position: relative;"
                                                        "border-radius:2px;")
    :type-ref-style                                (str "position:relative;")
    :type-header-style                             (str (p/get-common-type-header-style)
                                                        "border-radius: 2px;")
    :type-name-style                               (str "padding-right: 4px;")
-   :type-basis-style                              (str "color: #228;"
-                                                       "margin-right:3px;")
+   :type-basis-style                              (str "margin-right:3px;")
+   :type-basis-item-style                         (str "color: #228;"
+                                                       "margin-right: 6px;")
    :protocol-background                           #js ["span" #js {"style" (p/get-protocol-background)} ""]
    :protocol-name-style                           (str "position: relative;")
    :fast-protocol-style                           (str (p/get-common-protocol-style)
@@ -242,5 +243,10 @@
    :fn-header-tag                                 [:span :fn-header-style]
    :fn-multi-arity-args-indent-tag                [:span :fn-multi-arity-args-indent-style]
    :fn-ns-name-tag                                [:span :fn-ns-name-style]
+   :type-wrapper-tag                              [:span :type-wrapper-style]
+   :type-name-tag                                 [:span :type-name-style]
+   :type-ref-tag                                  [:span :type-ref-style]
+   :type-basis-tag                                [:span :type-basis-style]
+   :type-basis-item-tag                           [:span :type-basis-item-style]
    })
 

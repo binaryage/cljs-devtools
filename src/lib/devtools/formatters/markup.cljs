@@ -1,9 +1,10 @@
 (ns devtools.formatters.markup
   (:refer-clojure :exclude [keyword symbol meta])
   (:require [cljs.pprint]
-            [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string]]
+            [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type?]]
             [devtools.formatters.printing :refer [managed-pr-str]]
-            [devtools.munging :as munging]))
+            [devtools.munging :as munging]
+            [clojure.string :as string]))
 
 ; reusable hiccup-like templates
 
@@ -132,6 +133,31 @@
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
+(defn <type-basis-item> [basis-item]
+  [:type-basis-item-tag (name basis-item)])
+
+(defn <type-basis> [basis]
+  (let [item-markups (map <type-basis-item> basis)
+        children-markups (interpose :type-basis-item-separator item-markups)]
+    (concat [:type-basis-tag] children-markups)))
+
+(defn <type-details> [constructor-fn ns _name basis]
+  (let [ns-markup (if-not (empty? ns) [:ns-icon [:fn-ns-name-tag ns]])
+        basis-markup (if-not (empty? basis) [:basis-icon (<type-basis> basis)])
+        native-markup [:native-icon (<native-reference> constructor-fn)]]
+    (<aligned-body> [basis-markup ns-markup native-markup])))
+
+(defn <type> [constructor-fn & [header-style]]
+  (let [[ns name basis] (munging/parse-constructor-info constructor-fn)
+        name-markup [:type-name-tag name]
+        preview-markup [[:span (or header-style :type-header-style)] :type-symbol name-markup]
+        details-markup-fn (partial <type-details> constructor-fn ns name basis)]
+    [:type-wrapper-tag
+     :type-header-background
+     [:type-ref-tag (<reference-surrogate> constructor-fn preview-markup true details-markup-fn)]]))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
 (defn <standard-body> [lines & [no-margin?]]
   (let [ol-tag (if no-margin? :standard-ol-no-margin-tag :standard-ol-tag)
         li-tag (if no-margin? :standard-li-no-margin-tag :standard-li-tag)]
@@ -183,7 +209,7 @@
     (keyword? value) (<keyword> value)
     (symbol? value) (<symbol> value)
     ;(and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (cljs-instance-template value)
-    ;(cljs-type? value) (cljs-type-template value)
+    (cljs-type? value) (<type> value)
     (cljs-function? value) (<function> value)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
