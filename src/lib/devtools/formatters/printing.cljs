@@ -9,30 +9,12 @@
                                                is-circular?]]
             [devtools.formatters.helpers :refer [cljs-value?]]))
 
-(defn build-markup [markup-fns fn-key & args]
-  (let [f (get markup-fns fn-key)]
-    (assert f (str "missing markup method in opts: " fn-key))
-    (apply f args)))
-
-; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
+; -- helpers ----------------------------------------------------------------------------------------------------------------
 
 (defn wrap-value-as-reference-if-needed [value]
   (if (cljs-value? value)
     (make-reference value)
     value))
-
-(deftype TemplateWriter [group]
-  Object
-  (merge [_ a] (.apply (.-push group) group a))
-  (get-group [_] group)
-  IWriter
-  (-write [_ o] (.push group (wrap-value-as-reference-if-needed o)))
-  (-flush [_] nil))
-
-(defn make-template-writer []
-  (TemplateWriter. (make-group)))
-
-; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
 
 (defn abbreviated? [template]
   (some #(= (pref :more-marker) %) template))
@@ -46,6 +28,26 @@
     (pref :seqables-always-expandable)
     (seqable? obj)
     (seq-count-is-greater-or-equal? obj (pref :min-sequable-count-for-expansion))))
+
+(defn build-markup [markup-fns fn-key & args]
+  (let [f (get markup-fns fn-key)]
+    (assert f (str "missing markup method in opts: " fn-key))
+    (apply f args)))
+
+; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
+
+(deftype TemplateWriter [group]
+  Object
+  (merge [_ a] (.apply (.-push group) group a))
+  (get-group [_] group)
+  IWriter
+  (-write [_ o] (.push group (wrap-value-as-reference-if-needed o)))                                                          ; issue #21
+  (-flush [_] nil))
+
+(defn make-template-writer []
+  (TemplateWriter. (make-group)))
+
+; -- post-processing --------------------------------------------------------------------------------------------------------
 
 (defn wrap-group-in-reference-if-needed [group obj markup]
   (if (or (expandable? obj) (abbreviated? group))
@@ -86,16 +88,14 @@
 
     :else group))
 
-;(defn wrap-value-as-reference-if-needed [value markup]
-;  (if (or (string? value) (template? value) (group? value))
-;    value
-;    (render-json-ml (build-markup markup :reference value))))
-;
-;(defn wrap-group-values-as-references-if-needed [group markup]
-;  (let [result (make-group)]
-;    (doseq [value group]
-;      (.push result (wrap-value-as-reference-if-needed value markup)))
-;    result))
+(defn post-process-printed-output [output-group obj markup circular?]
+  (-> output-group
+      (detect-edge-case-and-patch-it obj markup)                                                                              ; an ugly hack
+      (wrap-group-in-reference-if-needed obj markup)
+      (wrap-group-in-circular-warning-if-needed markup circular?)
+      (wrap-group-in-meta-if-needed obj markup)))
+
+; -- alternative printer ----------------------------------------------------------------------------------------------------
 
 (defn alt-printer-job [obj writer opts]
   (let [{:keys [markup-fns]} opts]
@@ -109,14 +109,6 @@
               inner-opts (if (= *print-level* 1) (assoc opts :print-length 0) opts)]
           (default-impl obj writer inner-opts))))))
 
-(defn post-process-printed-output [output-group obj markup circular?]
-  (-> output-group
-      (detect-edge-case-and-patch-it obj markup)                                                                              ; an ugly hack
-      ;(wrap-group-values-as-references-if-needed markup)                                                                      ; issue #21
-      (wrap-group-in-reference-if-needed obj markup)
-      (wrap-group-in-circular-warning-if-needed markup circular?)
-      (wrap-group-in-meta-if-needed obj markup)))
-
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
     (let [circular? (is-circular? obj)
@@ -126,9 +118,11 @@
       (alt-printer-job obj inner-writer opts)
       (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-fns circular?)))))
 
+; -- common code for managed printing ---------------------------------------------------------------------------------------
+
 (defn managed-print [tag markup-fns printer]
-  (let [tag (pref tag)
-        template (make-template (first tag) (second tag))
+  (let [resolved-tag (pref tag)
+        template (make-template (first resolved-tag) (second resolved-tag))
         writer (TemplateWriter. template)
         opts {:alt-impl     alt-printer-impl
               :markup-fns   markup-fns
@@ -137,9 +131,11 @@
     (printer writer opts)
     template))
 
+; -- public printing API ----------------------------------------------------------------------------------------------------
+
 (defn managed-print-via-writer [value tag markup-fns]
   (managed-print tag markup-fns (fn [writer opts]
-                                  (pr-seq-writer [value] writer opts))))
+                                  (pr-seq-writer [value] writer opts))))                                                      ; note we use pr-seq-writer becasue pr-writer is private for some reason
 
 (defn managed-print-via-protocol [value tag markup-fns]
   (managed-print tag markup-fns (fn [writer opts]
