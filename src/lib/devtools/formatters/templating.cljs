@@ -1,8 +1,10 @@
 (ns devtools.formatters.templating
   (:require [cljs.pprint]
+            [clojure.walk :refer [prewalk]]
             [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
-            [devtools.formatters.helpers :refer [pref]]))
+            [devtools.formatters.helpers :refer [pref]]
+            [clojure.string :as string]))
 
 ; -- object marking support -------------------------------------------------------------------------------------------------
 
@@ -97,40 +99,79 @@
 ; [[tag style] child1 child2 ...] -> #js [tag #js {"style" ...} child1 child2 ...]
 ;
 
-(declare render-json-ml)
+(declare render-json-ml*)
 
-(def ^:dynamic *current-markup* nil)
+(def ^:dynamic *current-render-stack* [])
+(def ^:dynamic *current-render-path* [])
 
 (defn pprint-str [markup]
   (with-out-str
-    (cljs.pprint/pprint markup)))
+    (binding [*print-level* 300]
+      (cljs.pprint/pprint markup))))
+
+(defn print-preview [markup]
+  (binding [*print-level* 1]
+    (pr-str markup)))
+
+(defn add-stack-separators [stack]
+  (interpose "-------------" stack))
+
+(defn replace-fns-with-markers [stack]
+  (let [f (fn [v]
+            (if (fn? v)
+              "##fn##"
+              v))]
+    (prewalk f stack)))
+
+(defn pprint-render-calls [stack]
+  (map pprint-str stack))
+
+(defn pprint-render-stack [stack]
+  (string/join "\n" (-> stack
+                        reverse
+                        replace-fns-with-markers
+                        pprint-render-calls
+                        add-stack-separators)))
+
+(defn pprint-render-path [path]
+  (pprint-str path))
 
 (defn assert-markup-error [msg]
-  (assert false (str msg "\n" (pprint-str *current-markup*))))
+  (assert false (str msg "\n"
+                     "Render path: " (pprint-render-path *current-render-path*) "\n"
+                     "Render stack:\n"
+                     (pprint-render-stack *current-render-stack*))))
+
+(defn surrogate-markup? [markup]
+  (and (sequential? markup) (= (first markup) "surrogate")))
 
 (defn render-special [name args]
   (case name
     "surrogate" (let [obj (first args)
-                      converted-args (map render-json-ml (rest args))]
+                      converted-args (map render-json-ml* (rest args))]
                   (apply make-surrogate (concat [obj] converted-args)))
-    "reference" (apply make-reference (map render-json-ml args))
+    "reference" (let [obj (first args)
+                      converted-obj (if (surrogate-markup? obj) (render-json-ml* obj) obj)]
+                  (apply make-reference (concat [converted-obj] (rest args))))
     (assert-markup-error (str "no matching special tag name: '" name "'"))))
 
 (defn render-subtree [tag children]
   (let [[html-tag style] tag]
-    (apply make-template html-tag style (map render-json-ml (keep pref children)))))
+    (apply make-template html-tag style (map render-json-ml* (keep pref children)))))
 
 (defn render-json-ml* [markup]
   (if-not (sequential? markup)
     markup
-    (let [tag (pref (first markup))]
-      (cond
-        (string? tag) (render-special tag (rest markup))
-        (sequential? tag) (render-subtree tag (rest markup))
-        :else (assert-markup-error (str "invalid json-ml markup at\n " (pprint-str markup) "\n"))))))
+    (binding [*current-render-path* (conj *current-render-path* (first markup))]
+      (let [tag (pref (first markup))]
+        (cond
+          (string? tag) (render-special tag (rest markup))
+          (sequential? tag) (render-subtree tag (rest markup))
+          :else (assert-markup-error (str "invalid json-ml markup at " (print-preview markup) ":")))))))
 
 (defn render-json-ml [markup]
-  (binding [*current-markup* markup]
+  (binding [*current-render-stack* (conj *current-render-stack* markup)
+            *current-render-path* (conj *current-render-path* "<render-json-ml>")]
     (render-json-ml* markup)))
 
 ; -- template rendering -----------------------------------------------------------------------------------------------------
