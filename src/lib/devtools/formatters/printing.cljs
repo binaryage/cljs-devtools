@@ -135,3 +135,13 @@
                                      :print-length (pref :max-header-elements)
                                      :more-marker  (pref :more-marker)}))
     tmpl))
+
+(defn managed-print-via-protocol [value style markup-fns]
+  (let [tmpl (make-template :span style)
+        writer (TemplateWriter. tmpl)]
+    (-pr-writer value writer {:alt-impl     alt-printer-impl
+                              :markup-fns   markup-fns
+                              :print-length (pref :max-header-elements)
+                              :more-marker  (pref :more-marker)})
+    tmpl))
+
