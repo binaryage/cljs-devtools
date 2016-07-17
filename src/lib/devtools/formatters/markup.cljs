@@ -9,7 +9,7 @@
 
 ; reusable hiccup-like templates
 
-(declare markup-map)
+(declare get-markup-map)
 
 (defn <surrogate> [& args]
   (concat ["surrogate"] args))
@@ -21,7 +21,7 @@
   (<reference> (apply <surrogate> args)))
 
 (defn <preview> [value]
-  (managed-pr-str value :header-style (pref :max-print-level) markup-map))
+  (managed-pr-str value :header-style (pref :max-print-level) (get-markup-map)))
 
 (defn <cljs-land> [& children]
   (concat [:cljs-land-tag] children))
@@ -279,7 +279,7 @@
         custom-printing-markup (if custom-printing?
                                  [:instance-custom-printing-wrapper-tag
                                   :instance-custom-printing-background
-                                  (managed-print-via-protocol value :instance-custom-printing-style markup-map)])
+                                  (managed-print-via-protocol value :instance-custom-printing-style (get-markup-map))])
         preview-markup [:instance-header-tag
                         type-template
                         :instance-value-separator
@@ -295,7 +295,7 @@
     (concat [ol-tag] (map #(concat [li-tag] %) lines))))
 
 (defn- body-line [index value]
-  [(<index> index) (managed-pr-str value :item-style (pref :body-line-max-print-level) markup-map)])
+  [(<index> index) (managed-pr-str value :item-style (pref :body-line-max-print-level) (get-markup-map))])
 
 (defn- prepare-body-lines [data starting-index]
   (loop [work data
@@ -345,12 +345,19 @@
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
-(def markup-map
-  {:atomic              <atomic>
-   :reference           <reference>
-   :surrogate           <surrogate>
-   :reference-surrogate <reference-surrogate>
-   :circular-reference  <circular-reference>
-   :native-reference    <native-reference>
-   :meta                <meta>
-   :meta-wrapper        <meta-wrapper>})
+(def ^:dynamic *markup-map* nil)
+
+; emit-markup-map macro will generate a map of all <functions> in this namespace:
+;
+;    {:atomic              <atomic>
+;     :reference           <reference>
+;     :native-reference    <native-reference>
+;     ...}
+;
+; we generate it only on first call and cache it in *markup-map*
+; emitting markup map statically into def would prevent dead-code elimination
+;
+(defn get-markup-map []
+  (if (nil? *markup-map*)
+    (set! *markup-map* (emit-markup-map)))
+  *markup-map*)
