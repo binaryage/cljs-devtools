@@ -48,8 +48,8 @@
    :body-field-td2-style                          (str "vertical-align: top;"
                                                        "padding:0;")
    :more-fields-symbol                            "…"
-   :instance-header-style                         (str "box-shadow:0px 0px 0px 1px " (p/get-type-color 0.5) " inset;"
-                                                       "border-radius: 2px;")
+   :instance-header-style                         (str (p/type-outline-style))
+   :standalone-type-style                         (str (p/type-outline-style))
    :instance-value-separator                      ""
    :instance-custom-printing-style                (str "position: relative;"
                                                        "padding: 0 2px 0 4px;")
@@ -248,6 +248,7 @@
    :type-ref-tag                                  [:span :type-ref-style]
    :type-basis-tag                                [:span :type-basis-style]
    :type-basis-item-tag                           [:span :type-basis-item-style]
+   :standalone-type-tag                           [:span :standalone-type-style]
    :header-field-tag                              [:span :header-field-style]
    :header-field-name-tag                         [:span :header-field-name-style]
    :header-field-value-tag                        [:span :header-field-value-style]

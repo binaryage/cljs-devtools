@@ -167,3 +167,7 @@
 (defmacro icon [label & [color slim?]]
   `(cljs.core/array "span" (cljs.core/js-obj "style" (symbol-style (or ~color "#000") ~slim?)) ~label))
 
+(defmacro type-outline-style []
+  `(str "box-shadow:0px 0px 0px 1px " (get-type-color 0.5) " inset;"
+        "border-radius: 2px;"))
+

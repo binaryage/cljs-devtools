@@ -157,6 +157,9 @@
      :type-header-background
      [:type-ref-tag (<reference-surrogate> constructor-fn preview-markup true details-markup-fn)]]))
 
+(defn <standalone-type> [constructor-fn & [header-style]]
+  [:standalone-type-tag (<type> constructor-fn header-style)])
+
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn- fetch-field-value [obj field]
@@ -340,7 +343,7 @@
     (keyword? value) (<keyword> value)
     (symbol? value) (<symbol> value)
     (and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (<instance> value)
-    (cljs-type? value) (<type> value)
+    (cljs-type? value) (<standalone-type> value)
     (cljs-function? value) (<function> value)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
