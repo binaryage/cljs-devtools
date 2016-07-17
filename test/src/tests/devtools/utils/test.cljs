@@ -74,13 +74,26 @@
   (and (object? o) (not (coll? o))))
 
 (defn resolve-keyword [k]
-  ; we have a convention to convert :devtools.tests.style/something to {"style" :something-style}
+  ; we have a convention to convert :devtools.pseudo.style/something to {"style" :something-style}
   (if (= (namespace k) "devtools.pseudo.style")
     {"style" (pref (keyword (str (name k) "-style")))}
     (pref k)))
 
 (defn resolve-prefs [v]
   (postwalk #(if (keyword? %) (resolve-keyword %) %) v))
+
+(defn resolve-tag [v]
+  (let [k (first v)]
+    ; we have a convention to convert :devtools.pseudo.style/something to :something-tag and splat it in-place
+    (if (and (keyword? k) (= (namespace k) "devtools.pseudo.tag"))
+      (let [resolved-tag (pref (keyword (str (name k) "-tag")))]
+        (assert (sequential? resolved-tag) (str k " expected to resolve to a sequence, got " resolved-tag " instead\n" v))
+        (assert (= 2 (count resolved-tag)))
+        (concat [(first resolved-tag) {"style" (second resolved-tag)}] (rest v)))
+      v)))
+
+(defn resolve-tags [v]
+  (postwalk #(if (sequential? %) (resolve-tag %) %) v))
 
 (defn remove-empty-styles [v]
   (let [empty-style-remover (fn [x]
@@ -107,6 +120,7 @@
         refs (collect-refs template)
         expected-template (-> expected
                               (unroll-fns)
+                              (resolve-tags)
                               (resolve-prefs)
                               (remove-empty-styles)
                               (clj->js))]
