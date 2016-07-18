@@ -52,6 +52,7 @@
   (concat [:cljs-land-tag] children))
 
 (defn <nil> []
+  ; this code is duplicated in templating.cljs, see make-reference
   [:nil-tag :nil-label])
 
 (defn <bool> [bool]

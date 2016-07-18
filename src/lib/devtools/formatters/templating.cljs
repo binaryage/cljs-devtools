@@ -93,10 +93,9 @@
 
 (defn make-reference [object & [state-override]]
   (if (nil? object)
-    (make-template :span :nil-style :nil-label)                                                                               ; TODO: use (render-json-ml (reusables/nil-markup))
-    (let [sub-state (-> (get-current-state)
-                        (merge state-override)
-                        #_(update :history conj ::reference))]
+    ; this code is duplicated in markup.cljs <nil>
+    (make-template :span :nil-style :nil-label)
+    (let [sub-state (merge (get-current-state) state-override)]
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
