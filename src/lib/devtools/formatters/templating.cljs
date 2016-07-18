@@ -4,6 +4,7 @@
             [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.helpers :refer [pref]]
+            [devtools.formatters.state :refer [get-current-state]]
             [clojure.string :as string]))
 
 ; -- object marking support -------------------------------------------------------------------------------------------------
@@ -89,10 +90,6 @@
 
 (defn get-surrogate-start-index [value]
   (oget value "startIndex"))
-
-; TODO: rewire this
-(defn get-current-state []
-  (ocall (oget js/window "devtools" "formatters" "state") "get_current_state"))
 
 (defn make-reference [object & [state-override]]
   (if (nil? object)
