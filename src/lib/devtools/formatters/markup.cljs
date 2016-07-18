@@ -1,32 +1,15 @@
 (ns devtools.formatters.markup
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]]
                    [devtools.formatters.markup :refer [emit-markup-map]])
-  (:require [cljs.pprint]
-            [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
-                                                 instance-of-a-well-known-type? get-constructor]]
+  (:require [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
+                                                 instance-of-a-well-known-type? get-constructor
+                                                 get-more-marker wrap-arity fetch-fields-values]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
             [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
 
 (declare get-markup-map)
-
-; -- helpers ----------------------------------------------------------------------------------------------------------------
-; TODO: move these into helpers namespace
-
-(defn- get-more-marker [more-count]
-  (str (pref :plus-symbol) more-count (pref :more-symbol)))
-
-(defn- wrap-arity [arity]
-  (let [args-open-symbol (pref :args-open-symbol)
-        args-close-symbol (pref :args-close-symbol)]
-    (str args-open-symbol arity args-close-symbol)))
-
-(defn- fetch-field-value [obj field]
-  [field (oget obj (munge field))])
-
-(defn- fetch-fields-values [obj fields]
-  (map (partial fetch-field-value obj) fields))
 
 ; -- cljs printing  ---------------------------------------------------------------------------------------------------------
 

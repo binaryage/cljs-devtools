@@ -72,3 +72,18 @@
   (let [prefix (apply str (take prefix-limit string))
         postfix (apply str (take-last postfix-limit string))]
     (str prefix marker postfix)))
+
+(defn get-more-marker [more-count]
+  (str (pref :plus-symbol) more-count (pref :more-symbol)))
+
+(defn wrap-arity [arity]
+  (let [args-open-symbol (pref :args-open-symbol)
+        args-close-symbol (pref :args-close-symbol)]
+    (str args-open-symbol arity args-close-symbol)))
+
+(defn fetch-field-value [obj field]
+  [field (oget obj (munge field))])
+
+(defn fetch-fields-values [obj fields]
+  (map (partial fetch-field-value obj) fields))
+
