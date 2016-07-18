@@ -7,7 +7,8 @@
             [goog.object :as gobj]
             [devtools.util :refer-macros [oset oget]]
             [devtools.formatters.core :as f]
-            [devtools.prefs :refer [pref set-prefs!]]
+            [devtools.formatters.templating :refer [render-markup]]
+            [devtools.prefs :refer [set-prefs!]]
             [devtools.defaults :as defaults]))
 
 (defn reset-prefs-to-defaults! []
@@ -73,11 +74,22 @@
 (defn plain-js-obj? [o]
   (and (object? o) (not (coll? o))))
 
+(defn pref [value]
+  (if (keyword? value)
+    (recur (devtools.prefs/pref value))
+    value))
+
+(defn resolve-pref-and-render-markup [value]
+  (let [resolved-value (pref value)]
+    (if (sequential? resolved-value)
+      (render-markup resolved-value)
+      resolved-value)))
+
 (defn resolve-keyword [k]
   ; we have a convention to convert :devtools.pseudo.style/something to {"style" :something-style}
   (if (= (namespace k) "devtools.pseudo.style")
     {"style" (pref (keyword (str (name k) "-style")))}
-    (pref k)))
+    (resolve-pref-and-render-markup k)))
 
 (defn resolve-prefs [v]
   (postwalk #(if (keyword? %) (resolve-keyword %) %) v))
