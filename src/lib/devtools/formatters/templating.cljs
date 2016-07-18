@@ -49,7 +49,9 @@
   [tag style & children]
   (let [tag (pref tag)
         style (pref style)
-        template (mark-as-template! #js [tag (if (empty? style) #js {} #js {"style" style})])]
+        template (mark-as-template! #js [tag (if (empty? style)
+                                               #js {}
+                                               #js {"style" style})])]
     (doseq [child children]
       (if (some? child)
         (if (coll? child)
