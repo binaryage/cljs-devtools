@@ -67,13 +67,13 @@
 (defn make-surrogate
   ([object header] (make-surrogate object header true))
   ([object header has-body] (make-surrogate object header has-body nil))
-  ([object header has-body body-template] (make-surrogate object header has-body body-template nil))
-  ([object header has-body body-template start-index]
+  ([object header has-body body] (make-surrogate object header has-body body nil))
+  ([object header has-body body start-index]
    (mark-as-surrogate! (js-obj
                          "target" object
                          "header" header
                          "hasBody" has-body
-                         "bodyTemplate" body-template
+                         "body" body
                          "startIndex" (or start-index 0)))))
 
 (defn get-surrogate-target [value]
@@ -86,7 +86,7 @@
   (oget value "hasBody"))
 
 (defn get-surrogate-body [value]
-  (oget value "bodyTemplate"))
+  (oget value "body"))
 
 (defn get-surrogate-start-index [value]
   (oget value "startIndex"))
