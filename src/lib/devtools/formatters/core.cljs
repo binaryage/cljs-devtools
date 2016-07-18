@@ -3,10 +3,10 @@
   (:require [devtools.prefs :refer [pref]]
             [devtools.format :refer [IDevtoolsFormat]]
             [devtools.protocols :refer [IFormat]]
-            [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-has-body get-surrogate-header]]
+            [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-body get-surrogate-target]]
             [devtools.formatters.helpers :refer [cljs-value?]]
             [devtools.formatters.state :refer [prevent-recursion? *current-state* get-current-state]]
-            [devtools.formatters.markup :refer [<header> <surrogate-body>]]))
+            [devtools.formatters.markup :refer [<header> <surrogate-header> <surrogate-body>]]))
 
 ; -- RAW API ----------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@
 
 (defn header* [value]
   (cond
-    (surrogate? value) (render-markup (get-surrogate-header value))
+    (surrogate? value) (render-markup (<surrogate-header> value))
     (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-header value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-header value)
     :else (render-markup (<header> value))))
@@ -25,7 +25,7 @@
   ; note: body is emulated using surrogate references
   (boolean
     (cond
-      (surrogate? value) (get-surrogate-has-body value)
+      (surrogate? value) (some? (get-surrogate-body value))
       (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-has-body value)
       (safe-call satisfies? false IFormat value) (devtools.protocols/-has-body value)
       :else false)))
@@ -35,6 +35,7 @@
     (surrogate? value) (render-markup (<surrogate-body> value))
     (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-body value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-body value)))
+
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 ; RAW API config-aware, see state management documentation state.cljs

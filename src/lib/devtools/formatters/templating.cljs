@@ -3,8 +3,8 @@
             [clojure.walk :refer [prewalk]]
             [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
-            [devtools.formatters.helpers :refer [pref]]
-            [devtools.formatters.state :refer [get-current-state]]
+            [devtools.formatters.helpers :refer [pref cljs-value?]]
+            [devtools.formatters.state :refer [get-current-state prevent-recursion?]]
             [clojure.string :as string]))
 
 ; -- object marking support -------------------------------------------------------------------------------------------------
@@ -65,31 +65,33 @@
   (concat-templates! template args))
 
 (defn make-surrogate
-  ([object header] (make-surrogate object header true))
-  ([object header has-body] (make-surrogate object header has-body nil))
-  ([object header has-body body] (make-surrogate object header has-body body nil))
-  ([object header has-body body start-index]
+  ; passing :target as body means that targt object body should be rendered using standard templates
+  ; see <surrogate-body> in markup.cljs
+  ([object] (make-surrogate object nil))
+  ([object header] (make-surrogate object header nil))
+  ([object header body] (make-surrogate object header body 0))
+  ([object header body start-index]
    (mark-as-surrogate! (js-obj
                          "target" object
                          "header" header
-                         "hasBody" has-body
                          "body" body
                          "startIndex" (or start-index 0)))))
 
-(defn get-surrogate-target [value]
-  (oget value "target"))
+(defn get-surrogate-target [surrogate]
+  {:pre [(surrogate? surrogate)]}
+  (oget surrogate "target"))
 
-(defn get-surrogate-header [value]
-  (oget value "header"))
+(defn get-surrogate-header [surrogate]
+  {:pre [(surrogate? surrogate)]}
+  (oget surrogate "header"))
 
-(defn get-surrogate-has-body [value]
-  (oget value "hasBody"))
+(defn get-surrogate-body [surrogate]
+  {:pre [(surrogate? surrogate)]}
+  (oget surrogate "body"))
 
-(defn get-surrogate-body [value]
-  (oget value "body"))
-
-(defn get-surrogate-start-index [value]
-  (oget value "startIndex"))
+(defn get-surrogate-start-index [surrogate]
+  {:pre [(surrogate? surrogate)]}
+  (oget surrogate "startIndex"))
 
 (defn make-reference [object & [state-override]]
   (if (nil? object)
@@ -184,8 +186,8 @@
 ; -- template rendering -----------------------------------------------------------------------------------------------------
 
 (defn ^:dynamic assert-failed-markup-rendering [initial-value value]
-  (assert false (str "result of markup rendering must be a template,"
-                     "resolved to " (pprint-str value) " instead.\n"
+  (assert false (str "result of markup rendering must be a template,\n"
+                     "resolved to " (pprint-str value)
                      "initial value: " (pprint-str initial-value))))
 
 (defn render-markup* [initial-value value]
@@ -193,6 +195,8 @@
     (fn? value) (recur initial-value (value))
     (sequential? value) (recur initial-value (render-json-ml value))
     (template? value) value
+    (surrogate? value) value
+    (reference? value) value
     :else (assert-failed-markup-rendering initial-value value)))
 
 (defn render-markup [value]

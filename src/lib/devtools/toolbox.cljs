@@ -1,8 +1,8 @@
 (ns devtools.toolbox
   (:require [devtools.protocols :refer [IFormat]]
-            [devtools.formatters.templating :refer [make-template make-surrogate]]
+            [devtools.formatters.templating :refer [make-template]]
             [devtools.formatters.templating :refer [render-markup]]
-            [devtools.formatters.markup :refer [<preview> <standard-body-reference>]]))
+            [devtools.formatters.markup :refer [<preview> <standard-body-reference> <surrogate>]]))
 
 ; TODO: convert envelope to use new markup apis
 
@@ -37,4 +37,5 @@
   See https://github.com/binaryage/cljs-devtools/issues/17
   "
   [obj]
-  (make-surrogate obj (<preview> obj) false))
+  (render-markup (<surrogate> obj)))
+

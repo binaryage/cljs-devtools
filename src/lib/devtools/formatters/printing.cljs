@@ -51,7 +51,9 @@
 
 (defn wrap-group-in-reference-if-needed [group obj markup]
   (if (or (expandable? obj) (abbreviated? group))
-    (make-group (render-json-ml (build-markup markup :reference-surrogate obj (concat-templates! (make-template :span :header-style) group))))
+    (let [header-template (concat-templates! (make-template :span :header-style) group)
+          markup (build-markup markup :reference-surrogate obj header-template :target)]
+      (make-group (render-json-ml markup)))
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group markup circular?]

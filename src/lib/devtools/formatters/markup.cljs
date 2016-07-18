@@ -6,7 +6,7 @@
                                                  get-more-marker wrap-arity fetch-fields-values]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
             [devtools.formatters.templating :refer [get-surrogate-body get-surrogate-target get-surrogate-start-index
-                                                    get-surrogate-header get-surrogate-has-body]]
+                                                    get-surrogate-header]]
             [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
@@ -87,7 +87,7 @@
             abbreviated-string-markup [:string-tag (quote-string abbreviated-string)]
             string-with-nl-markers (.replace string re-nl (str nl-marker "\n"))
             details-markup [:expanded-string-tag string-with-nl-markers]]
-        (<reference-surrogate> string abbreviated-string-markup true details-markup))
+        (<reference-surrogate> string abbreviated-string-markup details-markup))
       [:string-tag (quote-string inline-string)])))
 
 ; -- generic preview markup -------------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@
       lines
       (let [more-label-markup [:body-items-more-tag :body-items-more-label]
             start-index (+ starting-index max-number-body-items)
-            more-markup (<reference-surrogate> rest more-label-markup true nil start-index)]
+            more-markup (<reference-surrogate> rest more-label-markup :target start-index)]
         (conj lines [more-markup])))))
 
 (defn <details> [value starting-index]
@@ -181,7 +181,7 @@
     (if more?
       (let [details-markup (:details opts)
             default-details-fn (partial <list-details> items opts)]
-        (<reference-surrogate> nil preview-markup true (or details-markup default-details-fn)))
+        (<reference-surrogate> nil preview-markup (or details-markup default-details-fn)))
       preview-markup)))
 
 ; -- mete-related markup ----------------------------------------------------------------------------------------------------
@@ -189,7 +189,7 @@
 (defn <meta> [metadata]
   (let [body [:meta-body-tag (<preview> metadata)]
         header [:meta-header-tag "meta"]]
-    [:meta-reference-tag (<reference-surrogate> metadata header true body)]))
+    [:meta-reference-tag (<reference-surrogate> metadata header body)]))
 
 (defn <meta-wrapper> [metadata & children]
   (concat [:meta-wrapper-tag] children [(<meta> metadata)]))
@@ -227,7 +227,7 @@
         prefix-markup [:fn-prefix-tag icon-markup name-markup]
         preview-markup [:fn-header-tag prefix-markup arities-markup]
         details-fn (partial <function-details> fn-obj ns name arities prefix-markup)]
-    (<reference-surrogate> fn-obj preview-markup true details-fn)))
+    (<reference-surrogate> fn-obj preview-markup details-fn)))
 
 ; -- type markup ------------------------------------------------------------------------------------------------------------
 
@@ -252,7 +252,7 @@
         details-markup-fn (partial <type-details> constructor-fn ns name basis)]
     [:type-wrapper-tag
      :type-header-background
-     [:type-ref-tag (<reference-surrogate> constructor-fn preview-markup true details-markup-fn)]]))
+     [:type-ref-tag (<reference-surrogate> constructor-fn preview-markup details-markup-fn)]]))
 
 (defn <standalone-type> [constructor-fn & [header-style]]
   [:standalone-type-tag (<type> constructor-fn header-style)])
@@ -275,7 +275,7 @@
                                [:protocol-method-arities-header-close-symbol])]
     (if more?
       (let [details-markup-fn (partial <protocol-method-arities-details> fns)]
-        (<reference-surrogate> nil preview-markup true details-markup-fn))
+        (<reference-surrogate> nil preview-markup details-markup-fn))
       preview-markup)))
 
 (defn <protocol-method> [name arities]
@@ -299,7 +299,7 @@
         prefix-markup [[:span (if fast? :fast-protocol-style :slow-protocol-style)] :protocol-background]]
     (if (some? obj)
       (let [details-markup-fn (partial <protocol-details> obj ns name selector fast?)]
-        (conj prefix-markup (<reference-surrogate> obj preview-markup true details-markup-fn)))
+        (conj prefix-markup (<reference-surrogate> obj preview-markup details-markup-fn)))
       (conj prefix-markup preview-markup))))
 
 (defn <more-protocols> [more-count]
@@ -362,7 +362,7 @@
         fields (fetch-fields-values value basis)
         fields-markup (<fields> fields (if custom-printing? 0))                                                               ; TODO: handle no fields properly
         fields-details-markup-fn #(<fields-details> fields value)
-        fields-preview-markup [:instance-value-tag (<reference-surrogate> value fields-markup true fields-details-markup-fn)]
+        fields-preview-markup [:instance-value-tag (<reference-surrogate> value fields-markup fields-details-markup-fn)]
         custom-printing-markup (if custom-printing?
                                  [:instance-custom-printing-wrapper-tag
                                   :instance-custom-printing-background
@@ -372,12 +372,16 @@
                         :instance-value-separator
                         fields-preview-markup
                         custom-printing-markup]]
-    (<reference-surrogate> value preview-markup false)))
+    (<reference-surrogate> value preview-markup :target)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn <header> [value]
   (<cljs-land> (<preview> value)))
+
+(defn <surrogate-header> [surrogate]
+  (or (get-surrogate-header surrogate)
+      (<preview> (get-surrogate-target surrogate))))
 
 (defn <surrogate-target> [surrogate]
   (let [target (get-surrogate-target surrogate)]
@@ -387,8 +391,10 @@
       (<standard-body-reference> target))))
 
 (defn <surrogate-body> [surrogate]
-  (or (get-surrogate-body surrogate)
-      (<surrogate-target> surrogate)))
+  (if-let [body (get-surrogate-body surrogate)]
+    (if (= :target body)
+      (<surrogate-target> surrogate)
+      body)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
