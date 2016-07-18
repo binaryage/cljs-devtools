@@ -3,24 +3,10 @@
   (:require [devtools.prefs :refer [pref]]
             [devtools.format :refer [IDevtoolsFormat]]
             [devtools.protocols :refer [IFormat]]
-            [devtools.formatters.templating :refer [surrogate? render-markup]]
+            [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-has-body get-surrogate-header]]
             [devtools.formatters.helpers :refer [cljs-value?]]
             [devtools.formatters.state :refer [prevent-recursion? *current-state* get-current-state]]
-            [devtools.formatters.markup :refer [<cljs-land> <preview> <details> <standard-body-reference>]]))
-
-; ---------------------------------------------------------------------------------------------------------------------------
-
-(defn build-header-markup [value]
-  (<cljs-land> (<preview> value)))
-
-(defn build-surrogate-body-markup [surrogate]
-  (if-let [body-template (oget surrogate "bodyTemplate")]
-    body-template
-    (let [target (oget surrogate "target")]
-      (if (seqable? target)
-        (let [starting-index (or (oget surrogate "startIndex") 0)]
-          (<details> target starting-index))
-        (<standard-body-reference> target)))))
+            [devtools.formatters.markup :refer [<header> <surrogate-body>]]))
 
 ; -- RAW API ----------------------------------------------------------------------------------------------------------------
 
@@ -30,22 +16,23 @@
 
 (defn header* [value]
   (cond
-    (surrogate? value) (aget value "header")
+    (surrogate? value) (render-markup (get-surrogate-header value))
     (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-header value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-header value)
-    :else (render-markup (build-header-markup value))))
+    :else (render-markup (<header> value))))
 
 (defn has-body* [value]
   ; note: body is emulated using surrogate references
-  (cond
-    (surrogate? value) (aget value "hasBody")
-    (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-has-body value)
-    (safe-call satisfies? false IFormat value) (devtools.protocols/-has-body value)
-    :else false))
+  (boolean
+    (cond
+      (surrogate? value) (get-surrogate-has-body value)
+      (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-has-body value)
+      (safe-call satisfies? false IFormat value) (devtools.protocols/-has-body value)
+      :else false)))
 
 (defn body* [value]
   (cond
-    (surrogate? value) (render-markup (build-surrogate-body-markup value))
+    (surrogate? value) (render-markup (<surrogate-body> value))
     (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-body value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-body value)))
 

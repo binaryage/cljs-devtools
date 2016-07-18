@@ -5,6 +5,8 @@
                                                  instance-of-a-well-known-type? get-constructor
                                                  get-more-marker wrap-arity fetch-fields-values]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
+            [devtools.formatters.templating :refer [get-surrogate-body get-surrogate-target get-surrogate-start-index
+                                                    get-surrogate-header get-surrogate-has-body]]
             [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
@@ -370,6 +372,22 @@
                         fields-preview-markup
                         custom-printing-markup]]
     (<reference-surrogate> value preview-markup false)))
+
+; ---------------------------------------------------------------------------------------------------------------------------
+
+(defn <header> [value]
+  (<cljs-land> (<preview> value)))
+
+(defn <surrogate-target> [surrogate]
+  (let [target (get-surrogate-target surrogate)]
+    (if (seqable? target)
+      (let [starting-index (get-surrogate-start-index surrogate)]
+        (<details> target starting-index))
+      (<standard-body-reference> target))))
+
+(defn <surrogate-body> [surrogate]
+  (or (get-surrogate-body surrogate)
+      (<surrogate-target> surrogate)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 

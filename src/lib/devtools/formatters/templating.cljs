@@ -73,11 +73,22 @@
                          "header" header
                          "hasBody" has-body
                          "bodyTemplate" body-template
-                         "startIndex" start-index))))
+                         "startIndex" (or start-index 0)))))
 
-(defn get-target-object [value]
-  (if (surrogate? value)
-    (oget value "target") value))
+(defn get-surrogate-target [value]
+  (oget value "target"))
+
+(defn get-surrogate-header [value]
+  (oget value "header"))
+
+(defn get-surrogate-has-body [value]
+  (oget value "hasBody"))
+
+(defn get-surrogate-body [value]
+  (oget value "bodyTemplate"))
+
+(defn get-surrogate-start-index [value]
+  (oget value "startIndex"))
 
 ; TODO: rewire this
 (defn get-current-state []
