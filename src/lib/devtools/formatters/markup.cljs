@@ -97,13 +97,15 @@
 
 ; -- body-related templates -------------------------------------------------------------------------------------------------
 
+(defn <body> [markup]
+  [:body-tag markup])
+
 (defn <aligned-body> [markups-lists]
   (let [prepend-li-tag (fn [line]
                          (if line
                            (concat [:aligned-li-tag] line)))
         aligned-lines (keep prepend-li-tag markups-lists)]
-    [:body-tag
-     (concat [:standard-ol-no-margin-tag] aligned-lines)]))
+    (<body> (concat [:standard-ol-no-margin-tag] aligned-lines))))
 
 (defn <standard-body> [markups-lists & [no-margin?]]
   (let [ol-tag (if no-margin? :standard-ol-no-margin-tag :standard-ol-tag)
@@ -155,7 +157,7 @@
         body-markup (<standard-body> (body-lines value starting-index) has-continuation?)]
     (if has-continuation?
       body-markup
-      [:body-tag body-markup])))
+      (<body> body-markup))))
 
 ; -- generic list template --------------------------------------------------------------------------------------------------
 

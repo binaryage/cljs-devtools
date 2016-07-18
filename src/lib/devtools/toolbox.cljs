@@ -1,10 +1,7 @@
 (ns devtools.toolbox
   (:require [devtools.protocols :refer [IFormat]]
-            [devtools.formatters.templating :refer [make-template]]
             [devtools.formatters.templating :refer [render-markup]]
-            [devtools.formatters.markup :refer [<preview> <standard-body-reference> <surrogate>]]))
-
-; TODO: convert envelope to use new markup apis
+            [devtools.formatters.markup :refer [<preview> <body> <standard-body-reference> <surrogate>]]))
 
 (defn envelope
   "This is a simple wrapper for logging \"busy\" objects.
@@ -21,9 +18,9 @@
   ([obj header style tag]
    (reify
      IFormat
-     (-header [_] (make-template tag style (if (fn? header) (header obj) header)))
+     (-header [_] (render-markup [[tag style] (if (fn? header) (header obj) header)]))
      (-has-body [_] true)
-     (-body [_] (make-template :span :body-style (render-markup (<standard-body-reference> obj)))))))
+     (-body [_] (render-markup (<body> (<standard-body-reference> obj)))))))
 
 (defn force-format
   "Forces object to be rendered by cljs-devtools during console logging.
