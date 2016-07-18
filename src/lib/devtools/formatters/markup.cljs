@@ -374,7 +374,7 @@
                         :instance-value-separator
                         fields-preview-markup
                         custom-printing-markup]]
-    (<reference-surrogate> value preview-markup :target)))
+    (<reference-surrogate> value preview-markup)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
