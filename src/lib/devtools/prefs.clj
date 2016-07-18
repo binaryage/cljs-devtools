@@ -1,4 +1,6 @@
-(ns devtools.prefs)
+(ns devtools.prefs
+  (:require [clojure.string :as string]
+            [clojure.pprint :refer [pprint]]))
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
@@ -100,38 +102,74 @@
 
 ; -- styling helpers --------------------------------------------------------------------------------------------------------
 
+(defn eval-css-arg [arg-form]
+  (if (sequential? arg-form)
+    (let [form `(do
+                  (alias '~'p '~'devtools.prefs)                                                                              ; this trick introduces proper alias to p symbol used in defaults.cljs
+                  ~arg-form)]
+      (binding [*ns* (find-ns 'clojure.core)]
+        (eval form)))
+    arg-form))
+
+(defn sanitize-css [css-string]
+  (-> css-string
+      (string/replace #"([:,;])\s+" "$1")
+      (string/trim)))
+
+(defn ^:dynamic check-css-semicolon [css-part input-css]
+  (assert (re-matches #".*;$" css-part) (str "stitched css expected to end with a semicolon: '" (pr-str css-part) "'\n"
+                                             "input css form:" (with-out-str (pprint input-css))))
+  css-part)
+
+(defn check-semicolons [v]
+  (doseq [item v]
+    (check-css-semicolon item v))
+  v)
+
+(defmacro css
+  "This magical macro evals all args in the context of this namespace. And concatenates resulting strings.
+  The goal is to emit one sanitized css string to be included in cljs sources.
+  This macro additionally checks for missing semicolons. Each arg must end with a semicolon."
+  [& args]
+  (if-not (empty? args)
+    (let [evald-args (map eval-css-arg args)]
+      (assert (every? string? evald-args)
+              (str "all css args expected to be eval'd to strings or vectors of strings:\n"
+                   (with-out-str (pprint evald-args))))
+      (sanitize-css (string/join (check-semicolons evald-args))))))
+
 (defmacro get-body-line-common-style []
-  `(str "min-height: 14px;"))
+  `(css "min-height: 14px;"))
 
 (defmacro get-common-type-header-style []
-  `(str "color: #eef;"
+  `(css "color: #eef;"
         "padding: 0px 2px 0px 2px;"
         "-webkit-user-select: none;"))
 
-(defmacro get-inner-background []
-  `(str "position: absolute;"
+(defmacro get-inner-background-style []
+  `(css "position: absolute;"
         "top: 1px;"
         "right: 1px;"
         "bottom: 1px;"
         "left: 1px;"
         "border-radius: 1px;"))
 
-(defmacro get-custom-printing-background []
-  `(str "background-color:" (get-custom-printing-background-color) ";"
-        (get-inner-background)
-        "border-left: 1px solid " (get-type-color 0.5) ";"
+(defmacro get-custom-printing-background-style []
+  `(css (str "background-color:" (get-custom-printing-background-color) ";")
+        (get-inner-background-style)
+        (str "border-left: 1px solid " (get-type-color 0.5) ";")
         "border-radius: 0 1px 1px 0;"))
 
-(defmacro get-instance-type-header-background []
-  `(str "background-color:" (get-type-color 0.5) ";"
-        (get-inner-background)))
+(defmacro get-instance-type-header-background-style []
+  `(css (str "background-color:" (get-type-color 0.5) ";")
+        (get-inner-background-style)))
 
-(defmacro get-protocol-background []
-  `(str "background-color:" (get-protocol-color 0.5) ";"
-        (get-inner-background)))
+(defmacro get-protocol-background-style []
+  `(css (str "background-color:" (get-protocol-color 0.5) ";")
+        (get-inner-background-style)))
 
-(defmacro get-native-reference-background []
-  `(str "position: absolute;"
+(defmacro get-native-reference-background-style []
+  `(css "position: absolute;"
         "top: 3px;"
         "right: 1px;"
         "bottom: 1px;"
@@ -140,15 +178,18 @@
         "background-color: white;"))
 
 (defmacro get-common-protocol-style []
-  `(str "position: relative;"
+  `(css "position: relative;"
         "padding: 0px 4px;"
         "border-radius: 2px;"
         "-webkit-user-select: none;"))
 
 ; -- style macros -----------------------------------------------------------------------------------------------------------
 
+(defmacro make-style [style]
+  `(cljs.core/js-obj "style" ~style))
+
 (defmacro symbol-style [color & [kind]]
-  `(str "background-color:" ~color ";"
+  `(css (str "background-color:" ~color ";")
         "color: #fff;"
         "width: 20px;"
         "display: inline-block;"
@@ -165,9 +206,25 @@
           "padding: 1px 4px; top:1px;")))
 
 (defmacro icon [label & [color slim?]]
-  `(cljs.core/array "span" (cljs.core/js-obj "style" (symbol-style (or ~color "#000") ~slim?)) ~label))
+  `[[:span (symbol-style (or ~color "#000") ~slim?)] ~label])
 
 (defmacro type-outline-style []
-  `(str "box-shadow:0px 0px 0px 1px " (get-type-color 0.5) " inset;"
+  `(css (str "box-shadow:0px 0px 0px 1px " (get-type-color 0.5) " inset;")
         "border-radius: 2px;"))
 
+; -- markup helpers ---------------------------------------------------------------------------------------------------------
+
+(defmacro span-markup [style & content]
+  `[[:span ~style] ~@content])
+
+(defmacro get-instance-type-header-background-markup []
+  `(span-markup (get-instance-type-header-background-style)))
+
+(defmacro get-protocol-background-markup []
+  `(span-markup (get-protocol-background-style)))
+
+(defmacro get-native-reference-background-markup []
+  `(span-markup (get-native-reference-background-style)))
+
+(defmacro get-custom-printing-background-markup []
+  `(span-markup (get-custom-printing-background-style)))
