@@ -1,5 +1,6 @@
 (ns devtools.defaults
-  (:require-macros [devtools.defaults :as d :refer [css]]))
+  ; warning: when touching this ns form, update also eval-css-arg in defaults.clj
+  (:require-macros [devtools.defaults :as d :refer [css span named-color]]))
 
 (def prefs
   {; -- installation --------------------------------------------------------------------------------------------------------
@@ -47,8 +48,8 @@
    :multi-arity-symbol                            "…"
    :more-symbol                                   "…"
    :plus-symbol                                   "+"
-   :header-field-value-spacer                     [[:span (css "color: #ccc;")] "="]
-   :body-field-value-spacer                       [[:span (css "color: #ccc;")] "= "]
+   :header-field-value-spacer                     (span (css "color: #ccc;") "=")
+   :body-field-value-spacer                       (span (css "color: #ccc;") "= ")
    :header-field-separator                        " "
    :more-fields-symbol                            "…"
    :instance-value-separator                      ""
@@ -78,15 +79,15 @@
 
    ; -- icons ---------------------------------------------------------------------------------------------------------------
 
-   :basis-icon                                    (d/icon "β" (d/get-type-color))
-   :protocols-icon                                (d/icon "⊢" (d/get-protocol-color))
-   :fields-icon                                   (d/icon "∋" (d/get-type-color))
-   :method-icon                                   (d/icon "m" (d/get-method-color))
-   :ns-icon                                       (d/icon "in" (d/get-ns-color))
-   :native-icon                                   (d/icon "js" (d/get-native-color))
-   :lambda-icon                                   (d/icon "λ" (d/get-lambda-color))
-   :fn-icon                                       (d/icon "fn" (d/get-fn-color))
-   :circular-ref-icon                             (d/icon "∞" (d/get-circular-ref-color) :slim)
+   :basis-icon                                    (d/icon "β" (named-color :type))
+   :protocols-icon                                (d/icon "⊢" (named-color :protocol))
+   :fields-icon                                   (d/icon "∋" (named-color :type))
+   :method-icon                                   (d/icon "m" (named-color :method))
+   :ns-icon                                       (d/icon "in" (named-color :ns))
+   :native-icon                                   (d/icon "js" (named-color :native))
+   :lambda-icon                                   (d/icon "λ" (named-color :lambda))
+   :fn-icon                                       (d/icon "fn" (named-color :fn))
+   :circular-ref-icon                             (d/icon "∞" (named-color :circular-ref) :slim)
 
    ; -- tags ----------------------------------------------------------------------------------------------------------------
 
@@ -161,7 +162,7 @@
 
    ; -- styles --------------------------------------------------------------------------------------------------------------
 
-   :cljs-land-style                               (css (str "background-color:" (d/get-signature-background-color) ";")
+   :cljs-land-style                               (css (str "background-color:" (named-color :signature-background) ";")
                                                        "border-radius: 2px;")
 
    :header-style                                  (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
@@ -174,7 +175,7 @@
    :fn-header-style                               (css)
    :fn-prefix-style                               (css)
    :header-field-name-style                       (css)
-   :nil-style                                     (css "color:#808080;")
+   :nil-style                                     (css (str "color: " (named-color :nil) ";"))
    :keyword-style                                 (css "color:#881391;")
    :integer-style                                 (css "color:#1C00CF;")
    :float-style                                   (css "color:#1C88CF;")
@@ -204,7 +205,7 @@
                                                        "color: #eee;")
    :protocol-more-style                           (css "font-size: 8px;"
                                                        "position: relative;")
-   :protocol-ns-name-style                        (css (str "color:" (d/get-ns-color) ";"))
+   :protocol-ns-name-style                        (css (str "color:" (named-color :ns) ";"))
    :list-style                                    (css "background-color:red;")
 
    :body-field-td1-style                          (css "vertical-align: top;"
@@ -229,22 +230,22 @@
    :protocol-method-name-style                    (css "margin-right: 6px;"
                                                        "color: #3aa;")
 
-   :meta-wrapper-style                            (css (str "border: 1px solid " (d/get-meta-color 0.4) ";")
+   :meta-wrapper-style                            (css (str "border: 1px solid " (named-color :meta 0.4) ";")
                                                        "margin: -1px;"
                                                        "border-radius:2px;"
                                                        "display: inline-block;")
-   :meta-style                                    (css (str "background-color:" (d/get-meta-color) ";")
+   :meta-style                                    (css (str "background-color:" (named-color :meta) ";")
                                                        "color:#eee;"
                                                        "border-radius: 0 1px 1px 0;"
                                                        "padding:0px 2px;"
                                                        "-webkit-user-select: none;")
-   :meta-body-style                               (css (str "background-color: " (d/get-meta-color 0.1) ";")
+   :meta-body-style                               (css (str "background-color: " (named-color :meta 0.1) ";")
                                                        "padding:1px;"
                                                        "padding-left: 14px;"
                                                        "border-bottom-right-radius:1x;")
 
-   :fn-ns-name-style                              (css (str "color:" (d/get-ns-color) ";"))
-   :fn-name-style                                 (css (str "color: " (d/get-fn-color) ";")
+   :fn-ns-name-style                              (css (str "color:" (named-color :ns) ";"))
+   :fn-name-style                                 (css (str "color: " (named-color :fn) ";")
                                                        "margin-right:3px;")
    :fn-args-style                                 (css "color: #960;")
    :fn-multi-arity-args-indent-style              (css "visibility:hidden;"
@@ -279,11 +280,11 @@
                                                        "-webkit-user-select: none;")
    :body-style                                    (css "display:inline-block;"
                                                        "padding: 3px 11px 3px 11px;"
-                                                       (str "border-top: 1px solid " (d/get-body-border-color) ";")
+                                                       (str "border-top: 1px solid " (named-color :body-border) ";")
                                                        "border-radius:1px;"
                                                        "margin: 1px;"
                                                        "margin-top: -1px;"
-                                                       (str "background-color:" (d/get-signature-background-color) ";"))
+                                                       (str "background-color:" (named-color :signature-background) ";"))
    :index-style                                   (css "min-width: 50px;"
                                                        "display: inline-block;"
                                                        "text-align: right;"
@@ -298,10 +299,10 @@
    :expanded-string-style                         (css "padding: 0px 12px 0px 12px;"
                                                        "color:#C41A16;"
                                                        "white-space: pre;"
-                                                       (str "border-top: 1px solid " (d/get-string-border-color) ";")
+                                                       (str "border-top: 1px solid " (named-color :string-border) ";")
                                                        "border-radius:1px;"
                                                        "margin: 0px 0px 2px 0px;"
-                                                       (str "background-color:" (d/get-string-background-color) ";"))
+                                                       (str "background-color:" (named-color :string-background) ";"))
    :default-envelope-style                        (css)
 
    ; -- pluggable api handlers ----------------------------------------------------------------------------------------------

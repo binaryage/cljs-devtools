@@ -2,110 +2,64 @@
   (:require [clojure.string :as string]
             [clojure.pprint :refer [pprint]]))
 
+(declare make-named-color)
+
+(def named-colors
+  {:signature                  [100 255 100]
+   :type                       [0 160 220]
+   :meta                       [255 102 0]
+   :protocol                   [65 105 225]
+   :method                     [65 105 225]
+   :ns                         [150 150 150]
+   :native                     [255 0 255]
+   :lambda                     [30 130 30]
+   :fn                         [30 130 30]
+   :string                     [255 100 100]
+   :custom-printing            [255 255 200]
+   :circular-ref               [255 0 0]
+   :nil                        [128 128 128]
+   :signature-background       #(make-named-color :signature 0.08)
+   :body-border                #(make-named-color :signature 0.4)
+   :string-background          #(make-named-color :string 0.08)
+   :string-border              #(make-named-color :string 0.4)
+   :custom-printing-background #(make-named-color :custom-printing 0.4)})
+
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
 (defn make-color [r g b & [a]]
+  {:pre [(number? r)
+         (number? g)
+         (number? b)
+         (or (nil? a) (number? a))]}
   (str "rgba(" r ", " g ", " b ", " (or a "1") ")"))
 
-; -- colors -----------------------------------------------------------------------------------------------------------------
+(defn resolve-color [v]
+  (if (fn? v)
+    (recur (v))
+    v))
 
-(defn make-signature-color [& [a]]
-  (make-color 100 255 100 a))
-
-(defn make-type-color [& [a]]
-  (make-color 0 160 220 a))
-
-(defn make-meta-color [& [a]]
-  (make-color 255 102 0 a))
-
-(defn make-protocol-color [& [a]]
-  (make-color 65 105 225 a))
-
-(defn make-method-color [& [a]]
-  (make-color 65 105 225 a))
-
-(defn make-ns-color [& [a]]
-  (make-color 150 150 150 a))
-
-(defn make-native-color [& [a]]
-  (make-color 255 0 255 a))
-
-(defn make-lambda-color [& [a]]
-  (make-color 30 130 30 a))
-
-(defn make-fn-color [& [a]]
-  (make-color 30 130 30 a))
-
-(defn make-string-color [& [a]]
-  (make-color 255 100 100 a))
-
-(defn make-custom-printing-color [& [a]]
-  (make-color 255 255 200 a))
-
-(defn make-circular-ref-color [& [a]]
-  (make-color 255 0 0 a))
+(defn make-named-color [name & [a]]
+  (if-let [res (resolve-color (name named-colors))]
+    (cond
+      (string? res) res
+      (vector? res) (let [[r g b] res]
+                      (make-color r g b a))
+      :else (assert false (str "invalid result from named-colors lookup table: " res)))
+    (assert false (str "unable to lookup named color: " name "\n"
+                       "avail names:" (keys named-colors)))))
 
 ; -- color macros -----------------------------------------------------------------------------------------------------------
 
-(defmacro get-signature-color [& [a]]
-  (make-signature-color a))
-
-(defmacro get-type-color [& [a]]
-  (make-type-color a))
-
-(defmacro get-meta-color [& [a]]
-  (make-meta-color a))
-
-(defmacro get-protocol-color [& [a]]
-  (make-protocol-color a))
-
-(defmacro get-method-color [& [a]]
-  (make-method-color a))
-
-(defmacro get-ns-color [& [a]]
-  (make-ns-color a))
-
-(defmacro get-native-color [& [a]]
-  (make-native-color a))
-
-(defmacro get-lambda-color [& [a]]
-  (make-lambda-color a))
-
-(defmacro get-fn-color [& [a]]
-  (make-fn-color a))
-
-(defmacro get-string-color [& [a]]
-  (make-string-color a))
-
-(defmacro get-custom-printing-color [& [a]]
-  (make-custom-printing-color a))
-
-(defmacro get-circular-ref-color [& [a]]
-  (make-circular-ref-color a))
-
-; -- specific color macros --------------------------------------------------------------------------------------------------
-
-(defmacro get-signature-background-color []
-  (get-signature-color 0.08))
-
-(defmacro get-body-border-color []
-  (get-signature-color 0.4))
-
-(defmacro get-string-background-color []
-  (get-string-color 0.08))
-
-(defmacro get-string-border-color []
-  (get-string-color 0.4))
-
-(defmacro get-custom-printing-background-color []
-  (get-custom-printing-color 0.4))
+(defmacro named-color [name & [a]]
+  (make-named-color name a))
 
 ; -- styling helpers --------------------------------------------------------------------------------------------------------
 
 (defn eval-css-arg [arg-form]
   (if (sequential? arg-form)
     (let [form `(do
-                  (alias '~'d '~'devtools.defaults)                                                                           ; this trick introduces proper alias to p symbol used in defaults.cljs
+                  ; warning: keep this in sync with defaults.cljs!
+                  (require '~'[devtools.defaults :as d :refer [css span named-color]])
                   ~arg-form)]
       (binding [*ns* (find-ns 'clojure.core)]
         (eval form)))
@@ -155,17 +109,17 @@
         "border-radius: 1px;"))
 
 (defmacro get-custom-printing-background-style []
-  `(css (str "background-color:" (get-custom-printing-background-color) ";")
+  `(css (str "background-color:" (named-color :custom-printing-background) ";")
         (get-inner-background-style)
-        (str "border-left: 1px solid " (get-type-color 0.5) ";")
+        (str "border-left: 1px solid " (named-color :type 0.5) ";")
         "border-radius: 0 1px 1px 0;"))
 
 (defmacro get-instance-type-header-background-style []
-  `(css (str "background-color:" (get-type-color 0.5) ";")
+  `(css (str "background-color:" (named-color :type 0.5) ";")
         (get-inner-background-style)))
 
 (defmacro get-protocol-background-style []
-  `(css (str "background-color:" (get-protocol-color 0.5) ";")
+  `(css (str "background-color:" (named-color :protocol 0.5) ";")
         (get-inner-background-style)))
 
 (defmacro get-native-reference-background-style []
@@ -209,22 +163,25 @@
   `[[:span (symbol-style (or ~color "#000") ~slim?)] ~label])
 
 (defmacro type-outline-style []
-  `(css (str "box-shadow:0px 0px 0px 1px " (get-type-color 0.5) " inset;")
+  `(css (str "box-shadow:0px 0px 0px 1px " (named-color :type 0.5) " inset;")
         "border-radius: 2px;"))
 
 ; -- markup helpers ---------------------------------------------------------------------------------------------------------
 
-(defmacro span-markup [style & content]
-  `[[:span ~style] ~@content])
+(defmacro markup [tag style & content]
+  `[[~tag ~style] ~@content])
+
+(defmacro span [style & content]
+  `(markup :span ~style ~@content))
 
 (defmacro get-instance-type-header-background-markup []
-  `(span-markup (get-instance-type-header-background-style)))
+  `(span (get-instance-type-header-background-style)))
 
 (defmacro get-protocol-background-markup []
-  `(span-markup (get-protocol-background-style)))
+  `(span (get-protocol-background-style)))
 
 (defmacro get-native-reference-background-markup []
-  `(span-markup (get-native-reference-background-style)))
+  `(span (get-native-reference-background-style)))
 
 (defmacro get-custom-printing-background-markup []
-  `(span-markup (get-custom-printing-background-style)))
+  `(span (get-custom-printing-background-style)))
