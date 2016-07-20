@@ -7,10 +7,12 @@
 (def named-colors
   {:signature                  [100 255 100]
    :type                       [0 160 220]
+   :type-text                  [238 238 355]
    :field                      #(make-named-color :type)
    :basis                      #(make-named-color :type)
    :meta                       [255 102 0]
-   :protocol                   [65 105 225]
+   :meta-text                  [238 238 238]
+   :protocol                   [41 59 163]
    :method                     #(make-named-color :protocol)
    :ns                         [150 150 150]
    :native                     [255 0 255]
@@ -111,7 +113,7 @@
   `(css "min-height: 14px;"))
 
 (defmacro get-common-type-header-style []
-  `(css "color: #eef;"
+  `(css (str "color: " (named-color :type-text) ";")
         "padding: 0px 2px 0px 2px;"
         "-webkit-user-select: none;"))
 
@@ -158,7 +160,7 @@
   `(cljs.core/js-obj "style" ~style))
 
 (defmacro symbol-style [color & [kind]]
-  `(css (str "background-color:" ~color ";")
+  `(css (str "background-color: " ~color ";")
         "color: #fff;"
         "width: 20px;"
         "display: inline-block;"
@@ -178,7 +180,7 @@
   `[[:span (symbol-style (or ~color "#000") ~slim?)] ~label])
 
 (defmacro type-outline-style []
-  `(css (str "box-shadow:0px 0px 0px 1px " (named-color :type 0.5) " inset;")
+  `(css (str "box-shadow: 0px 0px 0px 1px " (named-color :type 0.5) " inset;")
         "border-radius: 2px;"))
 
 ; -- markup helpers ---------------------------------------------------------------------------------------------------------

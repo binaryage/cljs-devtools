@@ -162,7 +162,7 @@
 
    ; -- styles --------------------------------------------------------------------------------------------------------------
 
-   :cljs-land-style                               (css (str "background-color:" (named-color :signature-background) ";")
+   :cljs-land-style                               (css (str "background-color: " (named-color :signature-background) ";")
                                                        "border-radius: 2px;")
 
    :header-style                                  (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
@@ -188,12 +188,12 @@
                                                        "margin-bottom: -3px;"
                                                        "top: -3px;")
    :type-wrapper-style                            (css "position: relative;"
-                                                       "border-radius:2px;")
-   :type-ref-style                                (css "position:relative;")
+                                                       "border-radius: 2px;")
+   :type-ref-style                                (css "position: relative;")
    :type-header-style                             (css (d/get-common-type-header-style)
                                                        "border-radius: 2px;")
    :type-name-style                               (css "padding-right: 4px;")
-   :type-basis-style                              (css "margin-right:3px;")
+   :type-basis-style                              (css "margin-right: 3px;")
    :type-basis-item-style                         (css (str "color: " (named-color :basis) ";")
                                                        "margin-right: 6px;")
    :protocol-name-style                           (css "position: relative;")
@@ -203,23 +203,23 @@
                                                        (str "color: " (named-color :slow-protocol) ";"))
    :protocol-more-style                           (css "font-size: 8px;"
                                                        "position: relative;")
-   :protocol-ns-name-style                        (css (str "color:" (named-color :ns) ";"))
+   :protocol-ns-name-style                        (css (str "color: " (named-color :ns) ";"))
    :list-style                                    (css)
 
    :body-field-td1-style                          (css "vertical-align: top;"
-                                                       "padding:0;"
+                                                       "padding: 0;"
                                                        "padding-right: 4px;")
-   :body-field-name-style                         (css (str "color:" (named-color :field) ";"))
+   :body-field-name-style                         (css (str "color: " (named-color :field) ";"))
    :body-field-value-style                        (css "margin-left: 6px;")
-   :header-field-name-style                       (css (str "color:" (named-color :field) ";"))
+   :header-field-name-style                       (css (str "color: " (named-color :field) ";"))
    :body-field-td2-style                          (css "vertical-align: top;"
-                                                       "padding:0;")
+                                                       "padding: 0;")
    :instance-header-style                         (css (d/type-outline-style))
    :standalone-type-style                         (css (d/type-outline-style))
    :instance-custom-printing-style                (css "position: relative;"
                                                        "padding: 0 2px 0 4px;")
    :instance-custom-printing-wrapper-style        (css "position: relative;"
-                                                       "border-radius:2px;")
+                                                       "border-radius: 2px;")
    :instance-type-header-style                    (css (d/get-common-type-header-style)
                                                        "border-radius: 2px 0 0 2px;")
    :instance-body-fields-table-style              (css "border-spacing: 0;"
@@ -233,39 +233,39 @@
 
    :meta-wrapper-style                            (css (str "border: 1px solid " (named-color :meta 0.4) ";")
                                                        "margin: -1px;"
-                                                       "border-radius:2px;"
+                                                       "border-radius: 2px;"
                                                        "display: inline-block;")
    :meta-style                                    (css (str "background-color:" (named-color :meta) ";")
-                                                       "color:#eee;"
+                                                       (str "color: " (named-color :meta-text) ";")
                                                        "border-radius: 0 1px 1px 0;"
-                                                       "padding:0px 2px;"
+                                                       "padding: 0px 2px;"
                                                        "-webkit-user-select: none;")
    :meta-body-style                               (css (str "background-color: " (named-color :meta 0.1) ";")
-                                                       "padding:1px;"
+                                                       "padding: 1px;"
                                                        "padding-left: 14px;"
-                                                       "border-bottom-right-radius:1x;")
+                                                       "border-bottom-right-radius: 1x;")
 
-   :fn-ns-name-style                              (css (str "color:" (named-color :ns) ";"))
-   :fn-name-style                                 (css (str "color:" (named-color :fn) ";")
-                                                       "margin-right:3px;")
-   :fn-args-style                                 (css (str "color:" (named-color :fn) ";"))
-   :fn-multi-arity-args-indent-style              (css "visibility:hidden;"
+   :fn-ns-name-style                              (css (str "color: " (named-color :ns) ";"))
+   :fn-name-style                                 (css (str "color: " (named-color :fn) ";")
+                                                       "margin-right: 3px;")
+   :fn-args-style                                 (css (str "color: " (named-color :fn) ";"))
+   :fn-multi-arity-args-indent-style              (css "visibility: hidden;"
                                                        "padding-left: 1px;")
-   :standard-ol-style                             (css "list-style-type:none;"
-                                                       "padding-left:0px;"
-                                                       "margin-top:0px;"
-                                                       "margin-bottom:0px;"
-                                                       "margin-left:0px;")
-   :standard-ol-no-margin-style                   (css "list-style-type:none;"
-                                                       "padding-left:0px;"
-                                                       "margin-top:0px;"
-                                                       "margin-bottom:0px;"
-                                                       "margin-left:0px;")
-   :standard-li-style                             (css "margin-left:0px;"
+   :standard-ol-style                             (css "list-style-type: none;"
+                                                       "padding-left: 0px;"
+                                                       "margin-top: 0px;"
+                                                       "margin-bottom: 0px;"
+                                                       "margin-left: 0px;")
+   :standard-ol-no-margin-style                   (css "list-style-type: none;"
+                                                       "padding-left: 0px;"
+                                                       "margin-top: 0px;"
+                                                       "margin-bottom: 0px;"
+                                                       "margin-left: 0px;")
+   :standard-li-style                             (css "margin-left: 0px;"
                                                        (d/get-body-line-common-style))
-   :standard-li-no-margin-style                   (css "margin-left:0px;"
+   :standard-li-no-margin-style                   (css "margin-left: 0px;"
                                                        (d/get-body-line-common-style))
-   :aligned-li-style                              (css "margin-left:0px;"
+   :aligned-li-style                              (css "margin-left: 0px;"
                                                        (d/get-body-line-common-style))
 
    :body-items-more-style                         (css (str "background-color:" (named-color :more-background) ";")
@@ -275,23 +275,23 @@
                                                        "cursor: pointer;"
                                                        "line-height: 14px;"
                                                        "font-size: 10px;"
-                                                       "border-radius:2px;"
+                                                       "border-radius: 2px;"
                                                        "padding: 0px 4px 0px 4px;"
                                                        "margin: 1px 0px 0px 0px;"
                                                        "-webkit-user-select: none;")
-   :body-style                                    (css "display:inline-block;"
+   :body-style                                    (css "display: inline-block;"
                                                        "padding: 3px 11px 3px 11px;"
                                                        (str "border-top: 1px solid " (named-color :body-border) ";")
-                                                       "border-radius:1px;"
+                                                       "border-radius: 1px;"
                                                        "margin: 1px;"
                                                        "margin-top: -1px;"
-                                                       (str "background-color:" (named-color :signature-background) ";"))
+                                                       (str "background-color: " (named-color :signature-background) ";"))
    :index-style                                   (css "min-width: 50px;"
                                                        "display: inline-block;"
                                                        "text-align: right;"
                                                        "vertical-align: top;"
                                                        (str "background-color: " (named-color :index-background) ";")
-                                                       (str "color:" (named-color :index) ";")
+                                                       (str "color: " (named-color :index) ";")
                                                        "opacity: 0.5;"
                                                        "margin-right: 3px;"
                                                        "padding: 0px 4px 0px 4px;"
@@ -301,9 +301,9 @@
                                                        (str "color: " (named-color :string) ";")
                                                        "white-space: pre;"
                                                        (str "border-top: 1px solid " (named-color :expanded-string-border) ";")
-                                                       "border-radius:1px;"
+                                                       "border-radius: 1px;"
                                                        "margin: 0px 0px 2px 0px;"
-                                                       (str "background-color:" (named-color :expanded-string-background) ";"))
+                                                       (str "background-color: " (named-color :expanded-string-background) ";"))
    :default-envelope-style                        (css)
 
    ; -- pluggable api handlers ----------------------------------------------------------------------------------------------
@@ -317,4 +317,3 @@
 
    ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    })
-
