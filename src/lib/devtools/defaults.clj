@@ -7,13 +7,15 @@
 (def named-colors
   {:signature                  [100 255 100]
    :type                       [0 160 220]
+   :field                      #(make-named-color :type)
+   :basis                      #(make-named-color :type)
    :meta                       [255 102 0]
    :protocol                   [65 105 225]
-   :method                     [65 105 225]
+   :method                     #(make-named-color :protocol)
    :ns                         [150 150 150]
    :native                     [255 0 255]
-   :lambda                     [30 130 30]
    :fn                         [30 130 30]
+   :lambda                     #(make-named-color :fn)
    :custom-printing            [255 255 200]
    :circular-ref               [255 0 0]
    :nil                        [128 128 128]
@@ -24,6 +26,13 @@
    :expanded-string            [255 100 100]
    :symbol                     [0 0 0]
    :bool                       [0 153 153]
+   :fast-protocol              [255 255 170]
+   :slow-protocol              [238 238 238]
+   :more                       [255 255 255]
+   :more-background            [153 153 153]
+   :index                      [0 0 0]
+   :index-background           [221 221 221]
+   :field-spacer               [204 204 204]
    :signature-background       #(make-named-color :signature 0.08)
    :body-border                #(make-named-color :signature 0.4)
    :expanded-string-background #(make-named-color :expanded-string 0.08)

@@ -48,8 +48,8 @@
    :multi-arity-symbol                            "…"
    :more-symbol                                   "…"
    :plus-symbol                                   "+"
-   :header-field-value-spacer                     (span (css "color: #ccc;") "=")
-   :body-field-value-spacer                       (span (css "color: #ccc;") "= ")
+   :header-field-value-spacer                     (span (css (str "color:" (named-color :field-spacer) ";")) "=")
+   :body-field-value-spacer                       (span (css (str "color:" (named-color :field-spacer) ";")) "=")
    :header-field-separator                        " "
    :more-fields-symbol                            "…"
    :instance-value-separator                      ""
@@ -79,9 +79,9 @@
 
    ; -- icons ---------------------------------------------------------------------------------------------------------------
 
-   :basis-icon                                    (d/icon "β" (named-color :type))
+   :basis-icon                                    (d/icon "β" (named-color :basis))
    :protocols-icon                                (d/icon "⊢" (named-color :protocol))
-   :fields-icon                                   (d/icon "∋" (named-color :type))
+   :fields-icon                                   (d/icon "∋" (named-color :field))
    :method-icon                                   (d/icon "m" (named-color :method))
    :ns-icon                                       (d/icon "in" (named-color :ns))
    :native-icon                                   (d/icon "js" (named-color :native))
@@ -174,7 +174,6 @@
 
    :fn-header-style                               (css)
    :fn-prefix-style                               (css)
-   :header-field-name-style                       (css)
    :nil-style                                     (css (str "color: " (named-color :nil) ";"))
    :keyword-style                                 (css (str "color: " (named-color :keyword) ";"))
    :integer-style                                 (css (str "color: " (named-color :integer) ";"))
@@ -195,21 +194,24 @@
                                                        "border-radius: 2px;")
    :type-name-style                               (css "padding-right: 4px;")
    :type-basis-style                              (css "margin-right:3px;")
-   :type-basis-item-style                         (css "color: #228;"
+   :type-basis-item-style                         (css (str "color: " (named-color :basis) ";")
                                                        "margin-right: 6px;")
    :protocol-name-style                           (css "position: relative;")
    :fast-protocol-style                           (css (d/get-common-protocol-style)
-                                                       "color: #ffa;")
+                                                       (str "color: " (named-color :fast-protocol) ";"))
    :slow-protocol-style                           (css (d/get-common-protocol-style)
-                                                       "color: #eee;")
+                                                       (str "color: " (named-color :slow-protocol) ";"))
    :protocol-more-style                           (css "font-size: 8px;"
                                                        "position: relative;")
    :protocol-ns-name-style                        (css (str "color:" (named-color :ns) ";"))
-   :list-style                                    (css "background-color:red;")
+   :list-style                                    (css)
 
    :body-field-td1-style                          (css "vertical-align: top;"
                                                        "padding:0;"
                                                        "padding-right: 4px;")
+   :body-field-name-style                         (css (str "color:" (named-color :field) ";"))
+   :body-field-value-style                        (css "margin-left: 6px;")
+   :header-field-name-style                       (css (str "color:" (named-color :field) ";"))
    :body-field-td2-style                          (css "vertical-align: top;"
                                                        "padding:0;")
    :instance-header-style                         (css (d/type-outline-style))
@@ -227,7 +229,7 @@
    :fields-header-style                           (css "padding: 0px 3px;")
 
    :protocol-method-name-style                    (css "margin-right: 6px;"
-                                                       "color: #3aa;")
+                                                       (str "color: " (named-color :protocol) " ;"))
 
    :meta-wrapper-style                            (css (str "border: 1px solid " (named-color :meta 0.4) ";")
                                                        "margin: -1px;"
@@ -244,9 +246,9 @@
                                                        "border-bottom-right-radius:1x;")
 
    :fn-ns-name-style                              (css (str "color:" (named-color :ns) ";"))
-   :fn-name-style                                 (css (str "color: " (named-color :fn) ";")
+   :fn-name-style                                 (css (str "color:" (named-color :fn) ";")
                                                        "margin-right:3px;")
-   :fn-args-style                                 (css "color: #960;")
+   :fn-args-style                                 (css (str "color:" (named-color :fn) ";"))
    :fn-multi-arity-args-indent-style              (css "visibility:hidden;"
                                                        "padding-left: 1px;")
    :standard-ol-style                             (css "list-style-type:none;"
@@ -266,10 +268,10 @@
    :aligned-li-style                              (css "margin-left:0px;"
                                                        (d/get-body-line-common-style))
 
-   :body-items-more-style                         (css "background-color:#999;"
+   :body-items-more-style                         (css (str "background-color:" (named-color :more-background) ";")
                                                        "min-width: 50px;"
                                                        "display: inline-block;"
-                                                       "color: #fff;"
+                                                       (str "color: " (named-color :more) ";")
                                                        "cursor: pointer;"
                                                        "line-height: 14px;"
                                                        "font-size: 10px;"
@@ -288,8 +290,8 @@
                                                        "display: inline-block;"
                                                        "text-align: right;"
                                                        "vertical-align: top;"
-                                                       "background-color:#ddd;"
-                                                       "color:#000;"
+                                                       (str "background-color: " (named-color :index-background) ";")
+                                                       (str "color:" (named-color :index) ";")
                                                        "opacity: 0.5;"
                                                        "margin-right: 3px;"
                                                        "padding: 0px 4px 0px 4px;"
