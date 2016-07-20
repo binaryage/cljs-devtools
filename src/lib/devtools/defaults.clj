@@ -1,4 +1,4 @@
-(ns devtools.prefs
+(ns devtools.defaults
   (:require [clojure.string :as string]
             [clojure.pprint :refer [pprint]]))
 
@@ -105,7 +105,7 @@
 (defn eval-css-arg [arg-form]
   (if (sequential? arg-form)
     (let [form `(do
-                  (alias '~'p '~'devtools.prefs)                                                                              ; this trick introduces proper alias to p symbol used in defaults.cljs
+                  (alias '~'d '~'devtools.defaults)                                                                           ; this trick introduces proper alias to p symbol used in defaults.cljs
                   ~arg-form)]
       (binding [*ns* (find-ns 'clojure.core)]
         (eval form)))

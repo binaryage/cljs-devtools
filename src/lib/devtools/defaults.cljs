@@ -1,5 +1,5 @@
 (ns devtools.defaults
-  (:require-macros [devtools.prefs :as p :refer [css]]))
+  (:require-macros [devtools.defaults :as d :refer [css]]))
 
 (def prefs
   {; -- installation --------------------------------------------------------------------------------------------------------
@@ -71,22 +71,22 @@
 
    ; -- backgrounds ---------------------------------------------------------------------------------------------------------
 
-   :instance-custom-printing-background           (p/get-custom-printing-background-markup)
-   :type-header-background                        (p/get-instance-type-header-background-markup)
-   :native-reference-background                   (p/get-native-reference-background-markup)
-   :protocol-background                           (p/get-protocol-background-markup)
+   :instance-custom-printing-background           (d/get-custom-printing-background-markup)
+   :type-header-background                        (d/get-instance-type-header-background-markup)
+   :native-reference-background                   (d/get-native-reference-background-markup)
+   :protocol-background                           (d/get-protocol-background-markup)
 
    ; -- icons ---------------------------------------------------------------------------------------------------------------
 
-   :basis-icon                                    (p/icon "β" (p/get-type-color))
-   :protocols-icon                                (p/icon "⊢" (p/get-protocol-color))
-   :fields-icon                                   (p/icon "∋" (p/get-type-color))
-   :method-icon                                   (p/icon "m" (p/get-method-color))
-   :ns-icon                                       (p/icon "in" (p/get-ns-color))
-   :native-icon                                   (p/icon "js" (p/get-native-color))
-   :lambda-icon                                   (p/icon "λ" (p/get-lambda-color))
-   :fn-icon                                       (p/icon "fn" (p/get-fn-color))
-   :circular-ref-icon                             (p/icon "∞" (p/get-circular-ref-color) :slim)
+   :basis-icon                                    (d/icon "β" (d/get-type-color))
+   :protocols-icon                                (d/icon "⊢" (d/get-protocol-color))
+   :fields-icon                                   (d/icon "∋" (d/get-type-color))
+   :method-icon                                   (d/icon "m" (d/get-method-color))
+   :ns-icon                                       (d/icon "in" (d/get-ns-color))
+   :native-icon                                   (d/icon "js" (d/get-native-color))
+   :lambda-icon                                   (d/icon "λ" (d/get-lambda-color))
+   :fn-icon                                       (d/icon "fn" (d/get-fn-color))
+   :circular-ref-icon                             (d/icon "∞" (d/get-circular-ref-color) :slim)
 
    ; -- tags ----------------------------------------------------------------------------------------------------------------
 
@@ -161,7 +161,7 @@
 
    ; -- styles --------------------------------------------------------------------------------------------------------------
 
-   :cljs-land-style                               (css (str "background-color:" (p/get-signature-background-color) ";")
+   :cljs-land-style                               (css (str "background-color:" (d/get-signature-background-color) ";")
                                                        "border-radius: 2px;")
 
    :header-style                                  (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
@@ -191,20 +191,20 @@
    :type-wrapper-style                            (css "position: relative;"
                                                        "border-radius:2px;")
    :type-ref-style                                (css "position:relative;")
-   :type-header-style                             (css (p/get-common-type-header-style)
+   :type-header-style                             (css (d/get-common-type-header-style)
                                                        "border-radius: 2px;")
    :type-name-style                               (css "padding-right: 4px;")
    :type-basis-style                              (css "margin-right:3px;")
    :type-basis-item-style                         (css "color: #228;"
                                                        "margin-right: 6px;")
    :protocol-name-style                           (css "position: relative;")
-   :fast-protocol-style                           (css (p/get-common-protocol-style)
+   :fast-protocol-style                           (css (d/get-common-protocol-style)
                                                        "color: #ffa;")
-   :slow-protocol-style                           (css (p/get-common-protocol-style)
+   :slow-protocol-style                           (css (d/get-common-protocol-style)
                                                        "color: #eee;")
    :protocol-more-style                           (css "font-size: 8px;"
                                                        "position: relative;")
-   :protocol-ns-name-style                        (css (str "color:" (p/get-ns-color) ";"))
+   :protocol-ns-name-style                        (css (str "color:" (d/get-ns-color) ";"))
    :list-style                                    (css "background-color:red;")
 
    :body-field-td1-style                          (css "vertical-align: top;"
@@ -212,13 +212,13 @@
                                                        "padding-right: 4px;")
    :body-field-td2-style                          (css "vertical-align: top;"
                                                        "padding:0;")
-   :instance-header-style                         (css (p/type-outline-style))
-   :standalone-type-style                         (css (p/type-outline-style))
+   :instance-header-style                         (css (d/type-outline-style))
+   :standalone-type-style                         (css (d/type-outline-style))
    :instance-custom-printing-style                (css "position: relative;"
                                                        "padding: 0 2px 0 4px;")
    :instance-custom-printing-wrapper-style        (css "position: relative;"
                                                        "border-radius:2px;")
-   :instance-type-header-style                    (css (p/get-common-type-header-style)
+   :instance-type-header-style                    (css (d/get-common-type-header-style)
                                                        "border-radius: 2px 0 0 2px;")
    :instance-body-fields-table-style              (css "border-spacing: 0;"
                                                        "border-collapse: collapse;"
@@ -229,22 +229,22 @@
    :protocol-method-name-style                    (css "margin-right: 6px;"
                                                        "color: #3aa;")
 
-   :meta-wrapper-style                            (css (str "border: 1px solid " (p/get-meta-color 0.4) ";")
+   :meta-wrapper-style                            (css (str "border: 1px solid " (d/get-meta-color 0.4) ";")
                                                        "margin: -1px;"
                                                        "border-radius:2px;"
                                                        "display: inline-block;")
-   :meta-style                                    (css (str "background-color:" (p/get-meta-color) ";")
+   :meta-style                                    (css (str "background-color:" (d/get-meta-color) ";")
                                                        "color:#eee;"
                                                        "border-radius: 0 1px 1px 0;"
                                                        "padding:0px 2px;"
                                                        "-webkit-user-select: none;")
-   :meta-body-style                               (css (str "background-color: " (p/get-meta-color 0.1) ";")
+   :meta-body-style                               (css (str "background-color: " (d/get-meta-color 0.1) ";")
                                                        "padding:1px;"
                                                        "padding-left: 14px;"
                                                        "border-bottom-right-radius:1x;")
 
-   :fn-ns-name-style                              (css (str "color:" (p/get-ns-color) ";"))
-   :fn-name-style                                 (css (str "color: " (p/get-fn-color) ";")
+   :fn-ns-name-style                              (css (str "color:" (d/get-ns-color) ";"))
+   :fn-name-style                                 (css (str "color: " (d/get-fn-color) ";")
                                                        "margin-right:3px;")
    :fn-args-style                                 (css "color: #960;")
    :fn-multi-arity-args-indent-style              (css "visibility:hidden;"
@@ -260,11 +260,11 @@
                                                        "margin-bottom:0px;"
                                                        "margin-left:0px;")
    :standard-li-style                             (css "margin-left:0px;"
-                                                       (p/get-body-line-common-style))
+                                                       (d/get-body-line-common-style))
    :standard-li-no-margin-style                   (css "margin-left:0px;"
-                                                       (p/get-body-line-common-style))
+                                                       (d/get-body-line-common-style))
    :aligned-li-style                              (css "margin-left:0px;"
-                                                       (p/get-body-line-common-style))
+                                                       (d/get-body-line-common-style))
 
    :body-items-more-style                         (css "background-color:#999;"
                                                        "min-width: 50px;"
@@ -279,11 +279,11 @@
                                                        "-webkit-user-select: none;")
    :body-style                                    (css "display:inline-block;"
                                                        "padding: 3px 11px 3px 11px;"
-                                                       (str "border-top: 1px solid " (p/get-body-border-color) ";")
+                                                       (str "border-top: 1px solid " (d/get-body-border-color) ";")
                                                        "border-radius:1px;"
                                                        "margin: 1px;"
                                                        "margin-top: -1px;"
-                                                       (str "background-color:" (p/get-signature-background-color) ";"))
+                                                       (str "background-color:" (d/get-signature-background-color) ";"))
    :index-style                                   (css "min-width: 50px;"
                                                        "display: inline-block;"
                                                        "text-align: right;"
@@ -298,10 +298,10 @@
    :expanded-string-style                         (css "padding: 0px 12px 0px 12px;"
                                                        "color:#C41A16;"
                                                        "white-space: pre;"
-                                                       (str "border-top: 1px solid " (p/get-string-border-color) ";")
+                                                       (str "border-top: 1px solid " (d/get-string-border-color) ";")
                                                        "border-radius:1px;"
                                                        "margin: 0px 0px 2px 0px;"
-                                                       (str "background-color:" (p/get-string-background-color) ";"))
+                                                       (str "background-color:" (d/get-string-background-color) ";"))
    :default-envelope-style                        (css)
 
    ; -- pluggable api handlers ----------------------------------------------------------------------------------------------
