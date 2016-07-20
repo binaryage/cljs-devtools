@@ -176,13 +176,12 @@
    :fn-prefix-style                               (css)
    :header-field-name-style                       (css)
    :nil-style                                     (css (str "color: " (named-color :nil) ";"))
-   :keyword-style                                 (css "color:#881391;")
-   :integer-style                                 (css "color:#1C00CF;")
-   :float-style                                   (css "color:#1C88CF;")
-   :string-style                                  (css "color:#C41A16;")
-   :symbol-style                                  (css "color:#000000;")
-   :fn-style                                      (css "color:#090;")
-   :bool-style                                    (css "color:#099;")
+   :keyword-style                                 (css (str "color: " (named-color :keyword) ";"))
+   :integer-style                                 (css (str "color: " (named-color :integer) ";"))
+   :float-style                                   (css (str "color: " (named-color :float) ";"))
+   :string-style                                  (css (str "color: " (named-color :string) ";"))
+   :symbol-style                                  (css (str "color: " (named-color :symbol) ";"))
+   :bool-style                                    (css (str "color: " (named-color :bool) ";"))
 
    :native-reference-wrapper-style                (css "display: inline-block;"                                               ; a hacky correction to hairy devtools tree-outline.css styles
                                                        "padding: 0px 3px;"
@@ -297,12 +296,12 @@
                                                        "margin: 1px 0px 0px 0px;"
                                                        "-webkit-user-select: none;")
    :expanded-string-style                         (css "padding: 0px 12px 0px 12px;"
-                                                       "color:#C41A16;"
+                                                       (str "color: " (named-color :string) ";")
                                                        "white-space: pre;"
-                                                       (str "border-top: 1px solid " (named-color :string-border) ";")
+                                                       (str "border-top: 1px solid " (named-color :expanded-string-border) ";")
                                                        "border-radius:1px;"
                                                        "margin: 0px 0px 2px 0px;"
-                                                       (str "background-color:" (named-color :string-background) ";"))
+                                                       (str "background-color:" (named-color :expanded-string-background) ";"))
    :default-envelope-style                        (css)
 
    ; -- pluggable api handlers ----------------------------------------------------------------------------------------------

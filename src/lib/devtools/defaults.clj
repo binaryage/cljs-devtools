@@ -14,14 +14,20 @@
    :native                     [255 0 255]
    :lambda                     [30 130 30]
    :fn                         [30 130 30]
-   :string                     [255 100 100]
    :custom-printing            [255 255 200]
    :circular-ref               [255 0 0]
    :nil                        [128 128 128]
+   :keyword                    [136 19 145]
+   :integer                    [28 0 207]
+   :float                      [28 136 207]
+   :string                     [196 26 22]
+   :expanded-string            [255 100 100]
+   :symbol                     [0 0 0]
+   :bool                       [0 153 153]
    :signature-background       #(make-named-color :signature 0.08)
    :body-border                #(make-named-color :signature 0.4)
-   :string-background          #(make-named-color :string 0.08)
-   :string-border              #(make-named-color :string 0.4)
+   :expanded-string-background #(make-named-color :expanded-string 0.08)
+   :expanded-string-border     #(make-named-color :expanded-string 0.4)
    :custom-printing-background #(make-named-color :custom-printing 0.4)})
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
