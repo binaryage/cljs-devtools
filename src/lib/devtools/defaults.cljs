@@ -82,6 +82,7 @@
    :instance-value-separator                      ""
    :fields-header-open-symbol                     ""
    :fields-header-close-symbol                    ""
+   :fields-header-no-fields-symbol                (span :header-field-name-style "∅")
    :rest-symbol                                   " & "
    :args-open-symbol                              "["
    :args-close-symbol                             "]"
@@ -96,6 +97,7 @@
    :list-separator                                " "
    :list-open-symbol                              ""
    :list-close-symbol                             ""
+   :empty-basis-symbol                            (span (css) :basis-icon (span :type-basis-item-style "∅"))
 
    ; -- backgrounds ---------------------------------------------------------------------------------------------------------
 

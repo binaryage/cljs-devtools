@@ -243,7 +243,9 @@
 
 (defn <type-details> [constructor-fn ns _name basis]
   (let [ns-markup (if-not (empty? ns) [:ns-icon [:fn-ns-name-tag ns]])
-        basis-markup (if-not (empty? basis) [:basis-icon (<type-basis> basis)])
+        basis-markup (if (empty? basis)
+                       [:empty-basis-symbol]
+                       [:basis-icon (<type-basis> basis)])
         native-markup [:native-icon (<native-reference> constructor-fn)]]
     (<aligned-body> [basis-markup ns-markup native-markup])))
 
@@ -337,19 +339,22 @@
       [:body-field-value-tag (<reference> value)]]]))
 
 (defn <fields> [fields & [max-fields]]
-  (let [max-fields (or max-fields (pref :max-instance-header-fields))
-        more? (> (count fields) max-fields)
-        fields-markups (map (fn [[name value]] (<field> name value)) (take max-fields fields))]
-    (concat [:fields-header-tag
-             :fields-header-open-symbol]
-            fields-markups
-            [(if more? :more-fields-symbol)
-             :fields-header-close-symbol])))
+  (if (zero? (count fields))
+    [:fields-header-tag :fields-header-no-fields-symbol]
+    (let [max-fields (or max-fields (pref :max-instance-header-fields))
+          more? (> (count fields) max-fields)
+          fields-markups (map (fn [[name value]] (<field> name value)) (take max-fields fields))]
+      (concat [:fields-header-tag
+               :fields-header-open-symbol]
+              fields-markups
+              [(if more? :more-fields-symbol)
+               :fields-header-close-symbol]))))
 
 (defn <fields-details> [fields obj]
   (let [protocols (munging/scan-protocols obj)
         has-protocols? (not (empty? protocols))
-        fields-markup [:fields-icon (concat [:instance-body-fields-table-tag] (map <fields-details-row> fields))]
+        fields-markup (if-not (zero? (count fields))
+                        [:fields-icon (concat [:instance-body-fields-table-tag] (map <fields-details-row> fields))])
         protocols-list-markup (if has-protocols? [:protocols-icon (<protocols-list> obj protocols)])
         native-markup [:native-icon (<native-reference> obj)]]
     (<aligned-body> [fields-markup protocols-list-markup native-markup])))
@@ -362,7 +367,7 @@
         custom-printing? (implements? IPrintWithWriter value)
         type-markup (<type> constructor-fn :instance-type-header-style)
         fields (fetch-fields-values value basis)
-        fields-markup (<fields> fields (if custom-printing? 0))                                                               ; TODO: handle no fields properly
+        fields-markup (<fields> fields (if custom-printing? 0))
         fields-details-markup-fn #(<fields-details> fields value)
         fields-preview-markup [:instance-value-tag (<reference-surrogate> value fields-markup fields-details-markup-fn)]
         custom-printing-markup (if custom-printing?
