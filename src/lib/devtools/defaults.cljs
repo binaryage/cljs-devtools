@@ -32,13 +32,40 @@
    :max-protocol-method-arities-list              3
 
    ; by default, well known types will render only via cljs printer, we won't wrap them in the blue-ish type info
-   ; TODO: make this list complete by cherry-picking stuff from cljs.core
-   :well-known-types                              #{"cljs.core/PersistentVector"
+   :well-known-types                              #{"cljs.core/Keyword"
+                                                    "cljs.core/Symbol"
+                                                    "cljs.core/TaggedLiteral"
+                                                    "cljs.core/LazySeq"
+                                                    "cljs.core/LazyTransformer"
+                                                    "cljs.core/IndexedSeq"
+                                                    "cljs.core/RSeq"
+                                                    "cljs.core/PersistentQueueSeq"
+                                                    "cljs.core/PersistentTreeMapSeq"
+                                                    "cljs.core/NodeSeq"
+                                                    "cljs.core/ArrayNodeSeq"
+                                                    "cljs.core/List"
+                                                    "cljs.core/Cons"
+                                                    "cljs.core/EmptyList"
+                                                    "cljs.core/PersistentVector"
+                                                    "cljs.core/ChunkedCons"
+                                                    "cljs.core/ChunkedSeq"
+                                                    "cljs.core/Subvec"
+                                                    "cljs.core/BlackNode"
+                                                    "cljs.core/RedNode"
+                                                    "cljs.core/ObjMap"
+                                                    "cljs.core/KeySeq"
+                                                    "cljs.core/ValSeq"
+                                                    "cljs.core/PersistentArrayMapSeq"
                                                     "cljs.core/PersistentArrayMap"
-                                                    "cljs.core/PersistentHashSet"
                                                     "cljs.core/PersistentHashMap"
+                                                    "cljs.core/PersistentTreeMap"
+                                                    "cljs.core/PersistentHashSet"
+                                                    "cljs.core/PersistentTreeSet"
                                                     "cljs.core/Range"
-                                                    "cljs.core/LazySeq"}
+                                                    "cljs.core/ES6IteratorSeq"
+                                                    "cljs.core/Eduction"
+                                                    "cljs.core/UUID"
+                                                    "cljs.core/ExceptionInfo"}
 
    ; -- pluggable markup ----------------------------------------------------------------------------------------------------
 
