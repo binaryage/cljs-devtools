@@ -5,7 +5,7 @@
             [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-body get-surrogate-target]]
             [devtools.formatters.helpers :refer [cljs-value?]]
-            [devtools.formatters.state :refer [prevent-recursion? *current-state* get-current-state]]
+            [devtools.formatters.state :refer [prevent-recursion? *current-state* get-current-state get-default-state]]
             [devtools.formatters.markup :refer [<header> <surrogate-header> <surrogate-body>]]))
 
 ; -- RAW API ----------------------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@
 
 (defn config-wrapper [raw-fn]
   (fn [value config]
-    (binding [*current-state* (or config {})]
+    (binding [*current-state* (or config (get-default-state))]
       (raw-fn value))))
 
 (def want-value? (config-wrapper want-value?*))

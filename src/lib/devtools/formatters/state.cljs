@@ -17,11 +17,21 @@
 
 (def ^:dynamic *current-state* nil)
 
+(defn valid-current-state? []
+  (some? *current-state*))
+
+(defn get-default-state []
+  {})
+
 (defn get-current-state []
+  {:pre [(valid-current-state?)]}
   *current-state*)
 
 (defn update-current-state! [f & args]
+  {:pre [(valid-current-state?)]}
   (set! *current-state* (apply f *current-state* args)))
+
+; -- high level API ---------------------------------------------------------------------------------------------------------
 
 (defn push-object-to-current-history! [object]
   (update-current-state! update :history conj object))
