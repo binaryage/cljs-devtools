@@ -98,6 +98,19 @@
       "hello" "hello"
       "hello$world" "hello$world")))
 
+(deftest test-proper-demunge
+  (testing "exercise proper demunging"
+    (are [munged demunged] (= (m/proper-demunge munged) demunged)
+      "" ""
+      "hello" "hello"
+      "hello$world" "hello$world"
+      "this$" "this"
+      "null" "null"
+      "null$" "null"
+      "null$x" "null$x"
+      "$null" "$null"
+      "$null$" "$null$")))
+
 (deftest test-parse-fn-info
   (testing "exercise parsing fn infos"
     (are [f expected] (match-seqs? (m/parse-fn-info f) expected)

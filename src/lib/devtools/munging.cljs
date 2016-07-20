@@ -15,6 +15,7 @@
 
   If you discovered breakage or a new case which should be covered by this code, please open an issue:
     https://github.com/binaryage/cljs-devtools/issues"
+  (:refer-clojure :exclude [js-reserved?])
   (:require-macros [devtools.munging :refer [get-fast-path-protocol-partitions-count
                                              get-fast-path-protocols-lookup-table]])
   (:require [clojure.string :as string]
@@ -27,6 +28,10 @@
 (def max-fixed-arity-to-scan 64)
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
+
+(defn js-reserved? [x]
+  ; js-reserved? is private for some reason
+  (ocall (oget js/window "cljs" "core") "js_reserved_QMARK_" x))
 
 (defn get-fn-source-safely [f]
   (try
@@ -140,9 +145,23 @@
       (demunge)
       (string/replace dollar-replacement "$")))
 
-(defn demunge-ns [munged-name]
+(defn revert-reserved [s]
+  (or (if-let [m (re-matches #"(.*)\$" s)]
+        (if (js-reserved? (second m))
+          (second m)))
+      s))
+
+(defn reserved-aware-demunge [munged-name]
   (-> munged-name
       (dollar-preserving-demunge)
+      (revert-reserved)))
+
+(defn proper-demunge [munged-name]
+  (reserved-aware-demunge munged-name))
+
+(defn demunge-ns [munged-name]
+  (-> munged-name
+      (proper-demunge)
       (string/replace "$" ".")))
 
 (defn ns-exists? [ns-module-name]
@@ -222,10 +241,10 @@
    (let [result (break-munged-name munged-name ns-detector)
          [munged-ns munged-name munged-protocol-ns munged-protocol-name munged-protocol-method arity] result]
      [(demunge-ns munged-ns)
-      (dollar-preserving-demunge munged-name)
+      (proper-demunge munged-name)
       (if munged-protocol-ns (demunge-ns munged-protocol-ns))
-      (if munged-protocol-name (demunge munged-protocol-name))                                                                ; we assume protocol names don't have dollars
-      (if munged-protocol-method (dollar-preserving-demunge munged-protocol-method))
+      (if munged-protocol-name (proper-demunge munged-protocol-name))
+      (if munged-protocol-method (proper-demunge munged-protocol-method))
       arity])))
 
 ; -- fn info ----------------------------------------------------------------------------------------------------------------
@@ -241,7 +260,7 @@
   [fn-source]
   (if-let [[munged-name args] (parse-fn-source fn-source)]
     (let [[ns name] (break-and-demunge-name munged-name)
-          demunged-args (map (comp dollar-preserving-demunge string/trim) (string/split args #","))]
+          demunged-args (map (comp proper-demunge string/trim) (string/split args #","))]
       (concat [ns name] demunged-args))
     ["" ""]))
 
@@ -493,7 +512,7 @@
           protocol-selector)))))
 
 (defn demunge-protocol-selector [protocol-selector]
-  (let [parts (map demunge (protocol-path protocol-selector))
+  (let [parts (map proper-demunge (protocol-path protocol-selector))
         _ (assert (>= (count parts) 2)
                   (str "expected protocol selector to contain at least one dot: '" protocol-selector "'"))
         ns (string/join "." (butlast parts))
@@ -558,7 +577,7 @@
         match-arity-comparator (fn [a b]
                                  (compare (match-to-arity a) (match-to-arity b)))
         post-process (fn [[munged-name matches]]
-                       (let [name (demunge munged-name)
+                       (let [name (proper-demunge munged-name)
                              sorted-matches (sort match-arity-comparator matches)
                              sorted-fns (map #(oget obj (first %)) sorted-matches)]
                          [name sorted-fns]))
