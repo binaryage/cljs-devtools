@@ -20,7 +20,8 @@
                                              get-fast-path-protocols-lookup-table]])
   (:require [clojure.string :as string]
             [devtools.util :refer-macros [oget oset ocall safe-call]]
-            [goog.object :as gobj]))
+            [goog.object :as gobj])
+  (:import [goog.string StringBuffer]))
 
 (declare collect-fn-arities)
 
@@ -47,6 +48,16 @@
 
 (defn get-fn-max-fixed-arity [f]
   (oget f "cljs$lang$maxFixedArity"))
+
+(defn get-type-name [t]
+  (let [sb (StringBuffer.)
+        writer (StringBufferWriter. sb)]
+    (try
+      (ocall t "cljs$lang$ctorPrWriter" t writer)
+      (catch :default _
+        "?"))
+    (-flush writer)
+    (str sb)))
 
 (defn char-to-subscript
   "Given a character with a single digit converts it into a subscript character.
@@ -480,7 +491,11 @@
   "Given a Javascript constructor function tries to retrieve [ns name basis]. Returns nil if not a cljs type."
   [f]
   (if (and (goog/isObject f) (oget f "cljs$lang$type"))
-    (let [type-name (type->str f)
+    (let [; we cannot use (type->str f) because it does not work for defrecords as of v1.9.89
+          ; instead we rely on .cljs$lang$ctorPrWriter which is defined for both deftypes and defrecords
+          ; and it is used here:
+          ; https://github.com/clojure/clojurescript/blob/cfbefad0b9f2ae9af92ebc2ec211c8472a884ddf/src/main/cljs/cljs/core.cljs#L9173
+          type-name (get-type-name f)
           parts (.split type-name #"/")
           basis (safe-call get-basis [] f)]
       (assert (<= (count parts) 2))
