@@ -374,11 +374,7 @@
                                  [:instance-custom-printing-wrapper-tag
                                   :instance-custom-printing-background
                                   (print-with-writer-protocol value :instance-custom-printing-tag)])
-        preview-markup [:instance-header-tag
-                        type-markup
-                        :instance-value-separator
-                        fields-preview-markup
-                        custom-printing-markup]]
+        preview-markup [:instance-header-tag fields-preview-markup custom-printing-markup type-markup]]
     (<reference-surrogate> value preview-markup)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
