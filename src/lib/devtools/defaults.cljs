@@ -13,7 +13,6 @@
 
    ; -- feature tweaks ------------------------------------------------------------------------------------------------------
 
-   :seqables-always-expandable                    true
    :print-meta-data                               true
 
    ; -- verbosity controls --------------------------------------------------------------------------------------------------
@@ -21,7 +20,7 @@
    :max-print-level                               2
    :body-line-max-print-level                     3
    :max-header-elements                           5
-   :min-sequable-count-for-expansion              3
+   :min-expandable-sequable-count                 4                                                                           ; 0 or nil means "always expandable"
    :max-number-body-items                         100
    :string-prefix-limit                           20
    :string-postfix-limit                          20
@@ -98,6 +97,9 @@
    :list-open-symbol                              ""
    :list-close-symbol                             ""
    :empty-basis-symbol                            (span (css) :basis-icon (span :type-basis-item-style "∅"))
+   :sequable-expansion-symbol                     (span (css (str "color: #999;")
+                                                             "position: relative;"
+                                                             "left: -3px;") "☰")
 
    ; -- backgrounds ---------------------------------------------------------------------------------------------------------
 
@@ -195,6 +197,7 @@
                                                        "border-radius: 2px;")
 
    :header-style                                  (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
+   :expandable-style                              (css "white-space: nowrap;")
    :item-style                                    (css "display: inline-block;"
                                                        "white-space: nowrap;"
                                                        "border-left: 2px solid rgba(100, 100, 100, 0.2);"

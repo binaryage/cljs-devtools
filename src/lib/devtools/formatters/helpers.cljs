@@ -68,6 +68,9 @@
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
+(defn abbreviated? [template]
+  (some #(= (pref :more-marker) %) template))
+
 (defn abbreviate-long-string [string marker prefix-limit postfix-limit]
   (let [prefix (apply str (take prefix-limit string))
         postfix (apply str (take-last postfix-limit string))]
@@ -87,3 +90,11 @@
 (defn fetch-fields-values [obj fields]
   (map (partial fetch-field-value obj) fields))
 
+(defn seq-count-is-greater-or-equal? [seq limit]
+  (let [chunk (take limit seq)]                                                                                               ; we have to be extra careful to not call count on seq, it might be an infinite sequence
+    (= (count chunk) limit)))
+
+(defn expandable? [obj]
+  (if (seqable? obj)
+    (let [min-count (or (pref :min-expandable-sequable-count) 0)]
+      (seq-count-is-greater-or-equal? obj min-count))))

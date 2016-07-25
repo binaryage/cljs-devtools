@@ -1,6 +1,6 @@
 (ns devtools.tests.format
   (:refer-clojure :exclude [range = > < + str])
-  (:require-macros [devtools.utils.macros :refer [range = > < + str want?]])                                                  ; prefs aware versions
+  (:require-macros [devtools.utils.macros :refer [range = > < + str want? with-prefs]])                                       ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
             [devtools.pseudo.tag :as tag]
             [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
@@ -134,7 +134,8 @@
 
 (deftest test-collections
   (testing "vectors"
-    (set-pref! :seqables-always-expandable false)
+    (is (< 4 :max-header-elements))
+    (is (> 6 :min-expandable-sequable-count))
     (is-header [1 2 3]
       [::tag/cljs-land
        [::tag/header
@@ -143,39 +144,17 @@
         [::tag/integer 2] :spacer
         [::tag/integer 3]
         "]"]])
-    (is (= 5 :max-header-elements))
     (is-header [1 2 3 4 5]
-      [::tag/cljs-land
-       [::tag/header
-        "["
-        (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 4))
-        [::tag/integer 5]
-        "]"]])
-    (reset-prefs-to-defaults!)
-    (is-header [1 2 3]
-      [::tag/cljs-land
-       [::tag/header
-        REF]])
-    (is-header [1 2 3 4 5 6]
       [::tag/cljs-land
        [::tag/header
         REF]]
       (fn [ref]
-        (is (surrogate? ref))
         (is-header ref
           [::tag/header
            "["
-           (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
-           :more-marker
-           "]"])
-        (has-body? ref true)
-        (is-body ref
-          [::tag/body
-           [::tag/standard-ol
-            (unroll (fn [i] [[::tag/standard-li
-                              [::tag/index i :line-index-separator]
-                              [::tag/item
-                               [::tag/integer (+ i 1)]]]]) (range 6))]]))))
+           (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 4))
+           [::tag/integer 5]
+           "]"]))))
   (testing "ranges"
     (is (> 10 :max-header-elements))
     (is-header (range 10)
@@ -322,45 +301,73 @@
 
 (deftest test-sequables
   (testing "min-sequable-count-for-expansion"
-    (set-pref! :max-header-elements 100)
-    (set-pref! :seqables-always-expandable true)
-    (set-pref! :min-sequable-count-for-expansion 3)
-    (is-header [1 2]
-      [::tag/cljs-land
-       [::tag/header
-        "["
-        [::tag/integer 1]
-        " "
-        [::tag/integer 2]
-        "]"]])
-    (is-header [1 2 3]
-      [::tag/cljs-land
-       [::tag/header
-        REF]]
-      (fn [ref]
-        (is (surrogate? ref))
-        (has-body? ref true)
-        (is-header ref
-          [::tag/header
-           "["
-           [::tag/integer 1]
-           " "
-           [::tag/integer 2]
-           " "
-           [::tag/integer 3]
-           "]"])))
-    (set-pref! :min-sequable-count-for-expansion 4)
-    (is-header [1 2 3]
-      [::tag/cljs-land
-       [::tag/header
-        "["
-        [::tag/integer 1]
-        " "
-        [::tag/integer 2]
-        " "
-        [::tag/integer 3]
-        "]"]])
-    (reset-prefs-to-defaults!)))
+    (with-prefs {:max-header-elements              100
+                 :min-expandable-sequable-count 3}
+      (is-header [1 2]
+        [::tag/cljs-land
+         [::tag/header
+          "["
+          [::tag/integer 1]
+          " "
+          [::tag/integer 2]
+          "]"]])
+      (is-header [1 2 3]
+        [::tag/cljs-land
+         [::tag/header
+          REF]]
+        (fn [ref]
+          (is (surrogate? ref))
+          (has-body? ref true)
+          (is-header ref
+            [::tag/header
+             "["
+             [::tag/integer 1]
+             " "
+             [::tag/integer 2]
+             " "
+             [::tag/integer 3]
+             "]"]))))
+    (with-prefs {:max-header-elements              100
+                 :min-expandable-sequable-count 4}
+      (is-header [1 2 3]
+        [::tag/cljs-land
+         [::tag/header
+          "["
+          [::tag/integer 1]
+          " "
+          [::tag/integer 2]
+          " "
+          [::tag/integer 3]
+          "]"]]))
+    (with-prefs {:min-expandable-sequable-count nil}
+      (is-header []
+        [::tag/cljs-land
+         [::tag/header
+          REF]])
+      (is-header [1 2 3]
+        [::tag/cljs-land
+         [::tag/header
+          REF]])
+      (is-header [1 2 3 4 5 6]
+        [::tag/cljs-land
+         [::tag/header
+          REF]]
+        (fn [ref]
+          (is (surrogate? ref))
+          (is-header ref
+            [::tag/header
+             "["
+             (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
+             :more-marker
+             "]"])
+          (has-body? ref true)
+          (is-body ref
+            [::tag/body
+             [::tag/standard-ol
+              (unroll (fn [i] [[::tag/standard-li
+                                [::tag/index i :line-index-separator]
+                                [::tag/item
+                                 [::tag/integer (+ i 1)]]]]) (range 6))]]))))))
 
 #_(deftest test-circular-data
     (testing "circulare data structure"

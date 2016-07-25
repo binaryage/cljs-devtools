@@ -10,11 +10,3 @@
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
 
-(deftest test-deftype
-  (testing "simple deftype"
-    (let [type-instance (b/SimpleType. "some-value")]
-      (is-header type-instance
-        [::tag/cljs-land
-         [::tag/header
-          NATIVE-REF]]))))
-

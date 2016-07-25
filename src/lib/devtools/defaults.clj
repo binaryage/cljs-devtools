@@ -181,6 +181,7 @@
 
 (defmacro type-outline-style []
   `(css (str "box-shadow: 0px 0px 0px 1px " (named-color :type 0.5) " inset;")
+        "margin-top: 1px;"
         "border-radius: 2px;"))
 
 ; -- markup helpers ---------------------------------------------------------------------------------------------------------
