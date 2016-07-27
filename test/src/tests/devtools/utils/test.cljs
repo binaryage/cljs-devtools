@@ -114,6 +114,17 @@
                                 x))]
     (postwalk empty-style-remover v)))
 
+(defn empty-string? [v]
+  (and (string? v) (empty? v)))
+
+(defn remove-empty-strings [v]
+  (let [empty-string-remover (fn [x]
+                               (cond
+                                 (vector? x) (vec (remove empty-string? x))
+                                 (seq? x) (remove empty-string? x)
+                                 :else x))]
+    (postwalk empty-string-remover v)))
+
 (defn should-unroll? [o]
   (and (fn? o)
        (:unroll (meta o))))
@@ -135,6 +146,7 @@
                               (resolve-tags)
                               (resolve-prefs)
                               (remove-empty-styles)
+                              (remove-empty-strings)
                               (clj->js))]
     (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)

@@ -166,9 +166,14 @@
                   (apply make-reference (concat [converted-obj] (rest args))))
     (assert-markup-error (str "no matching special tag name: '" name "'"))))
 
+(defn emptyish? [v]
+  (if (or (seqable? v) (array? v) (string? v))
+    (empty? v)
+    false))
+
 (defn render-subtree [tag children]
   (let [[html-tag style] tag]
-    (apply make-template html-tag style (map render-json-ml* (keep pref children)))))
+    (apply make-template html-tag style (map render-json-ml* (remove emptyish? (map pref children))))))
 
 (defn render-json-ml* [markup]
   (if-not (sequential? markup)
