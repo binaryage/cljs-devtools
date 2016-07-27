@@ -110,7 +110,9 @@
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          [::tag/string (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)])))
+          [::tag/expandable
+           [::tag/expandable-inner
+            [::tag/string (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)]]])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
       [::tag/cljs-land
        [::tag/header
@@ -118,13 +120,15 @@
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          [::tag/string
-           (str
-             :dq
-             "1234" :new-line-string-replacer "678901234567890"
-             :string-abbreviation-marker
-             "12345678901234" :new-line-string-replacer "67890"
-             :dq)])
+          [::tag/expandable
+           [::tag/expandable-inner
+            [::tag/string
+             (str
+               :dq
+               "1234" :new-line-string-replacer "678901234567890"
+               :string-abbreviation-marker
+               "12345678901234" :new-line-string-replacer "67890"
+               :dq)]]])
         (is-body ref
           [::tag/expanded-string
            (str
@@ -150,11 +154,12 @@
         REF]]
       (fn [ref]
         (is-header ref
-          [::tag/header
-           "["
-           (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 4))
-           [::tag/integer 5]
-           "]"]))))
+          [::tag/expandable
+           [::tag/expandable-inner
+            "["
+            (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 4))
+            [::tag/integer 5]
+            "]"]]))))
   (testing "ranges"
     (is (> 10 :max-header-elements))
     (is-header (range 10)
@@ -165,11 +170,12 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/header
-           "("
-           (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
-           :more-marker
-           ")"])))))
+          [::tag/expandable
+           [::tag/expandable-inner
+            "("
+            (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
+            :more-marker
+            ")"]])))))
 
 (deftest test-continuations
   (testing "long range"
@@ -181,11 +187,12 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/header
-           "("
-           (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
-           :more-marker
-           ")"])
+          [::tag/expandable
+           [::tag/expandable-inner
+            "("
+            (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
+            :more-marker
+            ")"]])
         (is-body ref
           [::tag/body
            [::tag/standard-ol
@@ -199,8 +206,10 @@
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              [::tag/body-items-more
-               :body-items-more-label])
+              [::tag/expandable
+               [::tag/expandable-inner
+                [::tag/body-items-more
+                 :body-items-more-label]]])
             (is-body ref
               [::tag/standard-ol-no-margin
                (unroll (fn [i] [[::tag/standard-li-no-margin
@@ -224,8 +233,9 @@
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
-            [::tag/header
-             "[" :more-marker "]"]))))))
+            [::tag/expandable
+             [::tag/expandable-inner
+              "[" :more-marker "]"]]))))))
 
 #_(deftest test-deftype
     (testing "simple deftype"
@@ -293,7 +303,9 @@
       (fn [ref]
         (has-body? ref true)
         (is-header ref
-          [::tag/meta-header "meta"])
+          [::tag/expandable
+           [::tag/expandable-inner
+            [::tag/meta-header "meta"]]])
         (is-body ref
           [::tag/meta-body
            [::tag/header
@@ -301,14 +313,14 @@
 
 (deftest test-sequables
   (testing "min-sequable-count-for-expansion"
-    (with-prefs {:max-header-elements              100
+    (with-prefs {:max-header-elements           100
                  :min-expandable-sequable-count 3}
       (is-header [1 2]
         [::tag/cljs-land
          [::tag/header
           "["
           [::tag/integer 1]
-          " "
+          :spacer
           [::tag/integer 2]
           "]"]])
       (is-header [1 2 3]
@@ -319,24 +331,25 @@
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
-            [::tag/header
-             "["
-             [::tag/integer 1]
-             " "
-             [::tag/integer 2]
-             " "
-             [::tag/integer 3]
-             "]"]))))
-    (with-prefs {:max-header-elements              100
+            [::tag/expandable
+             [::tag/expandable-inner
+              "["
+              [::tag/integer 1]
+              :spacer
+              [::tag/integer 2]
+              :spacer
+              [::tag/integer 3]
+              "]"]]))))
+    (with-prefs {:max-header-elements           100
                  :min-expandable-sequable-count 4}
       (is-header [1 2 3]
         [::tag/cljs-land
          [::tag/header
           "["
           [::tag/integer 1]
-          " "
+          :spacer
           [::tag/integer 2]
-          " "
+          :spacer
           [::tag/integer 3]
           "]"]]))
     (with-prefs {:min-expandable-sequable-count nil}
@@ -355,11 +368,12 @@
         (fn [ref]
           (is (surrogate? ref))
           (is-header ref
-            [::tag/header
-             "["
-             (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
-             :more-marker
-             "]"])
+            [::tag/expandable
+             [::tag/expandable-inner
+              "["
+              (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
+              :more-marker
+              "]"]])
           (has-body? ref true)
           (is-body ref
             [::tag/body
@@ -420,9 +434,11 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/fn-header
-           [::tag/fn-prefix :lambda-icon]
-           [::tag/fn-args (pref-str :args-open-symbol :args-close-symbol)]])
+          [::tag/expandable
+           [::tag/expandable-inner
+            [::tag/fn-header
+             [::tag/fn-prefix :lambda-icon]
+             [::tag/fn-args (pref-str :args-open-symbol :args-close-symbol)]]]])
         (is-body ref
           [::tag/body
            [::tag/standard-ol-no-margin
@@ -437,10 +453,12 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/fn-header
-           [::tag/fn-prefix
-            :lambda-icon]
-           [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
+          [::tag/expandable
+           [::tag/expandable-inner
+            [::tag/fn-header
+             [::tag/fn-prefix
+              :lambda-icon]
+             [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]]]])
         (is-body ref
           [::tag/body
            [::tag/standard-ol-no-margin
@@ -466,9 +484,11 @@
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/fn-header
-           [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]
-           [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]])
+          [::tag/expandable
+           [::tag/expandable-inner
+            [::tag/fn-header
+             [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]
+             [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]]]])
         (is-body ref
           [::tag/body
            [::tag/standard-ol-no-margin

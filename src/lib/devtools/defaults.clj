@@ -36,10 +36,10 @@
    :index-background           [221 221 221]
    :field-spacer               [204 204 204]
    :signature-background       #(make-named-color :signature 0.08)
-   :body-border                #(make-named-color :signature 0.4)
+   :body-border                #(make-named-color :signature 0.6)
    :expanded-string-background #(make-named-color :expanded-string 0.08)
    :expanded-string-border     #(make-named-color :expanded-string 0.4)
-   :custom-printing-background #(make-named-color :custom-printing 0.4)})
+   :custom-printing-background #(make-named-color :custom-printing)})
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
@@ -128,7 +128,6 @@
 (defmacro get-custom-printing-background-style []
   `(css (str "background-color:" (named-color :custom-printing-background) ";")
         (get-inner-background-style)
-        (str "border-left: 1px solid " (named-color :type 0.5) ";")
         "border-radius: 0 1px 1px 0;"))
 
 (defmacro get-instance-type-header-background-style []

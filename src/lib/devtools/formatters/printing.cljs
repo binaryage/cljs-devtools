@@ -40,10 +40,17 @@
 
 ; -- post-processing --------------------------------------------------------------------------------------------------------
 
+(defn already-reference? [group]
+  (if-let [tag (first (first group))]
+    (= tag "reference")))
+
 (defn wrap-group-in-reference-if-needed [group obj markup]
-  (if (or (expandable? obj) (abbreviated? group))
-    (let [header-markup (concat [[:span :header-style]] group)]
-      [(build-markup markup :reference-surrogate obj header-markup :target)])
+  (if (and (not (already-reference? group))
+           (or (expandable? obj) (abbreviated? group)))
+    (let [expandable-markup (apply build-markup markup :expandable group)
+          surrogate-markup (build-markup markup :raw-surrogate obj expandable-markup :target)
+          reference-markup (build-markup markup :reference surrogate-markup)]
+      [reference-markup])
     group))
 
 (defn wrap-group-in-circular-warning-if-needed [group markup circular?]

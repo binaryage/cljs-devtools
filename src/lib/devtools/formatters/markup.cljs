@@ -3,7 +3,8 @@
                    [devtools.formatters.markup :refer [emit-markup-map]])
   (:require [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
                                                  instance-of-a-well-known-type? get-constructor
-                                                 get-more-marker wrap-arity fetch-fields-values]]
+                                                 get-more-marker wrap-arity fetch-fields-values abbreviated?
+                                                 expandable?]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
             [devtools.formatters.templating :refer [get-surrogate-body get-surrogate-target get-surrogate-start-index
                                                     get-surrogate-header]]
@@ -30,8 +31,16 @@
 
 ; -- references -------------------------------------------------------------------------------------------------------------
 
-(defn <surrogate> [& args]
+(defn <expandable> [& children]
+  (let [inner-markup (concat [:expandable-inner-tag] children)]
+    [:expandable-tag :expandable-symbol inner-markup]))
+
+(defn <raw-surrogate> [& args]
   (concat ["surrogate"] args))
+
+(defn <surrogate> [& [object header body start-index]]
+  (let [header (if (some? body) (<expandable> header) header)]
+    (<raw-surrogate> object header body start-index)))
 
 (defn <reference> [& args]
   (concat ["reference"] args))
@@ -373,9 +382,12 @@
         custom-printing-markup (if custom-printing?
                                  [:instance-custom-printing-wrapper-tag
                                   :instance-custom-printing-background
-                                  (print-with-writer-protocol value :instance-custom-printing-tag)])
-        preview-markup [:instance-header-tag fields-preview-markup custom-printing-markup type-markup]]
-    (<reference-surrogate> value preview-markup)))
+                                  (print-with-writer-protocol value :instance-custom-printing-tag)])]
+    [:instance-header-tag
+     :instance-header-background
+     fields-preview-markup
+     custom-printing-markup
+     type-markup]))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 

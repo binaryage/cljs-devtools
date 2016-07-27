@@ -97,9 +97,7 @@
    :list-open-symbol                              ""
    :list-close-symbol                             ""
    :empty-basis-symbol                            (span (css) :basis-icon (span :type-basis-item-style "∅"))
-   :sequable-expansion-symbol                     (span (css (str "color: #999;")
-                                                             "position: relative;"
-                                                             "left: -3px;") "☰")
+   :expandable-symbol                             ""
 
    ; -- backgrounds ---------------------------------------------------------------------------------------------------------
 
@@ -107,6 +105,7 @@
    :type-header-background                        (d/get-instance-type-header-background-markup)
    :native-reference-background                   (d/get-native-reference-background-markup)
    :protocol-background                           (d/get-protocol-background-markup)
+   :instance-header-background                    nil
 
    ; -- icons ---------------------------------------------------------------------------------------------------------------
 
@@ -178,6 +177,8 @@
    :instance-custom-printing-wrapper-tag          [:span :instance-custom-printing-wrapper-style]
    :instance-header-tag                           [:span :instance-header-style]
    :list-tag                                      [:span :list-style]
+   :expandable-tag                                [:span :expandable-style]
+   :expandable-inner-tag                          [:span :expandable-inner-style]
    :instance-custom-printing-tag                  [:span :instance-custom-printing-style]
    :default-envelope-tag                          [:span :default-envelope-style]
 
@@ -197,7 +198,9 @@
                                                        "border-radius: 2px;")
 
    :header-style                                  (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
-   :expandable-style                              (css "white-space: nowrap;")
+   :expandable-style                              (css "white-space: nowrap;"
+                                                       "padding-left: 3px;")
+   :expandable-inner-style                        (css "margin-left: -3px;")
    :item-style                                    (css "display: inline-block;"
                                                        "white-space: nowrap;"
                                                        "border-left: 2px solid rgba(100, 100, 100, 0.2);"
@@ -220,6 +223,7 @@
                                                        "margin-bottom: -3px;"
                                                        "top: -3px;")
    :type-wrapper-style                            (css "position: relative;"
+                                                       "padding-left: 1px;"
                                                        "border-radius: 2px;")
    :type-ref-style                                (css "position: relative;")
    :type-header-style                             (css (d/get-common-type-header-style)
@@ -246,7 +250,9 @@
    :header-field-name-style                       (css (str "color: " (named-color :field) ";"))
    :body-field-td2-style                          (css "vertical-align: top;"
                                                        "padding: 0;")
-   :instance-header-style                         (css (d/type-outline-style))
+   :instance-header-style                         (css (d/type-outline-style)
+                                                       "position:relative;")
+   :expandable-wrapper-style                      (css)
    :standalone-type-style                         (css (d/type-outline-style))
    :instance-custom-printing-style                (css "position: relative;"
                                                        "padding: 0 2px 0 4px;")
@@ -263,26 +269,26 @@
    :protocol-method-name-style                    (css "margin-right: 6px;"
                                                        (str "color: " (named-color :protocol) " ;"))
 
-   :meta-wrapper-style                            (css (str "border: 1px solid " (named-color :meta 0.4) ";")
-                                                       "margin: -1px;"
-                                                       "border-radius: 2px;"
-                                                       "display: inline-block;")
-   :meta-style                                    (css (str "background-color:" (named-color :meta) ";")
-                                                       (str "color: " (named-color :meta-text) ";")
-                                                       "border-radius: 0 1px 1px 0;"
-                                                       "padding: 0px 2px;"
+   :meta-wrapper-style                            (css (str "box-shadow: 0px 0px 0px 1px " (named-color :meta) " inset;")
+                                                       "margin-top: 1px;"
+                                                       "border-radius: 2px;")
+   :meta-reference-style                          (css (str "background-color:" (named-color :meta) ";")
+                                                       "border-radius: 0 2px 2px 0;")
+   :meta-style                                    (css (str "color: " (named-color :meta-text) ";")
+                                                       "padding: 0px 3px;"
                                                        "-webkit-user-select: none;")
    :meta-body-style                               (css (str "background-color: " (named-color :meta 0.1) ";")
-                                                       "padding: 1px;"
-                                                       "padding-left: 14px;"
-                                                       "border-bottom-right-radius: 1x;")
+                                                       (str "box-shadow: 0px 0px 0px 1px " (named-color :meta) " inset;")
+                                                       "position: relative;"
+                                                       "top: -1px;"
+                                                       "padding: 3px 12px;"
+                                                       "border-bottom-right-radius: 2px;")
 
    :fn-ns-name-style                              (css (str "color: " (named-color :ns) ";"))
    :fn-name-style                                 (css (str "color: " (named-color :fn) ";")
-                                                       "margin-right: 3px;")
+                                                       "margin-right: 2px;")
    :fn-args-style                                 (css (str "color: " (named-color :fn) ";"))
-   :fn-multi-arity-args-indent-style              (css "visibility: hidden;"
-                                                       "padding-left: 1px;")
+   :fn-multi-arity-args-indent-style              (css "visibility: hidden;")
    :standard-ol-style                             (css "list-style-type: none;"
                                                        "padding-left: 0px;"
                                                        "margin-top: 0px;"
@@ -312,11 +318,10 @@
                                                        "margin: 1px 0px 0px 0px;"
                                                        "-webkit-user-select: none;")
    :body-style                                    (css "display: inline-block;"
-                                                       "padding: 3px 11px 3px 11px;"
-                                                       (str "border-top: 1px solid " (named-color :body-border) ";")
-                                                       "border-radius: 1px;"
+                                                       "padding: 3px 12px;"
+                                                       (str "border-top: 2px solid " (named-color :body-border) ";")
                                                        "margin: 1px;"
-                                                       "margin-top: -1px;"
+                                                       "margin-top: 0px;"
                                                        (str "background-color: " (named-color :signature-background) ";"))
    :index-style                                   (css "min-width: 50px;"
                                                        "display: inline-block;"
