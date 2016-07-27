@@ -170,8 +170,13 @@
 (defn proper-demunge [munged-name]
   (reserved-aware-demunge munged-name))
 
-(defn demunge-ns [munged-name]
-  (-> munged-name
+(defn proper-arg-demunge [munged-arg-name]
+  (-> munged-arg-name
+      (proper-demunge)
+      (string/replace #"^-(.*)$" "_$1")))                                                                                     ; leading dash was probably a leading underscore (convention)
+
+(defn proper-ns-demunge [munged-ns-name]
+  (-> munged-ns-name
       (proper-demunge)
       (string/replace "$" ".")))
 
@@ -251,9 +256,9 @@
   ([munged-name ns-detector]
    (let [result (break-munged-name munged-name ns-detector)
          [munged-ns munged-name munged-protocol-ns munged-protocol-name munged-protocol-method arity] result]
-     [(demunge-ns munged-ns)
+     [(proper-ns-demunge munged-ns)
       (proper-demunge munged-name)
-      (if munged-protocol-ns (demunge-ns munged-protocol-ns))
+      (if munged-protocol-ns (proper-ns-demunge munged-protocol-ns))
       (if munged-protocol-name (proper-demunge munged-protocol-name))
       (if munged-protocol-method (proper-demunge munged-protocol-method))
       arity])))
@@ -271,7 +276,7 @@
   [fn-source]
   (if-let [[munged-name args] (parse-fn-source fn-source)]
     (let [[ns name] (break-and-demunge-name munged-name)
-          demunged-args (map (comp proper-demunge string/trim) (string/split args #","))]
+          demunged-args (map (comp proper-arg-demunge string/trim) (string/split args #","))]
       (concat [ns name] demunged-args))
     ["" ""]))
 
@@ -578,7 +583,6 @@
         slow-path-protocols (map (partial convert-to-protocol-descriptor false) (scan-slow-path-protocols obj))
         all-protocols (concat fast-path-protocols slow-path-protocols)]
     (sort protocol-descriptors-comparator all-protocols)))
-
 
 (defn collect-protocol-methods [obj protocol-selector]
   (let [key-prefix (string/replace protocol-selector #"\." "\\$")

@@ -111,6 +111,16 @@
       "$null" "$null"
       "$null$" "$null$")))
 
+(deftest test-proper-arg-demunge
+  (testing "exercise proper arg demunging"
+    (are [munged demunged] (= (m/proper-arg-demunge munged) demunged)
+      "" ""
+      "_hello" "_hello"
+      "-hello" "_hello"
+      "_" "_"
+      "-" "_"
+      "--x" "_-x")))
+
 (deftest test-parse-fn-info
   (testing "exercise parsing fn infos"
     (are [f expected] (match-seqs? (m/parse-fn-info f) expected)
