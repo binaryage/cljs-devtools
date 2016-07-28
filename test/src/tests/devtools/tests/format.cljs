@@ -383,14 +383,56 @@
                                 [::tag/item
                                  [::tag/integer (+ i 1)]]]]) (range 6))]]))))))
 
-#_(deftest test-circular-data
-    (testing "circulare data structure"
-      (let [circular-ds (atom nil)]
-        (reset! circular-ds circular-ds)
-        (is-header circular-ds
-          [::tag/cljs-land
-           [::tag/header
-            REF]]))))                                                                                                         ; TODO
+(deftest test-circular-data
+  (testing "circular data structure"
+    (let [circular-ds (volatile! nil)]
+      (vreset! circular-ds circular-ds)
+      (is-header circular-ds
+        [::tag/cljs-land
+         [::tag/header
+          [::tag/instance-header
+           [::tag/instance-value REF]
+           [::tag/instance-custom-printing-wrapper
+            :instance-custom-printing-background
+            [::tag/instance-custom-printing
+             "#object [cljs.core.Volatile "
+             "{"
+             [::tag/keyword ":val"]
+             :spacer
+             [::tag/circular-reference
+              :circular-ref-icon
+              [::tag/instance-header
+               [::tag/instance-value REF]
+               [::tag/instance-custom-printing-wrapper
+                :instance-custom-printing-background
+                [::tag/instance-custom-printing
+                 "#object [cljs.core.Volatile "
+                 "{"
+                 [::tag/keyword ":val"]
+                 :spacer
+                 [::tag/circular-reference
+                  :circular-ref-icon
+                  [::tag/instance-header
+                   [::tag/instance-value REF]
+                   [::tag/instance-custom-printing-wrapper
+                    :instance-custom-printing-background
+                    [::tag/instance-custom-printing
+                     "#object [cljs.core.Volatile "
+                     REF
+                     "]"]]
+                   [::tag/type-wrapper
+                    :type-header-background
+                    [::tag/type-ref REF]]]]
+                 "}"
+                 "]"]]
+               [::tag/type-wrapper
+                :type-header-background
+                [::tag/type-ref REF]]]]
+             "}"
+             "]"]]
+           [::tag/type-wrapper
+            :type-header-background
+            [::tag/type-ref REF]]]]]))))
 
 (deftest test-function-formatting
   (testing "cljs-function?"
