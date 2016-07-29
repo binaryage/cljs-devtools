@@ -135,11 +135,15 @@
   (-pr-writer [obj writer _opts]
     (write-all writer
                "#gdate "
+               42
                [(.getYear obj)
                 (.getMonth obj)
                 (.getDate obj)]
                #js ["test-array"]
-               (js-obj "some-key" "test-js-obj"))))
+               (js-obj "some-key" "test-js-obj")
+               :keyword
+               'sym
+               #"regex")))
 
 (extend-protocol IFormat
   goog.Promise

@@ -66,6 +66,10 @@
         fully-qualified-type-name (str ns "/" name)]
     (contains? well-known-types fully-qualified-type-name)))
 
+(defn directly-printable? [value]
+  (or (string? value)
+      (number? value)))
+
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn abbreviated? [template]

@@ -5,7 +5,7 @@
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.state :refer [push-object-to-current-history! *current-state* get-current-state
                                                is-circular?]]
-            [devtools.formatters.helpers :refer [cljs-value? expandable? abbreviated?]]))
+            [devtools.formatters.helpers :refer [cljs-value? expandable? abbreviated? directly-printable?]]))
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
@@ -15,28 +15,29 @@
 (defn mark-as-markup [value]
   (with-meta value {::markup true}))
 
-(defn wrap-value-as-reference-if-needed [value]
-  (if (and (cljs-value? value) (not (markup? value)))
-    ["reference" value]
-    value))
-
 (defn build-markup [markup-fns fn-key & args]
   (let [f (get markup-fns fn-key)]
     (assert f (str "missing markup method in opts: " fn-key))
     (mark-as-markup (apply f args))))
 
+(defn wrap-value-as-reference-if-needed [markup value]
+  (if (and (not (directly-printable? value))
+           (not (markup? value)))
+    (build-markup markup :reference-surrogate value)
+    value))
+
 ; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
 
-(deftype TemplateWriter [^:mutable group]
+(deftype TemplateWriter [^:mutable group markup]
   Object
   (merge [_ a] (set! group (concat group a)))
   (get-group [_] group)
   IWriter
-  (-write [_ o] (set! group (concat group [(wrap-value-as-reference-if-needed o)])))                                          ; issue #21
+  (-write [_ o] (set! group (concat group [(wrap-value-as-reference-if-needed markup o)])))                                   ; issue #21
   (-flush [_] nil))
 
-(defn make-template-writer []
-  (TemplateWriter. []))
+(defn make-template-writer [markup]
+  (TemplateWriter. [] markup))
 
 ; -- post-processing --------------------------------------------------------------------------------------------------------
 
@@ -112,7 +113,7 @@
   (binding [*current-state* (get-current-state)]
     (let [{:keys [markup-fns]} opts
           circular? (is-circular? obj)
-          inner-writer (make-template-writer)]
+          inner-writer (make-template-writer (:markup-fns opts))]
       (push-object-to-current-history! obj)
       (alt-printer-job obj inner-writer opts)
       (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-fns circular?)))))
@@ -120,7 +121,7 @@
 ; -- common code for managed printing ---------------------------------------------------------------------------------------
 
 (defn managed-print [tag markup-fns printer]
-  (let [writer (make-template-writer)
+  (let [writer (make-template-writer markup-fns)
         opts {:alt-impl     alt-printer-impl
               :markup-fns   markup-fns
               :print-length (pref :max-header-elements)

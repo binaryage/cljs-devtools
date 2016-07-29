@@ -554,50 +554,58 @@
             [::tag/aligned-li :ns-icon [::tag/fn-ns-name "devtools.utils.batteries"]]
             [::tag/aligned-li :native-icon NATIVE-REF]]])))))
 
-#_(deftest test-alt-printer-impl
-    (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                         ; https://github.com/binaryage/cljs-devtools/issues/21
-      (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                      ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
-        (is-header date-map
-          [::tag/cljs-land
-           [::tag/header
-            "{"
-            [::tag/keyword ":date"]
-            :spacer
-            "#gdate "
-            REF
-            REF
-            REF
-            "}"]]
-          (fn [ref]
-            (is-header ref
-              [::tag/cljs-land
-               [::tag/header
-                REF]]
-              (fn [ref]
-                (has-body? ref true)
-                (is-header ref
-                  [::tag/header
-                   "["
-                   [::tag/integer 2016]
-                   :spacer
-                   [::tag/integer 6]
-                   :spacer
-                   [::tag/integer 1]
-                   "]"]))))
-          (fn [ref]
-            (is-header ref
-              [::tag/cljs-land
-               [::tag/header
-                "#js ["
-                [::tag/string "\"test-array\""]
-                "]"]]))
-          (fn [ref]
-            (is-header ref
-              [::tag/cljs-land
-               [::tag/header
-                "#js "
-                "{"
-                [::tag/keyword ":some-key"]
-                :spacer
-                [::tag/string "\"test-js-obj\""]
-                "}"]]))))))
+(deftest test-alt-printer-impl
+  (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
+    (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                        ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
+      (is-header date-map
+        [::tag/cljs-land
+         [::tag/header
+          "{"
+          [::tag/keyword ":date"]
+          :spacer
+          "#gdate "
+          42
+          REF
+          REF
+          REF
+          REF
+          REF
+          REF
+          "}"]]
+        (fn [ref]
+          (is-header ref
+            [::tag/header
+             "["
+             [::tag/integer 2016]
+             :spacer
+             [::tag/integer 6]
+             :spacer
+             [::tag/integer 1]
+             "]"]))
+        (fn [ref]
+          (is-header ref
+            [::tag/header
+             "#js ["
+             [::tag/string "\"test-array\""]
+             "]"]))
+        (fn [ref]
+          (is-header ref
+            [::tag/header
+             "#js "
+             "{"
+             [::tag/keyword ":some-key"]
+             :spacer
+             [::tag/string "\"test-js-obj\""]
+             "}"]))
+        (fn [ref]
+          (is-header ref
+            [::tag/header
+             [::tag/keyword ":keyword"]]))
+        (fn [ref]
+          (is-header ref
+            [::tag/header
+             [::tag/symbol "sym"]]))
+        (fn [ref]
+          (is-header ref
+            [::tag/header
+             "#\"" "regex" "\""]))))))
