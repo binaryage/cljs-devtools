@@ -1,32 +1,34 @@
 (ns devtools.formatters.markup
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]]
-                   [devtools.formatters.markup :refer [emit-markup-map]])
-  (:require [devtools.formatters.helpers :refer [bool? cljs-function? pref abbreviate-long-string cljs-type? cljs-instance?
-                                                 instance-of-a-well-known-type? get-constructor
-                                                 get-more-marker wrap-arity fetch-fields-values abbreviated?
-                                                 expandable?]]
+                   [devtools.formatters.markup :refer [emit-markup-db]])
+  (:require [devtools.formatters.helpers :refer [bool? cljs-function? cljs-type? cljs-instance?
+                                                 instance-of-a-well-known-type? expandable? abbreviated?
+                                                 abbreviate-long-string get-constructor pref
+                                                 get-more-marker wrap-arity fetch-fields-values]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
-            [devtools.formatters.templating :refer [get-surrogate-body get-surrogate-target get-surrogate-start-index
+            [devtools.formatters.templating :refer [get-surrogate-body
+                                                    get-surrogate-target
+                                                    get-surrogate-start-index
                                                     get-surrogate-header]]
             [devtools.munging :as munging]))
 
 ; reusable hiccup-like templates
 
-(declare get-markup-map)
+(declare get-markup-db)
 
 ; -- cljs printing  ---------------------------------------------------------------------------------------------------------
 
 (defn print-with [method value tag & [max-level]]
-  (let [job-fn #(method value tag (get-markup-map))]
+  (let [job-fn #(method value tag (get-markup-db))]
     (if (some? max-level)
       (binding [*print-level* (inc max-level)]                                                                                ; when printing do at most print-level deep recursion
         (job-fn))
       (job-fn))))
 
-(defn print-with-writer [value tag & [max-level]]
+(defn print-via-writer [value tag & [max-level]]
   (print-with managed-print-via-writer value tag max-level))
 
-(defn print-with-writer-protocol [value tag & [max-level]]
+(defn print-via-protocol [value tag & [max-level]]
   (print-with managed-print-via-protocol value tag max-level))
 
 ; -- references -------------------------------------------------------------------------------------------------------------
@@ -102,7 +104,7 @@
 ; -- generic preview markup -------------------------------------------------------------------------------------------------
 
 (defn <preview> [value]
-  (print-with-writer value :header-tag (pref :max-print-level)))
+  (print-via-writer value :header-tag (pref :max-print-level)))
 
 ; -- body-related templates -------------------------------------------------------------------------------------------------
 
@@ -135,7 +137,7 @@
 
 (defn- body-line [index value]
   (let [index-markup (<index> index)
-        value-markup (print-with-writer value :item-tag (pref :body-line-max-print-level))]
+        value-markup (print-via-writer value :item-tag (pref :body-line-max-print-level))]
     [index-markup value-markup]))
 
 ; TODO: this fn is screaming for rewrite
@@ -382,7 +384,7 @@
         custom-printing-markup (if custom-printing?
                                  [:instance-custom-printing-wrapper-tag
                                   :instance-custom-printing-background
-                                  (print-with-writer-protocol value :instance-custom-printing-tag)])]
+                                  (print-via-protocol value :instance-custom-printing-tag)])]
     [:instance-header-tag
      :instance-header-background
      fields-preview-markup
@@ -427,19 +429,19 @@
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
-(def ^:dynamic *markup-map* nil)
+(def ^:dynamic *markup-db*)
 
-; emit-markup-map macro will generate a map of all <functions> in this namespace:
+; emit-markup-db macro will generate a map of all markup <functions> in this namespace:
 ;
 ;    {:atomic              <atomic>
 ;     :reference           <reference>
 ;     :native-reference    <native-reference>
 ;     ...}
 ;
-; we generate it only on first call and cache it in *markup-map*
-; emitting markup map statically into def would prevent dead-code elimination
+; we generate it only on first call and cache it in *markup-db*
+; emitting markup db statically into def would prevent dead-code elimination
 ;
-(defn get-markup-map []
-  (if (nil? *markup-map*)
-    (set! *markup-map* (emit-markup-map)))
-  *markup-map*)
+(defn get-markup-db []
+  (if (nil? *markup-db*)
+    (set! *markup-db* (emit-markup-db)))
+  *markup-db*)

@@ -6,7 +6,7 @@
 (defn markup-method? [sym]
   (some? (re-matches #"<.*>" (str sym))))
 
-(defmacro emit-markup-map []
+(defmacro emit-markup-db []
   (let [defs (:defs (:ns &env))
         extract-markup-method (fn [[def-sym def-info]]
                                 (if (and (markup-method? def-sym)

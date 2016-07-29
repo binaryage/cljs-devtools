@@ -15,29 +15,28 @@
 (defn mark-as-markup [value]
   (with-meta value {::markup true}))
 
-(defn build-markup [markup-fns fn-key & args]
-  (let [f (get markup-fns fn-key)]
-    (assert f (str "missing markup method in opts: " fn-key))
+(defn build-markup [markup-db fn-key & args]
+  (let [f (get markup-db fn-key)]
+    (assert f (str "missing markup method in markup-db: " fn-key))
     (mark-as-markup (apply f args))))
 
-(defn wrap-value-as-reference-if-needed [markup value]
-  (if (and (not (directly-printable? value))
-           (not (markup? value)))
-    (build-markup markup :reference-surrogate value)
-    value))
+(defn wrap-value-as-reference-if-needed [markup-db value]
+  (if (or (directly-printable? value) (markup? value))
+    value
+    (build-markup markup-db :reference-surrogate value)))
 
 ; -- TemplateWriter ---------------------------------------------------------------------------------------------------------
 
-(deftype TemplateWriter [^:mutable group markup]
+(deftype TemplateWriter [^:mutable group markup-db]
   Object
   (merge [_ a] (set! group (concat group a)))
   (get-group [_] group)
   IWriter
-  (-write [_ o] (set! group (concat group [(wrap-value-as-reference-if-needed markup o)])))                                   ; issue #21
+  (-write [_ o] (set! group (concat group [(wrap-value-as-reference-if-needed markup-db o)])))                                ; issue #21
   (-flush [_] nil))
 
-(defn make-template-writer [markup]
-  (TemplateWriter. [] markup))
+(defn make-template-writer [markup-db]
+  (TemplateWriter. [] markup-db))
 
 ; -- post-processing --------------------------------------------------------------------------------------------------------
 
@@ -45,23 +44,23 @@
   (if-let [tag (first (first group))]
     (= tag "reference")))
 
-(defn wrap-group-in-reference-if-needed [group obj markup]
+(defn wrap-group-in-reference-if-needed [group obj markup-db]
   (if (and (not (already-reference? group))
            (or (expandable? obj) (abbreviated? group)))
-    (let [expandable-markup (apply build-markup markup :expandable group)
-          surrogate-markup (build-markup markup :raw-surrogate obj expandable-markup :target)
-          reference-markup (build-markup markup :reference surrogate-markup)]
+    (let [expandable-markup (apply build-markup markup-db :expandable group)
+          surrogate-markup (build-markup markup-db :raw-surrogate obj expandable-markup :target)
+          reference-markup (build-markup markup-db :reference surrogate-markup)]
       [reference-markup])
     group))
 
-(defn wrap-group-in-circular-warning-if-needed [group markup circular?]
+(defn wrap-group-in-circular-warning-if-needed [group markup-db circular?]
   (if circular?
-    [(apply build-markup markup :circular-reference group)]
+    [(apply build-markup markup-db :circular-reference group)]
     group))
 
-(defn wrap-group-in-meta-if-needed [group value markup]
+(defn wrap-group-in-meta-if-needed [group value markup-db]
   (if-let [meta-data (if (pref :print-meta-data) (meta value))]
-    [(apply (partial (:meta-wrapper markup) meta-data) group)]
+    [(apply (partial (:meta-wrapper markup-db) meta-data) group)]
     group))
 
 ; default printer implementation can do this:
@@ -75,34 +74,34 @@
 ; we have to implement a special flag to prevent infinite recursion
 ; see https://github.com/binaryage/cljs-devtools/issues/2
 ;     https://github.com/binaryage/cljs-devtools/issues/8
-(defn detect-edge-case-and-patch-it [group obj markup]
+(defn detect-edge-case-and-patch-it [group obj markup-db]
   (cond
     (or
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
       (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
       (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
-    [(build-markup markup :native-reference obj)]
+    [(build-markup markup-db :native-reference obj)]
 
     (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
     [(aget group 0) (build-markup :native-reference obj) (aget group 2)]
 
     :else group))
 
-(defn post-process-printed-output [output-group obj markup circular?]
+(defn post-process-printed-output [output-group obj markup-db circular?]
   (-> output-group
-      (detect-edge-case-and-patch-it obj markup)                                                                              ; an ugly hack
-      (wrap-group-in-reference-if-needed obj markup)
-      (wrap-group-in-circular-warning-if-needed markup circular?)
-      (wrap-group-in-meta-if-needed obj markup)))
+      (detect-edge-case-and-patch-it obj markup-db)                                                                           ; an ugly hack
+      (wrap-group-in-reference-if-needed obj markup-db)
+      (wrap-group-in-circular-warning-if-needed markup-db circular?)
+      (wrap-group-in-meta-if-needed obj markup-db)))
 
 ; -- alternative printer ----------------------------------------------------------------------------------------------------
 
 (defn alt-printer-job [obj writer opts]
-  (let [{:keys [markup-fns]} opts]
+  (let [{:keys [markup-db]} opts]
     (if (or (safe-call satisfies? false IDevtoolsFormat obj)
             (safe-call satisfies? false IFormat obj))                                                                         ; we have to wrap value in reference if detected IFormat
-      (-write writer (build-markup markup-fns :reference obj))
-      (if-let [atomic-markup (build-markup markup-fns :atomic obj)]
+      (-write writer (build-markup markup-db :reference obj))
+      (if-let [atomic-markup (build-markup markup-db :atomic obj)]
         (-write writer atomic-markup)
         (let [default-impl (:fallback-impl opts)
               ; we want to limit print-level, at max-print-level level use maximal abbreviation e.g. [...] or {...}
@@ -111,19 +110,19 @@
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
-    (let [{:keys [markup-fns]} opts
+    (let [{:keys [markup-db]} opts
           circular? (is-circular? obj)
-          inner-writer (make-template-writer (:markup-fns opts))]
+          inner-writer (make-template-writer (:markup-db opts))]
       (push-object-to-current-history! obj)
       (alt-printer-job obj inner-writer opts)
-      (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-fns circular?)))))
+      (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-db circular?)))))
 
 ; -- common code for managed printing ---------------------------------------------------------------------------------------
 
-(defn managed-print [tag markup-fns printer]
-  (let [writer (make-template-writer markup-fns)
+(defn managed-print [tag markup-db printer]
+  (let [writer (make-template-writer markup-db)
         opts {:alt-impl     alt-printer-impl
-              :markup-fns   markup-fns
+              :markup-db    markup-db
               :print-length (pref :max-header-elements)
               :more-marker  (pref :more-marker)}]
     (printer writer opts)
@@ -131,10 +130,10 @@
 
 ; -- public printing API ----------------------------------------------------------------------------------------------------
 
-(defn managed-print-via-writer [value tag markup-fns]
-  (managed-print tag markup-fns (fn [writer opts]
-                                  (pr-seq-writer [value] writer opts))))                                                      ; note we use pr-seq-writer becasue pr-writer is private for some reason
+(defn managed-print-via-writer [value tag markup-db]
+  (managed-print tag markup-db (fn [writer opts]
+                                 (pr-seq-writer [value] writer opts))))                                                       ; note we use pr-seq-writer becasue pr-writer is private for some reason
 
-(defn managed-print-via-protocol [value tag markup-fns]
-  (managed-print tag markup-fns (fn [writer opts]
-                                  (-pr-writer value writer opts))))
+(defn managed-print-via-protocol [value tag markup-db]
+  (managed-print tag markup-db (fn [writer opts]
+                                 (-pr-writer value writer opts))))
