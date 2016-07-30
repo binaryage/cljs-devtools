@@ -3,10 +3,12 @@
   (:require [devtools.prefs :refer [pref]]
             [devtools.format :refer [IDevtoolsFormat]]
             [devtools.protocols :refer [IFormat]]
-            [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-body get-surrogate-target]]
+            [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-body]]
             [devtools.formatters.helpers :refer [cljs-value?]]
-            [devtools.formatters.state :refer [prevent-recursion? *current-state* get-current-state get-default-state]]
-            [devtools.formatters.markup :refer [<header> <surrogate-header> <surrogate-body>]]))
+            [devtools.formatters.state :refer [prevent-recursion? *current-state* get-default-state update-current-state!
+                                               reset-depth-limits]]
+            [devtools.formatters.markup :refer [<header> <surrogate-header> <surrogate-body>]]
+            [devtools.formatters.budgeting :refer [was-over-budget?! alter-json-ml-to-fit-in-remaining-budget!]]))
 
 ; -- RAW API ----------------------------------------------------------------------------------------------------------------
 
@@ -15,30 +17,33 @@
        (or (cljs-value? value) (surrogate? value))))
 
 (defn header* [value]
-  (cond
-    (surrogate? value) (render-markup (<surrogate-header> value))
-    (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-header value)
-    (safe-call satisfies? false IFormat value) (devtools.protocols/-header value)
-    :else (render-markup (<header> value))))
+  (let [json-ml (cond
+                  (surrogate? value) (render-markup (<surrogate-header> value))
+                  (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-header value)
+                  (safe-call satisfies? false IFormat value) (devtools.protocols/-header value)
+                  :else (render-markup (<header> value)))]
+    (alter-json-ml-to-fit-in-remaining-budget! value json-ml)))                                                               ; see issue #22
 
 (defn has-body* [value]
   ; note: body is emulated using surrogate references
-  (boolean
-    (cond
-      (surrogate? value) (some? (get-surrogate-body value))
-      (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-has-body value)
-      (safe-call satisfies? false IFormat value) (devtools.protocols/-has-body value)
-      :else false)))
+  (if (was-over-budget?! value)                                                                                               ; see issue #22
+    false                                                                                                                     ; see alter-json-ml-to-fit-in-remaining-budget!, in case we didn't fit into budget, a header-expander placeholder with body was added in place
+    (boolean
+      (cond
+        (surrogate? value) (some? (get-surrogate-body value))
+        (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-has-body value)
+        (safe-call satisfies? false IFormat value) (devtools.protocols/-has-body value)
+        :else false))))
 
 (defn body* [value]
+  (update-current-state! reset-depth-limits)
   (cond
     (surrogate? value) (render-markup (<surrogate-body> value))
     (safe-call satisfies? false IDevtoolsFormat value) (devtools.format/-body value)
     (safe-call satisfies? false IFormat value) (devtools.protocols/-body value)))
 
-
 ; ---------------------------------------------------------------------------------------------------------------------------
-; RAW API config-aware, see state management documentation state.cljs
+; config-aware RAW API, see state management documentation state.cljs
 
 (defn config-wrapper [raw-fn]
   (fn [value config]

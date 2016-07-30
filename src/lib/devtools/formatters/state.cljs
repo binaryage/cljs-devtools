@@ -46,3 +46,28 @@
 (defn ^bool prevent-recursion? []
   (boolean (:prevent-recursion (get-current-state))))
 
+(defn set-prevent-recursion [state val]
+  (if (some? val)
+    (assoc state :prevent-recursion val)
+    (dissoc state :prevent-recursion)))
+
+(defn get-managed-print-level []
+  (:managed-print-level (get-current-state)))
+
+(defn set-managed-print-level [state val]
+  (if (some? val)
+    (assoc state :managed-print-level val)
+    (dissoc state :managed-print-level)))
+
+(defn get-depth-budget []
+  (:depth-budget (get-current-state)))
+
+(defn set-depth-budget [state val]
+  (if (some? val)
+    (assoc state :depth-budget val)
+    (dissoc state :depth-budget)))
+
+(defn reset-depth-limits [state]
+  (-> state
+      (set-depth-budget nil)
+      (set-managed-print-level nil)))

@@ -95,11 +95,14 @@
   {:pre [(surrogate? surrogate)]}
   (oget surrogate "startIndex"))
 
-(defn make-reference [object & [state-override]]
+(defn make-reference [object & [state-override-fn]]
+  {:pre [(or (nil? state-override-fn) (fn? state-override-fn))]}
   (if (nil? object)
     ; this code is duplicated in markup.cljs <nil>
     (make-template :span :nil-style :nil-label)
-    (let [sub-state (merge (get-current-state) state-override)]
+    (let [sub-state (if (some? state-override-fn)
+                      (state-override-fn (get-current-state))
+                      (get-current-state))]
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
@@ -200,6 +203,7 @@
 (defn render-markup* [initial-value value]
   (cond
     (fn? value) (recur initial-value (value))
+    (keyword? value) (recur initial-value (pref value))
     (sequential? value) (recur initial-value (render-json-ml value))
     (template? value) value
     (surrogate? value) value

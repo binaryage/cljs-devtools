@@ -6,6 +6,7 @@
                                                  abbreviate-long-string get-constructor pref
                                                  get-more-marker wrap-arity fetch-fields-values]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
+            [devtools.formatters.state :refer [set-prevent-recursion set-managed-print-level reset-depth-limits]]
             [devtools.formatters.templating :refer [get-surrogate-body
                                                     get-surrogate-target
                                                     get-surrogate-start-index
@@ -54,8 +55,11 @@
   (concat [:circular-reference-tag :circular-ref-icon] children))
 
 (defn <native-reference> [object]
-  (let [reference (<reference> object {:prevent-recursion true})]
+  (let [reference (<reference> object #(set-prevent-recursion % true))]
     [:native-reference-tag :native-reference-background reference]))
+
+(defn <header-expander> [object]
+  [:header-expander-tag (<reference> (<raw-surrogate> object :header-expander-symbol :target) reset-depth-limits)])
 
 ; -- simple markup ----------------------------------------------------------------------------------------------------------
 
@@ -336,7 +340,7 @@
   [:header-field-tag
    [:header-field-name-tag (str name)]
    :header-field-value-spacer
-   [:header-field-value-tag (<reference> value)]
+   [:header-field-value-tag (<reference> (<surrogate> value) #(set-managed-print-level % 1))]
    :header-field-separator])
 
 (defn <fields-details-row> [field]
@@ -347,7 +351,7 @@
       [:body-field-name-tag (str name)]]
      [:body-field-td2-tag
       :body-field-value-spacer
-      [:body-field-value-tag (<reference> value)]]]))
+      [:body-field-value-tag (<reference-surrogate> value)]]]))
 
 (defn <fields> [fields & [max-fields]]
   (if (zero? (count fields))

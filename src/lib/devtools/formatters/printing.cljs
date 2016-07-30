@@ -4,7 +4,8 @@
             [devtools.format :refer [IDevtoolsFormat]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.state :refer [push-object-to-current-history! *current-state* get-current-state
-                                               is-circular?]]
+                                               is-circular? get-managed-print-level set-managed-print-level
+                                               update-current-state!]]
             [devtools.formatters.helpers :refer [cljs-value? expandable? abbreviated? directly-printable?]]))
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
@@ -124,8 +125,13 @@
         opts {:alt-impl     alt-printer-impl
               :markup-db    markup-db
               :print-length (pref :max-header-elements)
-              :more-marker  (pref :more-marker)}]
-    (printer writer opts)
+              :more-marker  (pref :more-marker)}
+        job-fn #(printer writer opts)]
+    (if-let [managed-print-level (get-managed-print-level)]
+      (binding [*print-level* managed-print-level]
+        (update-current-state! #(set-managed-print-level % nil))                                                              ; reset managed-print-level so it does not propagate further down in expaded data
+        (job-fn))
+      (job-fn))
     (concat [(pref tag)] (.get-group writer))))
 
 ; -- public printing API ----------------------------------------------------------------------------------------------------
