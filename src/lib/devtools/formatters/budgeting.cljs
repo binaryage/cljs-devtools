@@ -11,7 +11,7 @@
 ; instead we render simple expandable placeholders which resume full rendering in their bodies (when expanded by user).
 ; Note that this technique has some quirks, it may break styling in some pathological cases.
 
-; we need to reserve some depth levels for our expander symbol
+; we need to reserve some depth levels for our expander symbol markup
 (def header-expander-depth-cost 2)
 
 ; -- tracking over-budget values  -------------------------------------------------------------------------------------------
@@ -41,24 +41,28 @@
 
 (defn determine-depth [json-ml]
   (if (array? json-ml)
-    (if (object-reference? json-ml)
-      (+ 1 header-expander-depth-cost)
-      (inc (apply max (map determine-depth json-ml))))
+    (inc (apply max (map determine-depth json-ml)))
     0))
 
+(defn has-any-object-reference? [json-ml]
+  (if (array? json-ml)
+    (if (object-reference? json-ml)
+      true
+      (some has-any-object-reference? json-ml))))
+
 (defn transfer-remaining-depth-budget! [object-reference depth-budget]
-  {:pre [(pos? depth-budget)]}
+  {:pre [(not (neg? depth-budget))]}
   (let [data (second object-reference)
         _ (assert (object? data))
         config (oget data "config")]
     (oset data ["config"] (set-depth-budget config depth-budget))))
 
 (defn distribute-budget! [json-ml depth-budget]
-  {:pre [(pos? depth-budget)]}
+  {:pre [(not (neg? depth-budget))]}
   (if (array? json-ml)
     (let [new-depth-budget (dec depth-budget)]
       (if (object-reference? json-ml)
-        (transfer-remaining-depth-budget! json-ml (- new-depth-budget header-expander-depth-cost))
+        (transfer-remaining-depth-budget! json-ml new-depth-budget)
         (doseq [item json-ml]
           (distribute-budget! item new-depth-budget)))))
   json-ml)
@@ -72,9 +76,11 @@
 
 (defn alter-json-ml-to-fit-in-remaining-budget! [value json-ml]
   (if-let [initial-hierarchy-depth-budget (pref :initial-hierarchy-depth-budget)]                                             ; this is hardcoded in InjectedScriptSource.js in WebKit, look for maxCustomPreviewRecursionDepth
-    (let [remaining-depth-budget (or (get-depth-budget) initial-hierarchy-depth-budget)
-          depth (determine-depth json-ml)]
-      (if (> remaining-depth-budget depth)
+    (let [remaining-depth-budget (or (get-depth-budget) (dec initial-hierarchy-depth-budget))
+          depth (determine-depth json-ml)
+          final? (not (has-any-object-reference? json-ml))
+          needed-depth (if final? depth (+ depth header-expander-depth-cost))]
+      (if (>= remaining-depth-budget needed-depth)
         (distribute-budget! json-ml remaining-depth-budget)
         (let [expander-ml (render-markup (<header-expander> value))]
           (add-over-budget-value! value)                                                                                      ; we need to record over-budget values to for later was-over-budget?! check, see has-body* in formatters.core

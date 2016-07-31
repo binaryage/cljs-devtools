@@ -223,9 +223,9 @@
    :bool-style                                    (css (str "color: " (named-color :bool) ";"))
 
    ; native reference wrapper is here to counter some "evil" internal DevTools styles in treeoutline.css
-   ; namely :host padding [1] and min-height 16px [2]
-   ; https://github.com/binaryage/dirac/blob/acdf79e782510f6cdac609def3f561d5d04c86c8/front_end/ui/treeoutline.css#L9
-   ; https://github.com/binaryage/dirac/blob/acdf79e782510f6cdac609def3f561d5d04c86c8/front_end/ui/treeoutline.css#L80
+   ; namely :host padding[1] and li min-height[2]
+   ; [1] https://github.com/binaryage/dirac/blob/acdf79e782510f6cdac609def3f561d5d04c86c8/front_end/ui/treeoutline.css#L9
+   ; [2] https://github.com/binaryage/dirac/blob/acdf79e782510f6cdac609def3f561d5d04c86c8/front_end/ui/treeoutline.css#L80
    :native-reference-wrapper-style                (css "position: relative;"
                                                        "display: inline-flex;")
    :native-reference-style                        (css "padding: 0px 3px;"
