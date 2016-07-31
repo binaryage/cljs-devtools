@@ -13,8 +13,8 @@
 ; this is hardcoded in InjectedScriptSource.js in WebKit, look for maxCustomPreviewRecursionDepth
 (def initial-hierarchy-depth-budget (dec 20))
 
-; we need to reserve some depth levels for our :header-expander-tag
-(def header-expander-depth-cost 3)
+; we need to reserve some depth levels for our expander symbol
+(def header-expander-depth-cost 2)
 
 ; -- tracking over-budget values  -------------------------------------------------------------------------------------------
 

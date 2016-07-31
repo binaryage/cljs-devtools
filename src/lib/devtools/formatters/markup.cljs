@@ -59,7 +59,7 @@
     [:native-reference-tag :native-reference-background reference]))
 
 (defn <header-expander> [object]
-  [:header-expander-tag (<reference> (<raw-surrogate> object :header-expander-symbol :target) reset-depth-limits)])
+  (<reference> (<raw-surrogate> object :header-expander-symbol :target) reset-depth-limits))
 
 ; -- simple markup ----------------------------------------------------------------------------------------------------------
 

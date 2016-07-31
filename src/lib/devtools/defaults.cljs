@@ -183,7 +183,6 @@
    :expandable-inner-tag                          [:span :expandable-inner-style]
    :instance-custom-printing-tag                  [:span :instance-custom-printing-style]
    :default-envelope-tag                          [:span :default-envelope-style]
-   :header-expander-tag                           [:span :header-expander-style]
 
    ; -- DOM tags mapping ----------------------------------------------------------------------------------------------------
 
@@ -201,7 +200,6 @@
                                                        "border-radius: 2px;")
 
    :header-style                                  (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
-   :header-expander-style                         (css "white-space: nowrap;")                                                ; this prevents jumping of content when expanding sections due to content wrapping
    :expandable-style                              (css "white-space: nowrap;"
                                                        "padding-left: 3px;")
    :expandable-inner-style                        (css "margin-left: -3px;")
