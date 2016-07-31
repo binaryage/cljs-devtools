@@ -94,11 +94,9 @@
 (defn fetch-fields-values [obj fields]
   (map (partial fetch-field-value obj) fields))
 
-(defn seq-count-is-greater-or-equal? [seq limit]
-  (let [chunk (take limit seq)]                                                                                               ; we have to be extra careful to not call count on seq, it might be an infinite sequence
-    (= (count chunk) limit)))
-
 (defn expandable? [obj]
   (if (seqable? obj)
-    (let [min-count (or (pref :min-expandable-sequable-count) 0)]
-      (seq-count-is-greater-or-equal? obj min-count))))
+    (let [min-count (pref (if (instance-of-a-well-known-type? obj)
+                            :min-expandable-sequable-count-for-well-known-types
+                            :min-expandable-sequable-count))]
+      (>= (bounded-count min-count obj) (or min-count 0)))))

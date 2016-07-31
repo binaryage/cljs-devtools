@@ -7,7 +7,7 @@
                                          remove-empty-styles pref-str]]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.formatters.templating :refer [surrogate?]]
-            [devtools.formatters.helpers :refer [cljs-function?]]
+            [devtools.formatters.helpers :refer [cljs-function? instance-of-a-well-known-type?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
             [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
 
@@ -139,7 +139,7 @@
 (deftest test-collections
   (testing "vectors"
     (is (< 4 :max-header-elements))
-    (is (> 6 :min-expandable-sequable-count))
+    (is (> 6 :min-expandable-sequable-count-for-well-known-types))
     (is-header [1 2 3]
       [::tag/cljs-land
        [::tag/header
@@ -312,76 +312,161 @@
             [::tag/keyword ":meta"]]])))))
 
 (deftest test-sequables
-  (testing "min-sequable-count-for-expansion"
-    (with-prefs {:max-header-elements           100
-                 :min-expandable-sequable-count 3}
-      (is-header [1 2]
-        [::tag/cljs-land
-         [::tag/header
-          "["
-          [::tag/integer 1]
-          :spacer
-          [::tag/integer 2]
-          "]"]])
-      (is-header [1 2 3]
-        [::tag/cljs-land
-         [::tag/header
-          REF]]
-        (fn [ref]
-          (is (surrogate? ref))
-          (has-body? ref true)
-          (is-header ref
-            [::tag/expandable
-             [::tag/expandable-inner
-              "["
-              [::tag/integer 1]
-              :spacer
-              [::tag/integer 2]
-              :spacer
-              [::tag/integer 3]
-              "]"]]))))
-    (with-prefs {:max-header-elements           100
-                 :min-expandable-sequable-count 4}
-      (is-header [1 2 3]
-        [::tag/cljs-land
-         [::tag/header
-          "["
-          [::tag/integer 1]
-          :spacer
-          [::tag/integer 2]
-          :spacer
-          [::tag/integer 3]
-          "]"]]))
-    (with-prefs {:min-expandable-sequable-count nil}
-      (is-header []
-        [::tag/cljs-land
-         [::tag/header
-          REF]])
-      (is-header [1 2 3]
-        [::tag/cljs-land
-         [::tag/header
-          REF]])
-      (is-header [1 2 3 4 5 6]
-        [::tag/cljs-land
-         [::tag/header
-          REF]]
-        (fn [ref]
-          (is (surrogate? ref))
-          (is-header ref
-            [::tag/expandable
-             [::tag/expandable-inner
-              "["
-              (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
-              :more-marker
-              "]"]])
-          (has-body? ref true)
-          (is-body ref
-            [::tag/body
-             [::tag/standard-ol
-              (unroll (fn [i] [[::tag/standard-li
-                                [::tag/index i :line-index-separator]
-                                [::tag/item
-                                 [::tag/integer (+ i 1)]]]]) (range 6))]]))))))
+  (testing "min-sequable-count-for-expansion of a well known type"
+    (let [v2 [1 2]
+          v3 [1 2 3]
+          v6 [1 2 3 4 5 6]]
+      (are [v] (instance-of-a-well-known-type? v) v2 v3 v6)
+      (with-prefs {:max-header-elements                                100
+                   :min-expandable-sequable-count-for-well-known-types 3}
+        (is-header v2
+          [::tag/cljs-land
+           [::tag/header
+            "["
+            [::tag/integer 1]
+            :spacer
+            [::tag/integer 2]
+            "]"]])
+        (is-header v3
+          [::tag/cljs-land
+           [::tag/header
+            REF]]
+          (fn [ref]
+            (is (surrogate? ref))
+            (has-body? ref true)
+            (is-header ref
+              [::tag/expandable
+               [::tag/expandable-inner
+                "["
+                [::tag/integer 1]
+                :spacer
+                [::tag/integer 2]
+                :spacer
+                [::tag/integer 3]
+                "]"]]))))
+      (with-prefs {:max-header-elements                                100
+                   :min-expandable-sequable-count-for-well-known-types 4}
+        (is-header v3
+          [::tag/cljs-land
+           [::tag/header
+            "["
+            [::tag/integer 1]
+            :spacer
+            [::tag/integer 2]
+            :spacer
+            [::tag/integer 3]
+            "]"]]))
+      (with-prefs {:min-expandable-sequable-count-for-well-known-types nil}
+        (is-header []
+          [::tag/cljs-land
+           [::tag/header
+            REF]])
+        (is-header v3
+          [::tag/cljs-land
+           [::tag/header
+            REF]])
+        (is-header v6
+          [::tag/cljs-land
+           [::tag/header
+            REF]]
+          (fn [ref]
+            (is (surrogate? ref))
+            (is-header ref
+              [::tag/expandable
+               [::tag/expandable-inner
+                "["
+                (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
+                :more-marker
+                "]"]])
+            (has-body? ref true)
+            (is-body ref
+              [::tag/body
+               [::tag/standard-ol
+                (unroll (fn [i] [[::tag/standard-li
+                                  [::tag/index i :line-index-separator]
+                                  [::tag/item
+                                   [::tag/integer (+ i 1)]]]]) (range 6))]]))))))
+  (testing "min-sequable-count-for-expansion of a general type"
+    (let [r0 (b/R0.)
+          r2 (b/R2. 1 2)
+          r3 (b/R3. 1 2 3)
+          r6 (b/R6. 1 2 3 4 5 6)]
+      (are [v] (not (instance-of-a-well-known-type? v)) r0 r2 r3 r6)
+      (with-prefs {:min-expandable-sequable-count 3}
+        (is-header r2
+          [::tag/cljs-land
+           [::tag/header
+            [::tag/instance-header
+             ;:instance-header-background
+             [::tag/instance-value REF]
+             [::tag/instance-custom-printing-wrapper
+              :instance-custom-printing-background
+              [::tag/instance-custom-printing
+               "#devtools.utils.batteries.R2{"
+               [::tag/keyword ":fld1"]
+               :spacer
+               [::tag/integer 1]
+               ", "
+               [::tag/keyword ":fld2"]
+               :spacer
+               [::tag/integer 2]
+               "}"
+               ]]
+             [::tag/type-wrapper
+              :type-header-background
+              [::tag/type-ref REF]]]]])
+        (is-header r3
+          [::tag/cljs-land
+           [::tag/header
+            REF]]
+          (fn [ref]
+            (is-header ref
+              [::tag/expandable
+               [::tag/expandable-inner
+                [::tag/instance-header
+                 ;:instance-header-background
+                 [::tag/instance-value REF]
+                 [::tag/instance-custom-printing-wrapper
+                  :instance-custom-printing-background
+                  [::tag/instance-custom-printing
+                   "#devtools.utils.batteries.R3{"
+                   [::tag/keyword ":fld1"]
+                   :spacer
+                   [::tag/integer 1]
+                   ", "
+                   [::tag/keyword ":fld2"]
+                   :spacer
+                   [::tag/integer 2]
+                   ", "
+                   [::tag/keyword ":fld3"]
+                   :spacer
+                   [::tag/integer 3]
+                   "}"
+                   ]]
+                 [::tag/type-wrapper
+                  :type-header-background
+                  [::tag/type-ref REF]]]]]))))
+      (with-prefs {:min-expandable-sequable-count false}
+        (is-header r0
+          [::tag/cljs-land
+           [::tag/header
+            REF]]
+          (fn [ref]
+            (is-header ref
+              [::tag/expandable
+               [::tag/expandable-inner
+                [::tag/instance-header
+                 ;:instance-header-background
+                 [::tag/instance-value REF]
+                 [::tag/instance-custom-printing-wrapper
+                  :instance-custom-printing-background
+                  [::tag/instance-custom-printing
+                   "#devtools.utils.batteries.R0{"
+                   "}"
+                   ]]
+                 [::tag/type-wrapper
+                  :type-header-background
+                  [::tag/type-ref REF]]]]])))))))
 
 (deftest test-circular-data
   (testing "circular data structure"

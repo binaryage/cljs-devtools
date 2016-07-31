@@ -152,3 +152,11 @@
                               "I'm a goog.Promise with devtools.protocols.IFormat"))
   (-has-body [_] false)
   (-body [_]))
+
+(defrecord R0 [])
+(defrecord R1 [fld1])
+(defrecord R2 [fld1 fld2])
+(defrecord R3 [fld1 fld2 fld3])
+(defrecord R4 [fld1 fld2 fld3 fld4])
+(defrecord R5 [fld1 fld2 fld3 fld4 fld5])
+(defrecord R6 [fld1 fld2 fld3 fld4 fld5 fld6])
