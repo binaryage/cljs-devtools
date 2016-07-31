@@ -29,6 +29,7 @@
    :max-instance-custom-printing-level            2
    :max-list-protocols                            5
    :max-protocol-method-arities-list              3
+   :initial-hierarchy-depth-budget                (dec 20)                                                                    ; set to false to disable, issue #22
 
    ; by default, well known types will render only via cljs printer, we won't wrap them in the blue-ish type info
    :well-known-types                              #{"cljs.core/Keyword"

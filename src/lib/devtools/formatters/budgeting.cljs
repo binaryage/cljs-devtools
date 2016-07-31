@@ -2,6 +2,7 @@
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
   (:require [devtools.formatters.templating :refer [render-markup]]
             [devtools.formatters.state :refer [get-depth-budget set-depth-budget]]
+            [devtools.formatters.helpers :refer [pref]]
             [devtools.formatters.markup :refer [<header-expander>]]))
 
 ; This functionality provides a workaround to issue #22 (https://github.com/binaryage/cljs-devtools/issues/22).
@@ -9,9 +10,6 @@
 ; If we are about to cross the depth limit hardcoded in WebKit,
 ; instead we render simple expandable placeholders which resume full rendering in their bodies (when expanded by user).
 ; Note that this technique has some quirks, it may break styling in some pathological cases.
-
-; this is hardcoded in InjectedScriptSource.js in WebKit, look for maxCustomPreviewRecursionDepth
-(def initial-hierarchy-depth-budget (dec 20))
 
 ; we need to reserve some depth levels for our expander symbol
 (def header-expander-depth-cost 2)
@@ -73,10 +71,12 @@
     true))
 
 (defn alter-json-ml-to-fit-in-remaining-budget! [value json-ml]
-  (let [remaining-depth-budget (or (get-depth-budget) initial-hierarchy-depth-budget)
-        depth (determine-depth json-ml)]
-    (if (> remaining-depth-budget depth)
-      (distribute-budget! json-ml remaining-depth-budget)
-      (let [expander-ml (render-markup (<header-expander> value))]
-        (add-over-budget-value! value)                                                                                        ; we need to record over-budget values to for later was-over-budget?! check, see has-body* in formatters.core
-        expander-ml))))
+  (if-let [initial-hierarchy-depth-budget (pref :initial-hierarchy-depth-budget)]                                             ; this is hardcoded in InjectedScriptSource.js in WebKit, look for maxCustomPreviewRecursionDepth
+    (let [remaining-depth-budget (or (get-depth-budget) initial-hierarchy-depth-budget)
+          depth (determine-depth json-ml)]
+      (if (> remaining-depth-budget depth)
+        (distribute-budget! json-ml remaining-depth-budget)
+        (let [expander-ml (render-markup (<header-expander> value))]
+          (add-over-budget-value! value)                                                                                      ; we need to record over-budget values to for later was-over-budget?! check, see has-body* in formatters.core
+          expander-ml)))
+    json-ml))
