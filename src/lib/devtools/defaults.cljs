@@ -135,7 +135,8 @@
    :expanded-string-tag                           [:span :expanded-string-style]
    :circular-reference-tag                        [:span :circular-reference-wrapper-style]
    :circular-reference-body-tag                   [:span :circular-reference-body-style]
-   :native-reference-tag                          [:span :native-reference-wrapper-style]
+   :native-reference-tag                          [:span :native-reference-style]
+   :native-reference-wrapper-tag                  [:span :native-reference-wrapper-style]
    :meta-wrapper-tag                              [:span :meta-wrapper-style]
    :meta-header-tag                               [:span :meta-style]
    :meta-body-tag                                 [:span :meta-body-style]
@@ -167,6 +168,7 @@
    :body-field-tr-tag                             [:tr :body-field-tr-style]
    :body-field-td1-tag                            [:td :body-field-td1-style]
    :body-field-td2-tag                            [:td :body-field-td2-style]
+   :body-field-td3-tag                            [:td :body-field-td3-style]
    :body-field-name-tag                           [:span :body-field-name-style]
    :body-field-value-tag                          [:span :body-field-value-style]
    :fields-header-tag                             [:span :fields-header-style]
@@ -219,11 +221,17 @@
    :symbol-style                                  (css (str "color: " (named-color :symbol) ";"))
    :bool-style                                    (css (str "color: " (named-color :bool) ";"))
 
-   :native-reference-wrapper-style                (css "display: inline-block;"                                               ; a hacky correction to hairy devtools tree-outline.css styles
-                                                       "padding: 0px 3px;"
+   ; native reference wrapper is here to counter some "evil" internal DevTools styles in treeoutline.css
+   ; namely :host padding [1] and min-height 16px [2]
+   ; https://github.com/binaryage/dirac/blob/acdf79e782510f6cdac609def3f561d5d04c86c8/front_end/ui/treeoutline.css#L9
+   ; https://github.com/binaryage/dirac/blob/acdf79e782510f6cdac609def3f561d5d04c86c8/front_end/ui/treeoutline.css#L80
+   :native-reference-wrapper-style                (css "position: relative;"
+                                                       "display: inline-flex;")
+   :native-reference-style                        (css "padding: 0px 3px;"
+                                                       "margin: -4px 0px -2px;"
                                                        "position: relative;"
-                                                       "margin-bottom: -3px;"
-                                                       "top: -3px;")
+                                                       "top: 1px;")
+
    :type-wrapper-style                            (css "position: relative;"
                                                        "padding-left: 1px;"
                                                        "border-radius: 2px;")
@@ -244,13 +252,15 @@
    :protocol-ns-name-style                        (css (str "color: " (named-color :ns) ";"))
    :list-style                                    (css)
 
-   :body-field-td1-style                          (css "vertical-align: top;"
-                                                       "padding: 0;"
-                                                       "padding-right: 4px;")
    :body-field-name-style                         (css (str "color: " (named-color :field) ";"))
    :body-field-value-style                        (css "margin-left: 6px;")
    :header-field-name-style                       (css (str "color: " (named-color :field) ";"))
+   :body-field-td1-style                          (css "vertical-align: top;"
+                                                       "padding: 0;"
+                                                       "padding-right: 4px;")
    :body-field-td2-style                          (css "vertical-align: top;"
+                                                       "padding: 0;")
+   :body-field-td3-style                          (css "vertical-align: top;"
                                                        "padding: 0;")
    :instance-header-style                         (css (d/type-outline-style)
                                                        "position:relative;")

@@ -9,7 +9,7 @@
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
 
-(def NATIVE-REF [::tag/native-reference :native-reference-background REF])
+(def NATIVE-REF [::tag/native-reference-wrapper :native-reference-background [::tag/native-reference REF]])
 
 (deftype SimpleType [some-field])
 

@@ -56,7 +56,7 @@
 
 (defn <native-reference> [object]
   (let [reference (<reference> object #(set-prevent-recursion % true))]
-    [:native-reference-tag :native-reference-background reference]))
+    [:native-reference-wrapper-tag :native-reference-background [:native-reference-tag reference]]))
 
 (defn <header-expander> [object]
   (<reference> (<raw-surrogate> object :header-expander-symbol :target) reset-depth-limits))
@@ -350,7 +350,8 @@
       :body-field-symbol
       [:body-field-name-tag (str name)]]
      [:body-field-td2-tag
-      :body-field-value-spacer
+      :body-field-value-spacer]
+     [:body-field-td3-tag
       [:body-field-value-tag (<reference-surrogate> value)]]]))
 
 (defn <fields> [fields & [max-fields]]

@@ -5,41 +5,42 @@
 (declare make-named-color)
 
 (def named-colors
-  {:signature                  [100 255 100]
-   :type                       [0 160 220]
-   :type-text                  [238 238 355]
-   :field                      #(make-named-color :type)
-   :basis                      #(make-named-color :type)
-   :meta                       [255 102 0]
-   :meta-text                  [238 238 238]
-   :protocol                   [41 59 163]
-   :method                     #(make-named-color :protocol)
-   :ns                         [150 150 150]
-   :native                     [255 0 255]
-   :fn                         [30 130 30]
-   :lambda                     #(make-named-color :fn)
-   :custom-printing            [255 255 200]
-   :circular-ref               [255 0 0]
-   :nil                        [128 128 128]
-   :keyword                    [136 19 145]
-   :integer                    [28 0 207]
-   :float                      [28 136 207]
-   :string                     [196 26 22]
-   :expanded-string            [255 100 100]
-   :symbol                     [0 0 0]
-   :bool                       [0 153 153]
-   :fast-protocol              [255 255 170]
-   :slow-protocol              [238 238 238]
-   :more                       [255 255 255]
-   :more-background            [153 153 153]
-   :index                      [0 0 0]
-   :index-background           [221 221 221]
-   :field-spacer               [204 204 204]
-   :signature-background       #(make-named-color :signature 0.08)
-   :body-border                #(make-named-color :signature 0.6)
-   :expanded-string-background #(make-named-color :expanded-string 0.08)
-   :expanded-string-border     #(make-named-color :expanded-string 0.4)
-   :custom-printing-background #(make-named-color :custom-printing)})
+  {:signature                   [100 255 100]
+   :type                        [0 160 220]
+   :type-text                   [238 238 355]
+   :field                       #(make-named-color :type)
+   :basis                       #(make-named-color :type)
+   :meta                        [255 102 0]
+   :meta-text                   [238 238 238]
+   :protocol                    [41 59 163]
+   :method                      #(make-named-color :protocol)
+   :ns                          [150 150 150]
+   :native                      [255 0 255]
+   :fn                          [30 130 30]
+   :lambda                      #(make-named-color :fn)
+   :custom-printing             [255 255 200]
+   :circular-ref                [255 0 0]
+   :nil                         [128 128 128]
+   :keyword                     [136 19 145]
+   :integer                     [28 0 207]
+   :float                       [28 136 207]
+   :string                      [196 26 22]
+   :expanded-string             [255 100 100]
+   :symbol                      [0 0 0]
+   :bool                        [0 153 153]
+   :fast-protocol               [255 255 170]
+   :slow-protocol               [238 238 238]
+   :more                        [255 255 255]
+   :more-background             [153 153 153]
+   :index                       [0 0 0]
+   :index-background            [221 221 221]
+   :field-spacer                [204 204 204]
+   :native-reference-background [255 255 255]
+   :signature-background        #(make-named-color :signature 0.08)
+   :body-border                 #(make-named-color :signature 0.6)
+   :expanded-string-background  #(make-named-color :expanded-string 0.08)
+   :expanded-string-border      #(make-named-color :expanded-string 0.4)
+   :custom-printing-background  #(make-named-color :custom-printing)})
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
@@ -139,13 +140,8 @@
         (get-inner-background-style)))
 
 (defmacro get-native-reference-background-style []
-  `(css "position: absolute;"
-        "top: 3px;"
-        "right: 1px;"
-        "bottom: 1px;"
-        "left: 1px;"
-        "border-radius: 1px;"
-        "background-color: white;"))
+  `(css (str "background-color:" (named-color :native-reference-background) ";")
+        (get-inner-background-style)))
 
 (defmacro get-common-protocol-style []
   `(css "position: relative;"
