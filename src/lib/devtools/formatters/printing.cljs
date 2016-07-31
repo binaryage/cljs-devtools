@@ -78,13 +78,13 @@
 (defn detect-edge-case-and-patch-it [group obj markup-db]
   (cond
     (or
-      (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "\"]"))                                        ; function case
-      (and (= (count group) 5) (= (aget group 0) "#object[") (= (aget group 4) "]"))                                          ; :else -constructor case
-      (and (= (count group) 3) (= (aget group 0) "#object[") (= (aget group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
+      (and (= (count group) 5) (= (nth group 0) "#object[") (= (nth group 4) "\"]"))                                        ; function case
+      (and (= (count group) 5) (= (nth group 0) "#object[") (= (nth group 4) "]"))                                          ; :else -constructor case
+      (and (= (count group) 3) (= (nth group 0) "#object[") (= (nth group 2) "]")))                                         ; :else -cljs$lang$ctorStr case
     [(build-markup markup-db :native-reference obj)]
 
-    (and (= (count group) 3) (= (aget group 0) "#<") (= (str obj) (aget group 1)) (= (aget group 2) ">"))                     ; old code prior r1.7.28
-    [(aget group 0) (build-markup :native-reference obj) (aget group 2)]
+    (and (= (count group) 3) (= (nth group 0) "#<") (= (str obj) (nth group 1)) (= (nth group 2) ">"))                     ; old code prior r1.7.28
+    [(nth group 0) (build-markup :native-reference obj) (nth group 2)]
 
     :else group))
 
