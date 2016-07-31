@@ -6,21 +6,20 @@
 
 ; This functionality provides a workaround to issue #22 (https://github.com/binaryage/cljs-devtools/issues/22).
 ; The idea is to track hierarchy depth for json-ml(s) we are generating.
-; If we are about to cross the depth limit hardcoded in WebKit we instead
-; render simple expandable placeholders which resume full rendering in their bodies (when expanded by user).
+; If we are about to cross the depth limit hardcoded in WebKit,
+; instead we render simple expandable placeholders which resume full rendering in their bodies (when expanded by user).
+; Note that this technique has some quirks, it may break styling in some pathological cases.
 
 ; this is hardcoded in InjectedScriptSource.js in WebKit, look for maxCustomPreviewRecursionDepth
 (def initial-hierarchy-depth-budget (dec 20))
 
-; we need to reserve some levels for our :header-expander-tag
-(def header-expander-cost 3)
+; we need to reserve some depth levels for our :header-expander-tag
+(def header-expander-depth-cost 3)
 
 ; -- tracking over-budget values  -------------------------------------------------------------------------------------------
-; note: phantomjs does not have WeakSet, so we have to emulate it when testing
 
-(def over-budget-values (if (exists? js/WeakSet)
-                          (js/WeakSet.)
-                          (volatile! #{})))
+; note: phantomjs does not have WeakSet, so we have to emulate it when testing
+(def over-budget-values (if (exists? js/WeakSet) (js/WeakSet.) (volatile! #{})))
 
 (defn add-over-budget-value! [value]
   (if (volatile? over-budget-values)
@@ -37,16 +36,16 @@
     (contains? @over-budget-values value)
     (ocall over-budget-values "has" value)))
 
-; -- helpers ----------------------------------------------------------------------------------------------------------------
+; -- depth budget accounting ------------------------------------------------------------------------------------------------
 
-(defn object-reference? [v]
-  (= (first v) "object"))
+(defn object-reference? [json-ml]
+  (= (first json-ml) "object"))
 
-(defn determine-depth [v]
-  (if (array? v)
-    (if (object-reference? v)
-      (+ 1 header-expander-cost)
-      (inc (apply max (map determine-depth v))))
+(defn determine-depth [json-ml]
+  (if (array? json-ml)
+    (if (object-reference? json-ml)
+      (+ 1 header-expander-depth-cost)
+      (inc (apply max (map determine-depth json-ml))))
     0))
 
 (defn transfer-remaining-depth-budget! [object-reference depth-budget]
@@ -61,7 +60,7 @@
   (if (array? json-ml)
     (let [new-depth-budget (dec depth-budget)]
       (if (object-reference? json-ml)
-        (transfer-remaining-depth-budget! json-ml (- new-depth-budget header-expander-cost))
+        (transfer-remaining-depth-budget! json-ml (- new-depth-budget header-expander-depth-cost))
         (doseq [item json-ml]
           (distribute-budget! item new-depth-budget)))))
   json-ml)
@@ -76,12 +75,8 @@
 (defn alter-json-ml-to-fit-in-remaining-budget! [value json-ml]
   (let [remaining-depth-budget (or (get-depth-budget) initial-hierarchy-depth-budget)
         depth (determine-depth json-ml)]
-    #_(.log js/console "D" depth remaining-depth-budget (- remaining-depth-budget depth)
-            (>= (- remaining-depth-budget depth) header-expander-cost) (binding [*print-level* 3]
-                                                                         (pr-str json-ml)))
-    (if (pos? (- remaining-depth-budget depth))
+    (if (> remaining-depth-budget depth)
       (distribute-budget! json-ml remaining-depth-budget)
       (let [expander-ml (render-markup (<header-expander> value))]
-        (add-over-budget-value! value)
-        ;(.log js/console "Z" (determine-depth expander-ml) expander-ml)
+        (add-over-budget-value! value)                                                                                        ; we need to record over-budget values to for later was-over-budget?! check, see has-body* in formatters.core
         expander-ml))))
