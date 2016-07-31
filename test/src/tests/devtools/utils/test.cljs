@@ -35,25 +35,6 @@
                         :else
                         false))))
 
-(defn replace-refs [template placeholder]
-  (let [replacer (fn [v]
-                   (if (and (vector? v)
-                            (= 2 (count v))
-                            (= (first v) "object")
-                            (not (some? (get (second v) "object"))))
-                     ["object" placeholder]
-                     v))]
-    (postwalk replacer template)))
-
-(defn replace-configs [template placeholder]
-  (let [replacer (fn [v]
-                   (if (and (vector? v)
-                            (= 2 (count v))
-                            (= (first v) "config"))
-                     ["config" placeholder]
-                     v))]
-    (postwalk replacer template)))
-
 (defn collect-refs [template]
   (let [refs (atom [])
         catch-next (atom false)
@@ -134,12 +115,25 @@
     (mapcat (fn [item] (if (should-unroll? item) (unroll-fns (item)) [(unroll-fns item)])) v)
     v))
 
+(defn object-reference? [json-ml]
+  (= (first json-ml) "object"))
+
+(defn replace-refs-and-configs [json-ml]
+  (if (array? json-ml)
+    (if (object-reference? json-ml)
+      (let [data (second json-ml)
+            new-data (js-obj)]
+        (assert (object? data))
+        (if (oget data "object")
+          (oset new-data ["object"] "##REF##"))
+        (if (oget data "config")
+          (oset new-data ["config"] "##CONFIG##"))
+        #js ["object" new-data])
+      (into-array (map replace-refs-and-configs json-ml)))
+    json-ml))
+
 (defn is-template [template expected & callbacks]
-  (let [sanitized-template (-> template
-                               (js->clj)
-                               (replace-refs "##REF##")
-                               (replace-configs "##CONFIG##")
-                               (clj->js))
+  (let [sanitized-template (replace-refs-and-configs template)
         refs (collect-refs template)
         expected-template (-> expected
                               (unroll-fns)
