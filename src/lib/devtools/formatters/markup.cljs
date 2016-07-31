@@ -52,7 +52,7 @@
   (<reference> (apply <surrogate> args)))
 
 (defn <circular-reference> [& children]
-  (concat [:circular-reference-tag :circular-ref-icon] children))
+  (<reference-surrogate> nil [:circular-reference-tag :circular-ref-icon] (concat [:circular-reference-body-tag] children)))
 
 (defn <native-reference> [object]
   (let [reference (<reference> object #(set-prevent-recursion % true))]

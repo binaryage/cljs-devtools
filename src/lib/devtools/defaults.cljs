@@ -134,6 +134,7 @@
    :string-tag                                    [:span :string-style]
    :expanded-string-tag                           [:span :expanded-string-style]
    :circular-reference-tag                        [:span :circular-reference-wrapper-style]
+   :circular-reference-body-tag                   [:span :circular-reference-body-style]
    :native-reference-tag                          [:span :native-reference-wrapper-style]
    :meta-wrapper-tag                              [:span :meta-wrapper-style]
    :meta-header-tag                               [:span :meta-style]

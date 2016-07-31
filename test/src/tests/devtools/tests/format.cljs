@@ -399,40 +399,42 @@
              "{"
              [::tag/keyword ":val"]
              :spacer
-             [::tag/circular-reference
-              :circular-ref-icon
-              [::tag/instance-header
-               [::tag/instance-value REF]
-               [::tag/instance-custom-printing-wrapper
-                :instance-custom-printing-background
-                [::tag/instance-custom-printing
-                 "#object [cljs.core.Volatile "
-                 "{"
-                 [::tag/keyword ":val"]
-                 :spacer
-                 [::tag/circular-reference
-                  :circular-ref-icon
-                  [::tag/instance-header
-                   [::tag/instance-value REF]
-                   [::tag/instance-custom-printing-wrapper
-                    :instance-custom-printing-background
-                    [::tag/instance-custom-printing
-                     "#object [cljs.core.Volatile "
-                     REF
-                     "]"]]
-                   [::tag/type-wrapper
-                    :type-header-background
-                    [::tag/type-ref REF]]]]
-                 "}"
-                 "]"]]
-               [::tag/type-wrapper
-                :type-header-background
-                [::tag/type-ref REF]]]]
+             REF
              "}"
              "]"]]
            [::tag/type-wrapper
             :type-header-background
-            [::tag/type-ref REF]]]]]))))
+            [::tag/type-ref REF]]]]]
+        (fn [ref]
+          (is-header ref
+            [::tag/expandable
+             [::tag/expandable-inner
+              [::tag/fields-header
+               :more-fields-symbol]]]))
+        (fn [ref]
+          (is-header ref
+            [::tag/expandable
+             [::tag/expandable-inner
+              [::tag/circular-reference
+               :circular-ref-icon]]])
+          (is-body ref
+            [::tag/circular-reference-body
+             [::tag/instance-header
+              [::tag/instance-value REF]
+              [::tag/instance-custom-printing-wrapper
+               :instance-custom-printing-background
+               [::tag/instance-custom-printing
+                "#object [cljs.core.Volatile "
+                "{"
+                [::tag/keyword ":val"]
+                :spacer
+                REF
+                "}"
+                "]"]]
+              [::tag/type-wrapper
+               :type-header-background
+               [::tag/type-ref REF]]]]))
+        (fn [ref])))))
 
 (deftest test-function-formatting
   (testing "cljs-function?"
