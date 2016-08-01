@@ -153,6 +153,19 @@
   (-has-body [_] false)
   (-body [_]))
 
+(deftype T0 [])
+(deftype T1 [fld1])
+(deftype T2 [fld1 fld2])
+(deftype T3 [fld1 fld2 fld3])
+(deftype T4 [fld1 fld2 fld3 fld4])
+(deftype T5 [fld1 fld2 fld3 fld4 fld5])
+(deftype T6 [fld1 fld2 fld3 fld4 fld5 fld6])
+
+(deftype T1+IPrintWithWriter [fld1]
+  IPrintWithWriter
+  (-pr-writer [_obj writer _opts]
+    (write-all writer "from custom printer")))
+
 (defrecord R0 [])
 (defrecord R1 [fld1])
 (defrecord R2 [fld1 fld2])

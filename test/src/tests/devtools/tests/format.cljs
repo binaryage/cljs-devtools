@@ -236,14 +236,6 @@
              [:expandable-inner-tag
               "[" :more-marker "]"]]))))))
 
-#_(deftest test-deftype
-    (testing "simple deftype"
-      (let [type-instance (env/SimpleType. "some-value")]
-        (is-header type-instance
-          [:cljs-land-tag
-           [:header-tag
-            REF]]))))                                                                                                         ; TODO!
-
 (deftest test-handlers
   (let [handled-output (clj->js (remove-empty-styles ["span" {"style" (pref :cljs-land-style)}
                                                       ["span" {"style" (pref :header-style)}
@@ -680,3 +672,231 @@
           (is-header ref
             [:header-tag
              "#\"" "regex" "\""]))))))
+
+(deftest test-types
+  (testing "bare deftype with two fields"
+    (is-header env/T2
+      [:cljs-land-tag
+       [:header-tag
+        [:standalone-type-tag
+         [:type-wrapper-tag
+          :type-header-background
+          [:type-ref-tag REF]]]]]
+      (fn [ref]
+        (is-header ref
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:type-header-tag :type-symbol [:type-name-tag "T2"]]]])
+        (is-body ref
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag :basis-icon
+             [:type-basis-tag
+              [:type-basis-item-tag "fld1"]
+              :type-basis-item-separator
+              [:type-basis-item-tag "fld2"]]]
+            [:aligned-li-tag :ns-icon
+             [:fn-ns-name-tag "devtools.tests.env.core"]]
+            [:aligned-li-tag :native-icon
+             [:native-reference-wrapper-tag :native-reference-background
+              [:native-reference-tag REF]]]]]))))
+  (testing "bare deftype with no fields"
+    (is-header env/T0
+      [:cljs-land-tag
+       [:header-tag
+        [:standalone-type-tag
+         [:type-wrapper-tag
+          :type-header-background
+          [:type-ref-tag REF]]]]]
+      (fn [ref]
+        (is-header ref
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:type-header-tag :type-symbol [:type-name-tag "T0"]]]])
+        (is-body ref
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag :empty-basis-symbol]
+            [:aligned-li-tag :ns-icon
+             [:fn-ns-name-tag "devtools.tests.env.core"]]
+            [:aligned-li-tag :native-icon
+             [:native-reference-wrapper-tag :native-reference-background
+              [:native-reference-tag REF]]]]]))))
+  (testing "simple deftype with two fields (no protocols, no custom printer)"
+    (is-header (env/T2. "val1" "val2")
+      [:cljs-land-tag
+       [:header-tag
+        [:instance-header-tag
+         :instance-header-background
+         [:instance-value-tag REF]
+         [:type-wrapper-tag
+          :type-header-background
+          [:type-ref-tag REF]]]]]
+      (fn [ref]
+        (is-header ref
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:fields-header-tag
+             :fields-header-open-symbol
+             [:header-field-tag
+              [:header-field-name-tag "fld1"]
+              :header-field-value-spacer
+              [:header-field-value-tag REF]
+              :header-field-separator]
+             [:header-field-tag
+              [:header-field-name-tag "fld2"]
+              :header-field-value-spacer
+              [:header-field-value-tag REF]
+              :header-field-separator]
+             :fields-header-close-symbol]]])
+        (is-body ref
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag :fields-icon
+             [:instance-body-fields-table-tag
+              [:body-field-tr-tag
+               [:body-field-td1-tag :body-field-symbol [:body-field-name-tag "fld1"]]
+               [:body-field-td2-tag :body-field-value-spacer]
+               [:body-field-td3-tag [:body-field-value-tag REF]]]
+              [:body-field-tr-tag
+               [:body-field-td1-tag :body-field-symbol [:body-field-name-tag "fld2"]]
+               [:body-field-td2-tag :body-field-value-spacer]
+               [:body-field-td3-tag [:body-field-value-tag REF]]]]]
+            ; note: no protocols here
+            [:aligned-li-tag :native-icon
+             [:native-reference-wrapper-tag :native-reference-background
+              [:native-reference-tag REF]]]]]))
+      (fn [_])))
+  (testing "simple deftype with no fields (no protocols, no custom printer)"
+    (is-header (env/T0.)
+      [:cljs-land-tag
+       [:header-tag
+        [:instance-header-tag
+         :instance-header-background
+         [:instance-value-tag REF]
+         [:type-wrapper-tag
+          :type-header-background
+          [:type-ref-tag REF]]]]]
+      (fn [ref]
+        (is-header ref
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:fields-header-tag
+             :fields-header-no-fields-symbol]]])
+        (is-body ref
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            ; note: no fields table here
+            ; note: no protocols here
+            [:aligned-li-tag :native-icon
+             [:native-reference-wrapper-tag :native-reference-background
+              [:native-reference-tag REF]]]]]))
+      (fn [_])))
+  (testing "simple deftype with one field and custom printer"
+    (is-header (env/T1+IPrintWithWriter. "val1")
+      [:cljs-land-tag
+       [:header-tag
+        [:instance-header-tag
+         :instance-header-background
+         [:instance-value-tag REF]
+         [:instance-custom-printing-wrapper-tag
+          :instance-custom-printing-background
+          [:instance-custom-printing-tag "from custom printer"]]
+         [:type-wrapper-tag
+          :type-header-background
+          [:type-ref-tag REF]]]]]
+      (fn [ref]
+        (is-header ref
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:fields-header-tag
+             :fields-header-open-symbol
+             :more-fields-symbol
+             :fields-header-close-symbol]]])
+        (is-body ref
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag :fields-icon
+             [:instance-body-fields-table-tag
+              [:body-field-tr-tag
+               [:body-field-td1-tag :body-field-symbol [:body-field-name-tag "fld1"]]
+               [:body-field-td2-tag :body-field-value-spacer]
+               [:body-field-td3-tag [:body-field-value-tag REF]]]]]
+            [:aligned-li-tag :protocols-icon
+             [:protocols-header-tag
+              [:fast-protocol-tag :protocol-background REF]]]
+            [:aligned-li-tag :native-icon
+             [:native-reference-wrapper-tag :native-reference-background
+              [:native-reference-tag REF]]]]]))
+      (fn [_])))
+  (testing "known type instance"
+    (let [example-known-type-instance (cljs.core/EmptyList. nil)]
+      (is (instance-of-a-well-known-type? example-known-type-instance))
+      (is-header example-known-type-instance
+        [:cljs-land-tag                                                                                                       ; this is a proof that we didn't render via instance rendering path
+         [:header-tag
+          "()"]])))
+  (testing "simple defrecord with one field (has implicit custom printer)"
+    (is-header (env/R1. "val1")
+      [:cljs-land-tag
+       [:header-tag
+        REF]]
+      (fn [ref]
+        (is-header ref
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:instance-header-tag
+             :instance-header-background
+             [:instance-value-tag REF]
+             SOMETHING
+             [:type-wrapper-tag
+              :type-header-background
+              [:type-ref-tag REF]]]]]
+          (fn [ref]
+            (is-header ref
+              [:expandable-tag
+               [:expandable-inner-tag
+                [:fields-header-tag
+                 :fields-header-open-symbol
+                 :more-fields-symbol
+                 :fields-header-close-symbol]]])
+            (is-body ref
+              [:body-tag
+               [:standard-ol-no-margin-tag
+                [:aligned-li-tag :fields-icon
+                 [:instance-body-fields-table-tag
+                  [:body-field-tr-tag
+                   [:body-field-td1-tag :body-field-symbol [:body-field-name-tag "fld1"]]
+                   [:body-field-td2-tag :body-field-value-spacer]
+                   [:body-field-td3-tag [:body-field-value-tag REF]]]]]
+                [:aligned-li-tag :protocols-icon REF]                                                                         ; expandable protocols
+                [:aligned-li-tag :native-icon
+                 [:native-reference-wrapper-tag :native-reference-background
+                  [:native-reference-tag REF]]]]]
+              (fn [_fld1-val-ref])
+              (fn [protocols-ref]
+                (is-header protocols-ref
+                  [:expandable-tag
+                   [:expandable-inner-tag
+                    [:protocols-header-tag
+                     :protocols-list-open-symbol
+                     [:fast-protocol-tag :protocol-background REF]
+                     [:fast-protocol-tag :protocol-background REF]
+                     [:fast-protocol-tag :protocol-background REF]
+                     [:fast-protocol-tag :protocol-background REF]
+                     [:fast-protocol-tag :protocol-background REF]
+                     [:slow-protocol-tag :protocol-background [:protocol-more-tag "+9…"]]
+                     :protocols-list-close-symbol]]]
+                  (fn [p1-ref]
+                    (is-header p1-ref
+                      [:expandable-tag
+                       [:expandable-inner-tag
+                        [:protocol-name-tag "IAssociative"]]]))
+                  (fn [_p2-ref])
+                  (fn [_p3-ref])
+                  (fn [_p4-ref])
+                  (fn [_p5-ref])))
+              (fn [_native-ref])))
+          (fn [_])))))
+  ; TODO: test various protocol scenarios
+  )
