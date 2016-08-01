@@ -355,11 +355,12 @@
             :spacer
             [:integer-tag 3]
             "]"]]))
-      (with-prefs {:min-expandable-sequable-count-for-well-known-types nil}
+      (with-prefs {:min-expandable-sequable-count-for-well-known-types 0}
         (is-header []
           [:cljs-land-tag
            [:header-tag
-            REF]])
+            "["
+            "]"]])
         (is-header v3
           [:cljs-land-tag
            [:header-tag
@@ -387,10 +388,11 @@
                                    [:integer-tag (+ i 1)]]]]) (range 6))]]))))))
   (testing "min-sequable-count-for-expansion of a general type"
     (let [r0 (env/R0.)
+          r1 (env/R1. 1)
           r2 (env/R2. 1 2)
           r3 (env/R3. 1 2 3)
           r6 (env/R6. 1 2 3 4 5 6)]
-      (are [v] (not (instance-of-a-well-known-type? v)) r0 r2 r3 r6)
+      (are [v] (not (instance-of-a-well-known-type? v)) r0 r1 r2 r3 r6)
       (with-prefs {:min-expandable-sequable-count 3}
         (is-header r2
           [:cljs-land-tag
@@ -415,26 +417,24 @@
                  [:instance-value-tag REF]
                  [:instance-custom-printing-wrapper-tag
                   :instance-custom-printing-background
-                  [:instance-custom-printing-tag
-                   "#devtools.tests.env.core.R3{"
-                   [:keyword-tag ":fld1"]
-                   :spacer
-                   [:integer-tag 1]
-                   ", "
-                   [:keyword-tag ":fld2"]
-                   :spacer
-                   [:integer-tag 2]
-                   ", "
-                   [:keyword-tag ":fld3"]
-                   :spacer
-                   [:integer-tag 3]
-                   "}"
-                   ]]
+                  SOMETHING]
                  [:type-wrapper-tag
                   :type-header-background
                   [:type-ref-tag REF]]]]]))))
-      (with-prefs {:min-expandable-sequable-count false}
+      (with-prefs {:min-expandable-sequable-count 0}
+        ; empty sequable should not expand regardless of :min-expandable-sequable-count
         (is-header r0
+          [:cljs-land-tag
+           [:header-tag
+            [:instance-header-tag
+             :instance-header-background
+             [:instance-value-tag REF]
+             SOMETHING
+             [:type-wrapper-tag
+              :type-header-background
+              [:type-ref-tag REF]]]]])
+        ; non-empty sequable should expand...
+        (is-header r1
           [:cljs-land-tag
            [:header-tag
             REF]]
@@ -445,12 +445,7 @@
                 [:instance-header-tag
                  :instance-header-background
                  [:instance-value-tag REF]
-                 [:instance-custom-printing-wrapper-tag
-                  :instance-custom-printing-background
-                  [:instance-custom-printing-tag
-                   "#devtools.tests.env.core.R0{"
-                   "}"
-                   ]]
+                 SOMETHING
                  [:type-wrapper-tag
                   :type-header-background
                   [:type-ref-tag REF]]]]])))))))

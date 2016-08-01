@@ -96,7 +96,9 @@
 
 (defn expandable? [obj]
   (if (seqable? obj)
-    (let [min-count (pref (if (instance-of-a-well-known-type? obj)
-                            :min-expandable-sequable-count-for-well-known-types
-                            :min-expandable-sequable-count))]
-      (>= (bounded-count min-count obj) (or min-count 0)))))
+    (if-let [min-count (pref (if (instance-of-a-well-known-type? obj)
+                               :min-expandable-sequable-count-for-well-known-types
+                               :min-expandable-sequable-count))]
+      (if-not (empty? obj)
+        (let [actual-count (bounded-count min-count obj)]
+          (>= actual-count min-count))))))

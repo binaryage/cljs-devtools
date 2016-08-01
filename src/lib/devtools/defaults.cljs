@@ -20,8 +20,8 @@
    :max-print-level                                    2
    :body-line-max-print-level                          3
    :max-header-elements                                5
-   :min-expandable-sequable-count                      nil                                                                    ; 0/false/nil means "always expandable"
-   :min-expandable-sequable-count-for-well-known-types 4                                                                      ; 0/false/nil means "always expandable"
+   :min-expandable-sequable-count                      0                                                                      ; false/nil means "never expandable", 0 means "always expandable" (unless empty)
+   :min-expandable-sequable-count-for-well-known-types 4                                                                      ; false/nil means "never expandable", 0 means "always expandable" (unless empty)
    :max-number-body-items                              100
    :string-prefix-limit                                20
    :string-postfix-limit                               20
