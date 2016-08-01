@@ -3,6 +3,7 @@
             [clojure.pprint :refer [pprint]]))
 
 (declare make-named-color)
+(declare make-color)
 
 (def named-colors
   {:signature                   [100 255 100]
@@ -38,7 +39,7 @@
    :field-spacer                [204 204 204]
    :native-reference-background [255 255 255]
    :signature-background        #(make-named-color :signature 0.08)
-   :body-border                 #(make-named-color :signature 0.6)
+   :body-border                 #(make-color 60 90 60 0.1)
    :expanded-string-background  #(make-named-color :expanded-string 0.08)
    :expanded-string-border      #(make-named-color :expanded-string 0.4)
    :custom-printing-background  #(make-named-color :custom-printing)})
