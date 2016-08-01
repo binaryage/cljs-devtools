@@ -1,12 +1,13 @@
 (ns devtools.utils.batteries
-  (:require [devtools.formatters.core :as f]
-            [devtools.protocols :refer [IFormat]]
+  (:require [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template]]
             [goog.date]
             [goog.Promise]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
+
+(def SOMETHING "##SOMETHING##")
 
 (def NATIVE-REF [:native-reference-wrapper-tag :native-reference-background [:native-reference-tag REF]])
 

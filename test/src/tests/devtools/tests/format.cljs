@@ -8,7 +8,7 @@
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.formatters.helpers :refer [cljs-function? instance-of-a-well-known-type?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
-            [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
+            [devtools.utils.batteries :as b :refer [REF NATIVE-REF SOMETHING]]))
 
 (deftest test-wants
   (testing "these simple values SHOULD NOT be processed by our custom formatter"
@@ -398,19 +398,7 @@
             [:instance-header-tag
              :instance-header-background
              [:instance-value-tag REF]
-             [:instance-custom-printing-wrapper-tag
-              :instance-custom-printing-background
-              [:instance-custom-printing-tag
-               "#devtools.utils.batteries.R2{"
-               [:keyword-tag ":fld1"]
-               :spacer
-               [:integer-tag 1]
-               ", "
-               [:keyword-tag ":fld2"]
-               :spacer
-               [:integer-tag 2]
-               "}"
-               ]]
+             SOMETHING
              [:type-wrapper-tag
               :type-header-background
               [:type-ref-tag REF]]]]])

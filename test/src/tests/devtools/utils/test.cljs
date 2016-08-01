@@ -3,7 +3,6 @@
             [clojure.walk :refer [postwalk]]
             [cljs.pprint :refer [pprint]]
             [goog.array :as garr]
-            [goog.json :as json]
             [goog.object :as gobj]
             [devtools.util :refer-macros [oset oget]]
             [devtools.formatters.core :as f]
@@ -19,6 +18,7 @@
 ; Copyright © 2014 Chris Zheng
 (defn js-equals [v1 v2]
   (or (= v1 v2)
+      (or (= v1 "##SOMETHING##") (= v2 "##SOMETHING##"))
       (let [t1 (js/goog.typeOf v1)
             t2 (js/goog.typeOf v2)]
         (cond
