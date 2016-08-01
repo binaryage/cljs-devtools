@@ -18,6 +18,7 @@
    :native                      [255 0 255]
    :fn                          [30 130 30]
    :lambda                      #(make-named-color :fn)
+   :fn-args                     [170 130 20]
    :custom-printing             [255 255 200]
    :circular-ref                [255 0 0]
    :nil                         [128 128 128]

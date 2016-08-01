@@ -307,7 +307,7 @@
    :fn-ns-name-style                                   (css (str "color: " (named-color :ns) ";"))
    :fn-name-style                                      (css (str "color: " (named-color :fn) ";")
                                                             "margin-right: 2px;")
-   :fn-args-style                                      (css (str "color: " (named-color :fn) ";"))
+   :fn-args-style                                      (css (str "color: " (named-color :fn-args) ";"))
    :fn-multi-arity-args-indent-style                   (css "visibility: hidden;")
    :standard-ol-style                                  (css "list-style-type: none;"
                                                             "padding-left: 0px;"
