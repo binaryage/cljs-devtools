@@ -264,17 +264,17 @@
         native-markup [:native-icon (<native-reference> constructor-fn)]]
     (<aligned-body> [basis-markup ns-markup native-markup])))
 
-(defn <type> [constructor-fn & [header-style]]
+(defn <type> [constructor-fn & [header-tag]]
   (let [[ns name basis] (munging/parse-constructor-info constructor-fn)
         name-markup [:type-name-tag name]
-        preview-markup [[:span (or header-style :type-header-style)] :type-symbol name-markup]
+        preview-markup [(or header-tag :type-header-tag) :type-symbol name-markup]
         details-markup-fn (partial <type-details> constructor-fn ns name basis)]
     [:type-wrapper-tag
      :type-header-background
      [:type-ref-tag (<reference-surrogate> constructor-fn preview-markup details-markup-fn)]]))
 
-(defn <standalone-type> [constructor-fn & [header-style]]
-  [:standalone-type-tag (<type> constructor-fn header-style)])
+(defn <standalone-type> [constructor-fn & [header-tag]]
+  [:standalone-type-tag (<type> constructor-fn header-tag)])
 
 ; -- protocols markup -------------------------------------------------------------------------------------------------------
 
@@ -312,10 +312,10 @@
         methods-markups-lists (map list methods-markups)]
     (<aligned-body> (concat methods-markups-lists [ns-markups-list native-markups-list]))))
 
-(defn <protocol> [obj protocol & [style]]
+(defn <protocol> [obj protocol & [tag]]
   (let [{:keys [ns name selector fast?]} protocol
-        preview-markup [[:span (or style :protocol-name-style)] name]
-        prefix-markup [[:span (if fast? :fast-protocol-style :slow-protocol-style)] :protocol-background]]
+        preview-markup [(or tag :protocol-name-tag) name]
+        prefix-markup [(if fast? :fast-protocol-tag :slow-protocol-tag) :protocol-background]]
     (if (some? obj)
       (let [details-markup-fn (partial <protocol-details> obj ns name selector fast?)]
         (conj prefix-markup (<reference-surrogate> obj preview-markup details-markup-fn)))
@@ -323,7 +323,7 @@
 
 (defn <more-protocols> [more-count]
   (let [fake-protocol {:name (get-more-marker more-count)}]
-    (<protocol> nil fake-protocol :protocol-more-style)))
+    (<protocol> nil fake-protocol :protocol-more-tag)))
 
 (defn <protocols-list> [obj protocols & [max-protocols]]
   (let [max-protocols (or max-protocols (pref :max-list-protocols))
@@ -381,7 +381,7 @@
   (let [constructor-fn (get-constructor value)
         [_ns _name basis] (munging/parse-constructor-info constructor-fn)
         custom-printing? (implements? IPrintWithWriter value)
-        type-markup (<type> constructor-fn :instance-type-header-style)
+        type-markup (<type> constructor-fn :instance-type-header-tag)
         fields (fetch-fields-values value basis)
         fields-markup (<fields> fields (if custom-printing? 0))
         fields-details-markup-fn #(<fields-details> fields value)
