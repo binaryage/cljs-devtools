@@ -4,7 +4,7 @@
             [devtools.util :refer-macros [oget oset ocall]]
             [devtools.munging :as m]
             [devtools.core :as devtools]
-            [devtools.utils.batteries :as b]
+            [devtools.tests.env.core :as env]
             [devtools.utils.test :refer [match? match-seqs?]]))
 
 (deftest test-cljs-fn-name
@@ -30,10 +30,10 @@
 (deftest test-parse-fn-source
   (testing "parse some simple sources"
     (are [code info] (= (m/parse-fn-source code) info)
-      b/simplest-fn-source ["" ""]
-      b/simple-lambda-fn-source ["" "p1, p2, p3"]
-      b/simple-cljs-fn-source ["devtools_sample$core$hello" "name"]
-      b/invalid-fn-source nil
+      env/simplest-fn-source ["" ""]
+      env/simple-lambda-fn-source ["" "p1, p2, p3"]
+      env/simple-cljs-fn-source ["devtools_sample$core$hello" "name"]
+      env/invalid-fn-source nil
       "" nil
       "???" nil)))
 
@@ -41,13 +41,13 @@
   (testing "some functions are considered trivial and belong to js lands"
     (are [source] (m/trivial-fn-source? source)
       "function () {}"
-      b/simplest-fn-source
+      env/simplest-fn-source
       "function Function() { [native code] }"))
   (testing "all other functions are considered non-trivial"
     (are [source] (not (m/trivial-fn-source? source))
-      b/simple-lambda-fn-source
-      b/simple-cljs-fn-source
-      b/invalid-fn-source
+      env/simple-lambda-fn-source
+      env/simple-cljs-fn-source
+      env/invalid-fn-source
       "xxx"
       ""
       "\n")))
@@ -57,8 +57,8 @@
     (are [f re] (if (string? re)
                   (= re (m/get-fn-source-safely f))
                   (some? (re-matches re (string/replace (m/get-fn-source-safely f) "\n" " "))))
-      b/sample-cljs-fn #"function devtools\$utils\$batteries\$sample_cljs_fn\(var_args\) \{.*\}"
-      b/simplest-fn "function () {}"
+      env/sample-cljs-fn #"function devtools\$tests\$env\$core\$sample_cljs_fn\(var_args\) \{.*\}"
+      env/simplest-fn "function () {}"
       nil ""
       1 ""
       "xxx" "")))
@@ -66,30 +66,30 @@
 (deftest test-cljs-fn
   (testing "these things should be recognized as cljs functions"
     (are [f] (m/cljs-fn? f)
-      b/sample-cljs-fn
-      (oget b/sample-cljs-fn "prototype" "constructor")
+      env/sample-cljs-fn
+      (oget env/sample-cljs-fn "prototype" "constructor")
       devtools/set-pref!
       devtools/available?
       devtools/is-feature-installed?
       devtools/uninstall!
-      b/minimal-fn
-      b/inst-type-ifn0
-      b/inst-type-ifn1
-      b/inst-type-ifn2
-      b/inst-type-ifn2va
-      b/inst-type-ifn4va))
+      env/minimal-fn
+      env/inst-type-ifn0
+      env/inst-type-ifn1
+      env/inst-type-ifn2
+      env/inst-type-ifn2va
+      env/inst-type-ifn4va))
   (testing "these things should NOT be recognized as cljs functions"
     (are [f] (not (m/cljs-fn? f))
       js/alert
       js/console
-      b/simplest-fn
-      b/test-reify
-      b/test-lang
+      env/simplest-fn
+      env/test-reify
+      env/test-lang
       (js/Function.)
-      b/inst-some-type
+      env/inst-some-type
       (oget js/window "document")
       (oget js/window "document" "getElementById")
-      (oget b/sample-cljs-fn "__proto__"))))
+      (oget env/sample-cljs-fn "__proto__"))))
 
 (deftest test-dollar-preserving-demunge
   (testing "exercise dollar preserving demunging"
@@ -124,11 +124,11 @@
 (deftest test-parse-fn-info
   (testing "exercise parsing fn infos"
     (are [f expected] (match-seqs? (m/parse-fn-info f) expected)
-      b/sample-cljs-fn ["devtools.utils.batteries" "sample-cljs-fn" "var-args"]
-      b/cljs-fn-with-vec-destructuring ["devtools.utils.batteries" "cljs-fn-with-vec-destructuring" #"p--\d+"]
-      b/cljs-fn-with-vec-destructuring-var ["devtools.utils.batteries" "cljs-fn-with-vec-destructuring-var" "var-args"]
-      b/cljs-fn-with-map-destructuring ["devtools.utils.batteries" "cljs-fn-with-map-destructuring" #"p--\d+"]
-      b/cljs-fn-with-map-destructuring-var ["devtools.utils.batteries" "cljs-fn-with-map-destructuring-var" "var-args"])))
+      env/sample-cljs-fn ["devtools.tests.env.core" "sample-cljs-fn" "var-args"]
+      env/cljs-fn-with-vec-destructuring ["devtools.tests.env.core" "cljs-fn-with-vec-destructuring" #"p--\d+"]
+      env/cljs-fn-with-vec-destructuring-var ["devtools.tests.env.core" "cljs-fn-with-vec-destructuring-var" "var-args"]
+      env/cljs-fn-with-map-destructuring ["devtools.tests.env.core" "cljs-fn-with-map-destructuring" #"p--\d+"]
+      env/cljs-fn-with-map-destructuring-var ["devtools.tests.env.core" "cljs-fn-with-map-destructuring-var" "var-args"])))
 
 (deftest test-human-readable-names
   (testing "exercise char-to-subscript"
@@ -191,42 +191,42 @@
 (deftest test-arities
   (testing "exercise collect-fn-arities"
     (are [f arities] (= (set (keys (m/collect-fn-arities f))) arities)
-      b/minimal-fn #{}
-      b/simplest-fn #{}
-      b/clsj-fn-with-fancy-name#$%!? #{}
-      b/sample-cljs-fn #{:devtools.munging/variadic}
-      b/cljs-fn-with-vec-destructuring #{}
-      b/cljs-fn-with-vec-destructuring-var #{:devtools.munging/variadic}
-      b/cljs-fn-with-map-destructuring #{}
-      b/cljs-fn-with-map-destructuring-var #{:devtools.munging/variadic}
-      b/cljs-fn-var #{:devtools.munging/variadic}
-      b/cljs-fn-multi-arity #{1 2 4}
-      b/cljs-fn-multi-arity-var #{1 2 4 :devtools.munging/variadic}
-      b/inst-type-ifn0 #{0}
-      b/inst-type-ifn1 #{1}
-      b/inst-type-ifn2 #{1 2}
-      b/inst-type-ifn2va #{:devtools.munging/variadic}
-      b/inst-type-ifn4va #{0 1 4 :devtools.munging/variadic})))
+      env/minimal-fn #{}
+      env/simplest-fn #{}
+      env/clsj-fn-with-fancy-name#$%!? #{}
+      env/sample-cljs-fn #{:devtools.munging/variadic}
+      env/cljs-fn-with-vec-destructuring #{}
+      env/cljs-fn-with-vec-destructuring-var #{:devtools.munging/variadic}
+      env/cljs-fn-with-map-destructuring #{}
+      env/cljs-fn-with-map-destructuring-var #{:devtools.munging/variadic}
+      env/cljs-fn-var #{:devtools.munging/variadic}
+      env/cljs-fn-multi-arity #{1 2 4}
+      env/cljs-fn-multi-arity-var #{1 2 4 :devtools.munging/variadic}
+      env/inst-type-ifn0 #{0}
+      env/inst-type-ifn1 #{1}
+      env/inst-type-ifn2 #{1 2}
+      env/inst-type-ifn2va #{:devtools.munging/variadic}
+      env/inst-type-ifn4va #{0 1 4 :devtools.munging/variadic})))
 
 (deftest test-ui-strings
   (testing "exercise args-lists-to-strings"
     (are [f expected] (match-seqs? (m/extract-arities f true " " "..." " & ") expected)
-      b/minimal-fn [""]
-      b/simplest-fn [""]
-      b/clsj-fn-with-fancy-name#$%!? ["arg1! arg? *&mo-re"]
-      b/sample-cljs-fn ["p1 p2 & rest"]
-      b/cljs-fn-with-vec-destructuring ["p"]
-      b/cljs-fn-with-vec-destructuring-var ["& p"]
-      b/cljs-fn-with-map-destructuring ["p"]
-      b/cljs-fn-with-map-destructuring-var ["& p"]
-      b/cljs-fn-var ["first second & rest"]
-      b/cljs-fn-multi-arity ["a1" "a2-1 a2-2" "a3-1 a3 a3₂ a3-4"]
-      b/cljs-fn-multi-arity-var ["a1" "a2-1 a2-2" "a3-1 a3-2 a3-3 a3-4" "va1 va2 & rest"]
-      b/inst-type-ifn0 [""]
-      b/inst-type-ifn1 ["p1"]
-      b/inst-type-ifn2 ["p1" "p1 p2"]
-      b/inst-type-ifn2va ["p1 p2 & rest"]
-      b/inst-type-ifn4va ["" "p1" "p p₂ p₃ p₄" "p p₂ p₃ p₄ & p₅"])))
+      env/minimal-fn [""]
+      env/simplest-fn [""]
+      env/clsj-fn-with-fancy-name#$%!? ["arg1! arg? *&mo-re"]
+      env/sample-cljs-fn ["p1 p2 & rest"]
+      env/cljs-fn-with-vec-destructuring ["p"]
+      env/cljs-fn-with-vec-destructuring-var ["& p"]
+      env/cljs-fn-with-map-destructuring ["p"]
+      env/cljs-fn-with-map-destructuring-var ["& p"]
+      env/cljs-fn-var ["first second & rest"]
+      env/cljs-fn-multi-arity ["a1" "a2-1 a2-2" "a3-1 a3 a3₂ a3-4"]
+      env/cljs-fn-multi-arity-var ["a1" "a2-1 a2-2" "a3-1 a3-2 a3-3 a3-4" "va1 va2 & rest"]
+      env/inst-type-ifn0 [""]
+      env/inst-type-ifn1 ["p1"]
+      env/inst-type-ifn2 ["p1" "p1 p2"]
+      env/inst-type-ifn2va ["p1 p2 & rest"]
+      env/inst-type-ifn4va ["" "p1" "p p₂ p₃ p₄" "p p₂ p₃ p₄ & p₅"])))
 
 (deftest test-present-function-name
   (let [known-namespaces #{"dirac.tests.scenarios.core_async"

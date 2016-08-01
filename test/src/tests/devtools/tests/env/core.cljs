@@ -1,4 +1,4 @@
-(ns devtools.utils.batteries
+(ns devtools.tests.env.core
   (:require [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template]]
             [goog.date]

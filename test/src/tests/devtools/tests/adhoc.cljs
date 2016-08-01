@@ -9,23 +9,4 @@
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.formatters.helpers :refer [cljs-function?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
-            [devtools.utils.batteries :as b :refer [REF NATIVE-REF]]))
-
-;(defn gen-nested-template [n]
-;  (if (pos? n)
-;    #js ["span" #js {} (gen-nested-template (dec n))]
-;    #js ["span" #js {} "X"]))
-;
-;(deftype X1 [n]
-;  IFormat
-;  (-header [value]
-;    (gen-nested-template n))
-;  (-has-body [value] false)
-;  (-body [value]))
-;
-;(deftest test-issue22
-;  (testing "long"
-;    (let [l14 (X1. 12)]
-;      (is-header l14
-;        []))))
-
+            [devtools.tests.env.core :as env :refer [REF NATIVE-REF]]))

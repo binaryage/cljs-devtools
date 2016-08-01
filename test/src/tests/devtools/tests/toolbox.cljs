@@ -4,7 +4,7 @@
             [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.toolbox :as t]
-            [devtools.utils.batteries :as b :refer [REF]]))
+            [devtools.tests.env.core :as env :refer [REF]]))
 
 ; -- envelope ---------------------------------------------------------------------------------------------------------------
 

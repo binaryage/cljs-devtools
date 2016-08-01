@@ -8,7 +8,7 @@
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.formatters.helpers :refer [cljs-function? instance-of-a-well-known-type?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
-            [devtools.utils.batteries :as b :refer [REF NATIVE-REF SOMETHING]]))
+            [devtools.tests.env.core :as env :refer [REF NATIVE-REF SOMETHING]]))
 
 (deftest test-wants
   (testing "these simple values SHOULD NOT be processed by our custom formatter"
@@ -37,14 +37,14 @@
       {}
       #{}
       #(.-document js/window)
-      (b/SimpleType. "some-value")
+      (env/SimpleType. "some-value")
       (range :max-number-body-items)
-      (goog.date.Date.)                                                                                                       ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
+      (goog.date.Date.)                                                                                                       ; see extend-protocol IPrintWithWriter for goog.date.Date in env
       (goog.date.DateTime.)                                                                                                   ; inherits from goog.date.Date
       ; TODO!
-      ;(goog.Promise.)                                                                                                         ; see extend-protocol IFormat for goog.Promise in batteries
-      (b/get-raw-js-obj-implementing-iformat)
-      (b/get-raw-js-obj-implementing-iprintwithwriter))))
+      ;(goog.Promise.)                                                                                                         ; see extend-protocol IFormat for goog.Promise in env
+      (env/get-raw-js-obj-implementing-iformat)
+      (env/get-raw-js-obj-implementing-iprintwithwriter))))
 
 (deftest test-bodies
   (testing "these values should not have body"
@@ -68,7 +68,7 @@
       '()
       {}
       #{}
-      (b/SimpleType. "some-value")
+      (env/SimpleType. "some-value")
       (range :max-number-body-items))))
 
 (deftest test-simple-atomic-values
@@ -238,7 +238,7 @@
 
 #_(deftest test-deftype
     (testing "simple deftype"
-      (let [type-instance (b/SimpleType. "some-value")]
+      (let [type-instance (env/SimpleType. "some-value")]
         (is-header type-instance
           [:cljs-land-tag
            [:header-tag
@@ -386,10 +386,10 @@
                                   [:item-tag
                                    [:integer-tag (+ i 1)]]]]) (range 6))]]))))))
   (testing "min-sequable-count-for-expansion of a general type"
-    (let [r0 (b/R0.)
-          r2 (b/R2. 1 2)
-          r3 (b/R3. 1 2 3)
-          r6 (b/R6. 1 2 3 4 5 6)]
+    (let [r0 (env/R0.)
+          r2 (env/R2. 1 2)
+          r3 (env/R3. 1 2 3)
+          r6 (env/R6. 1 2 3 4 5 6)]
       (are [v] (not (instance-of-a-well-known-type? v)) r0 r2 r3 r6)
       (with-prefs {:min-expandable-sequable-count 3}
         (is-header r2
@@ -416,7 +416,7 @@
                  [:instance-custom-printing-wrapper-tag
                   :instance-custom-printing-background
                   [:instance-custom-printing-tag
-                   "#devtools.utils.batteries.R3{"
+                   "#devtools.tests.env.core.R3{"
                    [:keyword-tag ":fld1"]
                    :spacer
                    [:integer-tag 1]
@@ -448,7 +448,7 @@
                  [:instance-custom-printing-wrapper-tag
                   :instance-custom-printing-background
                   [:instance-custom-printing-tag
-                   "#devtools.utils.batteries.R0{"
+                   "#devtools.tests.env.core.R0{"
                    "}"
                    ]]
                  [:type-wrapper-tag
@@ -514,38 +514,38 @@
   (testing "cljs-function?"
     (testing "these should NOT be recognized as cljs functions"
       (are [f] (not (cljs-function? f))
-        b/simplest-fn))
+        env/simplest-fn))
     (testing "these should be recognized as cljs functions"
       (are [f] (cljs-function? f)
-        b/minimal-fn
-        b/cljs-lambda-multi-arity
-        b/clsj-fn-with-fancy-name#$%!?
-        b/cljs-fn-var
-        b/cljs-fn-multi-arity-var
-        b/cljs-fn-multi-arity
-        b/cljs-fn-with-vec-destructuring
-        b/inst-type-ifn0
-        b/inst-type-ifn1
-        b/inst-type-ifn2
-        b/inst-type-ifn2va
-        b/inst-type-ifn4va))
+        env/minimal-fn
+        env/cljs-lambda-multi-arity
+        env/clsj-fn-with-fancy-name#$%!?
+        env/cljs-fn-var
+        env/cljs-fn-multi-arity-var
+        env/cljs-fn-multi-arity
+        env/cljs-fn-with-vec-destructuring
+        env/inst-type-ifn0
+        env/inst-type-ifn1
+        env/inst-type-ifn2
+        env/inst-type-ifn2va
+        env/inst-type-ifn4va))
     (testing "these should be recognized as cljs functions"
       (set-pref! :disable-cljs-fn-formatting true)
       (are [f] (not (cljs-function? f))
-        b/minimal-fn
-        b/clsj-fn-with-fancy-name#$%!?
-        b/cljs-fn-var
-        b/cljs-fn-multi-arity-var
-        b/cljs-fn-multi-arity
-        b/cljs-fn-with-vec-destructuring
-        b/inst-type-ifn0
-        b/inst-type-ifn1
-        b/inst-type-ifn2
-        b/inst-type-ifn2va
-        b/inst-type-ifn4va)
+        env/minimal-fn
+        env/clsj-fn-with-fancy-name#$%!?
+        env/cljs-fn-var
+        env/cljs-fn-multi-arity-var
+        env/cljs-fn-multi-arity
+        env/cljs-fn-with-vec-destructuring
+        env/inst-type-ifn0
+        env/inst-type-ifn1
+        env/inst-type-ifn2
+        env/inst-type-ifn2va
+        env/inst-type-ifn4va)
       (reset-prefs-to-defaults!)))
   (testing "minimal function formatting"
-    (is-header b/minimal-fn
+    (is-header env/minimal-fn
       [:cljs-land-tag
        [:header-tag REF]]
       (fn [ref]
@@ -563,7 +563,7 @@
             [:aligned-li-tag :native-icon NATIVE-REF]]]))))
 
   (testing "cljs-lambda-multi-arity function formatting"
-    (is-header b/cljs-lambda-multi-arity
+    (is-header env/cljs-lambda-multi-arity
       [:cljs-land-tag
        [:header-tag
         REF]]
@@ -594,7 +594,7 @@
              [:fn-args-tag (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
             [:aligned-li-tag :native-icon NATIVE-REF]]]))))
   (testing "cljs-fn-multi-arity-var function formatting"
-    (is-header b/cljs-fn-multi-arity-var
+    (is-header env/cljs-fn-multi-arity-var
       [:cljs-land-tag
        [:header-tag
         REF]]
@@ -627,7 +627,7 @@
               [:fn-prefix-tag :fn-icon
                [:fn-name-tag "cljs-fn-multi-arity-var"]]]
              [:fn-args-tag (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
-            [:aligned-li-tag :ns-icon [:fn-ns-name-tag "devtools.utils.batteries"]]
+            [:aligned-li-tag :ns-icon [:fn-ns-name-tag "devtools.tests.env.core"]]
             [:aligned-li-tag :native-icon NATIVE-REF]]])))))
 
 (deftest test-alt-printer-impl
