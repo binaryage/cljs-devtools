@@ -1,4 +1,4 @@
-(ns devtools.utils.test
+(ns devtools.tests.utils.test
   (:require [cljs.test :refer-macros [is]]
             [clojure.walk :refer [postwalk]]
             [cljs.pprint :refer [pprint]]

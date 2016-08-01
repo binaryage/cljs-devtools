@@ -1,6 +1,6 @@
 (ns devtools.tests.cljs
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll]]
+            [devtools.tests.utils.test :refer [js-equals is-header is-body has-body? unroll]]
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 

@@ -1,4 +1,4 @@
-(ns devtools.utils.macros
+(ns devtools.tests.utils.macros
   (:refer-clojure :exclude [range = > < + str])
   (:require [clojure.walk :refer [postwalk]]))
 

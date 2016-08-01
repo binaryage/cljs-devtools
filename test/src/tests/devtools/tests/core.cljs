@@ -1,7 +1,7 @@
 (ns devtools.tests.core
-  (:require-macros [devtools.utils.macros :refer [with-prefs]])
+  (:require-macros [devtools.tests.utils.macros :refer [with-prefs]])
   (:require [cljs.test :refer-macros [deftest testing is use-fixtures]]
-            [devtools.utils.test :refer [with-captured-console
+            [devtools.tests.utils.test :refer [with-captured-console
                                          clear-captured-console-output!
                                          get-captured-console-messages]]
             [devtools.core :as devtools]

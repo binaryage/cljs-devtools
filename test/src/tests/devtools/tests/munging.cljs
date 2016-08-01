@@ -5,7 +5,7 @@
             [devtools.munging :as m]
             [devtools.core :as devtools]
             [devtools.tests.env.core :as env]
-            [devtools.utils.test :refer [match? match-seqs?]]))
+            [devtools.tests.utils.test :refer [match? match-seqs?]]))
 
 (deftest test-cljs-fn-name
   (testing "these names should be detected as cljs functions"
