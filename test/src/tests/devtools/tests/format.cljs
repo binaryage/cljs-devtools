@@ -892,3 +892,57 @@
           (fn [_])))))
   ; TODO: test various protocol scenarios
   )
+
+(deftest test-rendering-control
+  (testing "enable rendering of atomic templates"
+    (with-prefs {:render-nils      true
+                 :render-keywords  true
+                 :render-instances true}
+      (is-header nil
+        [:cljs-land-tag
+         [:header-tag
+          [:nil-tag "nil"]]])
+      (is-header :keyword
+        [:cljs-land-tag
+         [:header-tag
+          [:keyword-tag ":keyword"]]])
+      (is-header (env/R1. "val")
+        [:cljs-land-tag
+         [:header-tag
+          REF]]
+        (fn [ref]
+          (is-header ref
+            [:expandable-tag
+             [:expandable-inner-tag
+              [:instance-header-tag
+               :instance-header-background
+               [:instance-value-tag REF]
+               SOMETHING
+               [:type-wrapper-tag
+                :type-header-background
+                [:type-ref-tag REF]]]]])))))
+  (testing "disable rendering of atomic templates"
+    (with-prefs {:render-nils      false
+                 :render-keywords  false
+                 :render-instances false}
+      (is-header nil
+        [:cljs-land-tag
+         [:header-tag
+          "nil"]])
+      (is-header :keyword
+        [:cljs-land-tag
+         [:header-tag
+          ":keyword"]])
+      (is-header (env/R1. "val")
+        [:cljs-land-tag
+         [:header-tag
+          REF]]
+        (fn [ref]
+          (is-header ref
+            [:expandable-tag
+             [:expandable-inner-tag
+              "#devtools.tests.env.core.R1{"
+              ":fld1"
+              " "
+              [:string-tag "\"val\""]
+              "}"]]))))))
