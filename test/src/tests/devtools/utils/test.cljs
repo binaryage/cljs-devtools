@@ -36,10 +36,6 @@
                         :else
                         false))))
 
-
-; note: not perfect just ad-hoc for our cases
-(defn plain-js-obj? [o]
-  (and (object? o) (not (coll? o))))
 (defn object-reference? [json-ml]
   (= (first json-ml) "object"))
 
