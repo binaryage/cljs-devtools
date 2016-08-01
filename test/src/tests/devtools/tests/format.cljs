@@ -7,7 +7,7 @@
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.formatters.helpers :refer [cljs-function? instance-of-a-well-known-type?]]
-            [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
+            [devtools.prefs :refer [pref]]
             [devtools.tests.env.core :as env :refer [REF NATIVE-REF SOMETHING]]))
 
 (deftest test-wants
@@ -241,50 +241,43 @@
                                                       ["span" {"style" (pref :header-style)}
                                                        ["span" {"style" (pref :keyword-style)} ":handled"]]]))]
     (testing "header pre-handler"
-      (set-pref! :header-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled)))
-      (is (js-equals (header-api-call ["cljs-value"]) handled-output))
-      (is (not (js-equals (header-api-call ["non-matching-cljs-value"]) handled-output)))
-      (set-pref! :header-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
-      (is (js-equals (header-api-call "javascript-value") handled-output))
-      (is (not (js-equals (header-api-call "not-matching-javascript-value") handled-output)))
-      (reset-prefs-to-defaults!))
+      (with-prefs {:header-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled))}
+        (is (js-equals (header-api-call ["cljs-value"]) handled-output))
+        (is (not (js-equals (header-api-call ["non-matching-cljs-value"]) handled-output))))
+      (with-prefs {:header-pre-handler (fn [value] (if (= value "javascript-value") :handled))}
+        (is (js-equals (header-api-call "javascript-value") handled-output))
+        (is (not (js-equals (header-api-call "not-matching-javascript-value") handled-output)))))
     (testing "header post-handler"
-      (set-pref! :header-post-handler (fn [_value] "always-rewrite"))
-      (is (= (header-api-call ["cljs-value"]) "always-rewrite"))
-      (is (= (header-api-call "javascript-value") "always-rewrite"))
-      (reset-prefs-to-defaults!))
+      (with-prefs {:header-post-handler (fn [_value] "always-rewrite")}
+        (is (= (header-api-call ["cljs-value"]) "always-rewrite"))
+        (is (= (header-api-call "javascript-value") "always-rewrite"))))
     (testing "has-body pre-handler"
-      (set-pref! :has-body-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled)))
-      (is (= (has-body-api-call ["cljs-value"]) false))
-      (is (= (has-body-api-call :non-matching-cljs-value) nil))
-      (set-pref! :has-body-pre-handler (fn [value] (if (= value "javascript-value") :handled)))
-      (is (= (has-body-api-call "javascript-value") false))
-      (is (= (has-body-api-call "not-matching-javascript-value") nil))
-      (reset-prefs-to-defaults!))
+      (with-prefs {:has-body-pre-handler (fn [value] (if (= value ["cljs-value"]) :handled))}
+        (is (= (has-body-api-call ["cljs-value"]) false))
+        (is (= (has-body-api-call :non-matching-cljs-value) nil)))
+      (with-prefs {:has-body-pre-handler (fn [value] (if (= value "javascript-value") :handled))}
+        (is (= (has-body-api-call "javascript-value") false))
+        (is (= (has-body-api-call "not-matching-javascript-value") nil))))
     (testing "has-body post-handler"
-      (set-pref! :has-body-post-handler (fn [_value] "always-rewrite"))
-      (is (= (has-body-api-call ["cljs-value"]) "always-rewrite"))
-      (is (= (has-body-api-call "javascript-value") "always-rewrite"))
-      (reset-prefs-to-defaults!))
+      (with-prefs {:has-body-post-handler (fn [_value] "always-rewrite")}
+        (is (= (has-body-api-call ["cljs-value"]) "always-rewrite"))
+        (is (= (has-body-api-call "javascript-value") "always-rewrite"))))
     (testing "body pre-handler"
-      (set-pref! :body-pre-handler (fn [value] (if (= value ["cljs-value"]) ["handled-cljs-value"])))
-      (is (= (body-api-call ["cljs-value"]) nil))
-      (is (= (body-api-call ["non-matching-cljs-value"]) nil))
-      (reset-prefs-to-defaults!))
+      (with-prefs {:body-pre-handler (fn [value] (if (= value ["cljs-value"]) ["handled-cljs-value"]))}
+        (is (= (body-api-call ["cljs-value"]) nil))
+        (is (= (body-api-call ["non-matching-cljs-value"]) nil))))
     (testing "header post-handler"
-      (set-pref! :body-post-handler (fn [_value] "always-rewrite"))
-      (is (= (body-api-call ["cljs-value"]) "always-rewrite"))
-      (is (= (body-api-call "javascript-value") "always-rewrite"))
-      (reset-prefs-to-defaults!))))
+      (with-prefs {:body-post-handler (fn [_value] "always-rewrite")}
+        (is (= (body-api-call ["cljs-value"]) "always-rewrite"))
+        (is (= (body-api-call "javascript-value") "always-rewrite"))))))
 
 (deftest test-meta
   (testing "meta is disabled"
-    (set-pref! :print-meta-data false)
-    (is-header (with-meta {} :meta)
-      [:cljs-land-tag
-       [:header-tag
-        "{" "}"]])
-    (reset-prefs-to-defaults!))
+    (with-prefs {:render-metas false}
+      (is-header (with-meta {} :meta)
+        [:cljs-land-tag
+         [:header-tag
+          "{" "}"]])))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
       [:cljs-land-tag
@@ -517,20 +510,19 @@
         env/inst-type-ifn2va
         env/inst-type-ifn4va))
     (testing "these should be recognized as cljs functions"
-      (set-pref! :disable-cljs-fn-formatting true)
-      (are [f] (not (cljs-function? f))
-        env/minimal-fn
-        env/clsj-fn-with-fancy-name#$%!?
-        env/cljs-fn-var
-        env/cljs-fn-multi-arity-var
-        env/cljs-fn-multi-arity
-        env/cljs-fn-with-vec-destructuring
-        env/inst-type-ifn0
-        env/inst-type-ifn1
-        env/inst-type-ifn2
-        env/inst-type-ifn2va
-        env/inst-type-ifn4va)
-      (reset-prefs-to-defaults!)))
+      (with-prefs {:disable-cljs-fn-formatting true}
+        (are [f] (not (cljs-function? f))
+          env/minimal-fn
+          env/clsj-fn-with-fancy-name#$%!?
+          env/cljs-fn-var
+          env/cljs-fn-multi-arity-var
+          env/cljs-fn-multi-arity
+          env/cljs-fn-with-vec-destructuring
+          env/inst-type-ifn0
+          env/inst-type-ifn1
+          env/inst-type-ifn2
+          env/inst-type-ifn2va
+          env/inst-type-ifn4va))))
   (testing "minimal function formatting"
     (is-header env/minimal-fn
       [:cljs-land-tag
