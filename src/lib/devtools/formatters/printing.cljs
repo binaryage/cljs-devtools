@@ -6,7 +6,7 @@
             [devtools.formatters.state :refer [push-object-to-current-history! *current-state* get-current-state
                                                is-circular? get-managed-print-level set-managed-print-level
                                                update-current-state!]]
-            [devtools.formatters.helpers :refer [cljs-value? expandable? abbreviated? directly-printable?]]))
+            [devtools.formatters.helpers :refer [cljs-value? expandable? abbreviated? directly-printable? should-render?]]))
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
@@ -60,8 +60,8 @@
     group))
 
 (defn wrap-group-in-meta-if-needed [group value markup-db]
-  (if-let [meta-data (if (pref :print-meta-data) (meta value))]
-    [(apply (partial (:meta-wrapper markup-db) meta-data) group)]
+  (if (should-render? :render-metas value #(some? (meta %)))
+    [(apply (partial (:meta-wrapper markup-db) (meta value)) group)]
     group))
 
 ; default printer implementation can do this:

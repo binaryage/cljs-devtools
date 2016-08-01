@@ -22,7 +22,7 @@
   (= (goog/typeOf o) "symbol"))
 
 (defn cljs-function? [value]
-  (and (not (pref :disable-cljs-fn-formatting))
+  (and (not (pref :disable-cljs-fn-formatting))                                                                               ; TODO: this should be deprecated
        (not (var? value))                                                                                                     ; HACK: vars have IFn protocol and would act as functions TODO: implement custom rendering for vars
        (munging/cljs-fn? value)))
 
@@ -66,6 +66,10 @@
         fully-qualified-type-name (str ns "/" name)]
     (contains? well-known-types fully-qualified-type-name)))
 
+(defn should-render-instance? [value]
+  (and (cljs-instance? value)
+       (not (instance-of-a-well-known-type? value))))
+
 (defn directly-printable? [value]
   (or (string? value)
       (number? value)))
@@ -102,3 +106,9 @@
       (if-not (empty? obj)
         (let [actual-count (bounded-count min-count obj)]
           (>= actual-count min-count))))))
+
+(defn should-render? [pref-key value default-check]
+  (if-let [render-pref (pref pref-key)]
+    (cond
+      (true? render-pref) (default-check value)
+      (fn? render-pref) (render-pref value))))
