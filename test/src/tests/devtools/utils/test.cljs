@@ -36,25 +36,18 @@
                         :else
                         false))))
 
-(defn collect-refs [template]
-  (let [refs (atom [])
-        catch-next (atom false)
-        filter (fn [_ value]
-                 (if @catch-next
-                   (do
-                     (reset! catch-next false)
-                     (reset! refs (conj @refs value))
-                     nil)
-                   (do
-                     (if (= value "object")
-                       (reset! catch-next true))
-                     value)))]
-    (json/serialize template filter)
-    @refs))
 
 ; note: not perfect just ad-hoc for our cases
 (defn plain-js-obj? [o]
   (and (object? o) (not (coll? o))))
+(defn object-reference? [json-ml]
+  (= (first json-ml) "object"))
+
+(defn collect-refs [json-ml]
+  (if (array? json-ml)
+    (if (object-reference? json-ml)
+      [(second json-ml)]
+      (mapcat collect-refs json-ml))))
 
 (defn pref [value]
   (if (keyword? value)
@@ -121,9 +114,6 @@
   (if (vector? v)
     (mapcat (fn [item] (if (should-unroll? item) (unroll-fns (item)) [(unroll-fns item)])) v)
     v))
-
-(defn object-reference? [json-ml]
-  (= (first json-ml) "object"))
 
 (defn replace-refs-and-configs [json-ml]
   (if (array? json-ml)
