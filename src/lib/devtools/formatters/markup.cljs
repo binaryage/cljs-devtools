@@ -2,8 +2,8 @@
   (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]]
                    [devtools.formatters.markup :refer [emit-markup-db]])
   (:require [devtools.formatters.helpers :refer [bool? cljs-function? cljs-type? cljs-instance?
-                                                 instance-of-a-well-known-type? expandable? abbreviated?
-                                                 abbreviate-long-string get-constructor pref
+                                                 should-render-instance? expandable? abbreviated?
+                                                 abbreviate-long-string get-constructor pref should-render?
                                                  get-more-marker wrap-arity fetch-fields-values]]
             [devtools.formatters.printing :refer [managed-print-via-writer managed-print-via-protocol]]
             [devtools.formatters.state :refer [set-prevent-recursion set-managed-print-level reset-depth-limits]]
@@ -422,15 +422,15 @@
 
 (defn <atomic> [value]
   (cond
-    (nil? value) (<nil>)
-    (bool? value) (<bool> value)
-    (string? value) (<string> value)
-    (number? value) (<number> value)
-    (keyword? value) (<keyword> value)
-    (symbol? value) (<symbol> value)
-    (and (cljs-instance? value) (not (instance-of-a-well-known-type? value))) (<instance> value)
-    (cljs-type? value) (<standalone-type> value)
-    (cljs-function? value) (<function> value)))
+    (should-render? :render-nils value nil?) (<nil>)
+    (should-render? :render-bools value bool?) (<bool> value)
+    (should-render? :render-strings value string?) (<string> value)
+    (should-render? :render-numbers value number?) (<number> value)
+    (should-render? :render-keywords value keyword?) (<keyword> value)
+    (should-render? :render-symbols value symbol?) (<symbol> value)
+    (should-render? :render-instances value should-render-instance?) (<instance> value)
+    (should-render? :render-types value cljs-type?) (<standalone-type> value)
+    (should-render? :render-functions value cljs-function?) (<function> value)))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 

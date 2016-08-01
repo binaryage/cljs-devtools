@@ -14,6 +14,17 @@
    ; -- feature tweaks ------------------------------------------------------------------------------------------------------
 
    :render-metas                                       true
+   :render-nils                                        true
+   :render-bools                                       true
+   :render-strings                                     true
+   :render-numbers                                     true
+   :render-keywords                                    true
+   :render-symbols                                     true
+   :render-instances                                   true
+   :render-types                                       true
+   :render-functions                                   true
+
+   :disable-cljs-fn-formatting                         false                                                                  ; deprecated, use :render-functions instead
 
    ; -- verbosity controls --------------------------------------------------------------------------------------------------
 
