@@ -9,7 +9,8 @@
             [devtools.formatters.core :as f]
             [devtools.formatters.templating :refer [render-markup]]
             [devtools.prefs :refer [set-prefs!]]
-            [devtools.defaults :as defaults]))
+            [devtools.defaults :as defaults]
+            [clojure.string :as string]))
 
 (defn reset-prefs-to-defaults! []
   (set-prefs! defaults/prefs))
@@ -66,45 +67,51 @@
       (render-markup resolved-value)
       resolved-value)))
 
-(defn resolve-keyword [k]
-  ; we have a convention to convert :devtools.pseudo.style/something to {"style" :something-style}
-  (if (= (namespace k) "devtools.pseudo.style")
-    {"style" (pref (keyword (str (name k) "-style")))}
-    (resolve-pref-and-render-markup k)))
+(defn resolve-pref [k]
+  (if (keyword? k)
+    (resolve-pref-and-render-markup k)
+    k))
 
 (defn resolve-prefs [v]
-  (postwalk #(if (keyword? %) (resolve-keyword %) %) v))
+  (postwalk resolve-pref v))
 
 (defn resolve-tag [v]
-  (let [k (first v)]
-    ; we have a convention to convert :devtools.pseudo.style/something to :something-tag and splat it in-place
-    (if (and (keyword? k) (= (namespace k) "devtools.pseudo.tag"))
-      (let [resolved-tag (pref (keyword (str (name k) "-tag")))]
-        (assert (sequential? resolved-tag) (str k " expected to resolve to a sequence, got " resolved-tag " instead\n" v))
-        (assert (= 2 (count resolved-tag)))
-        (concat [(first resolved-tag) {"style" (second resolved-tag)}] (rest v)))
-      v)))
+  (or
+    (if (sequential? v)
+      (let [k (first v)]
+        (if (keyword? k)
+          (if (string/ends-with? (name k) "-tag")
+            (let [resolved-tag (pref k)]
+              (assert (sequential? resolved-tag) (str k " expected to resolve to a sequence, "
+                                                      "got " resolved-tag " instead\n"
+                                                      v))
+              (assert (= 2 (count resolved-tag)))
+              (concat [(first resolved-tag) {"style" (second resolved-tag)}] (rest v)))))))
+    v))
 
 (defn resolve-tags [v]
-  (postwalk #(if (sequential? %) (resolve-tag %) %) v))
+  (postwalk resolve-tag v))
+
+(defn remove-empty-style [x]
+  (if (and (map? x) (or (= (get x "style") "") (nil? (get x "style"))))
+    (dissoc x "style")
+    x))
 
 (defn remove-empty-styles [v]
-  (let [empty-style-remover (fn [x]
-                              (if (and (map? x) (or (= (get x "style") "") (nil? (get x "style"))))
-                                (dissoc x "style")
-                                x))]
-    (postwalk empty-style-remover v)))
+  (postwalk remove-empty-style v))
 
-(defn empty-string? [v]
-  (and (string? v) (empty? v)))
+(defn collapsed? [v]
+  (or (nil? v)
+      (and (string? v) (empty? v))))
 
-(defn remove-empty-strings [v]
-  (let [empty-string-remover (fn [x]
-                               (cond
-                                 (vector? x) (vec (remove empty-string? x))
-                                 (seq? x) (remove empty-string? x)
-                                 :else x))]
-    (postwalk empty-string-remover v)))
+(defn remove-collapsed-element [x]
+  (cond
+    (vector? x) (vec (remove collapsed? x))
+    (seq? x) (remove collapsed? x)
+    :else x))
+
+(defn remove-collapsed-elements [v]
+  (postwalk remove-collapsed-element v))
 
 (defn should-unroll? [o]
   (and (fn? o)
@@ -140,7 +147,7 @@
                               (resolve-tags)
                               (resolve-prefs)
                               (remove-empty-styles)
-                              (remove-empty-strings)
+                              (remove-collapsed-elements)
                               (clj->js))]
     (is (js-equals sanitized-template expected-template))
     (when-not (empty? callbacks)

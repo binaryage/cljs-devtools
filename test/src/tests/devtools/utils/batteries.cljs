@@ -2,14 +2,13 @@
   (:require [devtools.formatters.core :as f]
             [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [make-template]]
-            [devtools.pseudo.tag :as tag]
             [goog.date]
             [goog.Promise]))
 
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
 
-(def NATIVE-REF [::tag/native-reference-wrapper :native-reference-background [::tag/native-reference REF]])
+(def NATIVE-REF [:native-reference-wrapper-tag :native-reference-background [:native-reference-tag REF]])
 
 (deftype SimpleType [some-field])
 

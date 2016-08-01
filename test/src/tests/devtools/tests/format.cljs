@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [range = > < + str])
   (:require-macros [devtools.utils.macros :refer [range = > < + str want? with-prefs]])                                       ; prefs aware versions
   (:require [cljs.test :refer-macros [deftest testing is are]]
-            [devtools.pseudo.tag :as tag]
             [devtools.utils.test :refer [reset-prefs-to-defaults! js-equals is-header is-body has-body? unroll
                                          remove-empty-styles pref-str]]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
@@ -75,54 +74,54 @@
 (deftest test-simple-atomic-values
   (testing "keywords"
     (is-header :keyword
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/keyword ":keyword"]]])
+      [:cljs-land-tag
+       [:header-tag
+        [:keyword-tag ":keyword"]]])
     (is-header ::auto-namespaced-keyword
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/keyword ":devtools.tests.format/auto-namespaced-keyword"]]])
+      [:cljs-land-tag
+       [:header-tag
+        [:keyword-tag ":devtools.tests.format/auto-namespaced-keyword"]]])
     (is-header :devtools/fully-qualified-keyword
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/keyword ":devtools/fully-qualified-keyword"]]]))
+      [:cljs-land-tag
+       [:header-tag
+        [:keyword-tag ":devtools/fully-qualified-keyword"]]]))
   (testing "symbols"
     (is-header 'symbol
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/symbol "symbol"]]])))
+      [:cljs-land-tag
+       [:header-tag
+        [:symbol-tag "symbol"]]])))
 
 (deftest test-strings
   (testing "short strings"
     (is-header "some short string"
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/string (str :dq "some short string" :dq)]]])
+      [:cljs-land-tag
+       [:header-tag
+        [:string-tag (str :dq "some short string" :dq)]]])
     (is-header "line1\nline2\n\nline4"
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/string (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]]))
+      [:cljs-land-tag
+       [:header-tag
+        [:string-tag (str :dq "line1" :new-line-string-replacer "line2" :new-line-string-replacer :new-line-string-replacer "line4" :dq)]]]))
   (testing "long strings"
     (is-header "123456789012345678901234567890123456789012345678901234567890"
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
-            [::tag/string (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)]]])))
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:string-tag (str :dq "12345678901234567890" :string-abbreviation-marker "12345678901234567890" :dq)]]])))
     (is-header "1234\n6789012345678901234567890123456789012345678901234\n67890"
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
-            [::tag/string
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:string-tag
              (str
                :dq
                "1234" :new-line-string-replacer "678901234567890"
@@ -130,7 +129,7 @@
                "12345678901234" :new-line-string-replacer "67890"
                :dq)]]])
         (is-body ref
-          [::tag/expanded-string
+          [:expanded-string-tag
            (str
              "1234" :new-line-string-replacer
              "\n6789012345678901234567890123456789012345678901234" :new-line-string-replacer
@@ -141,91 +140,91 @@
     (is (< 4 :max-header-elements))
     (is (> 6 :min-expandable-sequable-count-for-well-known-types))
     (is-header [1 2 3]
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         "["
-        [::tag/integer 1] :spacer
-        [::tag/integer 2] :spacer
-        [::tag/integer 3]
+        [:integer-tag 1] :spacer
+        [:integer-tag 2] :spacer
+        [:integer-tag 3]
         "]"]])
     (is-header [1 2 3 4 5]
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
+          [:expandable-tag
+           [:expandable-inner-tag
             "["
-            (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 4))
-            [::tag/integer 5]
+            (unroll (fn [i] [[:integer-tag (+ i 1)] :spacer]) (range 4))
+            [:integer-tag 5]
             "]"]]))))
   (testing "ranges"
     (is (> 10 :max-header-elements))
     (is-header (range 10)
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
+          [:expandable-tag
+           [:expandable-inner-tag
             "("
-            (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
+            (unroll (fn [i] [[:integer-tag i] :spacer]) (range :max-header-elements))
             :more-marker
             ")"]])))))
 
 (deftest test-continuations
   (testing "long range"
     (is-header (range (+ :max-number-body-items 1))
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
+          [:expandable-tag
+           [:expandable-inner-tag
             "("
-            (unroll (fn [i] [[::tag/integer i] :spacer]) (range :max-header-elements))
+            (unroll (fn [i] [[:integer-tag i] :spacer]) (range :max-header-elements))
             :more-marker
             ")"]])
         (is-body ref
-          [::tag/body
-           [::tag/standard-ol
-            (unroll (fn [i] [[::tag/standard-li
-                              [::tag/index i :line-index-separator]
-                              [::tag/item
-                               [::tag/integer i]]]]) (range :max-number-body-items))
-            [::tag/standard-li
+          [:body-tag
+           [:standard-ol-tag
+            (unroll (fn [i] [[:standard-li-tag
+                              [:index-tag i :line-index-separator]
+                              [:item-tag
+                               [:integer-tag i]]]]) (range :max-number-body-items))
+            [:standard-li-tag
              REF]]]
           (fn [ref]
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              [::tag/expandable
-               [::tag/expandable-inner
-                [::tag/body-items-more
+              [:expandable-tag
+               [:expandable-inner-tag
+                [:body-items-more-tag
                  :body-items-more-label]]])
             (is-body ref
-              [::tag/standard-ol-no-margin
-               (unroll (fn [i] [[::tag/standard-li-no-margin
-                                 [::tag/index :max-number-body-items :line-index-separator]
-                                 [::tag/item
-                                  [::tag/integer (+ i :max-number-body-items)]]]]) (range 1))])))))))
+              [:standard-ol-no-margin-tag
+               (unroll (fn [i] [[:standard-li-no-margin-tag
+                                 [:index-tag :max-number-body-items :line-index-separator]
+                                 [:item-tag
+                                  [:integer-tag (+ i :max-number-body-items)]]]]) (range 1))])))))))
 
 (deftest test-printing
   (testing "max print level"
     (let [many-levels [1 [2 [3 [4 [5 [6 [7 [8 [9]]]]]]]]]]
       (has-body? many-levels false)
       (is-header many-levels
-        [::tag/cljs-land
-         [::tag/header
-          "[" [::tag/integer 1] " "
-          "[" [::tag/integer 2] " "
+        [:cljs-land-tag
+         [:header-tag
+          "[" [:integer-tag 1] " "
+          "[" [:integer-tag 2] " "
           REF
           "]"
           "]"]]
@@ -233,16 +232,16 @@
           (is (surrogate? ref))
           (has-body? ref true)
           (is-header ref
-            [::tag/expandable
-             [::tag/expandable-inner
+            [:expandable-tag
+             [:expandable-inner-tag
               "[" :more-marker "]"]]))))))
 
 #_(deftest test-deftype
     (testing "simple deftype"
       (let [type-instance (b/SimpleType. "some-value")]
         (is-header type-instance
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]]))))                                                                                                         ; TODO!
 
 (deftest test-handlers
@@ -290,26 +289,26 @@
   (testing "meta is disabled"
     (set-pref! :print-meta-data false)
     (is-header (with-meta {} :meta)
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         "{" "}"]])
     (reset-prefs-to-defaults!))
   (testing "simple meta"
     (is-header (with-meta {} :meta)
-      [::tag/cljs-land
-       [::tag/header
-        [::tag/meta-wrapper
-         "{" "}" [::tag/meta-reference REF]]]]
+      [:cljs-land-tag
+       [:header-tag
+        [:meta-wrapper-tag
+         "{" "}" [:meta-reference-tag REF]]]]
       (fn [ref]
         (has-body? ref true)
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
-            [::tag/meta-header "meta"]]])
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:meta-header-tag "meta"]]])
         (is-body ref
-          [::tag/meta-body
-           [::tag/header
-            [::tag/keyword ":meta"]]])))))
+          [:meta-body-tag
+           [:header-tag
+            [:keyword-tag ":meta"]]])))))
 
 (deftest test-sequables
   (testing "min-sequable-count-for-expansion of a well known type"
@@ -320,72 +319,72 @@
       (with-prefs {:max-header-elements                                100
                    :min-expandable-sequable-count-for-well-known-types 3}
         (is-header v2
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             "["
-            [::tag/integer 1]
+            [:integer-tag 1]
             :spacer
-            [::tag/integer 2]
+            [:integer-tag 2]
             "]"]])
         (is-header v3
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]]
           (fn [ref]
             (is (surrogate? ref))
             (has-body? ref true)
             (is-header ref
-              [::tag/expandable
-               [::tag/expandable-inner
+              [:expandable-tag
+               [:expandable-inner-tag
                 "["
-                [::tag/integer 1]
+                [:integer-tag 1]
                 :spacer
-                [::tag/integer 2]
+                [:integer-tag 2]
                 :spacer
-                [::tag/integer 3]
+                [:integer-tag 3]
                 "]"]]))))
       (with-prefs {:max-header-elements                                100
                    :min-expandable-sequable-count-for-well-known-types 4}
         (is-header v3
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             "["
-            [::tag/integer 1]
+            [:integer-tag 1]
             :spacer
-            [::tag/integer 2]
+            [:integer-tag 2]
             :spacer
-            [::tag/integer 3]
+            [:integer-tag 3]
             "]"]]))
       (with-prefs {:min-expandable-sequable-count-for-well-known-types nil}
         (is-header []
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]])
         (is-header v3
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]])
         (is-header v6
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]]
           (fn [ref]
             (is (surrogate? ref))
             (is-header ref
-              [::tag/expandable
-               [::tag/expandable-inner
+              [:expandable-tag
+               [:expandable-inner-tag
                 "["
-                (unroll (fn [i] [[::tag/integer (+ i 1)] :spacer]) (range 5))
+                (unroll (fn [i] [[:integer-tag (+ i 1)] :spacer]) (range 5))
                 :more-marker
                 "]"]])
             (has-body? ref true)
             (is-body ref
-              [::tag/body
-               [::tag/standard-ol
-                (unroll (fn [i] [[::tag/standard-li
-                                  [::tag/index i :line-index-separator]
-                                  [::tag/item
-                                   [::tag/integer (+ i 1)]]]]) (range 6))]]))))))
+              [:body-tag
+               [:standard-ol-tag
+                (unroll (fn [i] [[:standard-li-tag
+                                  [:index-tag i :line-index-separator]
+                                  [:item-tag
+                                   [:integer-tag (+ i 1)]]]]) (range 6))]]))))))
   (testing "min-sequable-count-for-expansion of a general type"
     (let [r0 (b/R0.)
           r2 (b/R2. 1 2)
@@ -394,131 +393,133 @@
       (are [v] (not (instance-of-a-well-known-type? v)) r0 r2 r3 r6)
       (with-prefs {:min-expandable-sequable-count 3}
         (is-header r2
-          [::tag/cljs-land
-           [::tag/header
-            [::tag/instance-header
-             ;:instance-header-background
-             [::tag/instance-value REF]
-             [::tag/instance-custom-printing-wrapper
+          [:cljs-land-tag
+           [:header-tag
+            [:instance-header-tag
+             :instance-header-background
+             [:instance-value-tag REF]
+             [:instance-custom-printing-wrapper-tag
               :instance-custom-printing-background
-              [::tag/instance-custom-printing
+              [:instance-custom-printing-tag
                "#devtools.utils.batteries.R2{"
-               [::tag/keyword ":fld1"]
+               [:keyword-tag ":fld1"]
                :spacer
-               [::tag/integer 1]
+               [:integer-tag 1]
                ", "
-               [::tag/keyword ":fld2"]
+               [:keyword-tag ":fld2"]
                :spacer
-               [::tag/integer 2]
+               [:integer-tag 2]
                "}"
                ]]
-             [::tag/type-wrapper
+             [:type-wrapper-tag
               :type-header-background
-              [::tag/type-ref REF]]]]])
+              [:type-ref-tag REF]]]]])
         (is-header r3
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]]
           (fn [ref]
             (is-header ref
-              [::tag/expandable
-               [::tag/expandable-inner
-                [::tag/instance-header
-                 ;:instance-header-background
-                 [::tag/instance-value REF]
-                 [::tag/instance-custom-printing-wrapper
+              [:expandable-tag
+               [:expandable-inner-tag
+                [:instance-header-tag
+                 :instance-header-background
+                 [:instance-value-tag REF]
+                 [:instance-custom-printing-wrapper-tag
                   :instance-custom-printing-background
-                  [::tag/instance-custom-printing
+                  [:instance-custom-printing-tag
                    "#devtools.utils.batteries.R3{"
-                   [::tag/keyword ":fld1"]
+                   [:keyword-tag ":fld1"]
                    :spacer
-                   [::tag/integer 1]
+                   [:integer-tag 1]
                    ", "
-                   [::tag/keyword ":fld2"]
+                   [:keyword-tag ":fld2"]
                    :spacer
-                   [::tag/integer 2]
+                   [:integer-tag 2]
                    ", "
-                   [::tag/keyword ":fld3"]
+                   [:keyword-tag ":fld3"]
                    :spacer
-                   [::tag/integer 3]
+                   [:integer-tag 3]
                    "}"
                    ]]
-                 [::tag/type-wrapper
+                 [:type-wrapper-tag
                   :type-header-background
-                  [::tag/type-ref REF]]]]]))))
+                  [:type-ref-tag REF]]]]]))))
       (with-prefs {:min-expandable-sequable-count false}
         (is-header r0
-          [::tag/cljs-land
-           [::tag/header
+          [:cljs-land-tag
+           [:header-tag
             REF]]
           (fn [ref]
             (is-header ref
-              [::tag/expandable
-               [::tag/expandable-inner
-                [::tag/instance-header
-                 ;:instance-header-background
-                 [::tag/instance-value REF]
-                 [::tag/instance-custom-printing-wrapper
+              [:expandable-tag
+               [:expandable-inner-tag
+                [:instance-header-tag
+                 :instance-header-background
+                 [:instance-value-tag REF]
+                 [:instance-custom-printing-wrapper-tag
                   :instance-custom-printing-background
-                  [::tag/instance-custom-printing
+                  [:instance-custom-printing-tag
                    "#devtools.utils.batteries.R0{"
                    "}"
                    ]]
-                 [::tag/type-wrapper
+                 [:type-wrapper-tag
                   :type-header-background
-                  [::tag/type-ref REF]]]]])))))))
+                  [:type-ref-tag REF]]]]])))))))
 
 (deftest test-circular-data
   (testing "circular data structure"
     (let [circular-ds (volatile! nil)]
       (vreset! circular-ds circular-ds)
       (is-header circular-ds
-        [::tag/cljs-land
-         [::tag/header
-          [::tag/instance-header
-           [::tag/instance-value REF]
-           [::tag/instance-custom-printing-wrapper
+        [:cljs-land-tag
+         [:header-tag
+          [:instance-header-tag
+           :instance-header-background
+           [:instance-value-tag REF]
+           [:instance-custom-printing-wrapper-tag
             :instance-custom-printing-background
-            [::tag/instance-custom-printing
+            [:instance-custom-printing-tag
              "#object [cljs.core.Volatile "
              "{"
-             [::tag/keyword ":val"]
+             [:keyword-tag ":val"]
              :spacer
              REF
              "}"
              "]"]]
-           [::tag/type-wrapper
+           [:type-wrapper-tag
             :type-header-background
-            [::tag/type-ref REF]]]]]
+            [:type-ref-tag REF]]]]]
         (fn [ref]
           (is-header ref
-            [::tag/expandable
-             [::tag/expandable-inner
-              [::tag/fields-header
+            [:expandable-tag
+             [:expandable-inner-tag
+              [:fields-header-tag
                :more-fields-symbol]]]))
         (fn [ref]
           (is-header ref
-            [::tag/expandable
-             [::tag/expandable-inner
-              [::tag/circular-reference
+            [:expandable-tag
+             [:expandable-inner-tag
+              [:circular-reference-tag
                :circular-ref-icon]]])
           (is-body ref
-            [::tag/circular-reference-body
-             [::tag/instance-header
-              [::tag/instance-value REF]
-              [::tag/instance-custom-printing-wrapper
+            [:circular-reference-body-tag
+             [:instance-header-tag
+              :instance-header-background
+              [:instance-value-tag REF]
+              [:instance-custom-printing-wrapper-tag
                :instance-custom-printing-background
-               [::tag/instance-custom-printing
+               [:instance-custom-printing-tag
                 "#object [cljs.core.Volatile "
                 "{"
-                [::tag/keyword ":val"]
+                [:keyword-tag ":val"]
                 :spacer
                 REF
                 "}"
                 "]"]]
-              [::tag/type-wrapper
+              [:type-wrapper-tag
                :type-header-background
-               [::tag/type-ref REF]]]]))
+               [:type-ref-tag REF]]]]))
         (fn [ref])))))
 
 (deftest test-function-formatting
@@ -557,98 +558,98 @@
       (reset-prefs-to-defaults!)))
   (testing "minimal function formatting"
     (is-header b/minimal-fn
-      [::tag/cljs-land
-       [::tag/header REF]]
+      [:cljs-land-tag
+       [:header-tag REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
-            [::tag/fn-header
-             [::tag/fn-prefix :lambda-icon]
-             [::tag/fn-args (pref-str :args-open-symbol :args-close-symbol)]]]])
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:fn-header-tag
+             [:fn-prefix-tag :lambda-icon]
+             [:fn-args-tag (pref-str :args-open-symbol :args-close-symbol)]]]])
         (is-body ref
-          [::tag/body
-           [::tag/standard-ol-no-margin
-            [::tag/aligned-li :native-icon NATIVE-REF]]]))))
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag :native-icon NATIVE-REF]]]))))
 
   (testing "cljs-lambda-multi-arity function formatting"
     (is-header b/cljs-lambda-multi-arity
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
-            [::tag/fn-header
-             [::tag/fn-prefix
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:fn-header-tag
+             [:fn-prefix-tag
               :lambda-icon]
-             [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]]]])
+             [:fn-args-tag (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]]]])
         (is-body ref
-          [::tag/body
-           [::tag/standard-ol-no-margin
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :lambda-icon]]
-             [::tag/fn-args (pref-str :args-open-symbol :args-close-symbol)]]
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :lambda-icon]]
-             [::tag/fn-args (pref-str :args-open-symbol "a b" :args-close-symbol)]]
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :lambda-icon]]
-             [::tag/fn-args (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
-            [::tag/aligned-li :native-icon NATIVE-REF]]]))))
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :lambda-icon]]
+             [:fn-args-tag (pref-str :args-open-symbol :args-close-symbol)]]
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :lambda-icon]]
+             [:fn-args-tag (pref-str :args-open-symbol "a b" :args-close-symbol)]]
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :lambda-icon]]
+             [:fn-args-tag (pref-str :args-open-symbol "c d e f" :args-close-symbol)]]
+            [:aligned-li-tag :native-icon NATIVE-REF]]]))))
   (testing "cljs-fn-multi-arity-var function formatting"
     (is-header b/cljs-fn-multi-arity-var
-      [::tag/cljs-land
-       [::tag/header
+      [:cljs-land-tag
+       [:header-tag
         REF]]
       (fn [ref]
         (is (surrogate? ref))
         (has-body? ref true)
         (is-header ref
-          [::tag/expandable
-           [::tag/expandable-inner
-            [::tag/fn-header
-             [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]
-             [::tag/fn-args (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]]]])
+          [:expandable-tag
+           [:expandable-inner-tag
+            [:fn-header-tag
+             [:fn-prefix-tag :fn-icon [:fn-name-tag "cljs-fn-multi-arity-var"]]
+             [:fn-args-tag (pref-str :args-open-symbol :multi-arity-symbol :args-close-symbol)]]]])
         (is-body ref
-          [::tag/body
-           [::tag/standard-ol-no-margin
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]]
-             [::tag/fn-args (pref-str :args-open-symbol "a1" :args-close-symbol)]]
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]]
-             [::tag/fn-args (pref-str :args-open-symbol "a2-1 a2-2" :args-close-symbol)]]
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :fn-icon [::tag/fn-name "cljs-fn-multi-arity-var"]]]
-             [::tag/fn-args (pref-str :args-open-symbol "a3-1 a3-2 a3-3 a3-4" :args-close-symbol)]]
-            [::tag/aligned-li
-             [::tag/fn-multi-arity-args-indent
-              [::tag/fn-prefix :fn-icon
-               [::tag/fn-name "cljs-fn-multi-arity-var"]]]
-             [::tag/fn-args (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
-            [::tag/aligned-li :ns-icon [::tag/fn-ns-name "devtools.utils.batteries"]]
-            [::tag/aligned-li :native-icon NATIVE-REF]]])))))
+          [:body-tag
+           [:standard-ol-no-margin-tag
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :fn-icon [:fn-name-tag "cljs-fn-multi-arity-var"]]]
+             [:fn-args-tag (pref-str :args-open-symbol "a1" :args-close-symbol)]]
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :fn-icon [:fn-name-tag "cljs-fn-multi-arity-var"]]]
+             [:fn-args-tag (pref-str :args-open-symbol "a2-1 a2-2" :args-close-symbol)]]
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :fn-icon [:fn-name-tag "cljs-fn-multi-arity-var"]]]
+             [:fn-args-tag (pref-str :args-open-symbol "a3-1 a3-2 a3-3 a3-4" :args-close-symbol)]]
+            [:aligned-li-tag
+             [:fn-multi-arity-args-indent-tag
+              [:fn-prefix-tag :fn-icon
+               [:fn-name-tag "cljs-fn-multi-arity-var"]]]
+             [:fn-args-tag (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
+            [:aligned-li-tag :ns-icon [:fn-ns-name-tag "devtools.utils.batteries"]]
+            [:aligned-li-tag :native-icon NATIVE-REF]]])))))
 
 (deftest test-alt-printer-impl
   (testing "wrapping IPrintWithWriter products as references if needed (issue #21)"                                           ; https://github.com/binaryage/cljs-devtools/issues/21
     (let [date-map {:date (goog.date.Date. 2016 6 1)}]                                                                        ; see extend-protocol IPrintWithWriter for goog.date.Date in batteries
       (is-header date-map
-        [::tag/cljs-land
-         [::tag/header
+        [:cljs-land-tag
+         [:header-tag
           "{"
-          [::tag/keyword ":date"]
+          [:keyword-tag ":date"]
           :spacer
           "#gdate "
           42
@@ -661,38 +662,38 @@
           "}"]]
         (fn [ref]
           (is-header ref
-            [::tag/header
+            [:header-tag
              "["
-             [::tag/integer 2016]
+             [:integer-tag 2016]
              :spacer
-             [::tag/integer 6]
+             [:integer-tag 6]
              :spacer
-             [::tag/integer 1]
+             [:integer-tag 1]
              "]"]))
         (fn [ref]
           (is-header ref
-            [::tag/header
+            [:header-tag
              "#js ["
-             [::tag/string "\"test-array\""]
+             [:string-tag "\"test-array\""]
              "]"]))
         (fn [ref]
           (is-header ref
-            [::tag/header
+            [:header-tag
              "#js "
              "{"
-             [::tag/keyword ":some-key"]
+             [:keyword-tag ":some-key"]
              :spacer
-             [::tag/string "\"test-js-obj\""]
+             [:string-tag "\"test-js-obj\""]
              "}"]))
         (fn [ref]
           (is-header ref
-            [::tag/header
-             [::tag/keyword ":keyword"]]))
+            [:header-tag
+             [:keyword-tag ":keyword"]]))
         (fn [ref]
           (is-header ref
-            [::tag/header
-             [::tag/symbol "sym"]]))
+            [:header-tag
+             [:symbol-tag "sym"]]))
         (fn [ref]
           (is-header ref
-            [::tag/header
+            [:header-tag
              "#\"" "regex" "\""]))))))

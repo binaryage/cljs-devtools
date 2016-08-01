@@ -3,7 +3,6 @@
             [devtools.util :refer-macros [oget oset ocall]]
             [devtools.utils.test :refer [js-equals is-header is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
-            [devtools.pseudo.tag :as tag]
             [devtools.toolbox :as t]
             [devtools.utils.batteries :as b :refer [REF]]))
 
@@ -17,63 +16,63 @@
 (deftest test-envelope
   (testing "default-envelope rendering"
     (is-header default-envelope
-      [::tag/default-envelope :default-envelope-header])
+      [:default-envelope-tag :default-envelope-header])
     (has-body? default-envelope true)
     (is-body default-envelope
-      [::tag/body
-       [::tag/standard-ol
-        [::tag/standard-li
+      [:body-tag
+       [:standard-ol-tag
+        [:standard-li-tag
          REF]]]
       (fn [ref]
         (is-header ref
-          [::tag/cljs-land
-           [::tag/header
-            [::tag/string
+          [:cljs-land-tag
+           [:header-tag
+            [:string-tag
              "\"default-envelope\""]]]))))
   (testing "custom-header-envelope rendering"
     (is-header custom-header-envelope
-      [::tag/default-envelope "custom header"])
+      [:default-envelope-tag "custom header"])
     (has-body? custom-header-envelope true)
     (is-body custom-header-envelope
-      [::tag/body
-       [::tag/standard-ol
-        [::tag/standard-li
+      [:body-tag
+       [:standard-ol-tag
+        [:standard-li-tag
          REF]]]
       (fn [ref]
         (is-header ref
-          [::tag/cljs-land
-           [::tag/header
-            [::tag/string
+          [:cljs-land-tag
+           [:header-tag
+            [:string-tag
              "\"custom-header-envelope\""]]]))))
   (testing "fn-header-envelope rendering"
     (is-header fn-header-envelope
-      [::tag/default-envelope "HEADER: fn-header-envelope"])
+      [:default-envelope-tag "HEADER: fn-header-envelope"])
     (has-body? fn-header-envelope true)
     (is-body fn-header-envelope
-      [::tag/body
-       [::tag/standard-ol
-        [::tag/standard-li
+      [:body-tag
+       [:standard-ol-tag
+        [:standard-li-tag
          REF]]]
       (fn [ref]
         (is-header ref
-          [::tag/cljs-land
-           [::tag/header
-            [::tag/string
+          [:cljs-land-tag
+           [:header-tag
+            [:string-tag
              "\"fn-header-envelope\""]]]))))
   (testing "fully-custom-envelope"
     (is-header fully-custom-envelope
       ["div" {"style" "color:purple"} "header"])
     (has-body? fully-custom-envelope true)
     (is-body fully-custom-envelope
-      [::tag/body
-       [::tag/standard-ol
-        [::tag/standard-li
+      [:body-tag
+       [:standard-ol-tag
+        [:standard-li-tag
          REF]]]
       (fn [ref]
         (is-header ref
-          [::tag/cljs-land
-           [::tag/header
-            [::tag/string
+          [:cljs-land-tag
+           [:header-tag
+            [:string-tag
              "\"fully-custom-envelope\""]]])))))
 
 ; -- force-format -----------------------------------------------------------------------------------------------------------
@@ -92,29 +91,29 @@
 (deftest test-force-format
   (testing "force-format rendering for string"
     (is-header ff-string
-      [::tag/header
-       [::tag/string
+      [:header-tag
+       [:string-tag
         (str "\"" string-val "\"")]])
     (has-body? ff-string false))
   (testing "force-format rendering for integer"
     (is-header ff-integer
-      [::tag/header
-       [::tag/integer
+      [:header-tag
+       [:integer-tag
         integer-val]])
     (has-body? ff-string false))
   (testing "force-format rendering for float"
     (is-header ff-float
-      [::tag/header
-       [::tag/float
+      [:header-tag
+       [:float-tag
         float-val]])
     (has-body? ff-float false))
   (testing "force-format rendering for nil"
     (is-header ff-nil
-      [::tag/header
-       [::tag/nil
+      [:header-tag
+       [:nil-tag
         "nil"]])
     (has-body? ff-nil false))
   (testing "force-format rendering for regexp"
     (is-header ff-regexp
-      [::tag/header "#\"" "regexp" "\""])
+      [:header-tag "#\"" "regexp" "\""])
     (has-body? ff-regexp false)))
