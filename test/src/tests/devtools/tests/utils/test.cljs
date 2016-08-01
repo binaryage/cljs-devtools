@@ -172,14 +172,15 @@
 (defn is-header [value expected & callbacks]
   (apply is-template (safe-header value) expected callbacks))
 
-(defn is-body [value expected & callbacks]
-  (apply is-template (safe-body value) expected callbacks))
-
 (defn has-body? [value expected]
   (is (= (f/has-body value) expected)
       (if expected
         (str (pr-str value) " SHOULD return true to hasBody call")
         (str (pr-str value) " SHOULD return false to hasBody call"))))
+
+(defn is-body [value expected & callbacks]
+  (has-body? value true)
+  (apply is-template (safe-body value) expected callbacks))
 
 (defn unroll [& args]
   (with-meta (apply partial (concat [mapcat] args)) {:unroll true}))
