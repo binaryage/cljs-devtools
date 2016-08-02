@@ -14,5 +14,7 @@ pom.xml
 /resources/public/_compiled
 .idea
 *.iml
-.figwheel_server.log
+.figwheel/server.log
 .nrepl-port
+/.dirac-chrome-profile/
+/.figwheel/

@@ -2,7 +2,8 @@
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [clojure.string :as string]
             [devtools-sample.boot :refer [boot!]]
-            [devtools.format :as format]
+            [devtools.formatters.markup :refer [<standard-body>]]
+            [devtools.formatters.templating :refer [render-markup]]
             [devtools.protocols :refer [IFormat]]))
 
 (boot! "/src/demo/devtools_sample/core.cljs")
@@ -21,6 +22,25 @@
                      :set     '#{a b c}
                      :map     '{k1 v1 k2 v2}})
 
+(defprotocol MyProtocol
+  (-method1 [this])
+  (-method2
+    [this param1]
+    [this param1 param2]))
+
+(deftype MyType [f1 f2]
+  MyProtocol
+  (-method1 [this])
+  (-method2 [this param1])
+  (-method2 [this param1 param2]))
+
+; custom formatter defined in user code
+(deftype Person [name address]
+  IFormat
+  (-header [_] (render-markup [["span" "color:white;background-color:#999;padding:0px 4px;"] (str "Person: " name)]))
+  (-has-body [_] (some? address))
+  (-body [_] (render-markup (<standard-body> (string/split-lines address)))))
+
 (log nil 43 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] {:k1 1 :k2 2} #{1 2 3})                                           ; simple values
 (log [nil 42 0.1 :keyword 'symbol "string" #"regexp" [1 2 3] {:k1 1 :k2 2} #{1 2 3}])                                         ; vector of simple values
 (log (range 100) (range 101) (range 220) (interleave (repeat :even) (repeat :odd)))                                           ; lists, including infinite ones
@@ -30,17 +50,10 @@
 (log (fn []) (fn [p__gen p123]) #(str %) (js* "function(x) { console.log(x); }"))                                             ; lambda functions
 (log [#js {:key "val"} #js [1 2 3] (js-obj "k1" "v1" "k2" :v2) js/window])                                                    ; js interop
 (log [1 2 3 [10 20 30 [100 200 300 [1000 2000 3000 :*]]]])                                                                    ; nested vectors
-(log (atom showcase-value))                                                                                                   ; atoms
 (log (with-meta ["has meta data"] {:some "meta-data"}))                                                                       ; values with metadata
-
-; custom formatter defined in user code
-(deftype Person [name address]
-  IFormat
-  (-header [_] (format/make-template "span" "color:white;background-color:#999;padding:0px 4px;" (str "Person: " name)))
-  (-has-body [_] (some? address))
-  (-body [_] (format/standard-body-template (string/split-lines address))))
-
-(log (Person. "John Doe" "Office 33\n27 Colmore Row\nBirmingham\nEngland") (Person. "Mr Homeless" nil))
+(log (Person. "John Doe" "Office 33\n27 Colmore Row\nBirmingham\nEngland") (Person. "Mr Homeless" nil))                       ; custom formatting
+(log (atom showcase-value))                                                                                                   ; atoms
+(log (MyType. 1 2))                                                                                                           ; types
 
 ; <-- MEAT STOPS HERE ---
 

@@ -1,8 +1,9 @@
 (ns devtools-sample.lab
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools-sample.boot :refer [boot!]]
-            [devtools.format :as format]
             [devtools.toolbox :as toolbox]
+            [devtools.formatters.core :as format]
+            [devtools.formatters.templating :refer [make-template]]
             [devtools.protocols :refer [IFormat]]))
 
 (boot! "/src/demo/devtools_sample/lab.cljs")
@@ -25,7 +26,7 @@
 ; defrecord with IFormat
 (defrecord Language [lang]
   IFormat
-  (-header [_] (format/make-template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
+  (-header [_] (make-template "span" "color:white; background-color:darkgreen; padding: 0px 4px" (str "Language: " lang)))
   (-has-body [_])
   (-body [_]))
 
@@ -34,9 +35,9 @@
 ; reify with IFormat
 (def test-reify (reify
                   IFormat
-                  (-header [_] (format/make-template "span"
-                                                     "color:white; background-color:brown; padding: 0px 4px"
-                                                     "testing reify"))
+                  (-header [_] (make-template "span"
+                                              "color:white; background-color:brown; padding: 0px 4px"
+                                              "testing reify"))
                   (-has-body [_] false)
                   (-body [_])))
 
@@ -56,7 +57,7 @@
   (let [rng (range count)]
     (doseq [item rng]
       (let [s (str "item=" item)]
-        (swap! state conj s)))))                                                                                              ; <- set breakpoint HERE and see Scope variables in DevTools
+        (swap! state conj s)))))
 
 (defn some-fancy-name$%!? [arg1 arg? mo-re]
   (str "hello!"))

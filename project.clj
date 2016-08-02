@@ -5,15 +5,15 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.88"]
                  [org.clojure/core.async "0.2.385"]
-                 [binaryage/devtools "0.7.2"]
-                 [binaryage/dirac "0.6.1"]
-                 [com.cognitect/transit-clj "0.8.285"]
+                 [binaryage/devtools "0.8.0"]
+                 [binaryage/dirac "0.6.3"]
+                 [com.cognitect/transit-clj "0.8.288"]
                  [cljs-http "0.1.41"]
                  [environ "1.0.3"]
-                 [figwheel "0.5.4-3"]]
+                 [figwheel "0.5.4-7"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-figwheel "0.5.4-3"]
+            [lein-figwheel "0.5.4-7"]
             [lein-shell "0.5.0"]
             [lein-environ "1.0.3"]]
 
@@ -94,7 +94,7 @@
              ; --------------------------------------------------------------------------------------------------------------
              :figwheel
              {:figwheel  {:server-port     7000
-                          :server-logfile  ".figwheel_server.log"
+                          :server-logfile  ".figwheel/server.log"
                           :validate-config false}
               :cljsbuild {:builds {:demo
                                    {:figwheel true}}}}

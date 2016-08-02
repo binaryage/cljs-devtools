@@ -21,7 +21,11 @@
                   (.getMonth obj)
                   (.getDate obj)]
                  #js ["test"]
-                 (js-obj :test "js-obj")))))
+                 (js-obj 'test "js-obj")
+                 :keyword
+                 'sym
+                 42
+                 #"regex"))))
 
 (extend-dates)
 
