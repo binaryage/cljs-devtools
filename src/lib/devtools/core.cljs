@@ -1,15 +1,11 @@
 (ns devtools.core
   (:require [devtools.prefs :as prefs]
             [devtools.hints :as hints]
+            [devtools.defaults :refer [feature-groups]]
             [devtools.formatters :as formatters]
             [devtools.async :as async]
             [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
                                    print-config-overrides-if-requested!]]))
-
-(def known-features [:formatters :hints :async])
-(def default-features [:formatters])
-(def feature-groups {:all     known-features
-                     :default default-features})
 
 ; -- public API -------------------------------------------------------------------------------------------------------------
 

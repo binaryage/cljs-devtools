@@ -2,9 +2,15 @@
   ; warning: when touching this ns form, update also eval-css-arg in defaults.clj
   (:require-macros [devtools.defaults :as d :refer [css span named-color]]))
 
+(def known-features [:formatters :hints :async])
+(def default-features [:formatters])
+(def feature-groups {:all     known-features
+                     :default default-features})
+
 (def prefs
   {; -- installation --------------------------------------------------------------------------------------------------------
 
+   ; you can specify a list/vector of features from known-features or a keyword from feature-groups
    :features-to-install                                :default
    :print-config-overrides                             false
    :suppress-preload-install                           false
