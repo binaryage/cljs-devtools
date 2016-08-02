@@ -15,16 +15,23 @@ only to newly printed console messages.
 
 ## Integrate with your project
 
-Add devtools dependency into your Leiningen's `project.clj`
+Add devtools dependency into your Leiningen's `project.clj` or boot file. 
 
 [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools)
 
-### Dev builds
+### Development builds
 
-CLJS devtools is meant to be used only with development builds.
+CLJS devtools is meant to be used only with development builds. 
 
-A bleeding edge note: [here is described a new way](https://github.com/binaryage/cljs-devtools/releases/tag/v0.7.2) how to
-install devtools using [`preloads` feature](https://github.com/clojure/clojurescript/wiki/Compiler-Options#preloads).
+In general you have two options how to integrate CLJS DevTools with your project: 
+
+#### Install it via `:preloads`
+
+ClojureScript [supports](http://dev.clojure.org/jira/browse/CLJS-1688) `:preloads` [compiler option](https://github.com/clojure/clojurescript/wiki/Compiler-Options#preloads) 
+which allows you to require namespaces prior your `:main` namespace. This means that you can use this feature to add cljs-devtools support 
+to your project without modification of your code. You simply add `devtools.preload` into the `:preloads` list.
+
+#### Install it manually
 
 You call `install!` it from `devtools.core` namespace.
 A good technique is to use an independent namespace and require it before your core namespace (but after goog/base.js):
@@ -59,19 +66,9 @@ This will ensure that `devtools/install!` is called before your normal code gets
 namespace dependencies where you cannot force exact ordering and it will work even if you happen to run side-effecting code
 during requiring your code or libraries (for example you are logging something to javascript console during namespace require).
 
-By default only `:custom-formatters` feature is installed. You can call `install!` with explicit list of features to enable.
-
-```clojure
-(devtools/install! [:custom-formatters :sanity-hints]) ; to enable all features
-```
-
-The [list of all `known-features` is here](https://github.com/binaryage/cljs-devtools/blob/master/src/lib/devtools/core.cljs#L9).
-
-Check out the **[sample project](https://github.com/binaryage/cljs-devtools-sample)**.
-
 ### Advanced builds
 
-Because `:custom-formatters` feature of CLJS devtools does not work under `:compiler {:optimizations :advanced}` you will
+Because `:formatters` feature of CLJS devtools does not work under `:compiler {:optimizations :advanced}` you will
  probably want to completely exclude the library from your production builds.
 
 In general you have two options:
@@ -82,3 +79,13 @@ In general you have two options:
   Or more elegantly you can use `:closure-defines` to define a conditional which will be understood by closure optimizer. This technique was
   [discussed here](https://github.com/binaryage/cljs-devtools/releases/tag/v0.5.3). You can also look into [project.clj](../project.clj)
   and check out the `:dead-code-elimination` build.
+
+### Configuration
+
+You can enable/disable desired features and configure other aspects of CLJS DevTools. Please refer to a separate documentation
+on [configuring the library](https://github.com/binaryage/cljs-devtools/blob/master/docs/configuration.md).
+  
+### Additional notes
+ 
+* For inspiration, you might want to check the **[sample project](https://github.com/binaryage/cljs-devtools-sample)** out.
+* Boot users might want consider using [boot-cljs-devtools](https://github.com/boot-clj/boot-cljs-devtools)).

@@ -1,13 +1,56 @@
 # CLJS DevTools FAQ
 
-### What is the `:custom-formatters` feature?
+### What is the `:formatters` feature?
 
-You can log specific javascript object types with your own printing routine.
+You can log some javascript objects with your own printing routine.
 Basically you can register a javascript handler which will be called by
-DevTools javascript console to present object in the console. This handler
+DevTools console to present object in the console. This handler
 can output rich formatting / expandable-structure (JsonML).
 
 Read more in [this Google Doc](https://docs.google.com/document/d/1FTascZXT9cxfetuPRT2eXPQKXui4nWFivUnS_335T3U).
+
+CLJS DevTools provides a rich set of custom formatters tailored for ClojureScript.
+
+![Custom formatters in action](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sample-full.png)
+
+### What is the `:hints` feature?
+
+Sometimes your DevTools displays cryptic errors like `Cannot read property 'call' of null`. 
+The problem is in the way how ClojureScript compiler emits function calls.
+
+The `:hints` feature is an attempt to augment uncaught exceptions and error object to include a bit of additional knowledge related to such errors.
+It tries to fetch the original source file, extract relevant part to show you more context and mark the javascript error there.
+This is expected to work only with `:optimizations none` compiler mode and it is disabled by default because it relies on monkey patching.
+But it is worth it:
+
+<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
+
+Note `<<< ☢ RETURNED NULL ☢ <<< ` part which points to error location. The uncaught error was raised by calling `sanity-test-handler` in the following code:
+
+```clojure
+(defn fn-returns-nil [])
+
+(defn sanity-test-handler []
+  ((fn-returns-nil) "param"))
+```
+
+You can enable the feature in the config:
+
+```clojure
+:external-config {
+  :devtools/config {
+    :features-to-install    [:formatters :hints]
+    :fn-symbol              "F"
+    :print-config-overrides true}}
+```
+
+Or you can enable the feature when calling `install!`:
+
+```clojure
+(devtools.core/install! [:formatters :hints])
+```
+
+Technical details are described in [the source file](https://github.com/binaryage/cljs-devtools/blob/master/src/devtools/sanity_hints.cljs).
 
 ### Why some custom formatters were not rendered?
 
@@ -34,34 +77,6 @@ You can disable this warning by setting this pref prior installation:
 (devtools.core/set-pref! :dont-detect-custom-formatters true)
 ```
 
-### What is the `:sanity-hints` feature?
-
-Sometimes your DevTools displays cryptic errors like `Cannot read property 'call' of null`. The problem is in the way how ClojureScript compiler emits function calls.
-
-Sanity hints is an attempt to augment uncaught exceptions and error object to include a bit of additional knowledge related to such errors.
-It tries to fetch the original source file, extract relevant part to show you more context and mark javascript error there.
-This is expected to work only with `:optimizations none` compiler mode and it is disabled by default because it relies on monkey patching.
-But it is worth it:
-
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
-
-Note `<<< ☢ RETURNED NULL ☢ <<< ` part which points to error location. The uncaught error was raised by calling `sanity-test-handler` in the following code:
-
-```clojure
-(defn fn-returns-nil [])
-
-(defn sanity-test-handler []
-  ((fn-returns-nil) "param"))
-```
-
-You can enable the feature when calling `install!`:
-
-```clojure
-(devtools.core/install! [:custom-formatters :sanity-hints])
-```
-
-Technical details are described in [the source file](https://github.com/binaryage/cljs-devtools/blob/master/src/devtools/sanity_hints.cljs).
-
 ### Why custom formatters do not work for advanced builds?
 
 There is a technical glitch which currently prevents CLSJ devtools to work under
@@ -72,7 +87,7 @@ Philosophically you should not include debug/diagnostics code in your production
 
 ### How do I elide the library in my :advanced builds?
 
-Please read [install.md#advanced-builds](install.md#advanced-builds).
+Please read [installation.md#advanced-builds](installation.md#advanced-builds).
 
 ### Does this work in other browsers than Chrome?
 
