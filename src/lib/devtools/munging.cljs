@@ -53,6 +53,10 @@
   (let [sb (StringBuffer.)
         writer (StringBufferWriter. sb)]
     (try
+      ; we cannot use (type->str f) because it does not work for defrecords as of v1.9.89
+      ; instead we rely on .cljs$lang$ctorPrWriter which is defined for both deftypes and defrecords
+      ; and it is used here: https://github.com/clojure/clojurescript/blob/cfbefad0b9f2ae9af92ebc2ec211c8472a884ddf/src/main/cljs/cljs/core.cljs#L9173
+      ; relevant JIRA ticket: http://dev.clojure.org/jira/browse/CLJS-1725
       (ocall t "cljs$lang$ctorPrWriter" t writer)
       (catch :default _
         "?"))
@@ -496,11 +500,7 @@
   "Given a Javascript constructor function tries to retrieve [ns name basis]. Returns nil if not a cljs type."
   [f]
   (if (and (goog/isObject f) (oget f "cljs$lang$type"))
-    (let [; we cannot use (type->str f) because it does not work for defrecords as of v1.9.89
-          ; instead we rely on .cljs$lang$ctorPrWriter which is defined for both deftypes and defrecords
-          ; and it is used here:
-          ; https://github.com/clojure/clojurescript/blob/cfbefad0b9f2ae9af92ebc2ec211c8472a884ddf/src/main/cljs/cljs/core.cljs#L9173
-          type-name (get-type-name f)
+    (let [type-name (get-type-name f)
           parts (.split type-name #"/")
           basis (safe-call get-basis [] f)]
       (assert (<= (count parts) 2))
