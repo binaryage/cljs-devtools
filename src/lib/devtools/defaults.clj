@@ -6,7 +6,8 @@
 (declare make-color)
 
 (def named-colors
-  {:signature                   [100 255 100]
+  {:base-text-color             [0 0 0]                                                                                       ; black text color, used to prevent leaking in text colors from "outside"
+   :signature                   [100 255 100]
    :type                        [0 160 220]
    :type-text                   [238 238 355]
    :field                       #(make-named-color :type)

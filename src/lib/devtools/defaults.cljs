@@ -224,6 +224,7 @@
    ; -- styles --------------------------------------------------------------------------------------------------------------
 
    :cljs-land-style                                    (css (str "background-color: " (named-color :signature-background) ";")
+                                                            (str "color: " (named-color :base-text-color) ";")                ; prevent leaking in text colors from "outside"
                                                             "border-radius: 2px;")
 
    :header-style                                       (css "white-space: nowrap;")                                           ; this prevents jumping of content when expanding sections due to content wrapping
