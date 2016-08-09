@@ -3,7 +3,7 @@
   :url "https://github.com/binaryage/cljs-devtools-sample"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.88"]
+                 [org.clojure/clojurescript "1.9.89"]
                  [org.clojure/core.async "0.2.385"]
                  [binaryage/devtools "0.8.0"]
                  [binaryage/dirac "0.6.3"]
