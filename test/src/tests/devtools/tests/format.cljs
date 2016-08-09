@@ -946,3 +946,50 @@
               " "
               [:string-tag "\"val\""]
               "}"]]))))))
+
+(deftest test-issue-24
+  (testing "printing structures with bools"
+    (let [v [true false]
+          l '(true false)
+          m {:x true :y false}
+          s #{true false}]
+      (has-body? v false)
+      (is-header v
+        [:cljs-land-tag
+         [:header-tag
+          "["
+          [:bool-tag "true"]
+          :spacer
+          [:bool-tag "false"]
+          "]"]])
+      (has-body? l false)
+      (is-header l
+        [:cljs-land-tag
+         [:header-tag
+          "("
+          [:bool-tag "true"]
+          :spacer
+          [:bool-tag "false"]
+          ")"]])
+      (has-body? m false)
+      (is-header m
+        [:cljs-land-tag
+         [:header-tag
+          "{"
+          [:keyword-tag ":x"]
+          :spacer
+          [:bool-tag "true"]
+          ", "
+          [:keyword-tag ":y"]
+          :spacer
+          [:bool-tag "false"]
+          "}"]])
+      (has-body? s false)
+      (is-header s
+        [:cljs-land-tag
+         [:header-tag
+          "#{"
+          [:bool-tag "true"]
+          :spacer
+          [:bool-tag "false"]
+          "}"]]))))

@@ -71,7 +71,7 @@
   [:nil-tag :nil-label])
 
 (defn <bool> [bool]
-  [:bool-tag bool])
+  [:bool-tag (str bool)])
 
 (defn <keyword> [keyword]
   [:keyword-tag (str keyword)])
