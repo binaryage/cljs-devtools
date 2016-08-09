@@ -9,13 +9,13 @@
                  [binaryage/dirac "0.6.3"]
                  [com.cognitect/transit-clj "0.8.288"]
                  [cljs-http "0.1.41"]
-                 [environ "1.0.3"]
+                 [environ "1.1.0"]
                  [figwheel "0.5.4-7"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-figwheel "0.5.4-7"]
             [lein-shell "0.5.0"]
-            [lein-environ "1.0.3"]]
+            [lein-environ "1.1.0"]]
 
   ; =========================================================================================================================
 
