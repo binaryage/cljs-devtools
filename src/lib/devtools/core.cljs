@@ -13,7 +13,7 @@
   (case feature
     :formatters (formatters/available?)
     :hints (hints/available?)
-    :async (hints/available?)))
+    :async (async/available?)))
 
 (defn available?
   ([] (available? (prefs/pref :features-to-install)))
