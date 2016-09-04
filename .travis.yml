@@ -4,6 +4,10 @@ cache:
   directories:
     - $HOME/.m2
 
+before_install:
+  # update lein to latest, https://github.com/technomancy/leiningen/issues/2014#issuecomment-153829977
+  - yes y | sudo lein upgrade
+
 before_script:
   - mkdir travis-phantomjs
   - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
