@@ -4,6 +4,7 @@
             [devtools.defaults :refer [feature-groups]]
             [devtools.formatters :as formatters]
             [devtools.async :as async]
+            [devtools.toolbox]                                                                                                ; this auto-requires the toolbox namespace, used by cljs-oops
             [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
                                    print-config-overrides-if-requested!]]))
 
