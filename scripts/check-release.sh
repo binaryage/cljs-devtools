@@ -26,13 +26,4 @@ if [[ "$LEIN_VERSION" =~ "SNAPSHOT" ]]; then
   exit 2
 fi
 
-# http://stackoverflow.com/a/1885534/84283
-echo "Are you sure to publish version ${LEIN_VERSION}? [Yy]"
-read -n 1 -r
-if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-  exit 0
-else
-  exit 1
-fi
-
 popd
