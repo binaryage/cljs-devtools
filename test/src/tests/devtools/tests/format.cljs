@@ -8,6 +8,7 @@
             [devtools.formatters.templating :refer [surrogate?]]
             [devtools.formatters.helpers :refer [cljs-function? instance-of-a-well-known-type?]]
             [devtools.prefs :refer [pref]]
+            [devtools.core]
             [devtools.tests.env.core :as env :refer [REF NATIVE-REF SOMETHING]]))
 
 (deftest test-wants
