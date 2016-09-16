@@ -72,29 +72,29 @@
                                    {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests-adhoc.html"]}}}}}
 
   :aliases {"test"                   ["do"
-                                      "clean,"
-                                      "test-tests,"
-                                      "test-tests-with-config,"
-                                      "test-dead-code"]
+                                      ["clean"]
+                                      ["test-tests"]
+                                      ["test-tests-with-config"]
+                                      ["test-dead-code"]]
             "test-dead-code"         ["do"
-                                      "with-profile" "+testing" "cljsbuild" "once" "dead-code,"
-                                      "shell" "test/scripts/dead-code-check.sh"]
+                                      ["with-profile" "+testing" "cljsbuild" "once" "dead-code"]
+                                      ["shell" "test/scripts/dead-code-check.sh"]]
             "test-tests"             ["do"
-                                      "with-profile" "+testing" "cljsbuild" "once" "tests,"
-                                      "shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]
+                                      ["with-profile" "+testing" "cljsbuild" "once" "tests"]
+                                      ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]]
             "test-tests-with-config" ["do"
-                                      "with-profile" "+testing" "cljsbuild" "once" "tests-with-config,"
-                                      "shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]
+                                      ["with-profile" "+testing" "cljsbuild" "once" "tests-with-config"]
+                                      ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]]
             "auto-test"              ["do"
-                                      "clean,"
-                                      "with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]
+                                      ["clean"]
+                                      ["with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]]
             "adhoc-auto-test"        ["do"
-                                      "clean,"
-                                      "with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]
+                                      ["clean"]
+                                      ["with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]]
             "release"                ["do"
-                                      "shell" "scripts/check-versions.sh,"
-                                      "clean,"
-                                      "test,"
-                                      "jar,"
-                                      "shell" "scripts/check-release.sh,"
-                                      "deploy" "clojars"]})
+                                      ["shell" "scripts/check-versions.sh"]
+                                      ["clean"]
+                                      ["test"]
+                                      ["jar"]
+                                      ["shell" "scripts/check-release.sh"]
+                                      ["deploy" "clojars"]]})
