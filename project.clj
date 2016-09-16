@@ -106,29 +106,22 @@
 
   ; =========================================================================================================================
 
-  :aliases {"demo"                           ["with-profile" "+demo,+figwheel"
-                                              "figwheel"]
+  :aliases {"demo"                           ["with-profile" "+demo,+figwheel" "figwheel"]
             "demo-advanced"                  ["with-profile" "+demo-advanced" "do"
-                                              "cljsbuild" "once,"
-                                              "shell" "scripts/dev-server.sh"]
-            "cljs"                           ["with-profile" "+demo"
-                                              "cljsbuild" "auto"]
-            "present"                        ["with-profile" "+demo"
-                                              "do"
-                                              "clean,"
-                                              "cljsbuild" "once,"
-                                              "shell" "scripts/dev-server.sh"]
-            "advanced-unconditional-install" ["with-profile" "+advanced-unconditional-install"
-                                              "cljsbuild" "once"]
-            "advanced-conditional-install"   ["with-profile" "+advanced-conditional-install"
-                                              "cljsbuild" "once"]
-            "advanced-no-install"            ["with-profile" "+advanced-no-install"
-                                              "cljsbuild" "once"]
+                                              ["cljsbuild" "once"]
+                                              ["shell" "scripts/dev-server.sh"]]
+            "cljs"                           ["with-profile" "+demo" "cljsbuild" "auto"]
+            "present"                        ["with-profile" "+demo" "do"
+                                              ["clean"]
+                                              ["cljsbuild" "once"]
+                                              ["shell" "scripts/dev-server.sh"]]
+            "advanced-unconditional-install" ["with-profile" "+advanced-unconditional-install" "cljsbuild" "once"]
+            "advanced-conditional-install"   ["with-profile" "+advanced-conditional-install" "cljsbuild" "once"]
+            "advanced-no-install"            ["with-profile" "+advanced-no-install" "cljsbuild" "once"]
             "advanced-compare"               ["do"
-                                              "clean,"
-                                              "advanced-unconditional-install,"
-                                              "advanced-conditional-install,"
-                                              "advanced-no-install,"
-                                              "shell" "scripts/compare-advanced-builds.sh"]
-            "devel"                          ["with-profile" "+demo,+checkouts,+devel,+figwheel"
-                                              "figwheel"]})
+                                              ["clean"]
+                                              ["advanced-unconditional-install"]
+                                              ["advanced-conditional-install"]
+                                              ["advanced-no-install"]
+                                              ["shell" "scripts/compare-advanced-builds.sh"]]
+            "devel"                          ["with-profile" "+demo,+checkouts,+devel,+figwheel" "figwheel"]})
