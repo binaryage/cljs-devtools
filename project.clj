@@ -17,14 +17,31 @@
   :plugins [[lein-cljsbuild "1.1.4"]
             [lein-shell "0.5.0"]]
 
+  ; this is for IntelliJ + Cursive to play well
   :source-paths ["src/lib"
                  "src/debug"]
-
-  :test-paths ["test"]
+  :test-paths ["test/src"]
+  :resource-paths ["test/resources"
+                   "scripts"]
 
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
 
-  :profiles {:devel
+  :profiles {:nuke-aliases
+             {:aliases ^:replace {}}
+
+             :lib
+             ^{:pom-scope :provided}                                                                                          ; ! to overcome default jar/pom behaviour, our :dependencies replacement would be ignored for some reason
+             [:nuke-aliases
+              {:dependencies   ~(let [project (->> "project.clj"
+                                                slurp read-string (drop 3) (apply hash-map))
+                                      test-dep? #(->> % (drop 2) (apply hash-map) :scope (= "test"))
+                                      non-test-deps (remove test-dep? (:dependencies project))]
+                                  (with-meta (vec non-test-deps) {:replace true}))                                            ; so ugly!
+               :source-paths   ^:replace ["src/lib"]
+               :resource-paths ^:replace []
+               :test-paths     ^:replace []}]
+
+             :devel
              {:cljsbuild {:builds {:devel
                                    {:source-paths ["src/lib"
                                                    "src/debug"]
@@ -91,10 +108,14 @@
             "adhoc-auto-test"        ["do"
                                       ["clean"]
                                       ["with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]]
+            "install"                ["do"
+                                      ["shell" "scripts/prepare-jar.sh"]
+                                      ["shell" "scripts/local-install.sh"]]
+            "jar"                    ["shell" "scripts/prepare-jar.sh"]
+            "deploy"                 ["shell" "scripts/deploy-clojars.sh"]
             "release"                ["do"
-                                      ["shell" "scripts/check-versions.sh"]
                                       ["clean"]
-                                      ["test"]
-                                      ["jar"]
+                                      ["shell" "scripts/check-versions.sh"]
+                                      ["shell" "scripts/prepare-jar.sh"]
                                       ["shell" "scripts/check-release.sh"]
-                                      ["deploy" "clojars"]]})
+                                      ["shell" "scripts/deploy-clojars.sh"]]})
