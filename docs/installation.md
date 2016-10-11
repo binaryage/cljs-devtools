@@ -5,7 +5,7 @@
 Available in [**Chrome 47 and higher**](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
 
   * Open DevTools
-  * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > Preferenes > Console`)
+  * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > Preferences > Console`)
   * Check-in "Enable custom formatters"
   * Close DevTools
   * Open DevTools
@@ -15,20 +15,20 @@ only to newly printed console messages.
 
 ## Integrate with your project
 
-Add devtools dependency into your Leiningen's `project.clj` or boot file. 
+Add devtools dependency into your Leiningen's `project.clj` or boot file.
 
 [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools)
 
 ### Development builds
 
-CLJS devtools is meant to be used only with development builds. 
+CLJS devtools is meant to be used only with development builds.
 
-In general you have two options how to integrate CLJS DevTools with your project: 
+In general you have two options how to integrate CLJS DevTools with your project:
 
 #### Install it via `:preloads`
 
-ClojureScript [supports](http://dev.clojure.org/jira/browse/CLJS-1688) `:preloads` [compiler option](https://github.com/clojure/clojurescript/wiki/Compiler-Options#preloads) 
-which allows you to require namespaces prior your `:main` namespace. This means that you can use this feature to add cljs-devtools support 
+ClojureScript [supports](http://dev.clojure.org/jira/browse/CLJS-1688) `:preloads` [compiler option](https://github.com/clojure/clojurescript/wiki/Compiler-Options#preloads)
+which allows you to require namespaces prior your `:main` namespace. This means that you can use this feature to add cljs-devtools support
 to your project without modification of your code. You simply add `devtools.preload` into the `:preloads` list.
 
 #### Install it manually
@@ -84,8 +84,8 @@ In general you have two options:
 
 You can enable/disable desired features and configure other aspects of CLJS DevTools. Please refer to a separate documentation
 on [configuring the library](https://github.com/binaryage/cljs-devtools/blob/master/docs/configuration.md).
-  
+
 ### Additional notes
- 
+
 * For inspiration, you might want to check the **[sample project](https://github.com/binaryage/cljs-devtools-sample)** out.
 * Boot users might want consider using [boot-cljs-devtools](https://github.com/boot-clj/boot-cljs-devtools)).
