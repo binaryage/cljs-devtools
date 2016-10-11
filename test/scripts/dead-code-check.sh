@@ -4,7 +4,7 @@
 
 set -e
 
-COMPILED_PATH="test/resources/_compiled/dead-code/build.js"
+COMPILED_PATH="test/resources/.compiled/dead-code/build.js"
 
 STATS=`cat "$COMPILED_PATH" | perl -pe 's/(\\$|\\d+)\\$/\\1\\$\\n/g' | grep -o 'devtools\\$.*' | sort | uniq -c`
 

@@ -12,7 +12,7 @@
                  [org.clojure/clojurescript "1.9.229" :scope "provided"]]
 
   :clean-targets ^{:protect false} ["target"
-                                    "test/resources/_compiled"]
+                                    "test/resources/.compiled"]
 
   :plugins [[lein-cljsbuild "1.1.4"]
             [lein-shell "0.5.0"]]
@@ -55,17 +55,17 @@
              {:cljsbuild {:builds {:tests
                                    {:source-paths ["src/lib"
                                                    "test/src/tests"]
-                                    :compiler     {:output-to     "test/resources/_compiled/tests/build.js"
-                                                   :output-dir    "test/resources/_compiled/tests"
-                                                   :asset-path    "_compiled/tests"
+                                    :compiler     {:output-to     "test/resources/.compiled/tests/build.js"
+                                                   :output-dir    "test/resources/.compiled/tests"
+                                                   :asset-path    ".compiled/tests"
                                                    :main          devtools.main
                                                    :optimizations :none}}
                                    :tests-with-config
                                    {:source-paths ["src/lib"
                                                    "test/src/tests"]
-                                    :compiler     {:output-to       "test/resources/_compiled/tests-with-config/build.js"
-                                                   :output-dir      "test/resources/_compiled/tests-with-config"
-                                                   :asset-path      "_compiled/tests-with-config"
+                                    :compiler     {:output-to       "test/resources/.compiled/tests-with-config/build.js"
+                                                   :output-dir      "test/resources/.compiled/tests-with-config"
+                                                   :asset-path      ".compiled/tests-with-config"
                                                    :main            devtools.main
                                                    :optimizations   :none
                                                    :external-config {:devtools/config {:features-to-install    [:hints]
@@ -75,9 +75,9 @@
                                    :dead-code
                                    {:source-paths ["src/lib"
                                                    "test/src/dead-code"]
-                                    :compiler     {:output-to       "test/resources/_compiled/dead-code/build.js"
-                                                   :output-dir      "test/resources/_compiled/dead-code"
-                                                   :asset-path      "_compiled/dead-code"
+                                    :compiler     {:output-to       "test/resources/.compiled/dead-code/build.js"
+                                                   :output-dir      "test/resources/.compiled/dead-code"
+                                                   :asset-path      ".compiled/dead-code"
                                                    :main            devtools.main
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
