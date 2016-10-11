@@ -5,7 +5,7 @@
 Available in [**Chrome 47 and higher**](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
 
   * Open DevTools
-  * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > General > Console`)
+  * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > Preferenes > Console`)
   * Check-in "Enable custom formatters"
   * Close DevTools
   * Open DevTools
