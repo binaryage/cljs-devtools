@@ -3,6 +3,7 @@
   (:require [devtools.prefs :refer [pref]]
             [devtools.format :refer [IDevtoolsFormat]]
             [devtools.protocols :refer [IFormat]]
+            [devtools.reporter :as reporter]
             [devtools.formatters.templating :refer [surrogate? render-markup get-surrogate-body]]
             [devtools.formatters.helpers :refer [cljs-value?]]
             [devtools.formatters.state :refer [prevent-recursion? *current-state* get-default-state update-current-state!
@@ -62,7 +63,7 @@
     (try
       (apply f args)
       (catch :default e
-        (.error js/console "CLJS DevTools internal error:" e)
+        (reporter/report-internal-error! e "an exception was raised during value formatting")
         nil))))
 
 (defn build-api-call [raw-fn pre-handler-key post-handler-key]
