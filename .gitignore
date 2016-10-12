@@ -11,7 +11,7 @@ pom.xml
 .lein-plugins/
 .repl*
 /checkouts*
-/resources/public/_compiled
+/resources/public/.compiled
 .idea
 *.iml
 .figwheel/server.log

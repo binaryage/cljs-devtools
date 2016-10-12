@@ -22,7 +22,7 @@
   :source-paths ["src/demo"
                  "src/debug"]
 
-  :clean-targets ^{:protect false} ["resources/public/_compiled"
+  :clean-targets ^{:protect false} ["resources/public/.compiled"
                                     "target"]
 
   :checkout-deps-shares ^:replace []                                                                                          ; http://jakemccrary.com/blog/2015/03/24/advanced-leiningen-checkouts-configuring-what-ends-up-on-your-classpath/
@@ -35,9 +35,9 @@
              :demo
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["src/demo"]
-                                    :compiler     {:output-to      "resources/public/_compiled/demo/devtools_sample.js"
-                                                   :output-dir     "resources/public/_compiled/demo"
-                                                   :asset-path     "_compiled/demo"
+                                    :compiler     {:output-to      "resources/public/.compiled/demo/devtools_sample.js"
+                                                   :output-dir     "resources/public/.compiled/demo"
+                                                   :asset-path     ".compiled/demo"
                                                    :main           devtools-sample.boot
                                                    :tooling-config {:devtools/config {:features-to-install :all}}
                                                    :preloads       [devtools.preload]
@@ -47,18 +47,18 @@
              :demo-advanced
              {:cljsbuild {:builds {:demo-advanced
                                    {:source-paths ["src/demo"]
-                                    :compiler     {:output-to     "resources/public/_compiled/demo_advanced/devtools_sample.js"
-                                                   :output-dir    "resources/public/_compiled/demo_advanced"
-                                                   :asset-path    "_compiled/demo_advanced"
+                                    :compiler     {:output-to     "resources/public/.compiled/demo_advanced/devtools_sample.js"
+                                                   :output-dir    "resources/public/.compiled/demo_advanced"
+                                                   :asset-path    ".compiled/demo_advanced"
                                                    :pseudo-names  true
                                                    :optimizations :advanced}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :advanced-unconditional-install
              {:cljsbuild {:builds {:advanced-unconditional-install
                                    {:source-paths ["src/advanced-unconditional-install"]
-                                    :compiler     {:output-to       "resources/public/_compiled/advanced-unconditional-install/devtools_sample.js"
-                                                   :output-dir      "resources/public/_compiled/advanced-unconditional-install"
-                                                   :asset-path      "_compiled/advanced-unconditional-install"
+                                    :compiler     {:output-to       "resources/public/.compiled/advanced-unconditional-install/devtools_sample.js"
+                                                   :output-dir      "resources/public/.compiled/advanced-unconditional-install"
+                                                   :asset-path      ".compiled/advanced-unconditional-install"
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
                                                    :optimizations   :advanced}}}}}
@@ -66,9 +66,9 @@
              :advanced-conditional-install
              {:cljsbuild {:builds {:advanced-conditional-install
                                    {:source-paths ["src/advanced-conditional-install"]
-                                    :compiler     {:output-to       "resources/public/_compiled/advanced-conditional-install/devtools_sample.js"
-                                                   :output-dir      "resources/public/_compiled/advanced-conditional-install"
-                                                   :asset-path      "_compiled/advanced-conditional-install"
+                                    :compiler     {:output-to       "resources/public/.compiled/advanced-conditional-install/devtools_sample.js"
+                                                   :output-dir      "resources/public/.compiled/advanced-conditional-install"
+                                                   :asset-path      ".compiled/advanced-conditional-install"
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
                                                    :optimizations   :advanced}}}}}
@@ -76,9 +76,9 @@
              :advanced-no-install
              {:cljsbuild {:builds {:advanced-no-install
                                    {:source-paths ["src/advanced-no-install"]
-                                    :compiler     {:output-to       "resources/public/_compiled/advanced-no-install/devtools_sample.js"
-                                                   :output-dir      "resources/public/_compiled/advanced-no-install"
-                                                   :asset-path      "_compiled/advanced-no-install"
+                                    :compiler     {:output-to       "resources/public/.compiled/advanced-no-install/devtools_sample.js"
+                                                   :output-dir      "resources/public/.compiled/advanced-no-install"
+                                                   :asset-path      ".compiled/advanced-no-install"
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
                                                    :optimizations   :advanced}}}}}
