@@ -20,7 +20,11 @@
   ; =========================================================================================================================
 
   :source-paths ["src/demo"
-                 "src/debug"]
+                 "src/debug"
+                 "src/tests"
+                 "src/advanced-unconditional-install"
+                 "src/advanced-conditional-install"
+                 "src/advanced-no-install"]
 
   :clean-targets ^{:protect false} ["resources/public/.compiled"
                                     "target"]
@@ -34,7 +38,8 @@
   :profiles {; --------------------------------------------------------------------------------------------------------------
              :demo
              {:cljsbuild {:builds {:demo
-                                   {:source-paths ["src/demo"]
+                                   {:source-paths ["src/demo"
+                                                   "src/tests"]
                                     :compiler     {:output-to      "resources/public/.compiled/demo/devtools_sample.js"
                                                    :output-dir     "resources/public/.compiled/demo"
                                                    :asset-path     ".compiled/demo"
@@ -46,7 +51,8 @@
              ; --------------------------------------------------------------------------------------------------------------
              :demo-advanced
              {:cljsbuild {:builds {:demo-advanced
-                                   {:source-paths ["src/demo"]
+                                   {:source-paths ["src/demo"
+                                                   "src/tests"]
                                     :compiler     {:output-to     "resources/public/.compiled/demo_advanced/devtools_sample.js"
                                                    :output-dir    "resources/public/.compiled/demo_advanced"
                                                    :asset-path    ".compiled/demo_advanced"

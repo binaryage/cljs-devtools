@@ -1,9 +1,9 @@
-(ns devtools-sample.types-tutorial
+(ns devtools-sample.tests.types-tutorial
   (:import [goog.date Date DateTime UtcDateTime])
   (:require-macros [devtools-sample.logging :refer [log info]])
   (:require [devtools-sample.boot :refer [boot!]]))
 
-(boot! "/src/demo/devtools_sample/types_tutorial.cljs")
+(boot! "/src/tests/devtools_sample/tests/types_tutorial.cljs")
 
 (enable-console-print!)
 

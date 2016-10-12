@@ -1,4 +1,4 @@
-(ns devtools-sample.lab
+(ns devtools-sample.tests.lab
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools-sample.boot :refer [boot!]]
             [devtools.toolbox :as toolbox]
@@ -6,7 +6,7 @@
             [devtools.formatters.templating :refer [make-template]]
             [devtools.protocols :refer [IFormat]]))
 
-(boot! "/src/demo/devtools_sample/lab.cljs")
+(boot! "/src/tests/devtools_sample/tests/lab.cljs")
 
 ; --- MEAT STARTS HERE -->
 ; note: (log ...) expands to (.log js/console ...)

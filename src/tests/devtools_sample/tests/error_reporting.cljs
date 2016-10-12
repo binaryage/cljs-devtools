@@ -1,4 +1,4 @@
-(ns devtools-sample.error-reporting
+(ns devtools-sample.tests.error-reporting
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [clojure.string :as string]
             [devtools-sample.boot :refer [boot!]]
@@ -6,7 +6,7 @@
             [devtools.formatters.templating :refer [render-markup]]
             [devtools.protocols :refer [IFormat]]))
 
-(boot! "/src/demo/devtools_sample/error_reporting.cljs")
+(boot! "/src/tests/devtools_sample/tests/error_reporting.cljs")
 
 (enable-console-print!)
 

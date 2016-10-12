@@ -1,11 +1,11 @@
-(ns devtools-sample.issue23
+(ns devtools-sample.tests.issue23
   (:refer-clojure :exclude [ExceptionInfo ->ExceptionInfo ExceptionInfoTypeTemplate pr-writer-ex-info])
   (:require-macros [devtools-sample.logging :refer [log info]])
   (:require [devtools-sample.boot :refer [boot!]]
             [devtools.protocols :refer [IFormat]]
             [goog.object :as gobject]))
 
-(boot! "/src/demo/devtools_sample/issue23.cljs")
+(boot! "/src/tests/devtools_sample/tests/issue23.cljs")
 
 (enable-console-print!)
 

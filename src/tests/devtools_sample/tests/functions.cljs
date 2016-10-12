@@ -1,8 +1,8 @@
-(ns devtools-sample.functions
+(ns devtools-sample.tests.functions
   (:require-macros [devtools-sample.logging :refer [log]])
   (:require [devtools-sample.boot :refer [boot!]]))
 
-(boot! "/src/demo/devtools_sample/functions.cljs")
+(boot! "/src/tests/devtools_sample/tests/functions.cljs")
 
 ; --- MEAT STARTS HERE -->
 ; note: (log ...) expands to (.log js/console ...)

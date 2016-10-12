@@ -1,9 +1,9 @@
-(ns devtools-sample.issue24
+(ns devtools-sample.tests.issue24
   (:import [goog.date Date DateTime UtcDateTime])
   (:require-macros [devtools-sample.logging :refer [log info]])
   (:require [devtools-sample.boot :refer [boot!]]))
 
-(boot! "/src/demo/devtools_sample/issue24.cljs")
+(boot! "/src/tests/devtools_sample/tests/issue24.cljs")
 
 (enable-console-print!)
 

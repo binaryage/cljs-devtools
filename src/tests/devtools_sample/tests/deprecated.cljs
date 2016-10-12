@@ -1,11 +1,11 @@
-(ns devtools-sample.deprecated
+(ns devtools-sample.tests.deprecated
   (:require-macros [devtools-sample.logging :refer [log info]])
   (:require [devtools-sample.boot :refer [boot!]]
             [devtools.protocols :refer [IFormat]]
             [devtools.format :as format]
             [clojure.string :as string]))
 
-(boot! "/src/demo/devtools_sample/deprecated.cljs")
+(boot! "/src/tests/devtools_sample/tests/deprecated.cljs")
 
 (enable-console-print!)
 

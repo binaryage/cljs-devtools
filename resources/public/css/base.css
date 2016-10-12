@@ -1,0 +1,18 @@
+html {
+    font-family: Menlo, monospace;
+    font-size: 11px
+}
+
+html, body {
+    height:100%;
+}
+
+body, html, code, pre {
+    padding: 0;
+    margin: 0
+}
+
+pre {
+    background-color: #1d1f21;
+    height: 100%;
+}

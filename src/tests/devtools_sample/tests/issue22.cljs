@@ -1,9 +1,9 @@
-(ns devtools-sample.issue22
+(ns devtools-sample.tests.issue22
   (:require-macros [devtools-sample.logging :refer [log info]])
   (:require [devtools-sample.boot :refer [boot!]]
             [devtools.protocols :refer [IFormat]]))
 
-(boot! "/src/demo/devtools_sample/issue22.cljs")
+(boot! "/src/tests/devtools_sample/tests/issue22.cljs")
 
 (enable-console-print!)
 
