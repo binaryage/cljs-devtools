@@ -4,7 +4,7 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.229"]
-                 [org.clojure/core.async "0.2.391"]
+                 [org.clojure/core.async "0.2.395"]
                  [binaryage/devtools "0.8.2"]
                  [binaryage/dirac "0.7.1"]
                  [com.cognitect/transit-clj "0.8.290"]
