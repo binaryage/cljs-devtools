@@ -32,10 +32,8 @@
              :lib
              ^{:pom-scope :provided}                                                                                          ; ! to overcome default jar/pom behaviour, our :dependencies replacement would be ignored for some reason
              [:nuke-aliases
-              {:dependencies   ~(let [project-str (or
-                                                    (try (slurp "project.clj") (catch Throwable _ nil))
-                                                    (try (slurp "/Users/darwin/code/cljs-devtools/project.clj") (catch Throwable _ nil)))
-                                      project (->> project-str read-string (drop 3) (apply hash-map))
+              {:dependencies   ~(let [project (->> "project.clj"
+                                                slurp read-string (drop 3) (apply hash-map))
                                       test-dep? #(->> % (drop 2) (apply hash-map) :scope (= "test"))
                                       non-test-deps (remove test-dep? (:dependencies project))]
                                   (with-meta (vec non-test-deps) {:replace true}))                                            ; so ugly!
