@@ -7,6 +7,9 @@
             [devtools.defaults :as defaults]
             [devtools.prefs :as prefs]))
 
+(def lib-info-style "color:black;font-weight:bold;")
+(def reset-style "color:black")
+
 (def ^:dynamic *custom-formatters-active* false)
 (def ^:dynamic *console-open* false)
 (def ^:dynamic *custom-formatters-warning-reported* false)
@@ -137,9 +140,7 @@
 (defn display-banner-if-needed! [features-to-install feature-groups]
   (if-not (prefs/pref :dont-display-banner)
     (do
-      (let [banner (str "Installing %c%s%c and enabling features")
-            lib-info-style "color:black;font-weight:bold;"
-            reset-style "color:black"]
+      (let [banner (str "Installing %c%s%c and enabling features")]
         (display-banner! features-to-install feature-groups banner lib-info-style (get-lib-info) reset-style)))
     ; detection cannot be performed if we are not allowed to print something to console => assume active
     (set! *custom-formatters-active* true)))
