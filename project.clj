@@ -9,7 +9,7 @@
         :url  "https://github.com/binaryage/cljs-devtools"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.229" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.293" :scope "provided"]]
 
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
@@ -32,8 +32,7 @@
              :lib
              ^{:pom-scope :provided}                                                                                          ; ! to overcome default jar/pom behaviour, our :dependencies replacement would be ignored for some reason
              [:nuke-aliases
-              {:dependencies   ~(let [project (->> "project.clj"
-                                                slurp read-string (drop 3) (apply hash-map))
+              {:dependencies   ~(let [project (->> "project.clj" slurp read-string (drop 3) (apply hash-map))
                                       test-dep? #(->> % (drop 2) (apply hash-map) :scope (= "test"))
                                       non-test-deps (remove test-dep? (:dependencies project))]
                                   (with-meta (vec non-test-deps) {:replace true}))                                            ; so ugly!
