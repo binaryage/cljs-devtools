@@ -1,0 +1,31 @@
+<html>
+<body>
+This is just a dummy HTML file with which to load the unit tests.
+This file could be changed to include HTML for the tests to use
+during their operation.
+<script src="js/diff_match_patch.js" type="text/javascript"></script>
+<script src="js/promise-polyfill.js" type="text/javascript"></script>
+<script>
+  // poor man's console listener
+  var lastWarning = null;
+  const origWarn = console.warn;
+  console.warn = function() {
+    lastWarning = arguments;
+    origWarn.apply(this, arguments);
+  };
+</script>
+<script src=".compiled/advanced-warning/build.js" type="text/javascript"></script>
+<script>
+  var failures = 1;
+  if (lastWarning && lastWarning[0]) {
+    var fs = lastWarning[0] + "";
+    if (fs.match(/under advanced build/)) {
+      if (window["devtools-installed"] === false) {
+        failures = 0;
+      }
+    }
+  }
+  window["test-failures"] = failures;
+</script>
+</body>
+</html>

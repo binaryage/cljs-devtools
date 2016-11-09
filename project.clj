@@ -78,6 +78,16 @@
                                                    :main            devtools.main
                                                    :closure-defines {"goog.DEBUG" false}
                                                    :pseudo-names    true
+                                                   :optimizations   :advanced}}
+
+                                   :advanced-warning
+                                   {:source-paths ["src/lib"
+                                                   "test/src/advanced-warning"]
+                                    :compiler     {:output-to       "test/resources/.compiled/advanced-warning/build.js"
+                                                   :output-dir      "test/resources/.compiled/advanced-warning"
+                                                   :asset-path      ".compiled/advanced-warning"
+                                                   :main            devtools.main
+                                                   :pseudo-names    true
                                                    :optimizations   :advanced}}}}}
              :auto-testing
              {:cljsbuild {:builds {:tests
@@ -91,7 +101,8 @@
                                       ["clean"]
                                       ["test-tests"]
                                       ["test-tests-with-config"]
-                                      ["test-dead-code"]]
+                                      ["test-dead-code"]
+                                      ["test-advanced-warning"]]
             "test-dead-code"         ["do"
                                       ["with-profile" "+testing" "cljsbuild" "once" "dead-code"]
                                       ["shell" "test/scripts/dead-code-check.sh"]]
@@ -101,6 +112,9 @@
             "test-tests-with-config" ["do"
                                       ["with-profile" "+testing" "cljsbuild" "once" "tests-with-config"]
                                       ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]]
+            "test-advanced-warning" ["do"
+                                      ["with-profile" "+testing" "cljsbuild" "once" "advanced-warning"]
+                                      ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-advanced-warning.html"]]
             "auto-test"              ["do"
                                       ["clean"]
                                       ["with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]]
