@@ -30,12 +30,14 @@
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
+(defn get-global-scope []
+  (if (exists? js/goog)
+    js/goog.global))
+
 (defn js-reserved? [x]
   ; js-reserved? is private as of ClojureScript 1.9.293
-  (if-let [cljs-module (oget js/goog.global "cljs")]
-    (if-let [core-module (oget cljs-module "core")]
-      (if-let [js-reserved-fn (oget core-module "js_reserved_QMARK_")]
-        (js-reserved-fn x)))))
+  (if-let [js-reserved-fn (oget (get-global-scope) "cljs" "core" "js_reserved_QMARK_")]
+    (js-reserved-fn x)))
 
 (defn get-fn-source-safely [f]
   (try
@@ -189,7 +191,7 @@
 
 (defn ns-exists? [ns-module-name]
   {:pre [(string? ns-module-name)]}
-  (if-let [goog-namespaces (oget js/goog "dependencies_" "nameToPath")]
+  (if-let [goog-namespaces (oget (get-global-scope) "goog" "dependencies_" "nameToPath")]
     (some? (oget goog-namespaces ns-module-name))))
 
 (defn detect-namespace-prefix
@@ -517,7 +519,7 @@
   (string/split protocol-selector #"\."))
 
 (defn get-protocol-object [protocol-selector]
-  (loop [obj js/goog.global
+  (loop [obj (get-global-scope)
          path (protocol-path protocol-selector)]
     (if (empty? path)
       obj
