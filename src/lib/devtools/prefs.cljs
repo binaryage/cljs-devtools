@@ -1,7 +1,20 @@
 (ns devtools.prefs
+  (:require-macros [devtools.prefs :refer [emit-external-config]])
   (:require [devtools.defaults :as defaults]))
 
-(def ^:dynamic *prefs* defaults/prefs)
+; we cannot use cljs.core/merge because that would confuse advanced mode compilation
+; if you look at cljs.core/merge you will see that it relies on protocol checks and this is too dymamic to be elided
+(defn simple-merge [m1 m2]
+  (loop [m m1
+         ks (keys m2)]
+    (if (empty? ks)
+      m
+      (recur (assoc m (first ks) (get m2 (first ks))) (rest ks)))))
+
+(def external-config (emit-external-config))
+(def initial-config (simple-merge defaults/prefs external-config))
+
+(def ^:dynamic *prefs* initial-config)
 
 (defn get-prefs []
   *prefs*)
