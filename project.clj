@@ -3,11 +3,11 @@
   :url "https://github.com/binaryage/cljs-devtools-sample"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.229"]
+                 [org.clojure/clojurescript "1.9.293"]
                  [org.clojure/core.async "0.2.395"]
-                 [binaryage/devtools "0.8.2"]
-                 [binaryage/dirac "0.7.1"]
-                 [com.cognitect/transit-clj "0.8.290"]
+                 [binaryage/devtools "0.8.3"]
+                 [binaryage/dirac "0.8.2"]
+                 [com.cognitect/transit-clj "0.8.293"]
                  [cljs-http "0.1.42"]
                  [environ "1.1.0"]
                  [figwheel "0.5.8"]]
