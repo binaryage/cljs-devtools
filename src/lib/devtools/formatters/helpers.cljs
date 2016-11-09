@@ -10,13 +10,16 @@
     (recur (prefs/pref v))
     v))
 
+(defn get-prototype [o]
+  (.-prototype o))
+
 (defn get-constructor [o]
-  (oget o "constructor"))
+  (.-constructor o))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
 (defn is-prototype? [o]
-  (identical? (.-prototype (.-constructor o)) o))
+  (identical? (get-prototype (get-constructor o)) o))
 
 (defn is-js-symbol? [o]
   (= (goog/typeOf o) "symbol"))
