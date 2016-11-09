@@ -31,8 +31,11 @@
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
 (defn js-reserved? [x]
-  ; js-reserved? is private for some reason
-  (ocall (oget js/window "cljs" "core") "js_reserved_QMARK_" x))
+  ; js-reserved? is private as of ClojureScript 1.9.293
+  (if-let [cljs-module (oget js/window "cljs")]
+    (if-let [core-module (oget cljs-module "core")]
+      (if-let [js-reserved-fn (oget core-module "js_reserved_QMARK_")]
+        (js-reserved-fn x)))))
 
 (defn get-fn-source-safely [f]
   (try
