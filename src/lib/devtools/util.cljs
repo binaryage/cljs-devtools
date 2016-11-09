@@ -12,11 +12,10 @@
 (def ^:dynamic *custom-formatters-warning-reported* false)
 
 (defn ^:dynamic make-version-info []
-  (let [version (get-current-version)]
-    (str "v" version)))
+  (str (get-current-version)))
 
 (defn ^:dynamic make-lib-info []
-  (str "CLJS DevTools " (get-current-version)))
+  (str "CLJS DevTools " (make-version-info)))
 
 (defn ^:dynamic unknown-feature-msg [feature known-features lib-info]
   (str "No such feature " feature " is currently available in " lib-info ". "
