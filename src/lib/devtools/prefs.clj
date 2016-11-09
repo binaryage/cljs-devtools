@@ -1,4 +1,9 @@
-(ns devtools.prefs)
+(ns devtools.prefs
+  (:require [env-config.core :as env-config]))
+
+; see https://github.com/binaryage/cljs-devtools/blob/master/docs/configuration.md
+
+; -- external config --------------------------------------------------------------------------------------------------------
 
 (defn read-external-config []
   (if cljs.env/*compiler*
@@ -8,3 +13,20 @@
 
 (defmacro emit-external-config []
   (or (read-external-config) {}))
+
+; -- environmental config ---------------------------------------------------------------------------------------------------
+
+(def ^:dynamic env-config-prefix "cljs-devtools")
+
+(defn get-env-vars []
+  (-> {}
+      (into (System/getenv))
+      (into (System/getProperties))))
+
+(defn read-env-config []
+  (env-config/make-config-with-logging env-config-prefix (get-env-vars)))
+
+(def memoized-read-env-config (memoize read-env-config))
+
+(defmacro emit-env-config []
+  (or (memoized-read-env-config) {}))

@@ -8,5 +8,7 @@
     (is (= (pref :features-to-install) [:hints]))
     (is (= (installed? :hints) true))
     (is (= (installed? :formatters) false))
-    (is (= (pref :fn-symbol) "F"))
-    (is (= (pref :print-config-overrides) true))))
+    (is (= (pref :fn-symbol) "X"))                                                                                            ; environmental variable overrides external config, see scripts/compile-tests-with-config.sh
+    (is (= (pref :print-config-overrides) true))
+    (is (= (pref :some-unused-config-tweak) "value"))
+    (is (= (pref :some-unused-config-tweak2) true))))

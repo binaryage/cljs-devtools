@@ -1,5 +1,5 @@
 (ns devtools.prefs
-  (:require-macros [devtools.prefs :refer [emit-external-config]])
+  (:require-macros [devtools.prefs :refer [emit-external-config emit-env-config]])
   (:require [devtools.defaults :as defaults]))
 
 ; we cannot use cljs.core/merge because that would confuse advanced mode compilation
@@ -11,8 +11,10 @@
       m
       (recur (assoc m (first ks) (get m2 (first ks))) (rest ks)))))
 
+(def default-config defaults/prefs)
 (def external-config (emit-external-config))
-(def initial-config (simple-merge defaults/prefs external-config))
+(def env-config (emit-env-config))
+(def initial-config (-> default-config (simple-merge external-config) (simple-merge env-config)))
 
 (def ^:dynamic *prefs* initial-config)
 

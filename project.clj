@@ -9,7 +9,8 @@
         :url  "https://github.com/binaryage/cljs-devtools"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.293" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.293" :scope "provided"]
+                 [binaryage/env-config "0.1.1"]]
 
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
@@ -83,12 +84,12 @@
                                    :advanced-warning
                                    {:source-paths ["src/lib"
                                                    "test/src/advanced-warning"]
-                                    :compiler     {:output-to       "test/resources/.compiled/advanced-warning/build.js"
-                                                   :output-dir      "test/resources/.compiled/advanced-warning"
-                                                   :asset-path      ".compiled/advanced-warning"
-                                                   :main            devtools.main
-                                                   :pseudo-names    true
-                                                   :optimizations   :advanced}}}}}
+                                    :compiler     {:output-to     "test/resources/.compiled/advanced-warning/build.js"
+                                                   :output-dir    "test/resources/.compiled/advanced-warning"
+                                                   :asset-path    ".compiled/advanced-warning"
+                                                   :main          devtools.main
+                                                   :pseudo-names  true
+                                                   :optimizations :advanced}}}}}
              :auto-testing
              {:cljsbuild {:builds {:tests
                                    {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]}}}}
@@ -110,9 +111,9 @@
                                       ["with-profile" "+testing" "cljsbuild" "once" "tests"]
                                       ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]]
             "test-tests-with-config" ["do"
-                                      ["with-profile" "+testing" "cljsbuild" "once" "tests-with-config"]
+                                      ["shell" "scripts/compile-tests-with-config.sh"]
                                       ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]]
-            "test-advanced-warning" ["do"
+            "test-advanced-warning"  ["do"
                                       ["with-profile" "+testing" "cljsbuild" "once" "advanced-warning"]
                                       ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-advanced-warning.html"]]
             "auto-test"              ["do"
