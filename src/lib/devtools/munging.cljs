@@ -506,7 +506,7 @@
 (defn parse-constructor-info
   "Given a Javascript constructor function tries to retrieve [ns name basis]. Returns nil if not a cljs type."
   [f]
-  (if (and (goog/isObject f) (oget f "cljs$lang$type"))
+  (if (and (goog/isObject f) (.-cljs$lang$type f))
     (let [type-name (get-type-name f)
           parts (.split type-name #"/")
           basis (safe-call get-basis [] f)]

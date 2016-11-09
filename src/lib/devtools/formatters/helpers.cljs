@@ -42,7 +42,7 @@
 (defn cljs-type? [f]
   (and (goog/isObject f)                                                                                                      ; see http://stackoverflow.com/a/22482737/84283
        (not (is-prototype? f))
-       (oget f "cljs$lang$type")))
+       (.-cljs$lang$type f)))
 
 (defn cljs-instance? [value]
   (and (goog/isObject value)                                                                                                  ; see http://stackoverflow.com/a/22482737/84283
