@@ -32,7 +32,7 @@
 
 (defn js-reserved? [x]
   ; js-reserved? is private as of ClojureScript 1.9.293
-  (if-let [cljs-module (oget js/window "cljs")]
+  (if-let [cljs-module (oget js/goog.global "cljs")]
     (if-let [core-module (oget cljs-module "core")]
       (if-let [js-reserved-fn (oget core-module "js_reserved_QMARK_")]
         (js-reserved-fn x)))))
@@ -189,7 +189,7 @@
 
 (defn ns-exists? [ns-module-name]
   {:pre [(string? ns-module-name)]}
-  (if-let [goog-namespaces (oget js/window "goog" "dependencies_" "nameToPath")]
+  (if-let [goog-namespaces (oget js/goog "dependencies_" "nameToPath")]
     (some? (oget goog-namespaces ns-module-name))))
 
 (defn detect-namespace-prefix
@@ -214,7 +214,7 @@
     (let [arity (first arity-tokens)]
       (case arity
         "variadic" arity
-        (ocall js/window "parseInt" arity 10)))))
+        (js/parseInt arity 10)))))
 
 (defn strip-arity [tokens]
   (let [[prefix-tokens arity-tokens] (split-with #(not= % "arity") tokens)]
@@ -517,7 +517,7 @@
   (string/split protocol-selector #"\."))
 
 (defn get-protocol-object [protocol-selector]
-  (loop [obj js/window
+  (loop [obj js/goog.global
          path (protocol-path protocol-selector)]
     (if (empty? path)
       obj
@@ -595,7 +595,7 @@
         methods (group-by second matches)
         match-to-arity (fn [match]
                          (let [arity (nth match 2)]
-                           (ocall js/window "parseInt" arity 10)))
+                           (js/parseInt arity 10)))
         match-arity-comparator (fn [a b]
                                  (compare (match-to-arity a) (match-to-arity b)))
         post-process (fn [[munged-name matches]]
