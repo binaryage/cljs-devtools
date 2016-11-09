@@ -1,5 +1,6 @@
 (ns devtools.prefs
-  (:require [env-config.core :as env-config]))
+  (:require [env-config.core :as env-config]
+            [cljs.env]))
 
 ; see https://github.com/binaryage/cljs-devtools/blob/master/docs/configuration.md
 
