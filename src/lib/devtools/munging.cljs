@@ -13,6 +13,8 @@
 
   We can also cheat and look at runtime state of browser environment to determine some answers about namespaces.
 
+  This code can be used only in non-advanced builds!
+
   If you discovered breakage or a new case which should be covered by this code, please open an issue:
     https://github.com/binaryage/cljs-devtools/issues"
   (:refer-clojure :exclude [js-reserved?])
