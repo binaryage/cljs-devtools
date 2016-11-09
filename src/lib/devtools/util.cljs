@@ -9,6 +9,8 @@
 
 (def lib-info-style "color:black;font-weight:bold;")
 (def reset-style "color:black")
+(def advanced-build-explanation-url
+  "https://github.com/binaryage/cljs-devtools/blob/master/docs/faq.md#why-custom-formatters-do-not-work-for-advanced-builds")
 
 (def ^:dynamic *custom-formatters-active* false)
 (def ^:dynamic *console-open* false)
@@ -187,7 +189,7 @@
 
 (defn display-advanced-build-warning-if-needed! []
   (if-not (prefs/pref :dont-display-advanced-build-warning)
-    (let [banner "%cNOT%c installing %c%s%c under advanced build. See "]
+    (let [banner (str "%cNOT%c installing %c%s%c under advanced build. See " advanced-build-explanation-url ".")]
       (.warn js/console banner "font-weight:bold" reset-style lib-info-style (get-lib-info) reset-style))))
 
 ; -- installer --------------------------------------------------------------------------------------------------------------

@@ -110,7 +110,10 @@ There is a technical glitch which currently prevents CLJS devtools to work under
 :advanced optimizations. Some [ClojureScript type hints are not preserved in advanced builds][12]
 and that is why CLJS DevTools cannot recognize objects belonging to CLJS land.
 
-Philosophically you should not include debug/diagnostics code in your production builds anyways.
+Normally you should not include debug/diagnostics code in your production builds anyways.
+
+Since version 0.8.3, cljs-devtools detects advanced build situation and refuse to install.
+If you want to disable this check [set](configuration.md) `:disable-advanced-mode-check` to `true` prior installing.
 
 ### How do I elide the library in my :advanced builds?
 
