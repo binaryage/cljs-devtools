@@ -40,18 +40,18 @@ values during installation.
 ### Configuration via environmental variables
 
 We use [binaryage/env-config](https://github.com/binaryage/env-config) library to allow configuration overrides via 
-environmental variables. The prefix for our configuration variables is `CLJS_DEVTOOLS`.
+environmental variables. Common prefix for our configuration variables is `CLJS_DEVTOOLS`.
 
-For example, in Bash shell you can do something like to achieve configuration matching the config map above:
+For example, in a Bash shell you can do this to achieve configuration matching the config map above:
 
     lein clean
     env CLJS_DEVTOOLS/FN_SYMBOL=F \
       CLJS_DEVTOOLS/PRINT_CONFIG_OVERRIDES=true \
       CLJS_DEVTOOLS/FEATURES_TO_INSTALL="~[:formatters :hints]" \
       lein cljsbuild once
-      
-Please note that environmental variables are retrieved during compilation in macro expansion. So they must be present
-during ClojureScript compilation and you have to reset compilation caches after changing the environment.
+
+Please note that environmental variables are retrieved during compilation in a macro expansion. So proper environment must 
+be present during ClojureScript compilation and you have to clear compilation caches after changing the environment.
 
 ### Programmatic configuration
 
