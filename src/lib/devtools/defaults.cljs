@@ -15,6 +15,7 @@
    :print-config-overrides                             false
    :suppress-preload-install                           false
    :bypass-availability-checks                         false
+   :disable-advanced-mode-check                        false
    :file-reader                                        nil
 
    ; -- feature tweaks ------------------------------------------------------------------------------------------------------

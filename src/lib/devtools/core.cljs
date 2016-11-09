@@ -6,7 +6,8 @@
             [devtools.async :as async]
             [devtools.toolbox]                                                                                                ; this auto-requires the toolbox namespace, used by cljs-oops
             [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
-                                   print-config-overrides-if-requested!]]))
+                                   print-config-overrides-if-requested!
+                                   under-advanced-build? display-advanced-build-warning-if-needed!]]))
 
 ; -- public API -------------------------------------------------------------------------------------------------------------
 
@@ -41,12 +42,14 @@
 (defn install!
   ([] (install! (prefs/pref :features-to-install)))
   ([features-desc]
-   (let [features (resolve-features! features-desc feature-groups)]
-     (display-banner-if-needed! features feature-groups)
-     (print-config-overrides-if-requested! "config overrides prior install:\n")
-     (install-feature! :formatters features is-feature-available? formatters/install!)
-     (install-feature! :hints features is-feature-available? hints/install!)
-     (install-feature! :async features is-feature-available? async/install!))))
+   (if (under-advanced-build?)
+     (display-advanced-build-warning-if-needed!)
+     (let [features (resolve-features! features-desc feature-groups)]
+       (display-banner-if-needed! features feature-groups)
+       (print-config-overrides-if-requested! "config overrides prior install:\n")
+       (install-feature! :formatters features is-feature-available? formatters/install!)
+       (install-feature! :hints features is-feature-available? hints/install!)
+       (install-feature! :async features is-feature-available? async/install!)))))
 
 (defn uninstall! []
   (formatters/uninstall!)

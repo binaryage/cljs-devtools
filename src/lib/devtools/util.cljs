@@ -179,6 +179,17 @@
                    :else [features-desc])]
     (sanititze-features! features feature-groups)))
 
+; -- advanced mode check ----------------------------------------------------------------------------------------------------
+
+(defn under-advanced-build? []
+  (if-not (prefs/pref :disable-advanced-mode-check)
+    (nil? (oget js/goog.global "devtools" "version"))))                                                                       ; we rely on the fact that under advanced mode the namespace will be renamed
+
+(defn display-advanced-build-warning-if-needed! []
+  (if-not (prefs/pref :dont-display-advanced-build-warning)
+    (let [banner "%cNOT%c installing %c%s%c under advanced build. See "]
+      (.warn js/console banner "font-weight:bold" reset-style lib-info-style (get-lib-info) reset-style))))
+
 ; -- installer --------------------------------------------------------------------------------------------------------------
 
 (defn install-feature! [feature features-to-install available-fn install-fn]
