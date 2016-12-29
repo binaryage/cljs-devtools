@@ -5,4 +5,4 @@
 (devtools/install!)
 
 ; this should set false to window["devtools-installed"]
-(aset js/window "devtools-installed" (devtools/installed?))
+(aset js/goog.global "devtools-installed" (devtools/installed?))
