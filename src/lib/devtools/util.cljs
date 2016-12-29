@@ -40,14 +40,14 @@
 (def formatter-key "devtoolsFormatters")
 
 (defn get-formatters-safe []
-  (let [formatters (aget js/window formatter-key)]
+  (let [formatters (aget js/goog.global formatter-key)]
     (if (array? formatters)                                                                                                   ; TODO: maybe issue a warning if formatters are anything else than array or nil
       formatters
       #js [])))
 
 (defn set-formatters-safe! [new-formatters]
   {:pre [(or (nil? new-formatters) (array? new-formatters))]}
-  (aset js/window formatter-key (if (empty? new-formatters) nil new-formatters)))
+  (aset js/goog.global formatter-key (if (empty? new-formatters) nil new-formatters)))
 
 (defn print-config-overrides-if-requested! [msg]
   (when (prefs/pref :print-config-overrides)
@@ -78,7 +78,7 @@
   ; play it safe here, this method is called asynchronously
   ; in theory someone else could have installed additional custom formatters
   ; we have to be careful removing only ours formatters
-  (let [current-formatters (aget js/window formatter-key)]
+  (let [current-formatters (aget js/goog.global formatter-key)]
     (if (array? current-formatters)
       (let [new-formatters (.filter current-formatters #(not (= detector %)))]
         (set-formatters-safe! new-formatters)))))

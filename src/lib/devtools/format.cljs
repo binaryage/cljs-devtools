@@ -20,13 +20,13 @@
     (set! *setup-done* true)
 
     ; note: we cannote require devtools.formatters.templating or .markup because that would lead to circular requires
-    (def make-template-fn (oget js/window "devtools" "formatters" "templating" "make_template"))
-    (def make-group-fn (oget js/window "devtools" "formatters" "templating" "make_group"))
-    (def make-reference-fn (oget js/window "devtools" "formatters" "templating" "make_reference"))
-    (def make-surrogate-fn (oget js/window "devtools" "formatters" "templating" "make_surrogate"))
-    (def render-markup-fn (oget js/window "devtools" "formatters" "templating" "render_markup"))
-    (def <header>-fn (oget js/window "devtools" "formatters" "markup" "_LT_header_GT_"))
-    (def <standard-body>-fn (oget js/window "devtools" "formatters" "markup" "_LT_standard_body_GT_"))
+    (def make-template-fn (oget js/goog.global "devtools" "formatters" "templating" "make_template"))
+    (def make-group-fn (oget js/goog.global "devtools" "formatters" "templating" "make_group"))
+    (def make-reference-fn (oget js/goog.global "devtools" "formatters" "templating" "make_reference"))
+    (def make-surrogate-fn (oget js/goog.global "devtools" "formatters" "templating" "make_surrogate"))
+    (def render-markup-fn (oget js/goog.global "devtools" "formatters" "templating" "render_markup"))
+    (def <header>-fn (oget js/goog.global "devtools" "formatters" "markup" "_LT_header_GT_"))
+    (def <standard-body>-fn (oget js/goog.global "devtools" "formatters" "markup" "_LT_standard_body_GT_"))
 
     (assert make-template-fn)
     (assert make-group-fn)

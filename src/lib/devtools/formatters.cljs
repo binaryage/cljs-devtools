@@ -18,7 +18,7 @@
 ; devtools.debug namespace may not be present => no debugging
 (defn- find-fn-in-debug-ns [fn-name]
   (try
-    (aget js/window "devtools" "debug" fn-name)
+    (aget js/goog.global "devtools" "debug" fn-name)
     (catch :default _
       nil)))
 
@@ -75,7 +75,7 @@
     (.push formatters formatter)                                                                                              ; acting on duplicated array
     (set-formatters-safe! formatters)
     (if (prefs/pref :legacy-formatter)
-      (aset js/window obsolete-formatter-key formatter))))
+      (aset js/goog.global obsolete-formatter-key formatter))))
 
 (defn- uninstall-our-formatters! []
   (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))
