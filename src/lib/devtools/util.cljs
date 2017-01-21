@@ -29,9 +29,9 @@
 
 ; -- node.js support --------------------------------------------------------------------------------------------------------
 
-(defn ^:dynamic get-node-info []
+(defn ^:dynamic get-node-info [root]
   (try
-    (let [process (oget js/goog.global "process")
+    (let [process (oget root "process")
           version (oget process "version")
           platform (oget process "platform")]
       (if (and version platform)
@@ -43,10 +43,13 @@
 (defn ^:dynamic get-node-description [node-info]
   (str (or (:platform node-info) "?") "/" (or (:version node-info) "?")))
 
+(defn ^:dynamic in-node-context? []
+  (some? (get-node-info js/goog.global)))
+
 ; -- javascript context utils -----------------------------------------------------------------------------------------------
 
 (defn ^:dynamic get-js-context-description []
-  (if-let [node-info (get-node-info)]
+  (if-let [node-info (get-node-info js/goog.global)]
     (str "node/" (get-node-description node-info))
     (let [user-agent (ua/getUserAgentString)]
       (if (empty? user-agent)
