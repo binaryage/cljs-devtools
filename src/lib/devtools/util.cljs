@@ -16,11 +16,16 @@
 (def ^:dynamic *console-open* false)
 (def ^:dynamic *custom-formatters-warning-reported* false)
 
+; -- version helpers --------------------------------------------------------------------------------------------------------
+
 (defn ^:dynamic make-version-info []
   (str (get-current-version)))
 
 (defn ^:dynamic make-lib-info []
   (str "CLJS DevTools " (make-version-info)))
+
+(defn get-lib-info []
+  (make-lib-info))
 
 ; -- node.js support --------------------------------------------------------------------------------------------------------
 
@@ -50,8 +55,7 @@
   (str "CLJS DevTools: some custom formatters were not rendered.\n"
        "https://github.com/binaryage/cljs-devtools/blob/master/docs/faq.md#why-some-custom-formatters-were-not-rendered"))
 
-(defn get-lib-info []
-  (make-lib-info))
+; -- devtools formatters access ---------------------------------------------------------------------------------------------
 
 (def formatter-key "devtoolsFormatters")
 
