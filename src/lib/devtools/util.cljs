@@ -43,13 +43,25 @@
 (defn ^:dynamic get-node-description [node-info]
   (str (or (:platform node-info) "?") "/" (or (:version node-info) "?")))
 
+; -- javascript context utils -----------------------------------------------------------------------------------------------
+
+(defn ^:dynamic get-js-context-description []
+  (if-let [node-info (get-node-info)]
+    (str "node/" (get-node-description node-info))
+    (let [user-agent (ua/getUserAgentString)]
+      (if (empty? user-agent)
+        "<unknown context>"
+        user-agent))))
+
+; -- message formatters -----------------------------------------------------------------------------------------------------
+
 (defn ^:dynamic unknown-feature-msg [feature known-features lib-info]
   (str "No such feature " feature " is currently available in " lib-info ". "
        "The list of supported features is " (pr-str known-features) "."))
 
 (defn ^:dynamic feature-not-available-msg [feature]
   (str "Feature " feature " cannot be installed. "
-       "Unsupported browser " (ua/getUserAgentString) "."))
+       "Unsupported Javascript context: " (get-js-context-description) "."))
 
 (defn ^:dynamic custom-formatters-not-active-msg []
   (str "CLJS DevTools: some custom formatters were not rendered.\n"
