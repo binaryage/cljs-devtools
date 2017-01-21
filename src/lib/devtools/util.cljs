@@ -22,6 +22,22 @@
 (defn ^:dynamic make-lib-info []
   (str "CLJS DevTools " (make-version-info)))
 
+; -- node.js support --------------------------------------------------------------------------------------------------------
+
+(defn ^:dynamic get-node-info []
+  (try
+    (let [process (oget js/goog.global "process")
+          version (oget process "version")
+          platform (oget process "platform")]
+      (if (and version platform)
+        {:version  version
+         :platform platform}))
+    (catch :default _
+      nil)))
+
+(defn ^:dynamic get-node-description [node-info]
+  (str (or (:platform node-info) "?") "/" (or (:version node-info) "?")))
+
 (defn ^:dynamic unknown-feature-msg [feature known-features lib-info]
   (str "No such feature " feature " is currently available in " lib-info ". "
        "The list of supported features is " (pr-str known-features) "."))
