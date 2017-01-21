@@ -1,7 +1,7 @@
 (ns devtools.formatters
   (:require [goog.labs.userAgent.browser :as ua]
             [devtools.prefs :as prefs]
-            [devtools.util :refer [get-formatters-safe set-formatters-safe!]]
+            [devtools.util :refer [get-formatters-safe set-formatters-safe! get-node-info]]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]))
 
 (def ^:dynamic *installed* false)
@@ -11,7 +11,8 @@
 (def obsolete-formatter-key "devtoolsFormatter")
 
 (defn ^:dynamic available? []
-  (and (ua/isChrome) (ua/isVersionOrHigher 47)))                                                                              ; Chrome 47+
+  (or (some? (get-node-info))                                                                                                 ; node.js or Chrome 47+
+      (and (ua/isChrome) (ua/isVersionOrHigher 47))))
 
 (deftype CLJSDevtoolsFormatter [])
 
