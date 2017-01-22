@@ -1,5 +1,6 @@
 (ns devtools.hints
   (:require [devtools.prefs :refer [pref]]
+            [devtools.context :as context]
             [cljs.stacktrace :as stacktrace]))
 
 (defn ^:dynamic available? []
@@ -120,8 +121,8 @@
       true)))
 
 (defn install-type-error-enhancer []
-  (set! *original-global-error-handler* (.-onerror js/goog.global))
-  (set! (.-onerror js/goog.global) global-error-handler)
+  (set! *original-global-error-handler* (.-onerror (context/get-root)))
+  (set! (.-onerror (context/get-root)) global-error-handler)
   (let [prototype (.-prototype js/TypeError)]
     (set! *original-type-error-prototype-to-string* (.-toString prototype))
     (set! (.-toString prototype) #(this-as self (type-error-to-string self)))))                                               ; work around http://dev.clojure.org/jira/browse/CLJS-1545
@@ -141,6 +142,6 @@
   (when *installed*
     (set! *installed* false)
     (assert *original-type-error-prototype-to-string*)
-    (set! (.-onerror js/goog.global) *original-global-error-handler*)
+    (set! (.-onerror (context/get-root)) *original-global-error-handler*)
     (let [prototype (.-prototype js/TypeError)]
       (set! (.-toString prototype) *original-type-error-prototype-to-string*))))

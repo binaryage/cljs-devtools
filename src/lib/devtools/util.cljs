@@ -5,6 +5,7 @@
             [cljs.pprint :refer [pprint]]
             [devtools.version :refer [get-current-version]]
             [devtools.defaults :as defaults]
+            [devtools.context :as context]
             [devtools.prefs :as prefs]))
 
 (def lib-info-style "color:black;font-weight:bold;")
@@ -44,12 +45,12 @@
   (str (or (:platform node-info) "?") "/" (or (:version node-info) "?")))
 
 (defn ^:dynamic in-node-context? []
-  (some? (get-node-info js/goog.global)))
+  (some? (get-node-info (context/get-root))))
 
 ; -- javascript context utils -----------------------------------------------------------------------------------------------
 
 (defn ^:dynamic get-js-context-description []
-  (if-let [node-info (get-node-info js/goog.global)]
+  (if-let [node-info (get-node-info (context/get-root))]
     (str "node/" (get-node-description node-info))
     (let [user-agent (ua/getUserAgentString)]
       (if (empty? user-agent)
@@ -75,14 +76,14 @@
 (def formatter-key "devtoolsFormatters")
 
 (defn get-formatters-safe []
-  (let [formatters (aget js/goog.global formatter-key)]
+  (let [formatters (aget (context/get-root) formatter-key)]
     (if (array? formatters)                                                                                                   ; TODO: maybe issue a warning if formatters are anything else than array or nil
       formatters
       #js [])))
 
 (defn set-formatters-safe! [new-formatters]
   {:pre [(or (nil? new-formatters) (array? new-formatters))]}
-  (aset js/goog.global formatter-key (if (empty? new-formatters) nil new-formatters)))
+  (aset (context/get-root) formatter-key (if (empty? new-formatters) nil new-formatters)))
 
 (defn print-config-overrides-if-requested! [msg]
   (when (prefs/pref :print-config-overrides)
@@ -113,7 +114,7 @@
   ; play it safe here, this method is called asynchronously
   ; in theory someone else could have installed additional custom formatters
   ; we have to be careful removing only ours formatters
-  (let [current-formatters (aget js/goog.global formatter-key)]
+  (let [current-formatters (aget (context/get-root) formatter-key)]
     (if (array? current-formatters)
       (let [new-formatters (.filter current-formatters #(not (= detector %)))]
         (set-formatters-safe! new-formatters)))))
@@ -220,7 +221,7 @@
 
 (defn under-advanced-build? []
   (if-not (prefs/pref :disable-advanced-mode-check)
-    (nil? (oget js/goog.global "devtools" "version"))))                                                                       ; we rely on the fact that under advanced mode the namespace will be renamed
+    (nil? (oget (context/get-root) "devtools" "version"))))                                                                   ; we rely on the fact that under advanced mode the namespace will be renamed
 
 (defn display-advanced-build-warning-if-needed! []
   (if-not (prefs/pref :dont-display-advanced-build-warning)

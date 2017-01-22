@@ -2,6 +2,7 @@
   (:require [goog.labs.userAgent.browser :as ua]
             [devtools.prefs :as prefs]
             [devtools.util :refer [get-formatters-safe set-formatters-safe! in-node-context?]]
+            [devtools.context :as context]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]))
 
 (def ^:dynamic *installed* false)
@@ -19,7 +20,7 @@
 ; devtools.debug namespace may not be present => no debugging
 (defn- find-fn-in-debug-ns [fn-name]
   (try
-    (aget js/goog.global "devtools" "debug" fn-name)
+    (aget (context/get-root) "devtools" "debug" fn-name)
     (catch :default _
       nil)))
 
@@ -76,7 +77,7 @@
     (.push formatters formatter)                                                                                              ; acting on duplicated array
     (set-formatters-safe! formatters)
     (if (prefs/pref :legacy-formatter)
-      (aset js/goog.global obsolete-formatter-key formatter))))
+      (aset (context/get-root) obsolete-formatter-key formatter))))
 
 (defn- uninstall-our-formatters! []
   (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))

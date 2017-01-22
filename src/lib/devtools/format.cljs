@@ -1,5 +1,6 @@
 (ns devtools.format
-  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]]))
+  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
+  (:require [devtools.context :as context]))
 
 ; WARNING this namespace is here for legacy reasons, it will be removed in future!
 
@@ -20,13 +21,13 @@
     (set! *setup-done* true)
 
     ; note: we cannote require devtools.formatters.templating or .markup because that would lead to circular requires
-    (def make-template-fn (oget js/goog.global "devtools" "formatters" "templating" "make_template"))
-    (def make-group-fn (oget js/goog.global "devtools" "formatters" "templating" "make_group"))
-    (def make-reference-fn (oget js/goog.global "devtools" "formatters" "templating" "make_reference"))
-    (def make-surrogate-fn (oget js/goog.global "devtools" "formatters" "templating" "make_surrogate"))
-    (def render-markup-fn (oget js/goog.global "devtools" "formatters" "templating" "render_markup"))
-    (def <header>-fn (oget js/goog.global "devtools" "formatters" "markup" "_LT_header_GT_"))
-    (def <standard-body>-fn (oget js/goog.global "devtools" "formatters" "markup" "_LT_standard_body_GT_"))
+    (def make-template-fn (oget (context/get-root) "devtools" "formatters" "templating" "make_template"))
+    (def make-group-fn (oget (context/get-root) "devtools" "formatters" "templating" "make_group"))
+    (def make-reference-fn (oget (context/get-root) "devtools" "formatters" "templating" "make_reference"))
+    (def make-surrogate-fn (oget (context/get-root) "devtools" "formatters" "templating" "make_surrogate"))
+    (def render-markup-fn (oget (context/get-root) "devtools" "formatters" "templating" "render_markup"))
+    (def <header>-fn (oget (context/get-root) "devtools" "formatters" "markup" "_LT_header_GT_"))
+    (def <standard-body>-fn (oget (context/get-root) "devtools" "formatters" "markup" "_LT_standard_body_GT_"))
 
     (assert make-template-fn)
     (assert make-group-fn)

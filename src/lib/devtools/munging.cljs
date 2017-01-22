@@ -22,6 +22,7 @@
                                              get-fast-path-protocols-lookup-table]])
   (:require [clojure.string :as string]
             [devtools.util :refer-macros [oget oset ocall safe-call]]
+            [devtools.context :as context]
             [goog.object :as gobj])
   (:import [goog.string StringBuffer]))
 
@@ -32,9 +33,8 @@
 
 ; -- helpers ----------------------------------------------------------------------------------------------------------------
 
-(defn get-global-scope []
-  (if (exists? js/goog)
-    js/goog.global))
+(defn ^:dynamic get-global-scope []
+  (context/get-root))
 
 (defn js-reserved? [x]
   ; js-reserved? is private as of ClojureScript 1.9.293
