@@ -103,7 +103,7 @@
   (map (partial fetch-field-value obj) fields))
 
 (defn expandable? [obj]
-  (if (seqable? obj)
+  (if (satisfies? ISeqable obj)
     (if-let [min-count (pref (if (instance-of-a-well-known-type? obj)
                                :min-expandable-sequable-count-for-well-known-types
                                :min-expandable-sequable-count))]
