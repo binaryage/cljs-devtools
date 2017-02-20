@@ -7,6 +7,8 @@
 (def REF ["object" {"object" "##REF##"
                     "config" "##CONFIG##"}])
 
+(def CIRCULAR [:string-tag "\"##CIRCULAR##\""])
+
 (def SOMETHING "##SOMETHING##")
 
 (def NATIVE-REF [:native-reference-wrapper-tag :native-reference-background [:native-reference-tag REF]])

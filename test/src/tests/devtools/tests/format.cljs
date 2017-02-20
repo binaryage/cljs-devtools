@@ -9,7 +9,7 @@
             [devtools.formatters.helpers :refer [cljs-function? instance-of-a-well-known-type?]]
             [devtools.prefs :refer [pref]]
             [devtools.core]
-            [devtools.tests.env.core :as env :refer [REF NATIVE-REF SOMETHING]]))
+            [devtools.tests.env.core :as env :refer [REF NATIVE-REF SOMETHING CIRCULAR]]))
 
 (deftest test-wants
   (testing "these simple values SHOULD NOT be processed by our custom formatter"
@@ -994,3 +994,42 @@
           :spacer
           [:bool-tag "false"]
           "}"]]))))
+
+(deftest test-issue-35
+  (testing "printing value with circular metadata"
+    (let [v []]
+      (alter-meta! v #(assoc % :ref v))
+      (is-header v
+        [:cljs-land-tag
+         [:header-tag
+          [:meta-wrapper-tag
+           "["
+           "]"
+           [:meta-reference-tag REF]]]]
+        (fn [ref]
+          (has-body? ref true)
+          (is-header ref
+            [:expandable-tag
+             [:expandable-inner-tag
+              [:meta-header-tag "meta"]]])
+          (is-body ref
+            [:meta-body-tag
+             [:header-tag
+              "{"
+              [:keyword-tag ":ref"]
+              :spacer
+              [:meta-wrapper-tag
+               "["
+               "]"
+               [:meta-reference-tag REF]]
+              "}"]]
+            (fn [ref]
+              (has-body? ref true)
+              (is-header ref
+                [:expandable-tag
+                 [:expandable-inner-tag
+                  [:meta-header-tag "meta"]]])
+              (is-body ref
+                [:meta-body-tag
+                 [:header-tag
+                  CIRCULAR]]))))))))

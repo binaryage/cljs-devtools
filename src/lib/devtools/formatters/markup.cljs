@@ -204,9 +204,9 @@
 ; -- mete-related markup ----------------------------------------------------------------------------------------------------
 
 (defn <meta> [metadata]
-  (let [body [:meta-body-tag (<preview> metadata)]
+  (let [body-fn (fn [] [:meta-body-tag (<preview> metadata)])
         header [:meta-header-tag "meta"]]
-    [:meta-reference-tag (<reference-surrogate> metadata header body)]))
+    [:meta-reference-tag (<reference-surrogate> metadata header body-fn)]))                                                   ; body must be lazy, see #35
 
 (defn <meta-wrapper> [metadata & children]
   (concat [:meta-wrapper-tag] children [(<meta> metadata)]))
