@@ -15,7 +15,7 @@
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
 
-  :plugins [[lein-cljsbuild "1.1.4"]
+  :plugins [[lein-cljsbuild "1.1.5"]
             [lein-shell "0.5.0"]]
 
   ; this is for IntelliJ + Cursive to play well
