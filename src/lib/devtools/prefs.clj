@@ -13,7 +13,7 @@
       (get-in @cljs.env/*compiler* [:options :tooling-config :devtools/config]))))                                            ; :tooling-config is deprecated
 
 (defmacro emit-external-config []
-  (or (read-external-config) {}))
+  `'~(or (read-external-config) {}))
 
 ; -- environmental config ---------------------------------------------------------------------------------------------------
 
@@ -30,4 +30,4 @@
 (def memoized-read-env-config (memoize read-env-config))
 
 (defmacro emit-env-config []
-  (or (memoized-read-env-config) {}))
+  `'~(or (memoized-read-env-config) {}))
