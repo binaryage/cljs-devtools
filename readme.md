@@ -3,7 +3,7 @@
 This project is an example of integration of [**cljs-devtools**](https://github.com/binaryage/cljs-devtools) into a
 Leiningen-based ClojureScript project.
 
-![](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sample-full.png)
+![](https://box.binaryage.com/cljs-devtools-sample-full.png)
 
 ## Local setup
 
