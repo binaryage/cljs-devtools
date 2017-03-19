@@ -23,7 +23,7 @@ It tries to fetch the original source file, extract relevant part to show you mo
 This is expected to work only with `:optimizations none` compiler mode and it is disabled by default because it relies on monkey patching.
 But it is worth it:
 
-<img src="https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png">
+<img src="https://box.binaryage.com/cljs-devtools-sanity-hint.png">
 
 Note `<<< ☢ RETURNED NULL ☢ <<< ` part which points to error location. The uncaught error was raised by calling `sanity-test-handler` in the following code:
 
@@ -130,8 +130,8 @@ a custom fork of Chrome DevTools which goes one or two steps further.
 
 [1]: http://www.html5rocks.com/en/tutorials/developertools/async-call-stack
 [2]: https://github.com/clojure/core.async
-[3]: https://dl.dropboxusercontent.com/u/559047/core-async-long-stack-traces.png
-[4]: https://dl.dropboxusercontent.com/u/559047/core-async-normal-traces.png
+[3]: https://box.binaryage.com/core-async-long-stack-traces.png
+[4]: https://box.binaryage.com/core-async-normal-traces.png
 [5]: https://github.com/binaryage/cljs-devtools/blob/master/src/lib/devtools/async.cljs
 [6]: https://bugs.chromium.org/p/chromium/issues/detail?id=622506
 [7]: https://github.com/binaryage/cljs-devtools/issues/20
@@ -141,4 +141,4 @@ a custom fork of Chrome DevTools which goes one or two steps further.
 [11]: https://github.com/binaryage/cljs-devtools/blob/master/src/lib/devtools/hints.cljs
 [12]: http://dev.clojure.org/jira/browse/CLJS-1249
 [13]: installation.md#advanced-builds
-[14]: https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sample-full.png
+[14]: https://box.binaryage.com/cljs-devtools-sample-full.png

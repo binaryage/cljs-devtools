@@ -19,11 +19,11 @@ CLJS DevTools is a collection of Chrome DevTools enhancements for ClojureScript 
 
 #### An example of formatting ClojureScript values with `:formatters` feature:
 
-![Custom formatters in action](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sample-full.png)
+![Custom formatters in action](https://box.binaryage.com/cljs-devtools-sample-full.png)
 
 #### An example of improved exceptions with `:hints` feature:
 
-![An example of hints](https://dl.dropboxusercontent.com/u/559047/cljs-devtools-sanity-hint.png)
+![An example of hints](https://box.binaryage.com/cljs-devtools-sanity-hint.png)
 
 ---
 
