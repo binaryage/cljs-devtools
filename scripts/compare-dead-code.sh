@@ -13,8 +13,6 @@ fi
 
 cd "$DCE_CACHE_DIR"
 
-TMP_DIR=test/resources/.compiled/dead-code-compare
-
 BUILD_WITH_DEBUG="$DCE_CACHE_DIR/with-debug.js"
 BUILD_NO_DEBUG="$DCE_CACHE_DIR/no-debug.js"
 BUILD_NO_MENTION="$DCE_CACHE_DIR/no-mention.js"
@@ -36,13 +34,13 @@ echo "NO_REQUIRE: $NO_REQUIRE_SIZE bytes"
 echo "NO_SOURCES: $NO_SOURCES_SIZE bytes"
 echo
 
-if [ -d "$TMP_DIR" ] ; then
-  rm -rf "$TMP_DIR"
+if [ -d "$DCE_COMPARE_DIR" ] ; then
+  rm -rf "$DCE_COMPARE_DIR"
 fi
 
-mkdir -p "$TMP_DIR"
+mkdir -p "$DCE_COMPARE_DIR"
 
-cd "$TMP_DIR"
+cd "$DCE_COMPARE_DIR"
 
 js-beautify -f "$BUILD_WITH_DEBUG" -o "with-debug.js"
 js-beautify -f "$BUILD_NO_DEBUG" -o "no-debug.js"
@@ -51,7 +49,7 @@ js-beautify -f "$BUILD_NO_REQUIRE" -o "no-require.js"
 js-beautify -f "$BUILD_NO_SOURCES" -o "no-sources.js"
 
 echo
-echo "beautified sources in $TMP_DIR"
+echo "beautified sources in $DCE_COMPARE_DIR"
 echo
 
 echo "see https://github.com/binaryage/cljs-devtools/issues/37"
