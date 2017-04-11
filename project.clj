@@ -50,46 +50,102 @@
                                                    :optimizations :none}}}}}
 
              :testing
-             {:cljsbuild {:builds {:tests
-                                   {:source-paths ["src/lib"
-                                                   "test/src/tests"]
-                                    :compiler     {:output-to     "test/resources/.compiled/tests/build.js"
-                                                   :output-dir    "test/resources/.compiled/tests"
-                                                   :asset-path    ".compiled/tests"
-                                                   :main          devtools.main
-                                                   :optimizations :none}}
-                                   :tests-with-config
-                                   {:source-paths ["src/lib"
-                                                   "test/src/tests"]
-                                    :compiler     {:output-to       "test/resources/.compiled/tests-with-config/build.js"
-                                                   :output-dir      "test/resources/.compiled/tests-with-config"
-                                                   :asset-path      ".compiled/tests-with-config"
-                                                   :main            devtools.main
-                                                   :optimizations   :none
-                                                   :external-config {:devtools/config {:features-to-install    [:hints]
-                                                                                       :fn-symbol              "F"
-                                                                                       :print-config-overrides true}}
-                                                   :preloads        [devtools.preload]}}                                      ; CLJS-1688
-                                   :dead-code
-                                   {:source-paths ["src/lib"
-                                                   "test/src/dead-code"]
-                                    :compiler     {:output-to       "test/resources/.compiled/dead-code/build.js"
-                                                   :output-dir      "test/resources/.compiled/dead-code"
-                                                   :asset-path      ".compiled/dead-code"
-                                                   :main            devtools.main
-                                                   :closure-defines {"goog.DEBUG" false}
-                                                   :pseudo-names    true
-                                                   :optimizations   :advanced}}
+             {:source-paths   ^:replace []
+              :resource-paths ^:replace []
+              :test-paths     ^:replace []
+              :cljsbuild      {:builds {:tests
+                                        {:source-paths ["src/lib"
+                                                        "test/src/tests"]
+                                         :compiler     {:output-to     "test/resources/.compiled/tests/build.js"
+                                                        :output-dir    "test/resources/.compiled/tests"
+                                                        :asset-path    ".compiled/tests"
+                                                        :main          devtools.main
+                                                        :optimizations :none}}
+                                        :tests-with-config
+                                        {:source-paths ["src/lib"
+                                                        "test/src/tests"]
+                                         :compiler     {:output-to       "test/resources/.compiled/tests-with-config/build.js"
+                                                        :output-dir      "test/resources/.compiled/tests-with-config"
+                                                        :asset-path      ".compiled/tests-with-config"
+                                                        :main            devtools.main
+                                                        :optimizations   :none
+                                                        :external-config {:devtools/config {:features-to-install    [:hints]
+                                                                                            :fn-symbol              "F"
+                                                                                            :print-config-overrides true}}
+                                                        :preloads        [devtools.preload]}}                                 ; CLJS-1688
+                                        :dead-code
+                                        {:source-paths ["src/lib"
+                                                        "test/src/dead-code"]
+                                         :compiler     {:output-to       "test/resources/.compiled/dead-code/build.js"
+                                                        :output-dir      "test/resources/.compiled/dead-code"
+                                                        :asset-path      ".compiled/dead-code"
+                                                        :main            devtools.main
+                                                        :closure-defines {"goog.DEBUG" false}
+                                                        :pseudo-names    true
+                                                        :optimizations   :advanced}}
 
-                                   :advanced-warning
-                                   {:source-paths ["src/lib"
-                                                   "test/src/advanced-warning"]
-                                    :compiler     {:output-to     "test/resources/.compiled/advanced-warning/build.js"
-                                                   :output-dir    "test/resources/.compiled/advanced-warning"
-                                                   :asset-path    ".compiled/advanced-warning"
-                                                   :main          devtools.main
-                                                   :pseudo-names  true
-                                                   :optimizations :advanced}}}}}
+                                        :dce-with-debug
+                                        {:source-paths ["src/lib"
+                                                        "test/src/dead-code"]
+                                         :compiler     {:output-to       "test/resources/.compiled/dce-with-debug/build.js"
+                                                        :output-dir      "test/resources/.compiled/dce-with-debug"
+                                                        :asset-path      ".compiled/dce-with-debug"
+                                                        :main            devtools.main
+                                                        :closure-defines {"goog.DEBUG" true}
+                                                        :optimizations   :advanced}}
+
+                                        :dce-no-debug
+                                        {:source-paths ["src/lib"
+                                                        "test/src/dead-code"]
+                                         :compiler     {:output-to       "test/resources/.compiled/dce-no-debug/build.js"
+                                                        :output-dir      "test/resources/.compiled/dce-no-debug"
+                                                        :asset-path      ".compiled/dce-no-debug"
+                                                        :main            devtools.main
+                                                        :closure-defines {"goog.DEBUG" false}
+                                                        :optimizations   :advanced}}
+
+                                        :dce-no-mention
+                                        {:source-paths ["src/lib"
+                                                        "test/src/dead-code-no-mention"]
+                                         :compiler     {:output-to     "test/resources/.compiled/dce-no-mention/build.js"
+                                                        :output-dir    "test/resources/.compiled/dce-no-mention"
+                                                        :asset-path    ".compiled/dce-no-mention"
+                                                        :main          devtools.main
+                                                        :optimizations :advanced}}
+
+                                        :dce-no-require
+                                        {:source-paths ["src/lib"
+                                                        "test/src/dead-code-no-require"]
+                                         :compiler     {:output-to     "test/resources/.compiled/dce-no-require/build.js"
+                                                        :output-dir    "test/resources/.compiled/dce-no-require"
+                                                        :asset-path    ".compiled/dce-no-require"
+                                                        :main          devtools.main
+                                                        :optimizations :advanced}}
+
+                                        :dce-no-sources
+                                        {:source-paths ["test/src/dead-code-no-require"]
+                                         :compiler     {:output-to     "test/resources/.compiled/dce-no-sources/build.js"
+                                                        :output-dir    "test/resources/.compiled/dce-no-sources"
+                                                        :asset-path    ".compiled/dce-no-sources"
+                                                        :main          devtools.main
+                                                        :optimizations :advanced}}
+
+                                        :advanced-warning
+                                        {:source-paths ["src/lib"
+                                                        "test/src/advanced-warning"]
+                                         :compiler     {:output-to     "test/resources/.compiled/advanced-warning/build.js"
+                                                        :output-dir    "test/resources/.compiled/advanced-warning"
+                                                        :asset-path    ".compiled/advanced-warning"
+                                                        :main          devtools.main
+                                                        :optimizations :advanced}}}}}
+
+             :dce-pseudo-names
+             {:cljsbuild {:builds {:dce-with-debug {:compiler {:pseudo-names true}}
+                                   :dce-no-debug   {:compiler {:pseudo-names true}}
+                                   :dce-no-mention {:compiler {:pseudo-names true}}
+                                   :dce-no-require {:compiler {:pseudo-names true}}
+                                   :dce-no-sources {:compiler {:pseudo-names true}}}}}
+
              :auto-testing
              {:cljsbuild {:builds {:tests
                                    {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]}}}}
@@ -98,38 +154,40 @@
              {:cljsbuild {:builds {:tests
                                    {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests-adhoc.html"]}}}}}
 
-  :aliases {"test"                   ["do"
-                                      ["clean"]
-                                      ["test-tests"]
-                                      ["test-tests-with-config"]
-                                      ["test-dead-code"]
-                                      ["test-advanced-warning"]]
-            "test-dead-code"         ["do"
-                                      ["with-profile" "+testing" "cljsbuild" "once" "dead-code"]
-                                      ["shell" "test/scripts/dead-code-check.sh"]]
-            "test-tests"             ["do"
-                                      ["with-profile" "+testing" "cljsbuild" "once" "tests"]
-                                      ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]]
-            "test-tests-with-config" ["do"
-                                      ["shell" "scripts/compile-tests-with-config.sh"]
-                                      ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]]
-            "test-advanced-warning"  ["do"
-                                      ["with-profile" "+testing" "cljsbuild" "once" "advanced-warning"]
-                                      ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-advanced-warning.html"]]
-            "auto-test"              ["do"
-                                      ["clean"]
-                                      ["with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]]
-            "adhoc-auto-test"        ["do"
-                                      ["clean"]
-                                      ["with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]]
-            "install"                ["do"
-                                      ["shell" "scripts/prepare-jar.sh"]
-                                      ["shell" "scripts/local-install.sh"]]
-            "jar"                    ["shell" "scripts/prepare-jar.sh"]
-            "deploy"                 ["shell" "scripts/deploy-clojars.sh"]
-            "release"                ["do"
-                                      ["clean"]
-                                      ["shell" "scripts/check-versions.sh"]
-                                      ["shell" "scripts/prepare-jar.sh"]
-                                      ["shell" "scripts/check-release.sh"]
-                                      ["shell" "scripts/deploy-clojars.sh"]]})
+  :aliases {"test"                                ["do"
+                                                   ["clean"]
+                                                   ["test-tests"]
+                                                   ["test-tests-with-config"]
+                                                   ["test-dead-code"]
+                                                   ["test-advanced-warning"]]
+            "test-dead-code"                      ["do"
+                                                   ["with-profile" "+testing" "cljsbuild" "once" "dead-code"]
+                                                   ["shell" "test/scripts/dead-code-check.sh"]]
+            "compare-dead-code"                   ["shell" "scripts/compare-dead-code.sh" "+testing"]
+            "compare-dead-code-with-pseudo-names" ["shell" "scripts/compare-dead-code.sh" "+testing,+dce-pseudo-names"]
+            "test-tests"                          ["do"
+                                                   ["with-profile" "+testing" "cljsbuild" "once" "tests"]
+                                                   ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]]
+            "test-tests-with-config"              ["do"
+                                                   ["shell" "scripts/compile-tests-with-config.sh"]
+                                                   ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]]
+            "test-advanced-warning"               ["do"
+                                                   ["with-profile" "+testing" "cljsbuild" "once" "advanced-warning"]
+                                                   ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-advanced-warning.html"]]
+            "auto-test"                           ["do"
+                                                   ["clean"]
+                                                   ["with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]]
+            "adhoc-auto-test"                     ["do"
+                                                   ["clean"]
+                                                   ["with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]]
+            "install"                             ["do"
+                                                   ["shell" "scripts/prepare-jar.sh"]
+                                                   ["shell" "scripts/local-install.sh"]]
+            "jar"                                 ["shell" "scripts/prepare-jar.sh"]
+            "deploy"                              ["shell" "scripts/deploy-clojars.sh"]
+            "release"                             ["do"
+                                                   ["clean"]
+                                                   ["shell" "scripts/check-versions.sh"]
+                                                   ["shell" "scripts/prepare-jar.sh"]
+                                                   ["shell" "scripts/check-release.sh"]
+                                                   ["shell" "scripts/deploy-clojars.sh"]]})
