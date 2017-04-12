@@ -20,7 +20,7 @@
 (defn available?
   ([] (available? (prefs/pref :features-to-install)))
   ([features-desc]
-   (let [features (resolve-features! features-desc feature-groups)]
+   (let [features (resolve-features! features-desc @feature-groups)]
      (if (empty? features)
        false
        (every? is-feature-available? features)))))
@@ -34,7 +34,7 @@
 (defn installed?
   ([] (installed? (prefs/pref :features-to-install)))
   ([features-desc]
-   (let [features (resolve-features! features-desc feature-groups)]
+   (let [features (resolve-features! features-desc @feature-groups)]
      (if (empty? features)
        false
        (every? is-feature-installed? features)))))
@@ -44,8 +44,8 @@
   ([features-desc]
    (if (under-advanced-build?)
      (display-advanced-build-warning-if-needed!)
-     (let [features (resolve-features! features-desc feature-groups)]
-       (display-banner-if-needed! features feature-groups)
+     (let [features (resolve-features! features-desc @feature-groups)]
+       (display-banner-if-needed! features @feature-groups)
        (print-config-overrides-if-requested! "config overrides prior install:\n")
        (install-feature! :formatters features is-feature-available? formatters/install!)
        (install-feature! :hints features is-feature-available? hints/install!)

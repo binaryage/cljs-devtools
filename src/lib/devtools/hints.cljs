@@ -1,7 +1,11 @@
 (ns devtools.hints
+  (:require-macros [devtools.util :refer [emit-if-compiler-in-dev-mode]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.context :as context]
-            [cljs.stacktrace :as stacktrace]))
+            [goog.string]                                                                                                     ; for cljs.stacktrace, see devtools.optional
+            [clojure.string]))                                                                                                ; for cljs.stacktrace, see devtools.optional
+
+(emit-if-compiler-in-dev-mode (goog/require "devtools.optional"))
 
 (defn ^:dynamic available? []
   true)
@@ -92,10 +96,16 @@
     (re-matches #"Cannot read property 'call' of.*" message) (mark-null-call-site-location file line-number column)
     :else nil))
 
+(defn parse-stacktrace [native-stack-trace]
+  ; note that we have to do dynamic lookup here, cljs.stacktrace is present only in dev mode
+  ; or when explicitly required by the user of cljs-devtools
+  (if (exists? js/devtools.optional.parse-stacktrace)
+    (js/devtools.optional.parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""})))
+
 (defn error-object-sense [error]
   (try
     (let [native-stack-trace (.-stack error)
-          stack-trace (stacktrace/parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""})
+          stack-trace (parse-stacktrace native-stack-trace)
           top-item (second stack-trace)                                                                                       ; first line is just an error message
           {:keys [file line column]} top-item]
       (make-sense-of-the-error (.-message error) file line column))

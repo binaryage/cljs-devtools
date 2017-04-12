@@ -1,12 +1,14 @@
 (ns devtools.util
-  (:require-macros [devtools.util :refer [oget ocall oset]])
+  (:require-macros [devtools.util :refer [oget ocall oset emit-if-compiler-in-dev-mode]])
   (:require [goog.userAgent :as ua]
             [clojure.data :as data]
-            [cljs.pprint :refer [pprint]]
             [devtools.version :refer [get-current-version]]
-            [devtools.defaults :as defaults]
             [devtools.context :as context]
+            [goog.string]                                                                                                     ; for cljs.pprint, see devtools.optional
+            [clojure.string]                                                                                                  ; for cljs.pprint, see devtools.optional
             [devtools.prefs :as prefs]))
+
+(emit-if-compiler-in-dev-mode (goog/require "devtools.optional"))
 
 (def lib-info-style "color:black;font-weight:bold;")
 (def reset-style "color:black")
@@ -16,6 +18,17 @@
 (def ^:dynamic *custom-formatters-active* false)
 (def ^:dynamic *console-open* false)
 (def ^:dynamic *custom-formatters-warning-reported* false)
+
+; -- general helpers --------------------------------------------------------------------------------------------------------
+
+(defn pprint-str [& args]
+  ; note that we have to do dynamic lookup here, cljs.pprint is present only in dev mode
+  ; or when explicitly required by the user of cljs-devtools
+  (if (exists? js/devtools.optional.pprint)
+    (with-out-str
+      (binding [*print-level* 300]
+        (apply js/devtools.optional.pprint args)))
+    (apply pr-str args)))
 
 ; -- version helpers --------------------------------------------------------------------------------------------------------
 
@@ -87,9 +100,9 @@
 
 (defn print-config-overrides-if-requested! [msg]
   (when (prefs/pref :print-config-overrides)
-    (let [diff (second (data/diff defaults/prefs (prefs/get-prefs)))]
+    (let [diff (second (data/diff @prefs/default-config (prefs/get-prefs)))]
       (if-not (empty? diff)
-        (.info js/console msg (with-out-str (pprint diff)))))))
+        (.info js/console msg (pprint-str diff))))))
 
 ; -- custom formatters detection --------------------------------------------------------------------------------------------
 

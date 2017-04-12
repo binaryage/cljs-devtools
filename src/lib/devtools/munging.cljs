@@ -546,7 +546,7 @@
         name (last parts)]
     [ns name protocol-selector]))
 
-(def fast-path-protocols-lookup-table (get-fast-path-protocols-lookup-table))
+(def fast-path-protocols-lookup-table (delay (get-fast-path-protocols-lookup-table)))
 
 (defn key-for-protocol-partition [partition]
   (str "cljs$lang$protocol_mask$partition" partition "$"))
@@ -556,7 +556,7 @@
   (let [partition-key (key-for-protocol-partition partition)
         partition-bits (or (oget obj partition-key) 0)]
     (if (> partition-bits 0)
-      (let [lookup-table (get fast-path-protocols-lookup-table partition)
+      (let [lookup-table (get @fast-path-protocols-lookup-table partition)
             _ (assert (map? lookup-table)
                       (str "fast-path-protocols-lookup-table does not contain lookup table for partition " partition))
             * (fn [accum [bit protocol]]

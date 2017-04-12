@@ -6,12 +6,13 @@
             [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
 
 (deftest test-default-prefs
-  (testing "default prefs should exist"
-    (is (> (count defaults/prefs) 0)))
-  (testing "some known default prefs values"
-    (is (= (:span defaults/prefs) "span"))
-    (is (= (:ol defaults/prefs) "ol"))
-    (is (= (:li defaults/prefs) "li"))))
+  (let [default-config @defaults/config]
+    (testing "default prefs should exist"
+      (is (> (count default-config) 0)))
+    (testing "some known default prefs values"
+      (is (= (:span default-config) "span"))
+      (is (= (:ol default-config) "ol"))
+      (is (= (:li default-config) "li")))))
 
 (deftest test-changing-prefs
   (testing "set prefs"

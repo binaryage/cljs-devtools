@@ -1,7 +1,6 @@
 (ns devtools.formatters.templating
-  (:require [cljs.pprint]
-            [clojure.walk :refer [prewalk]]
-            [devtools.util :refer-macros [oget oset ocall oapply safe-call]]
+  (:require [clojure.walk :refer [prewalk]]
+            [devtools.util :refer-macros [oget oset ocall oapply safe-call] :refer [pprint-str]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.helpers :refer [pref cljs-value?]]
             [devtools.formatters.state :refer [get-current-state prevent-recursion?]]
@@ -117,11 +116,6 @@
 
 (def ^:dynamic *current-render-stack* [])
 (def ^:dynamic *current-render-path* [])
-
-(defn pprint-str [markup]
-  (with-out-str
-    (binding [*print-level* 300]
-      (cljs.pprint/pprint markup))))
 
 (defn print-preview [markup]
   (binding [*print-level* 1]

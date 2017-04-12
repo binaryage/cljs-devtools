@@ -2,37 +2,26 @@
   (:require-macros [devtools.prefs :refer [emit-external-config emit-env-config]])
   (:require [devtools.defaults :as defaults]))
 
-; we cannot use cljs.core/merge because that would confuse advanced mode compilation
-; if you look at cljs.core/merge you will see that it relies on reduce which relies on protocol checks and
-; this is probably too dymamic to be elided (my theory)
-(defn simple-merge [base-map & maps]
-  (let [rmaps (reverse maps)
-        sentinel (js-obj)
-        sentinel? #(identical? % sentinel)
-        merged-keys (dedupe (sort (apply concat (map keys rmaps))))]
-    (loop [result base-map
-           todo-keys merged-keys]
-      (if (empty? todo-keys)
-        result
-        (let [key (first todo-keys)
-              val (first (remove sentinel? (map #(get % key sentinel) rmaps)))]
-          (recur (assoc result key val) (rest todo-keys)))))))
+; we use delay for DCE, see https://github.com/binaryage/cljs-devtools/issues/37
+(def default-config (delay @defaults/config))
+(def external-config (delay (emit-external-config)))
+(def env-config (delay (emit-env-config)))
+(def initial-config (delay (merge @default-config @external-config @env-config)))
 
-(def default-config defaults/prefs)
-(def external-config (emit-external-config))
-(def env-config (emit-env-config))
-(def initial-config (simple-merge default-config external-config env-config))
+(def ^:dynamic *current-config* (delay @initial-config))
 
-(def ^:dynamic *prefs* initial-config)
-
-(defn get-prefs []
-  *prefs*)
-
-(defn pref [key]
-  (key *prefs*))
+; -- public api -------------------------------------------------------------------------------------------------------------
 
 (defn set-prefs! [new-prefs]
-  (set! *prefs* new-prefs))
+  (set! *current-config* new-prefs))
+
+(defn get-prefs []
+  (when (delay? *current-config*)
+    (set-prefs! @*current-config*))
+  *current-config*)
+
+(defn pref [key]
+  (key (get-prefs)))
 
 (defn set-pref! [key val]
   (set-prefs! (assoc (get-prefs) key val)))

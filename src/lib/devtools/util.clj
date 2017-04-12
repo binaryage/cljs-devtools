@@ -29,3 +29,12 @@
      (~f ~@args)
      (catch :default e#
        ~exceptional-result)))
+
+(defn compiler-in-dev-mode? []
+  (if cljs.env/*compiler*
+    (let [mode (get-in @cljs.env/*compiler* [:options :optimizations])]
+      (and (not= mode :advanced) (not= mode :simple)))))
+
+(defmacro emit-if-compiler-in-dev-mode [body]
+  (if (compiler-in-dev-mode?)
+    body))

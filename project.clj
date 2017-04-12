@@ -159,10 +159,12 @@
                                                    ["test-tests"]
                                                    ["test-tests-with-config"]
                                                    ["test-dead-code"]
+                                                   ["test-dce-size"]
                                                    ["test-advanced-warning"]]
             "test-dead-code"                      ["do"
                                                    ["with-profile" "+testing" "cljsbuild" "once" "dead-code"]
                                                    ["shell" "test/scripts/dead-code-check.sh"]]
+            "test-dce-size"                       ["shell" "scripts/check-dce-size.sh" "+testing"]
             "compare-dead-code"                   ["shell" "scripts/compare-dead-code.sh" "+testing"]
             "compare-dead-code-with-pseudo-names" ["shell" "scripts/compare-dead-code.sh" "+testing,+dce-pseudo-names"]
             "test-tests"                          ["do"
