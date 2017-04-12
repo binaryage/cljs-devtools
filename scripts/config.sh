@@ -8,6 +8,10 @@ popd () {
     command popd "$@" > /dev/null
 }
 
+filesize () {
+  wc -c < "$1" | xargs
+}
+
 pushd .
 
 cd "$(dirname "${BASH_SOURCE[0]}")"; cd ..
