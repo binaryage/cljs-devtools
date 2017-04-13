@@ -9,7 +9,7 @@
         :url  "https://github.com/binaryage/cljs-devtools"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.473" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.518" :scope "provided"]
                  [binaryage/env-config "0.2.0"]]
 
   :clean-targets ^{:protect false} ["target"
