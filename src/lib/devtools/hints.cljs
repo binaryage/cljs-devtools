@@ -1,11 +1,12 @@
 (ns devtools.hints
-  (:require-macros [devtools.util :refer [emit-if-compiler-in-dev-mode]])
+  (:require-macros [devtools.util :refer [check-compiler-options!]]
+                   [devtools.compiler :refer [check-compiler-options!]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.context :as context]
-            [goog.string]                                                                                                     ; for cljs.stacktrace, see devtools.optional
-            [clojure.string]))                                                                                                ; for cljs.stacktrace, see devtools.optional
+            [cljs.stacktrace :as stacktrace]))
 
-(emit-if-compiler-in-dev-mode (goog/require "devtools.optional"))
+; cljs.stacktrace does not play well in :advanced mode optimizations, see https://github.com/binaryage/cljs-devtools/issues/37
+(check-compiler-options!)
 
 (defn ^:dynamic available? []
   true)
@@ -97,10 +98,7 @@
     :else nil))
 
 (defn parse-stacktrace [native-stack-trace]
-  ; note that we have to do dynamic lookup here, cljs.stacktrace is present only in dev mode
-  ; or when explicitly required by the user of cljs-devtools
-  (if (exists? js/devtools.optional.parse-stacktrace)
-    (js/devtools.optional.parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""})))
+  (stacktrace/parse-stacktrace {} native-stack-trace {:ua-product :chrome} {:asset-root ""}))
 
 (defn error-object-sense [error]
   (try

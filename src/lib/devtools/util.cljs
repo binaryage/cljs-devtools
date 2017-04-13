@@ -1,14 +1,15 @@
 (ns devtools.util
-  (:require-macros [devtools.util :refer [oget ocall oset emit-if-compiler-in-dev-mode]])
+  (:require-macros [devtools.util :refer [oget ocall oset]]
+                   [devtools.compiler :refer [check-compiler-options!]])
   (:require [goog.userAgent :as ua]
             [clojure.data :as data]
             [devtools.version :refer [get-current-version]]
             [devtools.context :as context]
-            [goog.string]                                                                                                     ; for cljs.pprint, see devtools.optional
-            [clojure.string]                                                                                                  ; for cljs.pprint, see devtools.optional
+            [cljs.pprint :as cljs-pprint]
             [devtools.prefs :as prefs]))
 
-(emit-if-compiler-in-dev-mode (goog/require "devtools.optional"))
+; cljs.pprint does not play well in advanced mode :optimizations, see https://github.com/binaryage/cljs-devtools/issues/37
+(check-compiler-options!)
 
 (def lib-info-style "color:black;font-weight:bold;")
 (def reset-style "color:black")
@@ -22,13 +23,9 @@
 ; -- general helpers --------------------------------------------------------------------------------------------------------
 
 (defn pprint-str [& args]
-  ; note that we have to do dynamic lookup here, cljs.pprint is present only in dev mode
-  ; or when explicitly required by the user of cljs-devtools
-  (if (exists? js/devtools.optional.pprint)
-    (with-out-str
-      (binding [*print-level* 300]
-        (apply js/devtools.optional.pprint args)))
-    (apply pr-str args)))
+  (with-out-str
+    (binding [*print-level* 300]
+      (apply cljs-pprint/pprint args))))
 
 ; -- version helpers --------------------------------------------------------------------------------------------------------
 

@@ -31,3 +31,13 @@
 
 (defmacro emit-env-config []
   `'~(or (memoized-read-env-config) {}))
+
+; -- macro config api -------------------------------------------------------------------------------------------------------
+
+(defn read-config []
+  (merge (memoized-read-env-config) (read-external-config)))
+
+(def memoized-read-config (memoize read-config))
+
+(defn get-pref [key]
+  (key (memoized-read-config)))
