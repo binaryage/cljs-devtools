@@ -5,7 +5,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.495"]
                  [org.clojure/core.async "0.3.442"]
-                 [binaryage/devtools "0.9.2"]
+                 [binaryage/devtools "0.9.3"]
                  [binaryage/dirac "1.2.4"]
                  [com.cognitect/transit-clj "0.8.300"]
                  [cljs-http "0.1.42"]
