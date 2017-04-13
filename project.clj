@@ -4,16 +4,16 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.495"]
-                 [org.clojure/core.async "0.3.441"]
+                 [org.clojure/core.async "0.3.442"]
                  [binaryage/devtools "0.9.2"]
-                 [binaryage/dirac "1.2.0"]
-                 [com.cognitect/transit-clj "0.8.297"]
+                 [binaryage/dirac "1.2.4"]
+                 [com.cognitect/transit-clj "0.8.300"]
                  [cljs-http "0.1.42"]
                  [environ "1.1.0"]
-                 [figwheel "0.5.9"]]
+                 [figwheel "0.5.10"]]
 
   :plugins [[lein-cljsbuild "1.1.5"]
-            [lein-figwheel "0.5.9"]
+            [lein-figwheel "0.5.10"]
             [lein-shell "0.5.0"]
             [lein-environ "1.1.0"]]
 
