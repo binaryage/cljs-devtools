@@ -43,7 +43,9 @@
 
 (defn get-fn-source-safely [f]
   (try
-    (ocall f "toString")
+    (if (js-in "toString" f)
+      (ocall f "toString")
+      "")
     (catch :default _
       "")))
 
