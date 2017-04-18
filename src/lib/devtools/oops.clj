@@ -4,18 +4,16 @@
 
 (defmacro ocall [o name & params]
   `(let [o# ~o]
-     (.call (goog.object/get o# ~name) o# ~@params)))
+     (.call (cljs.core/aget o# ~name) o# ~@params)))
 
 (defmacro oapply [o name param-coll]
   `(let [o# ~o]
-     (.apply (goog.object/get o# ~name) o# (into-array ~param-coll))))
+     (.apply (cljs.core/aget o# ~name) o# (into-array ~param-coll))))
 
 (defmacro oget
-  ([o k1] `(goog.object/get ~o ~k1))
-  ([o k1 k2] `(when-let [o# (goog.object/get ~o ~k1)]
-                (goog.object/get o# ~k2)))
-  ([o k1 k2 & ks] `(when-let [o# (goog.object/get ~o ~k1)]
-                     (oget o# ~k2 ~@ks))))
+  ([o k] `(cljs.core/aget ~o ~k))
+  ([o k & ks] `(if-let [o# (cljs.core/aget ~o ~k)]
+                 (oget o# ~@ks))))
 
 (defmacro oset [o ks val]
   (let [keys (butlast ks)
@@ -23,11 +21,11 @@
     `(let [~obj-sym ~o
            target# ~(if (seq keys) `(oget ~obj-sym ~@keys) obj-sym)]
        (assert target# (str "unable to locate object path " ~keys " in " ~obj-sym))
-       (goog.object/set target# (last ~ks) ~val)
+       (cljs.core/aset target# ~(last ks) ~val)
        ~obj-sym)))
 
 (defmacro safe-call [f exceptional-result & args]
   `(try
      (~f ~@args)
-     (catch :default e#
+     (catch :default _e#
        ~exceptional-result)))
