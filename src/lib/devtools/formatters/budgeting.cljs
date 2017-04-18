@@ -1,5 +1,5 @@
 (ns devtools.formatters.budgeting
-  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
+  (:require-macros [devtools.oops :refer [oget oset ocall]])
   (:require [devtools.formatters.templating :refer [render-markup]]
             [devtools.formatters.state :refer [get-depth-budget set-depth-budget]]
             [devtools.formatters.helpers :refer [pref]]

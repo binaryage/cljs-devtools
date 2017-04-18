@@ -1,6 +1,7 @@
 (ns devtools.formatters.templating
+  (:require-macros [devtools.oops :refer [oget oset ocall oapply safe-call]])
   (:require [clojure.walk :refer [prewalk]]
-            [devtools.util :refer-macros [oget oset ocall oapply safe-call] :refer [pprint-str]]
+            [devtools.util :refer [pprint-str]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.helpers :refer [pref cljs-value?]]
             [devtools.formatters.state :refer [get-current-state prevent-recursion?]]

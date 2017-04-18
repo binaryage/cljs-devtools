@@ -1,4 +1,6 @@
-(ns devtools.util)
+(ns devtools.oops)
+
+; these are private utilities, if you interested in similar funtionality please consider using cljs-oops library
 
 (defmacro ocall [o name & params]
   `(let [o# ~o]
@@ -19,7 +21,7 @@
   (let [keys (butlast ks)
         obj-sym (gensym)]
     `(let [~obj-sym ~o
-           target# ~(if (seq keys) `(devtools.util/oget ~obj-sym ~@keys) obj-sym)]
+           target# ~(if (seq keys) `(oget ~obj-sym ~@keys) obj-sym)]
        (assert target# (str "unable to locate object path " ~keys " in " ~obj-sym))
        (goog.object/set target# (last ~ks) ~val)
        ~obj-sym)))

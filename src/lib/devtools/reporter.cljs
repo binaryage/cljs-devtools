@@ -1,5 +1,5 @@
 (ns devtools.reporter
-  (:require-macros [devtools.util :refer [oget ocall oset]])
+  (:require-macros [devtools.oops :refer [oget]])
   (:require [devtools.util :as util]))
 
 (def issues-url "https://github.com/binaryage/cljs-devtools/issues")

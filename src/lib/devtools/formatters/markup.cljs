@@ -1,6 +1,5 @@
 (ns devtools.formatters.markup
-  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]]
-                   [devtools.formatters.markup :refer [emit-markup-db]])
+  (:require-macros [devtools.formatters.markup :refer [emit-markup-db]])
   (:require [devtools.formatters.helpers :refer [bool? cljs-function? cljs-type? cljs-instance?
                                                  should-render-instance? expandable? abbreviated?
                                                  abbreviate-long-string get-constructor pref should-render?

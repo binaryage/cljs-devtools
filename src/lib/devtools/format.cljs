@@ -1,5 +1,5 @@
 (ns devtools.format
-  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
+  (:require-macros [devtools.oops :refer [oget]])
   (:require [devtools.context :as context]))
 
 ; WARNING this namespace is here for legacy reasons, it will be removed in future!

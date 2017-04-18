@@ -1,10 +1,10 @@
 (ns devtools.tests.utils.test
+  (:require-macros [devtools.oops :refer [oset oget]])
   (:require [cljs.test :refer-macros [is]]
             [clojure.walk :refer [postwalk]]
             [cljs.pprint :refer [pprint]]
             [goog.array :as garr]
             [goog.object :as gobj]
-            [devtools.util :refer-macros [oset oget]]
             [devtools.formatters.core :as f]
             [devtools.formatters.templating :refer [render-markup]]
             [devtools.prefs :refer [set-prefs!]]

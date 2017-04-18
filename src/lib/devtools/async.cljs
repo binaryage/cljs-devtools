@@ -1,5 +1,5 @@
 (ns devtools.async
-  (:require-macros [devtools.util :refer [oget oset ocall oapply]])
+  (:require-macros [devtools.oops :refer [oset ocall]])
   (:require [goog.async.nextTick :as next-tick]))
 
 (defn ^:dynamic available? []

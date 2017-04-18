@@ -19,9 +19,9 @@
     https://github.com/binaryage/cljs-devtools/issues"
   (:refer-clojure :exclude [js-reserved?])
   (:require-macros [devtools.munging :refer [get-fast-path-protocol-partitions-count
-                                             get-fast-path-protocols-lookup-table]])
+                                             get-fast-path-protocols-lookup-table]]
+                   [devtools.oops :refer [oget ocall safe-call]])
   (:require [clojure.string :as string]
-            [devtools.util :refer-macros [oget oset ocall safe-call]]
             [devtools.context :as context]
             [goog.object :as gobj])
   (:import [goog.string StringBuffer]))

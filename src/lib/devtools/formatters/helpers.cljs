@@ -1,5 +1,5 @@
 (ns devtools.formatters.helpers
-  (:require-macros [devtools.util :refer [oget oset ocall oapply safe-call]])
+  (:require-macros [devtools.oops :refer [oget safe-call]])
   (:require [devtools.prefs :as prefs]
             [devtools.munging :as munging]
             [devtools.format :refer [IDevtoolsFormat]]

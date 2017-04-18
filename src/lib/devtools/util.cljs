@@ -1,5 +1,5 @@
 (ns devtools.util
-  (:require-macros [devtools.util :refer [oget ocall oset]]
+  (:require-macros [devtools.oops :refer [oget ocall oset]]
                    [devtools.compiler :refer [check-compiler-options!]])
   (:require [goog.userAgent :as ua]
             [clojure.data :as data]

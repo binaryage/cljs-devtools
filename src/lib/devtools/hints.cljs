@@ -1,6 +1,5 @@
 (ns devtools.hints
-  (:require-macros [devtools.util :refer [check-compiler-options!]]
-                   [devtools.compiler :refer [check-compiler-options!]])
+  (:require-macros [devtools.compiler :refer [check-compiler-options!]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.context :as context]
             [cljs.stacktrace :as stacktrace]))

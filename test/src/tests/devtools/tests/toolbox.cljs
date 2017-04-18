@@ -1,6 +1,5 @@
 (ns devtools.tests.toolbox
   (:require [cljs.test :refer-macros [deftest testing is are]]
-            [devtools.util :refer-macros [oget oset ocall]]
             [devtools.tests.utils.test :refer [js-equals is-header is-body has-body? unroll remove-empty-styles pref-str]]
             [devtools.formatters.core :refer [header-api-call has-body-api-call body-api-call]]
             [devtools.toolbox :as t]

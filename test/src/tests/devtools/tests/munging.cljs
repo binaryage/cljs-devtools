@@ -1,7 +1,7 @@
 (ns devtools.tests.munging
+  (:require-macros [devtools.oops :refer [oget oset ocall]])
   (:require [cljs.test :refer-macros [deftest testing is are]]
             [clojure.string :as string]
-            [devtools.util :refer-macros [oget oset ocall]]
             [devtools.munging :as m]
             [devtools.core :as devtools]
             [devtools.tests.env.core :as env]
