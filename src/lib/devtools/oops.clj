@@ -1,21 +1,23 @@
-(ns devtools.oops)
+(ns devtools.oops
+  "These are private utilities, if you interested in similar funtionality please consider using cljs-oops library.")
 
-; these are private utilities, if you interested in similar funtionality please consider using cljs-oops library
+; -- code generators --------------------------------------------------------------------------------------------------------
 
-(defmacro ocall [o name & params]
+(defn gen-ocall [o name params]
   `(let [o# ~o]
      (.call (cljs.core/aget o# ~name) o# ~@params)))
 
-(defmacro oapply [o name param-coll]
+(defn gen-oapply [o name param-coll]
   `(let [o# ~o]
      (.apply (cljs.core/aget o# ~name) o# (into-array ~param-coll))))
 
-(defmacro oget
+(defn gen-oget
   ([o k] `(cljs.core/aget ~o ~k))
-  ([o k & ks] `(if-let [o# (cljs.core/aget ~o ~k)]
-                 (oget o# ~@ks))))
+  ([o k & ks] (let [o-sym (gensym "o")]
+                `(if-let [~o-sym (cljs.core/aget ~o ~k)]
+                   ~(apply gen-oget o-sym ks)))))
 
-(defmacro oset [o ks val]
+(defn gen-oset [o ks val]
   (let [keys (butlast ks)
         obj-sym (gensym)]
     `(let [~obj-sym ~o
@@ -24,8 +26,25 @@
        (cljs.core/aset target# ~(last ks) ~val)
        ~obj-sym)))
 
-(defmacro safe-call [f exceptional-result & args]
+(defn gen-safe-call [f exceptional-result args]
   `(try
      (~f ~@args)
      (catch :default _e#
        ~exceptional-result)))
+
+; -- macro wrappers ---------------------------------------------------------------------------------------------------------
+
+(defmacro ocall [o name & params]
+  (gen-ocall o name params))
+
+(defmacro oapply [o name params]
+  (gen-oapply o name params))
+
+(defmacro oget [o k & ks]
+  (apply gen-oget o k ks))
+
+(defmacro oset [o ks val]
+  (gen-oset o ks val))
+
+(defmacro safe-call [f exceptional-result & args]
+  (gen-safe-call f exceptional-result args))
