@@ -71,14 +71,15 @@ during requiring your code or libraries (for example you are logging something t
 Because `:formatters` feature of CLJS devtools does not work under `:compiler {:optimizations :advanced}` you will
  probably want to completely exclude the library from your production builds.
 
-In general you have two options:
+In general you have three options:
 
+  - Use `:preloads`. Preloads are not included in advanced builds.
   - Use different `:source-paths` for development and production builds. Production build should have no reference to devtools namespaces.
   - Do not call `(devtools.core/install!)`, make it obvious to closure optimizer somehow and rely on advanced optimizations dead code elimination
   to remove whole library as a dead code. You can simply use some macro which won't emit `(devtools.core/install!)` call under advanced builds.
   Or more elegantly you can use `:closure-defines` to define a conditional which will be understood by closure optimizer. This technique was
   [discussed here](https://github.com/binaryage/cljs-devtools/releases/tag/v0.5.3). You can also look into [project.clj](../project.clj)
-  and check out the `:dead-code-elimination` build.
+  and check out the `:dead-code-elimination` build. RECENT DISCOVERY: This method does not work reliably as we have discovered in [issue 37](https://github.com/binaryage/cljs-devtools/issues/37).
 
 ### Configuration
 
