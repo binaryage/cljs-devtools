@@ -1,15 +1,17 @@
+sudo: true
+dist: trusty
 language: clojure
-
+notifications:
+  email:
+  - antonin@hildebrand.cz
+  hipchat:
+    rooms:
+      secure: DVlWKB/fENDEE2npIxz0MXln0VqWSraapOsaUP62FK3AkghKQ545YY1rrmpUxgZMBO011V/zs7FYBB1pvkkd3rKqGz6JbyesYhysYBata5qVYLstSBRRL6Fwrr3RJK+4xf9Qgg2GgUFZixAP+NpBK1FPKqNAgl58w9ZkMY0skAc=
+    template:
+    - '<a href="%{build_url}">%{repository}#%{build_number}</a>: %{message} (<a href="%{compare_url}">changes</a>)'
+    format: html
 cache:
   directories:
-    - $HOME/.m2
-
+  - "$HOME/.m2"
 before_install:
-  # update lein to latest, https://github.com/technomancy/leiningen/issues/2014#issuecomment-153829977
-  - yes y | sudo lein upgrade
-
-before_script:
-  - mkdir travis-phantomjs
-  - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
-  - tar -xvf $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs
-  - export PATH=$PWD/travis-phantomjs:$PATH
+- yes y | sudo lein upgrade
