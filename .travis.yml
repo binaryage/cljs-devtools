@@ -15,3 +15,4 @@ cache:
   - "$HOME/.m2"
 before_install:
 - yes y | sudo lein upgrade
+- curl -sSL https://raw.githubusercontent.com/cljs-oss/canary/master/scripts/install-canary.sh | bash

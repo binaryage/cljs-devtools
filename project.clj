@@ -1,3 +1,4 @@
+(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.9.518"))
 (defproject binaryage/devtools "0.9.5-SNAPSHOT"
   :description "A collection of Chrome DevTools enhancements for ClojureScript developers."
   :url "https://github.com/binaryage/cljs-devtools"
@@ -9,7 +10,7 @@
         :url  "https://github.com/binaryage/cljs-devtools"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.518" :scope "provided"]
+                 [org.clojure/clojurescript ~clojurescript-version :scope "provided"]
                  [binaryage/env-config "0.2.0"]]
 
   :clean-targets ^{:protect false} ["target"
