@@ -2,7 +2,8 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [devtools.tests.utils.test :refer [js-equals is-header is-body has-body? unroll]]
             [devtools.formatters.templating :refer [surrogate?]]
-            [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]))
+            [devtools.prefs :refer [merge-prefs! set-pref! set-prefs! update-pref! get-prefs pref]]
+            [clojure.string :as string]))
 
 ; test some fragile behaviours of CLJS printing we depend on
 ; mostly to catch changes in code like this:
@@ -29,9 +30,8 @@
 (deftest test-printing-edge-cases
   (testing "print function"
     (let [res (managed-pr-str #())]
-      (is (= (count res) 5))
       (is (= (aget res 0) "#object["))
-      (is (= (aget res 4) "\"]"))))
+      (is (string/ends-with? (aget res (dec (count res))) "]"))))
   (testing "print type (:else -cljs$lang$ctorStr case)"
     (let [res (managed-pr-str (SomeType. "some-value"))]
       (is (= (count res) 3))
