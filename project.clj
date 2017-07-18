@@ -83,6 +83,7 @@
                                                         :main            devtools.main
                                                         :closure-defines {"goog.DEBUG" false}
                                                         :pseudo-names    true
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
                                                         :optimizations   :advanced}}
 
                                         :dce-with-debug
@@ -93,6 +94,7 @@
                                                         :asset-path      ".compiled/dce-with-debug"
                                                         :main            devtools.main
                                                         :closure-defines {"goog.DEBUG" true}
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
                                                         :optimizations   :advanced}}
 
                                         :dce-no-debug
@@ -103,42 +105,47 @@
                                                         :asset-path      ".compiled/dce-no-debug"
                                                         :main            devtools.main
                                                         :closure-defines {"goog.DEBUG" false}
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
                                                         :optimizations   :advanced}}
 
                                         :dce-no-mention
                                         {:source-paths ["src/lib"
                                                         "test/src/dead-code-no-mention"]
-                                         :compiler     {:output-to     "test/resources/.compiled/dce-no-mention/build.js"
-                                                        :output-dir    "test/resources/.compiled/dce-no-mention"
-                                                        :asset-path    ".compiled/dce-no-mention"
-                                                        :main          devtools.main
-                                                        :optimizations :advanced}}
+                                         :compiler     {:output-to       "test/resources/.compiled/dce-no-mention/build.js"
+                                                        :output-dir      "test/resources/.compiled/dce-no-mention"
+                                                        :asset-path      ".compiled/dce-no-mention"
+                                                        :main            devtools.main
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
+                                                        :optimizations   :advanced}}
 
                                         :dce-no-require
                                         {:source-paths ["src/lib"
                                                         "test/src/dead-code-no-require"]
-                                         :compiler     {:output-to     "test/resources/.compiled/dce-no-require/build.js"
-                                                        :output-dir    "test/resources/.compiled/dce-no-require"
-                                                        :asset-path    ".compiled/dce-no-require"
-                                                        :main          devtools.main
-                                                        :optimizations :advanced}}
+                                         :compiler     {:output-to       "test/resources/.compiled/dce-no-require/build.js"
+                                                        :output-dir      "test/resources/.compiled/dce-no-require"
+                                                        :asset-path      ".compiled/dce-no-require"
+                                                        :main            devtools.main
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
+                                                        :optimizations   :advanced}}
 
                                         :dce-no-sources
                                         {:source-paths ["test/src/dead-code-no-require"]
-                                         :compiler     {:output-to     "test/resources/.compiled/dce-no-sources/build.js"
-                                                        :output-dir    "test/resources/.compiled/dce-no-sources"
-                                                        :asset-path    ".compiled/dce-no-sources"
-                                                        :main          devtools.main
-                                                        :optimizations :advanced}}
+                                         :compiler     {:output-to       "test/resources/.compiled/dce-no-sources/build.js"
+                                                        :output-dir      "test/resources/.compiled/dce-no-sources"
+                                                        :asset-path      ".compiled/dce-no-sources"
+                                                        :main            devtools.main
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
+                                                        :optimizations   :advanced}}
 
                                         :advanced-warning
                                         {:source-paths ["src/lib"
                                                         "test/src/advanced-warning"]
-                                         :compiler     {:output-to     "test/resources/.compiled/advanced-warning/build.js"
-                                                        :output-dir    "test/resources/.compiled/advanced-warning"
-                                                        :asset-path    ".compiled/advanced-warning"
-                                                        :main          devtools.main
-                                                        :optimizations :advanced}}}}}
+                                         :compiler     {:output-to       "test/resources/.compiled/advanced-warning/build.js"
+                                                        :output-dir      "test/resources/.compiled/advanced-warning"
+                                                        :asset-path      ".compiled/advanced-warning"
+                                                        :main            devtools.main
+                                                        :external-config {:devtools/config {:silence-optimizations-warning true}}
+                                                        :optimizations   :advanced}}}}}
 
              :dce-pseudo-names
              {:cljsbuild {:builds {:dce-with-debug {:compiler {:pseudo-names true}}
