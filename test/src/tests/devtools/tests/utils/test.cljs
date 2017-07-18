@@ -9,7 +9,8 @@
             [devtools.formatters.templating :refer [render-markup]]
             [devtools.prefs :refer [set-prefs!]]
             [devtools.defaults :as defaults]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [devtools.context :as context]))
 
 (defn reset-prefs-to-defaults! []
   (set-prefs! @defaults/config))
@@ -209,10 +210,11 @@
     (.apply orig js/console (to-array args))))
 
 (defn store-console-api []
-  {"log"   (oget js/window "console" "log")
-   "warn"  (oget js/window "console" "warn")
-   "info"  (oget js/window "console" "info")
-   "error" (oget js/window "console" "error")})
+  (let [console (context/get-console)]
+    {"log"   (oget console "log")
+     "warn"  (oget console "warn")
+     "info"  (oget console "info")
+     "error" (oget console "error")}))
 
 (defn captured-console-api [original-api]
   {"log"   (partial console-handler (get original-api "log") "LOG: ")
@@ -221,10 +223,11 @@
    "error" (partial console-handler (get original-api "error") "ERROR: ")})
 
 (defn set-console-api! [api]
-  (oset js/window ["console" "log"] (get api "log"))
-  (oset js/window ["console" "warn"] (get api "warn"))
-  (oset js/window ["console" "info"] (get api "info"))
-  (oset js/window ["console" "error"] (get api "error")))
+  (let [console (context/get-console)]
+    (oset console ["log"] (get api "log"))
+    (oset console ["warn"] (get api "warn"))
+    (oset console ["info"] (get api "info"))
+    (oset console ["error"] (get api "error"))))
 
 (defn start-console-capture! []
   {:pre [(nil? @original-console-api)]}
