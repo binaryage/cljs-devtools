@@ -31,24 +31,17 @@
   (-invoke [this p1])
   (-invoke [this p1 p2]))
 
-(deftype TypeIFn2va []
-  Fn
-  IFn
-  (-invoke [this p1 p2 & rest]))
-
-(deftype TypeIFn4va []
+(deftype TypeIFn4 []
   Fn
   IFn
   (-invoke [this])
   (-invoke [this p1])
-  (-invoke [this p--1 p--2 p--3 p--4])
-  (-invoke [this p--1 p--2 p--3 p--4 & p--rest]))
+  (-invoke [this p--1 p--2 p--3 p--4]))
 
 (def inst-type-ifn0 (TypeIFn0.))
 (def inst-type-ifn1 (TypeIFn1.))
 (def inst-type-ifn2 (TypeIFn2.))
-(def inst-type-ifn2va (TypeIFn2va.))
-(def inst-type-ifn4va (TypeIFn4va.))
+(def inst-type-ifn4 (TypeIFn4.))
 
 (def simple-cljs-fn-source "function devtools_sample$core$hello(name){
   return [cljs.core.str(\"hello, \"),cljs.core.str(name),cljs.core.str(\"!\")].join('');
@@ -106,7 +99,7 @@
   ([a1])
   ([a2_1 a2-2])
   ([a3_1 a3-2 a3-3 a3-4])
-  ([va1 va2 & rest]))
+  ([va1 va2 va3 va4 & rest]))
 
 (def cljs-lambda-multi-arity (fn
                                ([] 1)

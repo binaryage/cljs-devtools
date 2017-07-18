@@ -508,8 +508,7 @@
         env/inst-type-ifn0
         env/inst-type-ifn1
         env/inst-type-ifn2
-        env/inst-type-ifn2va
-        env/inst-type-ifn4va))
+        env/inst-type-ifn4))
     (testing "these should be recognized as cljs functions"
       (with-prefs {:disable-cljs-fn-formatting true}
         (are [f] (not (cljs-function? f))
@@ -522,8 +521,7 @@
           env/inst-type-ifn0
           env/inst-type-ifn1
           env/inst-type-ifn2
-          env/inst-type-ifn2va
-          env/inst-type-ifn4va))))
+          env/inst-type-ifn4))))
   (testing "minimal function formatting"
     (is-header env/minimal-fn
       [:cljs-land-tag
@@ -606,7 +604,7 @@
              [:fn-multi-arity-args-indent-tag
               [:fn-prefix-tag :fn-icon
                [:fn-name-tag "cljs-fn-multi-arity-var"]]]
-             [:fn-args-tag (pref-str :args-open-symbol "va1 va2 & rest" :args-close-symbol)]]
+             [:fn-args-tag (pref-str :args-open-symbol "va1 va2 va3 va4 & rest" :args-close-symbol)]]
             [:aligned-li-tag :ns-icon [:fn-ns-name-tag "devtools.tests.env.core"]]
             [:aligned-li-tag :native-icon NATIVE-REF]]])))))
 

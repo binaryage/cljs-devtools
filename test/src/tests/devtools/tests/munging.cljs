@@ -76,8 +76,7 @@
       env/inst-type-ifn0
       env/inst-type-ifn1
       env/inst-type-ifn2
-      env/inst-type-ifn2va
-      env/inst-type-ifn4va))
+      env/inst-type-ifn4))
   (testing "these things should NOT be recognized as cljs functions"
     (are [f] (not (m/cljs-fn? f))
       js/alert
@@ -205,8 +204,7 @@
       env/inst-type-ifn0 #{0}
       env/inst-type-ifn1 #{1}
       env/inst-type-ifn2 #{1 2}
-      env/inst-type-ifn2va #{:devtools.munging/variadic}
-      env/inst-type-ifn4va #{0 1 4 :devtools.munging/variadic})))
+      env/inst-type-ifn4 #{0 1 4})))
 
 (deftest test-ui-strings
   (testing "exercise args-lists-to-strings"
@@ -221,12 +219,11 @@
       env/cljs-fn-with-map-destructuring-var ["& p"]
       env/cljs-fn-var ["first second & rest"]
       env/cljs-fn-multi-arity ["a1" "a2-1 a2-2" "a3-1 a3 a3₂ a3-4"]
-      env/cljs-fn-multi-arity-var ["a1" "a2-1 a2-2" "a3-1 a3-2 a3-3 a3-4" "va1 va2 & rest"]
+      env/cljs-fn-multi-arity-var ["a1" "a2-1 a2-2" "a3-1 a3-2 a3-3 a3-4" "va1 va2 va3 va4 & rest"]
       env/inst-type-ifn0 [""]
       env/inst-type-ifn1 ["p1"]
       env/inst-type-ifn2 ["p1" "p1 p2"]
-      env/inst-type-ifn2va ["p1 p2 & rest"]
-      env/inst-type-ifn4va ["" "p1" "p p₂ p₃ p₄" "p p₂ p₃ p₄ & p₅"])))
+      env/inst-type-ifn4 ["" "p1" "p p₂ p₃ p₄"])))
 
 (deftest test-present-function-name
   (let [known-namespaces #{"dirac.tests.scenarios.core_async"
