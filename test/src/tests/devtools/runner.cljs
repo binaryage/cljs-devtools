@@ -67,6 +67,7 @@
   (println "\nRan" (:test m) "tests containing"
            (+ (:pass m) (:fail m) (:error m)) "assertions.")
   (println (:fail m) "failures," (:error m) "errors.")
+  (println)
   (aset js/window "test-failures" (+ (:fail m) (:error m))))
 
 (defn pretty-print-diffs [diffs color]
