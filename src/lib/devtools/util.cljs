@@ -99,7 +99,7 @@
   (when (prefs/pref :print-config-overrides)
     (let [diff (second (data/diff @prefs/default-config (prefs/get-prefs)))]
       (if-not (empty? diff)
-        (.info js/console msg (pprint-str diff))))))
+        (.info (context/get-console) msg (pprint-str diff))))))
 
 ; -- custom formatters detection --------------------------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@
   (if (and *console-open* (not *custom-formatters-active*))
     (when-not *custom-formatters-warning-reported*
       (set! *custom-formatters-warning-reported* true)
-      (.warn js/console (custom-formatters-not-active-msg)))))
+      (.warn (context/get-console) (custom-formatters-not-active-msg)))))
 
 (defn uninstall-detector-and-check-custom-formatters-active! [detector]
   (uninstall-detector! detector)
@@ -182,8 +182,9 @@
 (defn display-banner! [installed-features feature-groups fmt & params]
   (let [[fmt-str fmt-params] (feature-list-display installed-features feature-groups)]
     (wrap-with-custom-formatter-detection! (fn [add-fmt & add-args]
-                                             (let [items (concat [(str fmt " " fmt-str add-fmt)] params fmt-params add-args)]
-                                               (.apply (.-info js/console) js/console (into-array items)))))))
+                                             (let [items (concat [(str fmt " " fmt-str add-fmt)] params fmt-params add-args)
+                                                   console (context/get-console)]
+                                               (.apply (.-info console) console (into-array items)))))))
 
 (defn display-banner-if-needed! [features-to-install feature-groups]
   (if-not (prefs/pref :dont-display-banner)
@@ -199,7 +200,7 @@
   (let [lib-info (get-lib-info)]
     (doseq [feature features]
       (if-not (some #{feature} known-features)
-        (.warn js/console (unknown-feature-msg feature known-features lib-info))))))
+        (.warn (context/get-console) (unknown-feature-msg feature known-features lib-info))))))
 
 (defn is-known-feature? [known-features feature]
   (boolean (some #{feature} known-features)))
@@ -236,7 +237,7 @@
 (defn display-advanced-build-warning-if-needed! []
   (if-not (prefs/pref :dont-display-advanced-build-warning)
     (let [banner (str "%cNOT%c installing %c%s%c under advanced build. See " advanced-build-explanation-url ".")]
-      (.warn js/console banner "font-weight:bold" reset-style lib-info-style (get-lib-info) reset-style))))
+      (.warn (context/get-console) banner "font-weight:bold" reset-style lib-info-style (get-lib-info) reset-style))))
 
 ; -- installer --------------------------------------------------------------------------------------------------------------
 
@@ -244,4 +245,4 @@
   (if (some #{feature} features-to-install)
     (if (or (prefs/pref :bypass-availability-checks) (available-fn feature))
       (install-fn)
-      (.warn js/console (feature-not-available-msg feature)))))
+      (.warn (context/get-console) (feature-not-available-msg feature)))))

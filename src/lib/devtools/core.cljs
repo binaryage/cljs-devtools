@@ -5,6 +5,7 @@
             [devtools.formatters :as formatters]
             [devtools.async :as async]
             [devtools.toolbox]                                                                                                ; this auto-requires the toolbox namespace, used by cljs-oops
+            [devtools.context :as context]
             [devtools.util :refer [display-banner-if-needed! install-feature! resolve-features! make-lib-info
                                    print-config-overrides-if-requested!
                                    under-advanced-build? display-advanced-build-warning-if-needed!]]))
@@ -68,46 +69,46 @@
 ; -- deprecated API ---------------------------------------------------------------------------------------------------------
 
 (defn enable! []
-  (.warn js/console (str "devtools.core/enable! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> remove the call")))
+  (.warn (context/get-console) (str "devtools.core/enable! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> remove the call")))
 
 (defn disable! []
-  (.warn js/console (str "devtools.core/disable! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> remove the call")))
+  (.warn (context/get-console) (str "devtools.core/disable! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> remove the call")))
 
 (defn set-single-feature! [_feature _val]
-  (.warn js/console (str "devtools.core/set-single-feature! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use (devtools.core/install! features) to install custom features")))
+  (.warn (context/get-console) (str "devtools.core/set-single-feature! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use (devtools.core/install! features) to install custom features")))
 
 (defn enable-single-feature! [_feature]
-  (.warn js/console (str "devtools.core/enable-single-feature! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use (devtools.core/install! features) to install custom features")))
+  (.warn (context/get-console) (str "devtools.core/enable-single-feature! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use (devtools.core/install! features) to install custom features")))
 
 (defn disable-single-feature! [_feature]
-  (.warn js/console (str "devtools.core/disable-single-feature! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use (devtools.core/install! features) to install custom features")))
+  (.warn (context/get-console) (str "devtools.core/disable-single-feature! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use (devtools.core/install! features) to install custom features")))
 
 (defn enable-feature! [& _features]
-  (.warn js/console (str "devtools.core/enable-feature! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use (devtools.core/install! features) to install custom features")))
+  (.warn (context/get-console) (str "devtools.core/enable-feature! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use (devtools.core/install! features) to install custom features")))
 
 (defn disable-feature! [& _features]
-  (.warn js/console (str "devtools.core/disable-feature! was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use (devtools.core/install! features) to install custom features")))
+  (.warn (context/get-console) (str "devtools.core/disable-feature! was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use (devtools.core/install! features) to install custom features")))
 
 (defn single-feature-available? [_feature]
-  (.warn js/console (str "devtools.core/single-feature-available? was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use devtools.core/is-feature-available? instead")))
+  (.warn (context/get-console) (str "devtools.core/single-feature-available? was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use devtools.core/is-feature-available? instead")))
 
 (defn feature-available? [& _features]
-  (.warn js/console (str "devtools.core/feature-available? was removed "
-                         "and has no effect in " (make-lib-info) " "
-                         "=> use devtools.core/is-feature-available? instead")))
+  (.warn (context/get-console) (str "devtools.core/feature-available? was removed "
+                                    "and has no effect in " (make-lib-info) " "
+                                    "=> use devtools.core/is-feature-available? instead")))

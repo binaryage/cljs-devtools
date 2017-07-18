@@ -123,7 +123,7 @@
               (*original-global-error-handler* message url line column error))]
     (if-not res
       (when-let [sense (error-object-sense error)]
-        (.info js/console "A sanity hint for incoming uncaught error:\n" sense)
+        (.info (context/get-console) "A sanity hint for incoming uncaught error:\n" sense)
         false)
       true)))
 
