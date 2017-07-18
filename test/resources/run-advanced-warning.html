@@ -11,7 +11,7 @@ during their operation.
   const origWarn = console.warn;
   console.warn = function() {
     lastWarning = arguments;
-    origWarn.apply(this, arguments);
+    // origWarn.apply(this, arguments);
   };
 </script>
 <script src=".compiled/advanced-warning/build.js" type="text/javascript"></script>

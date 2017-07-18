@@ -61,6 +61,7 @@
                                                         :output-dir    "test/resources/.compiled/tests"
                                                         :asset-path    ".compiled/tests"
                                                         :main          devtools.main
+                                                        :preloads      [devtools.testenv]
                                                         :optimizations :none}}
                                         :tests-with-config
                                         {:source-paths ["src/lib"
@@ -73,7 +74,7 @@
                                                         :external-config {:devtools/config {:features-to-install    [:hints]
                                                                                             :fn-symbol              "F"
                                                                                             :print-config-overrides true}}
-                                                        :preloads        [devtools.preload]}}                                 ; CLJS-1688
+                                                        :preloads        [devtools.testenv devtools.preload]}}                ; CLJS-1688
                                         :dead-code
                                         {:source-paths ["src/lib"
                                                         "test/src/dead-code"]
