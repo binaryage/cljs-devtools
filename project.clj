@@ -1,4 +1,4 @@
-(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.9.518"))
+(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.9.946"))
 (defproject binaryage/devtools "0.9.5-SNAPSHOT"
   :description "A collection of Chrome DevTools enhancements for ClojureScript developers."
   :url "https://github.com/binaryage/cljs-devtools"
@@ -16,7 +16,7 @@
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
 
-  :plugins [[lein-cljsbuild "1.1.5"]
+  :plugins [[lein-cljsbuild "1.1.6"]
             [lein-shell "0.5.0"]]
 
   ; this is for IntelliJ + Cursive to play well
