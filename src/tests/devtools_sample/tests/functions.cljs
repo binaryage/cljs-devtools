@@ -21,7 +21,7 @@
   IFn
   (-invoke [this p1])
   (-invoke [this p1 p2])
-  (-invoke [this px---1 px---2 & rest]))
+  (-invoke [this px---1 px---2]))
 
 (defn fn-with-fancy-name$%!? [arg1! arg2? & more]
   (str "too fancy"))

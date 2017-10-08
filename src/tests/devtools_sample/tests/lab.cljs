@@ -72,7 +72,6 @@
 (defn multi-arity-with-var-args
   ([a1])
   ([a2_1 a2-2])
-  ([a3_1 a3-2 a3-3 a3-4])
   ([va1 va2 & rest]))
 
 (defn dollar$name$
@@ -84,7 +83,7 @@
   IFn
   (-invoke [this param1])
   (-invoke [this p1 p2])
-  (-invoke [this px---1 px---2 & rest]))
+  (-invoke [this px---1 px---2]))
 
 (def instance-with-ifn (ATypeWithIFn.))
 
