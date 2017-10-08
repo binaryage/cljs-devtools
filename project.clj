@@ -11,7 +11,7 @@
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript ~clojurescript-version :scope "provided"]
-                 [binaryage/env-config "0.2.0"]]
+                 [binaryage/env-config "0.2.2"]]
 
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
