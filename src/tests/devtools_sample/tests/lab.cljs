@@ -82,7 +82,6 @@
   Fn
   IFn
   (-invoke [this param1])
-  (-invoke [this p1 p2])
   (-invoke [this px---1 px---2]))
 
 (def instance-with-ifn (ATypeWithIFn.))
