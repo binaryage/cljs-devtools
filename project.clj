@@ -34,11 +34,7 @@
              :lib
              ^{:pom-scope :provided}                                                                                          ; ! to overcome default jar/pom behaviour, our :dependencies replacement would be ignored for some reason
              [:nuke-aliases
-              {:dependencies   ~(let [project (->> "project.clj" slurp read-string (drop 3) (apply hash-map))
-                                      test-dep? #(->> % (drop 2) (apply hash-map) :scope (= "test"))
-                                      non-test-deps (remove test-dep? (:dependencies project))]
-                                  (with-meta (vec non-test-deps) {:replace true}))                                            ; so ugly!
-               :source-paths   ^:replace ["src/lib"]
+              {:source-paths   ^:replace ["src/lib"]
                :resource-paths ^:replace []
                :test-paths     ^:replace []}]
 
