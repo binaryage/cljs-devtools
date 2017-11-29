@@ -1,5 +1,5 @@
 (ns devtools.tests.utils.test
-  (:require-macros [devtools.oops :refer [oset oget]])
+  (:require-macros [devtools.oops :refer [oset oget unchecked-aget]])
   (:require [cljs.test :refer-macros [is]]
             [clojure.walk :refer [postwalk]]
             [cljs.pprint :refer [pprint]]
@@ -30,7 +30,7 @@
                                  (garr/every
                                    ks1
                                    (fn [k]
-                                     (js-equals (aget v1 k) (aget v2 k))))
+                                     (js-equals (unchecked-aget v1 k) (unchecked-aget v2 k))))
                                  false))
           :else false))))
 
@@ -140,8 +140,8 @@
              cbs callbacks]
         (when-not (empty? cbs)
           (let [rf (first rfs)
-                object (aget rf "object")
-                config (aget rf "config")
+                object (unchecked-aget rf "object")
+                config (unchecked-aget rf "config")
                 cb (first cbs)]
             (cb object config)
             (recur (rest rfs) (rest cbs))))))))

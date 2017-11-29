@@ -1,4 +1,5 @@
 (ns devtools.debug
+  (:require-macros [devtools.oops :refer [unchecked-aget unchecked-aset]])
   (:require [goog.debug.FancyWindow]
             [goog.debug.Logger :as logger]
             [goog.json :as json]))
@@ -71,11 +72,11 @@
     (set! (.-showLoggerName formatter) true)))
 
 (defn hijack-console! []
-  (let [original-log-fn (aget js/console "log")]
-    (aset js/console "log" (fn [& args]
-                             (.addSeparator *console*)
-                             (log (logger "console") args)
-                             (.apply original-log-fn js/console (into-array args))))))
+  (let [original-log-fn (unchecked-aget js/console "log")]
+    (unchecked-aset js/console "log" (fn [& args]
+                                       (.addSeparator *console*)
+                                       (log (logger "console") args)
+                                       (.apply original-log-fn js/console (into-array args))))))
 
 (defn init! []
   (if *initialized*

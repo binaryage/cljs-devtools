@@ -1,4 +1,5 @@
 (ns devtools.formatters
+  (:require-macros [devtools.oops :refer [unchecked-aget unchecked-aset]])
   (:require [goog.labs.userAgent.browser :as ua]
             [devtools.prefs :as prefs]
             [devtools.util :refer [get-formatters-safe set-formatters-safe! in-node-context?]]
@@ -20,7 +21,7 @@
 ; devtools.debug namespace may not be present => no debugging
 (defn- find-fn-in-debug-ns [fn-name]
   (try
-    (aget (context/get-root) "devtools" "debug" fn-name)
+    (unchecked-aget (context/get-root) "devtools" "debug" fn-name)
     (catch :default _
       nil)))
 
@@ -59,7 +60,7 @@
                  api-call))
         formatter (CLJSDevtoolsFormatter.)
         define! (fn [name fn]
-                  (aset formatter name (wrap name fn)))]
+                  (unchecked-aset formatter name (wrap name fn)))]
     (define! "header" header-api-call)
     (define! "hasBody" has-body-api-call)
     (define! "body" body-api-call)
@@ -77,7 +78,7 @@
     (.push formatters formatter)                                                                                              ; acting on duplicated array
     (set-formatters-safe! formatters)
     (if (prefs/pref :legacy-formatter)
-      (aset (context/get-root) obsolete-formatter-key formatter))))
+      (unchecked-aset (context/get-root) obsolete-formatter-key formatter))))
 
 (defn- uninstall-our-formatters! []
   (let [new-formatters (remove is-ours? (vec (get-formatters-safe)))

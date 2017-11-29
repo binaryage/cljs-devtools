@@ -1,5 +1,6 @@
 (ns devtools.hints
-  (:require-macros [devtools.compiler :refer [check-compiler-options!]])
+  (:require-macros [devtools.compiler :refer [check-compiler-options!]]
+                   [devtools.oops :refer [unchecked-aget]])
   (:require [devtools.prefs :refer [pref]]
             [devtools.context :as context]
             [cljs.stacktrace :as stacktrace]))
@@ -17,7 +18,7 @@
 ; The idea is to try enhance error object's .stack and .message fields with additional info about
 ; the call site causing null type error. With optimizations :none the name of the null call site can be seen.
 ;
-; The enahncing handler function tries to:
+; The enhancing handler function tries to:
 ; 1) parse error's stack trace.
 ; 2) look original javascript source file up (via sync AJAX fetch by default).
 ; 3) locate reported line and column.
@@ -66,7 +67,7 @@
     (reader where)))
 
 (defn get-line [lines line-number]
-  (aget lines (dec line-number)))                                                                                             ; line numbering is 1-based
+  (unchecked-aget lines (dec line-number)))                                                                                   ; line numbering is 1-based
 
 (defn extend-content [content lines line-number min-length]
   (if (or (> (count content) min-length)

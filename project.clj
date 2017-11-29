@@ -53,12 +53,13 @@
               :cljsbuild      {:builds {:tests
                                         {:source-paths ["src/lib"
                                                         "test/src/tests"]
-                                         :compiler     {:output-to     "test/resources/.compiled/tests/build.js"
-                                                        :output-dir    "test/resources/.compiled/tests"
-                                                        :asset-path    ".compiled/tests"
-                                                        :main          devtools.main
-                                                        :preloads      [devtools.testenv]
-                                                        :optimizations :none}}
+                                         :compiler     {:output-to      "test/resources/.compiled/tests/build.js"
+                                                        :output-dir     "test/resources/.compiled/tests"
+                                                        :asset-path     ".compiled/tests"
+                                                        :main           devtools.main
+                                                        :preloads       [devtools.testenv]
+                                                        :optimizations  :none
+                                                        :checked-arrays :warn}}
                                         :tests-with-config
                                         {:source-paths ["src/lib"
                                                         "test/src/tests"]
@@ -67,6 +68,7 @@
                                                         :asset-path      ".compiled/tests-with-config"
                                                         :main            devtools.main
                                                         :optimizations   :none
+                                                        :checked-arrays  :warn
                                                         :external-config {:devtools/config {:features-to-install    [:hints]
                                                                                             :fn-symbol              "F"
                                                                                             :print-config-overrides true}}
@@ -81,7 +83,8 @@
                                                         :closure-defines {"goog.DEBUG" false}
                                                         :pseudo-names    true
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}
 
                                         :dce-with-debug
                                         {:source-paths ["src/lib"
@@ -92,7 +95,8 @@
                                                         :main            devtools.main
                                                         :closure-defines {"goog.DEBUG" true}
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}
 
                                         :dce-no-debug
                                         {:source-paths ["src/lib"
@@ -103,7 +107,8 @@
                                                         :main            devtools.main
                                                         :closure-defines {"goog.DEBUG" false}
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}
 
                                         :dce-no-mention
                                         {:source-paths ["src/lib"
@@ -113,7 +118,8 @@
                                                         :asset-path      ".compiled/dce-no-mention"
                                                         :main            devtools.main
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}
 
                                         :dce-no-require
                                         {:source-paths ["src/lib"
@@ -123,7 +129,8 @@
                                                         :asset-path      ".compiled/dce-no-require"
                                                         :main            devtools.main
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}
 
                                         :dce-no-sources
                                         {:source-paths ["test/src/dead-code-no-require"]
@@ -132,7 +139,8 @@
                                                         :asset-path      ".compiled/dce-no-sources"
                                                         :main            devtools.main
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}
 
                                         :advanced-warning
                                         {:source-paths ["src/lib"
@@ -142,7 +150,8 @@
                                                         :asset-path      ".compiled/advanced-warning"
                                                         :main            devtools.main
                                                         :external-config {:devtools/config {:silence-optimizations-warning true}}
-                                                        :optimizations   :advanced}}}}}
+                                                        :optimizations   :advanced
+                                                        :checked-arrays  :warn}}}}}
 
              :dce-pseudo-names
              {:cljsbuild {:builds {:dce-with-debug {:compiler {:pseudo-names true}}

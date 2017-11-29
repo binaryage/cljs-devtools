@@ -1,4 +1,5 @@
 (ns devtools.runner
+  (:require-macros [devtools.oops :refer [unchecked-aset]])
   (:require [cljs.test :as test
              :refer-macros [run-tests]
              :refer [report inc-report-counter! testing-vars-str get-current-env testing-contexts-str]]
@@ -68,7 +69,7 @@
            (+ (:pass m) (:fail m) (:error m)) "assertions.")
   (println (:fail m) "failures," (:error m) "errors.")
   (println)
-  (aset js/window "test-failures" (+ (:fail m) (:error m))))
+  (unchecked-aset js/window "test-failures" (+ (:fail m) (:error m))))
 
 (defn pretty-print-diffs [diffs color]
   (let [printer (fn [[op data]]

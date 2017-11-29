@@ -1,4 +1,5 @@
 (ns devtools.advanced-warning.core
+  (:require-macros [devtools.oops :refer [unchecked-aset]])
   (:require [devtools.core :as devtools]
             [devtools.context :as context]))
 
@@ -6,4 +7,4 @@
 (devtools/install!)
 
 ; this should set false to window["devtools-installed"]
-(aset (context/get-root) "devtools-installed" (devtools/installed?))
+(unchecked-aset (context/get-root) "devtools-installed" (devtools/installed?))

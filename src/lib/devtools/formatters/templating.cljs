@@ -1,5 +1,5 @@
 (ns devtools.formatters.templating
-  (:require-macros [devtools.oops :refer [oget oset ocall oapply safe-call]])
+  (:require-macros [devtools.oops :refer [oget oset ocall oapply safe-call unchecked-aget]])
   (:require [clojure.walk :refer [prewalk]]
             [devtools.util :refer [pprint-str]]
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
@@ -32,7 +32,7 @@
 
 (defn reference? [value]
   (and (group? value)
-       (= (aget value 0) "object")))
+       (= (unchecked-aget value 0) "object")))
 
 ; ---------------------------------------------------------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@
     (doseq [item items]
       (if (some? item)
         (if (coll? item)
-          (.apply (aget group "push") group (mark-as-group! (into-array item)))                                               ; convenience helper to splat cljs collections
+          (.apply (unchecked-aget group "push") group (mark-as-group! (into-array item)))                                               ; convenience helper to splat cljs collections
           (.push group (pref item)))))
     group))
 
@@ -55,7 +55,7 @@
     (doseq [child children]
       (if (some? child)
         (if (coll? child)
-          (.apply (aget template "push") template (mark-as-template! (into-array (keep pref child))))                         ; convenience helper to splat cljs collections
+          (.apply (unchecked-aget template "push") template (mark-as-template! (into-array (keep pref child))))                         ; convenience helper to splat cljs collections
           (if-let [child-value (pref child)]
             (.push template child-value)))))
     template))

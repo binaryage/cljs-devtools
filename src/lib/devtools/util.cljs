@@ -1,5 +1,5 @@
 (ns devtools.util
-  (:require-macros [devtools.oops :refer [oget ocall oset]]
+  (:require-macros [devtools.oops :refer [oget ocall oset unchecked-aget unchecked-aset]]
                    [devtools.compiler :refer [check-compiler-options!]])
   (:require [goog.userAgent :as ua]
             [clojure.data :as data]
@@ -86,14 +86,14 @@
 (def formatter-key "devtoolsFormatters")
 
 (defn get-formatters-safe []
-  (let [formatters (aget (context/get-root) formatter-key)]
+  (let [formatters (unchecked-aget (context/get-root) formatter-key)]
     (if (array? formatters)                                                                                                   ; TODO: maybe issue a warning if formatters are anything else than array or nil
       formatters
       #js [])))
 
 (defn set-formatters-safe! [new-formatters]
   {:pre [(or (nil? new-formatters) (array? new-formatters))]}
-  (aset (context/get-root) formatter-key (if (empty? new-formatters) nil new-formatters)))
+  (unchecked-aset (context/get-root) formatter-key (if (empty? new-formatters) nil new-formatters)))
 
 (defn print-config-overrides-if-requested! [msg]
   (when (prefs/pref :print-config-overrides)
@@ -108,11 +108,11 @@
 ; https://github.com/binaryage/cljs-devtools/issues/16
 (defn make-detector []
   (let [detector (CustomFormattersDetector.)]
-    (aset detector "header" (fn [_object _config]
-                              (set! *custom-formatters-active* true)
-                              nil))
-    (aset detector "hasBody" (constantly false))
-    (aset detector "body" (constantly nil))
+    (unchecked-aset detector "header" (fn [_object _config]
+                                        (set! *custom-formatters-active* true)
+                                        nil))
+    (unchecked-aset detector "hasBody" (constantly false))
+    (unchecked-aset detector "body" (constantly nil))
     detector))
 
 (defn install-detector! [detector]
@@ -124,7 +124,7 @@
   ; play it safe here, this method is called asynchronously
   ; in theory someone else could have installed additional custom formatters
   ; we have to be careful removing only ours formatters
-  (let [current-formatters (aget (context/get-root) formatter-key)]
+  (let [current-formatters (unchecked-aget (context/get-root) formatter-key)]
     (if (array? current-formatters)
       (let [new-formatters (.filter current-formatters #(not (= detector %)))]
         (set-formatters-safe! new-formatters)))))
