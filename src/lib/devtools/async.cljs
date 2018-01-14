@@ -1,9 +1,20 @@
 (ns devtools.async
   (:require-macros [devtools.oops :refer [oset ocall]])
-  (:require [goog.async.nextTick :as next-tick]))
+  (:require [goog.async.nextTick :as next-tick]
+            [goog.labs.userAgent.browser :as ua]
+            [devtools.context :as context]))
 
 (defn ^:dynamic available? []
   (exists? js/Promise))
+
+(def ^:dynamic fixed-chrome-version-for-async "65.0.3321")
+
+(defn ^:dynamic needed? []
+  (not (and (ua/isChrome) (ua/isVersionOrHigher fixed-chrome-version-for-async))))
+
+(defn ^:dynamic get-not-needed-message []
+  (str "cljs-devtools: the :async feature is no longer needed since Chrome " fixed-chrome-version-for-async ", "
+       "see https://github.com/binaryage/cljs-devtools/issues/20"))
 
 (def ^:dynamic *installed* false)
 (def ^:dynamic *original-set-immediate* nil)
@@ -35,6 +46,8 @@
     (set! *installed* true)
     (oset js/Error ["stackTraceLimit"] js/Infinity)
     (install-async-set-immediate!)
+    (when-not (needed?)
+      (.info (context/get-console) (get-not-needed-message)))
     true))
 
 (defn uninstall! []
