@@ -9,7 +9,7 @@
   :scm {:name "git"
         :url  "https://github.com/binaryage/cljs-devtools"}
 
-  :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
                  [org.clojure/clojurescript ~clojurescript-version :scope "provided"]
                  [binaryage/env-config "0.2.2"]]
 
