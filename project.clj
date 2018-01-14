@@ -4,10 +4,10 @@
   :description "An example integration of cljs-devtools"
   :url "https://github.com/binaryage/cljs-devtools-sample"
 
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.9.946"]
-                 [org.clojure/core.async "0.3.465"]
-                 [binaryage/devtools "0.9.8"]
+                 [org.clojure/core.async "0.4.474"]
+                 [binaryage/devtools "0.9.9"]
                  [binaryage/dirac "RELEASE"]
                  [com.cognitect/transit-clj "0.8.300"]
                  [cljs-http "0.1.44"]
