@@ -1,4 +1,5 @@
 (ns devtools.toolbox
+  (:require-macros [devtools.toolbox])
   (:require [devtools.protocols :refer [IFormat]]
             [devtools.formatters.templating :refer [render-markup]]
             [devtools.formatters.markup :refer [<preview> <body> <standard-body-reference> <surrogate>]]))
