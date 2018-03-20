@@ -84,8 +84,8 @@
   (some #(= (pref :more-marker) %) template))
 
 (defn abbreviate-long-string [string marker prefix-limit postfix-limit]
-  (let [prefix (apply str (take prefix-limit string))
-        postfix (apply str (take-last postfix-limit string))]
+  (let [prefix (.slice string 0 prefix-limit)
+        postfix (.slice string (- (.-length string) postfix-limit))]
     (str prefix marker postfix)))
 
 (defn get-more-marker [more-count]
