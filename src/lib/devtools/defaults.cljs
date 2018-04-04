@@ -81,6 +81,7 @@
                                                            "cljs.core/PersistentTreeMap"
                                                            "cljs.core/PersistentHashSet"
                                                            "cljs.core/PersistentTreeSet"
+                                                           "cljs.core/MapEntry"
                                                            "cljs.core/Range"
                                                            "cljs.core/ES6IteratorSeq"
                                                            "cljs.core/Eduction"
