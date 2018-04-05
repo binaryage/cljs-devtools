@@ -46,7 +46,6 @@
                                                    :output-dir     "resources/public/.compiled/demo"
                                                    :asset-path     ".compiled/demo"
                                                    :main           devtools-sample.boot
-                                                   :tooling-config {:devtools/config {:features-to-install :all}}
                                                    :preloads       [devtools.preload]
                                                    :optimizations  :none
                                                    :source-map     true}}}}}
