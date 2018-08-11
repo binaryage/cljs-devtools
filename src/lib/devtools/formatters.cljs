@@ -69,10 +69,6 @@
 (defn- is-ours? [o]
   (instance? CLJSDevtoolsFormatter o))
 
-(defn- present? []
-  (let [formatters (get-formatters-safe)]
-    (boolean (some is-ours? formatters))))
-
 (defn- install-our-formatter! [formatter]
   (let [formatters (.slice (get-formatters-safe))]                                                                            ; slice effectively duplicates the array
     (.push formatters formatter)                                                                                              ; acting on duplicated array
@@ -100,3 +96,7 @@
   (when *installed*
     (set! *installed* false)
     (uninstall-our-formatters!)))
+
+(defn present? []
+  (let [formatters (get-formatters-safe)]
+    (boolean (some is-ours? formatters))))
