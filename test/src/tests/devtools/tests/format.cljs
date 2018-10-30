@@ -876,7 +876,7 @@
                      [:fast-protocol-tag :protocol-background REF]
                      [:fast-protocol-tag :protocol-background REF]
                      [:fast-protocol-tag :protocol-background REF]
-                     [:slow-protocol-tag :protocol-background [:protocol-more-tag "+9…"]]
+                     [:slow-protocol-tag :protocol-background [:protocol-more-tag "+10…"]]
                      :protocols-list-close-symbol]]]
                   (fn [p1-ref]
                     (is-header p1-ref
