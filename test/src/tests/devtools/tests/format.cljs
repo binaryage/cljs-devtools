@@ -449,7 +449,7 @@
            [:instance-custom-printing-wrapper-tag
             :instance-custom-printing-background
             [:instance-custom-printing-tag
-             "#object [cljs.core.Volatile "
+             "#object[cljs.core.Volatile "
              "{"
              [:keyword-tag ":val"]
              :spacer
@@ -479,7 +479,7 @@
               [:instance-custom-printing-wrapper-tag
                :instance-custom-printing-background
                [:instance-custom-printing-tag
-                "#object [cljs.core.Volatile "
+                "#object[cljs.core.Volatile "
                 "{"
                 [:keyword-tag ":val"]
                 :spacer
