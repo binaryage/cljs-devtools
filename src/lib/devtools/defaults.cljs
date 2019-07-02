@@ -387,7 +387,7 @@
      ; -- pluggable api handlers --------------------------------------------------------------------------------------------
 
      :header-pre-handler                                 nil
-     :header-post-handelr                                nil
+     :header-post-handler                                nil
      :has-body-pre-handler                               nil
      :has-body-post-handler                              nil
      :body-pre-handler                                   nil
