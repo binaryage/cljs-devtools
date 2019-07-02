@@ -1,4 +1,4 @@
-(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.10.238"))
+(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.10.520"))
 (defproject binaryage/devtools "0.9.10"
   :description "A collection of Chrome DevTools enhancements for ClojureScript developers."
   :url "https://github.com/binaryage/cljs-devtools"
@@ -9,14 +9,14 @@
   :scm {:name "git"
         :url  "https://github.com/binaryage/cljs-devtools"}
 
-  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/clojurescript ~clojurescript-version :scope "provided"]
                  [binaryage/env-config "0.2.2"]]
 
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
 
-  :plugins [[lein-cljsbuild "1.1.6"]
+  :plugins [[lein-cljsbuild "1.1.7"]
             [lein-shell "0.5.0"]]
 
   ; this is for IntelliJ + Cursive to play well
