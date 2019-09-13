@@ -19,3 +19,4 @@ pom.xml
 /.dirac-chrome-profile/
 /.figwheel/
 .rebel_readline_history
+.test-dirac-chrome-profile
