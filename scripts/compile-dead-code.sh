@@ -2,7 +2,7 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
 PROFILES=${1:-"+testing"}
@@ -36,5 +36,3 @@ cp "$ROOT/test/resources/.compiled/dce-no-require/build.js" "$DCE_CACHE_DIR/no-r
 lein clean
 lein with-profile "$PROFILES" cljsbuild once dce-no-sources
 cp "$ROOT/test/resources/.compiled/dce-no-sources/build.js" "$DCE_CACHE_DIR/no-sources.js"
-
-popd

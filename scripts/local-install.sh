@@ -2,15 +2,11 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
-pushd "$ROOT"
+cd "$ROOT"
 
 ./scripts/list-jar.sh
 
 lein with-profile lib install
-
-popd
-
-popd

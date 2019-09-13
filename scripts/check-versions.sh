@@ -4,10 +4,10 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
-pushd "$ROOT"
+cd "$ROOT"
 
 LEIN_VERSION=`cat "$PROJECT_FILE" | grep "defproject" | cut -d' ' -f3 | cut -d\" -f2`
 
@@ -27,5 +27,3 @@ if [ ! "$LEIN_VERSION" = "$PROJECT_VERSION" ] ; then
 fi
 
 echo "All version strings are consistent: '$LEIN_VERSION'"
-
-popd

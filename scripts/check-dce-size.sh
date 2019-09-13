@@ -2,7 +2,7 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
 cd "$ROOT"
@@ -56,5 +56,3 @@ if [[ "$NO_REQUIRE_SIZE" -gt "$NO_REQUIRE_MAX_SIZE" ]]; then
   echo "failure: NO_REQUIRE_SIZE expected to have size smaller than $NO_REQUIRE_MAX_SIZE bytes."
   exit 4
 fi
-
-popd

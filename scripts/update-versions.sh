@@ -4,10 +4,10 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
-pushd "$ROOT"
+cd "$ROOT"
 
 VERSION=$1
 
@@ -22,7 +22,3 @@ sed -i "" -e "s/def current-version \".*\"/def current-version \"$VERSION\"/g" "
 
 # this is just a sanity check
 ./scripts/check-versions.sh
-
-popd
-
-popd

@@ -2,10 +2,10 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
-pushd "$ROOT"
+cd "$ROOT"
 
 ./scripts/check-versions.sh
 
@@ -21,7 +21,3 @@ unzip -l "$JAR_FILE"
 echo ""
 echo "----------------------------"
 echo ""
-
-popd
-
-popd

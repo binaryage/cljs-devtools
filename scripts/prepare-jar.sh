@@ -2,13 +2,9 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
-pushd "$ROOT"
+cd "$ROOT"
 
 lein with-profile lib jar
-
-popd
-
-popd

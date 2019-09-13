@@ -2,7 +2,7 @@
 
 set -e
 
-pushd `dirname "${BASH_SOURCE[0]}"` > /dev/null
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source "./config.sh"
 
 cd "$ROOT"
@@ -53,5 +53,3 @@ echo "beautified sources in $DCE_COMPARE_DIR"
 echo
 
 echo "see https://github.com/binaryage/cljs-devtools/issues/37"
-
-popd
