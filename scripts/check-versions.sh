@@ -16,13 +16,11 @@ LEIN_VERSION=$(read_lein_version "$PROJECT_FILE")
 PROJECT_VERSION=$(read_project_version "$PROJECT_VERSION_FILE")
 if [ -z "$PROJECT_VERSION" ] ; then
   echo "Unable to retrieve 'current-version' string from '$PROJECT_VERSION_FILE'"
-  popd
   exit 1
 fi
 
 if [ ! "$LEIN_VERSION" = "$PROJECT_VERSION" ] ; then
   echo "Lein's project.clj version differs from version in '$PROJECT_VERSION_FILE': '$LEIN_VERSION' != '$PROJECT_VERSION'"
-  popd
   exit 2
 fi
 
