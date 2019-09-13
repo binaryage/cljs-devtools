@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <title>CLJS DevTools Sample Tests</title>
+    <link rel="stylesheet" href="css/hybrid.css">
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        #tests {
+            margin: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+<script src="js/highlight.pack.js" type="text/javascript"></script>
+<script src=".compiled/demo/devtools_sample.js" type="text/javascript"></script>
+<script src="js/tests.js" type="text/javascript"></script>
+<script>
+    // http://stackoverflow.com/a/8486188/84283
+    function urlParams() {
+        const query = location.search.substr(1);
+        let result = {};
+        query.split("&").forEach(function(part) {
+            const item = part.split("=");
+            result[item[0]] = decodeURIComponent(item[1]);
+        });
+        return result;
+    }
+    const params = urlParams();
+    const ns = params["ns"];
+    if (ns) {
+        document.body.innerHTML = "<pre><code></code></pre>";
+        goog.require('devtools_sample.tests.' + ns.replace("-", "_"));
+    } else {
+        document.body.innerHTML = "<div id='tests'>" + genTests() + "</div>";
+    }
+</script>
+</body>
+</html>
