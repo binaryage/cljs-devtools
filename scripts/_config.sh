@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
 
-pushd () {
-    command pushd "$@" > /dev/null
+set -e -o pipefail
+
+pushd() {
+  command pushd "$@" >/dev/null
 }
 
-popd () {
-    command popd "$@" > /dev/null
+popd() {
+  command popd >/dev/null
 }
 
-filesize () {
-  wc -c < "$1" | xargs
+filesize() {
+  wc -c <"$1" | xargs
 }
 
 pushd .
 
-cd "$(dirname "${BASH_SOURCE[0]}")"; cd ..
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-ROOT=`pwd`
+ROOT=$(pwd)
 PROJECT_VERSION_FILE="src/lib/devtools/version.clj"
 PROJECT_FILE="project.clj"
 CACHE_DIR="$ROOT/.cache"
