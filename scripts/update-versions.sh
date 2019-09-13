@@ -5,7 +5,7 @@
 set -e
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-source "./config.sh"
+source "_config.sh"
 
 cd "$ROOT"
 
