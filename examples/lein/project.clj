@@ -1,23 +1,20 @@
-(def figwheel-version "0.5.17")
-(def environ-version "1.1.0")
+(def figwheel-version "0.5.19")
 (defproject binaryage/devtools-sample "0.1.0-SNAPSHOT"
   :description "An example integration of cljs-devtools"
   :url "https://github.com/binaryage/cljs-devtools"
 
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.439"]
-                 [org.clojure/core.async "0.4.490"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/clojurescript "1.10.520"]
+                 [org.clojure/core.async "0.4.500"]
                  [binaryage/devtools "0.9.10"]
                  [binaryage/dirac "RELEASE"]
-                 [com.cognitect/transit-clj "0.8.313"]
-                 [cljs-http "0.1.45"]
-                 [environ ~environ-version]
+                 [com.cognitect/transit-clj "0.8.319"]
+                 [cljs-http "0.1.46"]
                  [figwheel ~figwheel-version]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-figwheel ~figwheel-version]
-            [lein-shell "0.5.0"]
-            [lein-environ ~environ-version]]
+            [lein-shell "0.5.0"]]
 
   ; =========================================================================================================================
 
@@ -42,13 +39,13 @@
              {:cljsbuild {:builds {:demo
                                    {:source-paths ["src/demo"
                                                    "src/tests"]
-                                    :compiler     {:output-to      "resources/public/.compiled/demo/devtools_sample.js"
-                                                   :output-dir     "resources/public/.compiled/demo"
-                                                   :asset-path     ".compiled/demo"
-                                                   :main           devtools-sample.boot
-                                                   :preloads       [devtools.preload]
-                                                   :optimizations  :none
-                                                   :source-map     true}}}}}
+                                    :compiler     {:output-to     "resources/public/.compiled/demo/devtools_sample.js"
+                                                   :output-dir    "resources/public/.compiled/demo"
+                                                   :asset-path    ".compiled/demo"
+                                                   :main          devtools-sample.boot
+                                                   :preloads      [devtools.preload]
+                                                   :optimizations :none
+                                                   :source-map    true}}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :demo-advanced
              {:cljsbuild {:builds {:demo-advanced
@@ -107,8 +104,7 @@
                                    {:figwheel true}}}}
              ; --------------------------------------------------------------------------------------------------------------
              :devel
-             {:env       {:devtools-debug "true"}
-              :cljsbuild {:builds {:demo
+             {:cljsbuild {:builds {:demo
                                    {:source-paths ["src/debug"
                                                    "checkouts/cljs-devtools/src/debug"]}}}}}
 
@@ -132,4 +128,4 @@
                                               ["advanced-conditional-install"]
                                               ["advanced-no-install"]
                                               ["shell" "scripts/compare-advanced-builds.sh"]]
-            "devel"                          ["with-profile" "+demo,+checkouts,+devel,+figwheel" "figwheel"]})
+            "devel"                          ["shell" "scripts/devel.sh"]})

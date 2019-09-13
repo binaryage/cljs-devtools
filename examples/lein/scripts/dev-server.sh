@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 
-set -e
+set -e -o pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")"; cd ..
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-ROOT=`pwd`
 DEVSERVER_ROOT="$ROOT/resources/public"
 DEVSERVER_PORT=7000
 
-pushd "$DEVSERVER_ROOT"
+cd "$DEVSERVER_ROOT"
 
-python -m SimpleHTTPServer "$DEVSERVER_PORT"
-
-popd
+exec python -m SimpleHTTPServer "$DEVSERVER_PORT"
