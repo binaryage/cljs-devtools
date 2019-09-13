@@ -196,11 +196,4 @@
             "adhoc-auto-test"                     ["do"
                                                    ["clean"]
                                                    ["with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]]
-            "jar"                                 ["shell" "scripts/prepare-jar.sh"]
-            "deploy"                              ["shell" "scripts/deploy-clojars.sh"]
-            "release"                             ["do"
-                                                   ["clean"]
-                                                   ["shell" "scripts/check-versions.sh"]
-                                                   ["shell" "scripts/prepare-jar.sh"]
-                                                   ["shell" "scripts/check-release.sh"]
-                                                   ["shell" "scripts/deploy-clojars.sh"]]})
+            "release"                             ["shell" "scripts/release.sh"]})
