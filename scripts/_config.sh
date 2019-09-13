@@ -19,6 +19,7 @@ pushd .
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 ROOT=$(pwd)
+SCRIPTS="$ROOT/scripts"
 PROJECT_VERSION_FILE="src/lib/devtools/version.clj"
 PROJECT_FILE="project.clj"
 CACHE_DIR="$ROOT/.cache"
