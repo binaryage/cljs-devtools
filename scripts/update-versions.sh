@@ -2,10 +2,10 @@
 
 # updates all version strings
 
-set -e
+set -e -o pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")"
-source "_config.sh"
+# shellcheck source=_config.sh
+source "$(dirname "${BASH_SOURCE[0]}")/_config.sh"
 
 cd "$ROOT"
 
