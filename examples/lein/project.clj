@@ -2,7 +2,7 @@
 (def environ-version "1.1.0")
 (defproject binaryage/devtools-sample "0.1.0-SNAPSHOT"
   :description "An example integration of cljs-devtools"
-  :url "https://github.com/binaryage/cljs-devtools-sample"
+  :url "https://github.com/binaryage/cljs-devtools"
 
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.439"]

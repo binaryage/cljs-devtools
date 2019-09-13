@@ -88,5 +88,5 @@ on [configuring the library](https://github.com/binaryage/cljs-devtools/blob/mas
 
 ### Additional notes
 
-* For inspiration, you might want to check the **[sample project](https://github.com/binaryage/cljs-devtools-sample)** out.
+* For inspiration, you might want to check an **[example Leiningen project](https://github.com/binaryage/cljs-devtools/tree/master/examples/lein)** out.
 * Boot users might want consider using [boot-cljs-devtools](https://github.com/boot-clj/boot-cljs-devtools)).

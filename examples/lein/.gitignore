@@ -18,3 +18,4 @@ pom.xml
 .nrepl-port
 /.dirac-chrome-profile/
 /.figwheel/
+.rebel_readline_history
