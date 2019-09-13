@@ -18,6 +18,10 @@ read_lein_version() {
   < "$1" grep "defproject" | cut -d' ' -f3 | cut -d\" -f2
 }
 
+read_project_version() {
+  < "$1" grep "(def current-version" | cut -d" " -f3 | cut -d\" -f2
+}
+
 pushd .
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."

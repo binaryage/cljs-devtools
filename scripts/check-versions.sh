@@ -13,7 +13,7 @@ LEIN_VERSION=$(read_lein_version "$PROJECT_FILE")
 
 # same version must be in src/version.clj
 
-PROJECT_VERSION=$(< "$PROJECT_VERSION_FILE" grep "(def current-version" | cut -d" " -f3 | cut -d\" -f2)
+PROJECT_VERSION=$(read_project_version "$PROJECT_VERSION_FILE")
 if [ -z "$PROJECT_VERSION" ] ; then
   echo "Unable to retrieve 'current-version' string from '$PROJECT_VERSION_FILE'"
   popd
