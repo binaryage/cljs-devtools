@@ -14,6 +14,10 @@ filesize() {
   wc -c <"$1" | xargs
 }
 
+read_lein_version() {
+  < "$1" grep "defproject" | cut -d' ' -f3 | cut -d\" -f2
+}
+
 pushd .
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."

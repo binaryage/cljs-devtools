@@ -9,7 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/_config.sh"
 
 cd "$ROOT"
 
-LEIN_VERSION=$(< "$PROJECT_FILE" grep "defproject" | cut -d' ' -f3 | cut -d\" -f2)
+LEIN_VERSION=$(read_lein_version "$PROJECT_FILE")
 
 # same version must be in src/version.clj
 
