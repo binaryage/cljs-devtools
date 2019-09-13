@@ -3,7 +3,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](license.txt)
 [![Clojars Project](https://img.shields.io/clojars/v/binaryage/devtools.svg)](https://clojars.org/binaryage/devtools) 
 [![Travis](https://img.shields.io/travis/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) 
-[![Sample Project](https://img.shields.io/badge/project-example-ff69b4.svg)](https://github.com/binaryage/cljs-devtools-sample)
+[![Example Projects](https://img.shields.io/badge/project-examples-ff69b4.svg)](https://github.com/binaryage/cljs-devtools/tree/master/examples)
 
 CLJS DevTools is a collection of Chrome DevTools enhancements for ClojureScript developers:
 
