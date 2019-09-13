@@ -9,7 +9,7 @@ cd "$ROOT"
 
 ./scripts/check-versions.sh
 
-LEIN_VERSION=`cat "$PROJECT_FILE" | grep "defproject" | cut -d' ' -f3 | cut -d\" -f2`
+LEIN_VERSION=$(< "$PROJECT_FILE" grep "defproject" | cut -d' ' -f3 | cut -d\" -f2)
 
 JAR_FILE="target/devtools-$LEIN_VERSION.jar"
 
