@@ -1,6 +1,6 @@
 (ns devtools.async
   (:require-macros [devtools.oops :refer [oset ocall]])
-  (:require [goog.async.nextTick :as next-tick]
+  (:require [goog.async.nextTick]
             [goog.labs.userAgent.browser :as ua]
             [devtools.context :as context]))
 
@@ -30,11 +30,11 @@
   nil)
 
 (defn install-async-set-immediate! []
-  (set! *original-set-immediate* next-tick/setImmediate_)
-  (set! next-tick/setImmediate_ promise-based-set-immediate))
+  (set! *original-set-immediate* js/goog.async.nextTick.setImmediate_)
+  (set! js/goog.async.nextTick.setImmediate_ promise-based-set-immediate))
 
 (defn uninstall-async-set-immediate! []
-  (set! next-tick/setImmediate_ *original-set-immediate*))
+  (set! js/goog.async.nextTick.setImmediate_ *original-set-immediate*))
 
 ; -- installation -----------------------------------------------------------------------------------------------------------
 
