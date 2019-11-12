@@ -138,7 +138,7 @@
 
 (defn managed-print-via-writer [value tag markup-db]
   (managed-print tag markup-db (fn [writer opts]
-                                 (pr-seq-writer [value] writer opts))))                                                       ; note we use pr-seq-writer becasue pr-writer is private for some reason
+                                 (pr-seq-writer [value] writer opts))))                                                       ; note we use pr-seq-writer because pr-writer is private for some reason
 
 (defn managed-print-via-protocol [value tag markup-db]
   (managed-print tag markup-db (fn [writer opts]
