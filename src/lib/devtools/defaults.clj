@@ -27,6 +27,8 @@
    :keyword                     [136 19 145]
    :integer                     [28 0 207]
    :float                       [28 136 207]
+   :float-nan                   [213 60 27]
+   :float-infinity              [28 80 207]
    :string                      [196 26 22]
    :expanded-string             [255 100 100]
    :symbol                      [0 0 0]

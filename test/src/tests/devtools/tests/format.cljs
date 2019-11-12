@@ -1031,3 +1031,42 @@
                 [:meta-body-tag
                  [:header-tag
                   CIRCULAR]]))))))))
+
+(deftest test-issue-54
+  (testing "properly handle ##NaN and ##Inf"
+    (let [nan ##NaN
+          wrapped-nan [##NaN]
+          p-inf ##Inf
+          n-inf ##-Inf
+          wrapped-infs [##Inf ##-Inf]]
+      (is-header nan
+        [:cljs-land-tag
+         [:header-tag
+          [:float-nan-tag "##NaN"]]])
+      (has-body? nan false)
+      (is-header wrapped-nan
+        [:cljs-land-tag
+         [:header-tag
+          "["
+          [:float-nan-tag "##NaN"]
+          "]"]])
+      (has-body? wrapped-nan false)
+      (is-header p-inf
+        [:cljs-land-tag
+         [:header-tag
+          [:float-infinity-tag "##Inf"]]])
+      (has-body? p-inf false)
+      (is-header n-inf
+        [:cljs-land-tag
+         [:header-tag
+          [:float-infinity-tag "##-Inf"]]])
+      (has-body? n-inf false)
+      (is-header wrapped-infs
+        [:cljs-land-tag
+         [:header-tag
+          "["
+          [:float-infinity-tag "##Inf"]
+          :spacer
+          [:float-infinity-tag "##-Inf"]
+          "]"]])
+      (has-body? wrapped-infs false))))

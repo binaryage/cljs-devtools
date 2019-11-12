@@ -153,6 +153,8 @@
      :symbol-tag                                         [:span :symbol-style]
      :integer-tag                                        [:span :integer-style]
      :float-tag                                          [:span :float-style]
+     :float-nan-tag                                      [:span :float-nan-style]
+     :float-infinity-tag                                 [:span :float-infinity-style]
      :string-tag                                         [:span :string-style]
      :expanded-string-tag                                [:span :expanded-string-style]
      :circular-reference-tag                             [:span :circular-reference-wrapper-style]
@@ -246,6 +248,8 @@
      :keyword-style                                      (css (str "color: " (named-color :keyword) ";"))
      :integer-style                                      (css (str "color: " (named-color :integer) ";"))
      :float-style                                        (css (str "color: " (named-color :float) ";"))
+     :float-nan-style                                    (css (str "color: " (named-color :float-nan) ";"))
+     :float-infinity-style                               (css (str "color: " (named-color :float-infinity) ";"))
      :string-style                                       (css (str "color: " (named-color :string) ";"))
      :symbol-style                                       (css (str "color: " (named-color :symbol) ";"))
      :bool-style                                         (css (str "color: " (named-color :bool) ";"))

@@ -79,9 +79,13 @@
   [:symbol-tag (str symbol)])
 
 (defn <number> [number]
-  (if (integer? number)
-    [:integer-tag number]
-    [:float-tag number]))
+  (if (js/isFinite number)
+    (if (integer? number)
+      [:integer-tag number]
+      [:float-tag number])
+    (if (js/isNaN number)
+      [:float-nan-tag (pr-str number)]
+      [:float-infinity-tag (pr-str number)])))
 
 ; -- string markup ----------------------------------------------------------------------------------------------------------
 
