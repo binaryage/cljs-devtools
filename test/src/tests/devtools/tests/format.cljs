@@ -1032,6 +1032,25 @@
                  [:header-tag
                   CIRCULAR]]))))))))
 
+(deftest test-issue-44
+  (testing "make sure false does not render as null"
+    (let [false-val false
+          map-with-false-val {:a false}]
+      (is-header false-val
+        [:cljs-land-tag
+         [:header-tag
+          [:bool-tag "false"]]])
+      (has-body? false-val false)
+      (is-header map-with-false-val
+        [:cljs-land-tag
+         [:header-tag
+          "{"
+          [:keyword-tag ":a"]
+          :spacer
+          [:bool-tag "false"]
+          "}"]])
+      (has-body? map-with-false-val false))))
+
 (deftest test-issue-54
   (testing "properly handle ##NaN and ##Inf"
     (let [nan ##NaN
