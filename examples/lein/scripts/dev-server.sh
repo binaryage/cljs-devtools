@@ -4,9 +4,10 @@ set -e -o pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
+ROOT=$(pwd -P)
 DEVSERVER_ROOT="$ROOT/resources/public"
 DEVSERVER_PORT=7000
 
 cd "$DEVSERVER_ROOT"
 
-exec python -m SimpleHTTPServer "$DEVSERVER_PORT"
+exec python -m http.server "$DEVSERVER_PORT"
