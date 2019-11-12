@@ -18,6 +18,7 @@ fi
 
 sed -i "" -e "s/defproject binaryage\/devtools \".*\"/defproject binaryage\/devtools \"$VERSION\"/g" "$PROJECT_FILE"
 sed -i "" -e "s/def current-version \".*\"/def current-version \"$VERSION\"/g" "$PROJECT_VERSION_FILE"
+sed -i "" -e "s/\[binaryage\/devtools \".*\"/\[binaryage\/devtools \"$VERSION\"/g" "$EXAMPLE_LEIN_PROJECT_FILE"
 
 # this is just a sanity check
 ./scripts/check-versions.sh
