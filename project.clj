@@ -147,15 +147,7 @@
                                    :dce-no-debug   {:compiler {:pseudo-names true}}
                                    :dce-no-mention {:compiler {:pseudo-names true}}
                                    :dce-no-require {:compiler {:pseudo-names true}}
-                                   :dce-no-sources {:compiler {:pseudo-names true}}}}}
-
-             :auto-testing
-             {:cljsbuild {:builds {:tests
-                                   {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]}}}}
-
-             :adhoc-auto-testing
-             {:cljsbuild {:builds {:tests
-                                   {:notify-command ["phantomjs" "test/resources/phantom.js" "test/resources/run-tests-adhoc.html"]}}}}}
+                                   :dce-no-sources {:compiler {:pseudo-names true}}}}}}
 
   :aliases {"test"                                ["do"
                                                    ["clean"]
@@ -178,10 +170,4 @@
             "test-advanced-warning"               ["do"
                                                    ["with-profile" "+testing" "cljsbuild" "once" "advanced-warning"]
                                                    ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-advanced-warning.html"]]
-            "auto-test"                           ["do"
-                                                   ["clean"]
-                                                   ["with-profile" "+testing,+auto-testing" "cljsbuild" "auto" "tests"]]
-            "adhoc-auto-test"                     ["do"
-                                                   ["clean"]
-                                                   ["with-profile" "+testing,+adhoc-auto-testing" "cljsbuild" "auto" "tests"]]
             "release"                             ["shell" "scripts/release.sh"]})
