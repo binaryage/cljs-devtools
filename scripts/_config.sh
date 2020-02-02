@@ -15,11 +15,11 @@ filesize() {
 }
 
 read_lein_version() {
-  < "$1" grep "defproject" | cut -d' ' -f3 | cut -d\" -f2
+  grep <"$1" "defproject" | cut -d' ' -f3 | cut -d\" -f2
 }
 
 read_project_version() {
-  < "$1" grep "(def current-version" | cut -d" " -f3 | cut -d\" -f2
+  grep <"$1" "(def current-version" | cut -d" " -f3 | cut -d\" -f2
 }
 
 pushd .

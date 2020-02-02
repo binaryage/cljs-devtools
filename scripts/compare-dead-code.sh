@@ -34,7 +34,7 @@ echo "NO_REQUIRE: $NO_REQUIRE_SIZE bytes"
 echo "NO_SOURCES: $NO_SOURCES_SIZE bytes"
 echo
 
-if [ -d "$DCE_COMPARE_DIR" ] ; then
+if [[ -d "$DCE_COMPARE_DIR" ]]; then
   rm -rf "$DCE_COMPARE_DIR"
 fi
 

@@ -9,7 +9,7 @@ PROFILES=${1:-"+testing"}
 
 cd "$ROOT"
 
-if [ -d "$DCE_CACHE_DIR" ] ; then
+if [[ -d "$DCE_CACHE_DIR" ]]; then
   rm -rf "$DCE_CACHE_DIR"
 fi
 mkdir -p "$DCE_CACHE_DIR"
