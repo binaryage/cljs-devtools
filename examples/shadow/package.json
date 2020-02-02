@@ -1,0 +1,16 @@
+{
+  "name": "devtools-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sc": "shadow-cljs",
+    "server": "shadow-cljs stop && shadow-cljs start",
+    "start": "shadow-cljs watch app",
+    "build": "yarn clean && shadow-cljs release app"
+  },
+  "devDependencies": {
+    "shadow-cljs": "~2.8.83"
+  },
+  "dependencies": {
+  }
+}

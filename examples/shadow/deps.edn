@@ -1,0 +1,6 @@
+{:paths ["src"]
+ :deps  {org.clojure/clojure       {:mvn/version "RELEASE"}
+         org.clojure/clojurescript {:mvn/version "RELEASE"}
+         binaryage/devtools        {:mvn/version "RELEASE"}
+
+         thheller/shadow-cljs      {:mvn/version "RELEASE"}}}
