@@ -21,9 +21,12 @@
   ; this is for IntelliJ + Cursive to play well
   :source-paths ["src/lib"
                  "src/debug"]
-  :test-paths ["test/src"]
-  :resource-paths ["test/resources"
-                   "scripts"]
+  :test-paths ["test/src/advanced-warning"
+               "test/src/dead-code"
+               "test/src/dead-code-no-mention"
+               "test/src/dead-code-no-require"
+               "test/src/tests"]
+  :resource-paths ["test/resources"]
 
   :cljsbuild {:builds {}}                                                                                                     ; prevent https://github.com/emezeske/lein-cljsbuild/issues/413
 
