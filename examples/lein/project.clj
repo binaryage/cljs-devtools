@@ -4,8 +4,8 @@
   :url "https://github.com/binaryage/cljs-devtools"
 
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/clojurescript "1.10.520"]
-                 [org.clojure/core.async "0.4.500"]
+                 [org.clojure/clojurescript "1.10.597"]
+                 [org.clojure/core.async "0.7.559"]
                  [binaryage/devtools "0.9.11"]
                  [binaryage/dirac "RELEASE"]
                  [com.cognitect/transit-clj "0.8.319"]
