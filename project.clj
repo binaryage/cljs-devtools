@@ -10,8 +10,7 @@
         :url  "https://github.com/binaryage/cljs-devtools"}
 
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
-                 [org.clojure/clojurescript ~clojurescript-version :scope "provided"]
-                 [binaryage/env-config "0.2.2"]]
+                 [org.clojure/clojurescript ~clojurescript-version :scope "provided"]]
 
   :clean-targets ^{:protect false} ["target"
                                     "test/resources/.compiled"]
@@ -60,19 +59,6 @@
                                                         :preloads       [devtools.testenv]
                                                         :optimizations  :none
                                                         :checked-arrays :warn}}
-                                        :tests-with-config
-                                        {:source-paths ["src/lib"
-                                                        "test/src/tests"]
-                                         :compiler     {:output-to       "test/resources/.compiled/tests-with-config/build.js"
-                                                        :output-dir      "test/resources/.compiled/tests-with-config"
-                                                        :asset-path      ".compiled/tests-with-config"
-                                                        :main            devtools.main
-                                                        :optimizations   :none
-                                                        :checked-arrays  :warn
-                                                        :external-config {:devtools/config {:features-to-install    [:hints]
-                                                                                            :fn-symbol              "F"
-                                                                                            :print-config-overrides true}}
-                                                        :preloads        [devtools.testenv devtools.preload]}}                ; CLJS-1688
                                         :dead-code
                                         {:source-paths ["src/lib"
                                                         "test/src/dead-code"]
@@ -171,7 +157,6 @@
   :aliases {"test"                                ["do"
                                                    ["clean"]
                                                    ["test-tests"]
-                                                   ["test-tests-with-config"]
                                                    ["test-dead-code"]
                                                    ;["test-dce-size"]
                                                    ["test-advanced-warning"]]

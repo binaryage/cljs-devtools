@@ -6,8 +6,7 @@ Configuration can be done on multiple levels (later overrides former levels):
 
 1. defaults
 2. compiler options
-3. environmental variables
-4. programmatically
+3. programmatically
 
 ### Configuration via defaults
 
@@ -36,22 +35,6 @@ For example:
 
 This overrides default `:features-to-install`, sets custom `:fn-symbol` and instructs cljs-devtools to print overridden config 
 values during installation.
-
-### Configuration via environmental variables
-
-We use [binaryage/env-config](https://github.com/binaryage/env-config) library to allow configuration overrides via 
-environmental variables. Common prefix for our configuration variables is `CLJS_DEVTOOLS`.
-
-For example, in a Bash shell you can do this to achieve configuration matching the config map above:
-
-    lein clean
-    env CLJS_DEVTOOLS/FN_SYMBOL=F \
-      CLJS_DEVTOOLS/PRINT_CONFIG_OVERRIDES=true \
-      CLJS_DEVTOOLS/FEATURES_TO_INSTALL="~[:formatters :hints]" \
-      lein cljsbuild once
-
-Please note that environmental variables are retrieved during compilation in a macro expansion. So proper environment must 
-be present during ClojureScript compilation and you have to clear compilation caches after changing the environment.
 
 ### Programmatic configuration
 
