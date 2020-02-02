@@ -1,0 +1,3 @@
+{:preloads [devtools.preload]
+ :output-dir "public/js"
+ :asset-path "js"}
