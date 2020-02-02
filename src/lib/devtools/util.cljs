@@ -42,12 +42,12 @@
 
 (defn ^:dynamic get-node-info [root]
   (try
-    (let [process (oget root "process")
-          version (oget process "version")
-          platform (oget process "platform")]
-      (if (and version platform)
-        {:version  version
-         :platform platform}))
+    (when-some [process (oget root "process")]
+      (let [version (oget process "version")
+            platform (oget process "platform")]
+        (if (and version platform)
+          {:version  version
+           :platform platform})))
     (catch :default _
       nil)))
 
