@@ -57,8 +57,8 @@
     (are [f re] (if (string? re)
                   (= re (m/get-fn-source-safely f))
                   (some? (re-matches re (string/replace (m/get-fn-source-safely f) "\n" " "))))
-      env/sample-cljs-fn #"function devtools\$tests\$env\$core\$sample_cljs_fn\(var_args\) \{.*\}"
-      env/simplest-fn "function () {}"
+      env/sample-cljs-fn #"function devtools\$tests\$env\$core\$sample_cljs_fn\(var_args\)\s*\{.*\}"
+      env/simplest-fn #"function\s*\(\)\s*\{\}"
       nil ""
       1 ""
       "xxx" "")))

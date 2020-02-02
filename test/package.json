@@ -1,0 +1,12 @@
+{
+  "name": "cljs-devtools-tests",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "puppeteer": "^2.1.0",
+    "http-server": "^0.12.1"
+  },
+  "dependencies": {
+  }
+}

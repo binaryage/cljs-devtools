@@ -138,7 +138,8 @@
 (defn trivial-fn-source? [fn-source]
   {:pre [(string? fn-source)]}
   (or (some? (re-matches #"function\s*\(\s*\)\s*\{\s*\}\s*" fn-source))
-      (some? (re-matches #"function.*\(\)\s*\{\s*\[native code\]\s*\}\s*" fn-source))))
+      (some? (re-matches #"function.*\(\)\s*\{\s*\[native code\]\s*\}\s*" fn-source))
+      (some? (re-matches #"function anonymous\(\s*\)\s*\{\s*\}" fn-source))))
 
 (defn cljs-fn?
   "Given a Javascript function object returns true if the function looks like a ClojureScript function.

@@ -163,11 +163,11 @@
             "compare-dead-code-with-pseudo-names" ["shell" "scripts/compare-dead-code.sh" "+testing,+dce-pseudo-names"]
             "test-tests"                          ["do"
                                                    ["with-profile" "+testing" "cljsbuild" "once" "tests"]
-                                                   ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests.html"]]
+                                                   ["shell" "node" "test/resources/puppeteer.js" "test/resources" "run-tests.html"]]
             "test-tests-with-config"              ["do"
                                                    ["shell" "scripts/compile-tests-with-config.sh"]
-                                                   ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-tests-with-config.html"]]
+                                                   ["shell" "node" "test/resources/puppeteer.js" "test/resources" "run-tests-with-config.html"]]
             "test-advanced-warning"               ["do"
                                                    ["with-profile" "+testing" "cljsbuild" "once" "advanced-warning"]
-                                                   ["shell" "phantomjs" "test/resources/phantom.js" "test/resources/run-advanced-warning.html"]]
+                                                   ["shell" "node" "test/resources/puppeteer.js" "test/resources" "run-advanced-warning.html"]]
             "release"                             ["shell" "scripts/release.sh"]})
