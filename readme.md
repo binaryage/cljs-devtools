@@ -5,7 +5,7 @@
 [![Travis](https://img.shields.io/travis/binaryage/cljs-devtools.svg)](https://travis-ci.org/binaryage/cljs-devtools) 
 [![Example Projects](https://img.shields.io/badge/project-examples-ff69b4.svg)](https://github.com/binaryage/cljs-devtools/tree/master/examples)
 
-CLJS DevTools is a library which adds enhancements in Chrome DevTools for ClojureScript developers:
+CLJS DevTools adds enhancements into Chrome DevTools for ClojureScript developers:
 
 * Better presentation of ClojureScript values in Chrome DevTools (see the [:formatters][1] feature)
 * More informative exceptions (see the [:hints][2] feature)
