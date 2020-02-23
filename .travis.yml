@@ -7,6 +7,8 @@ notifications:
 cache:
   directories:
     - "$HOME/.m2"
+    # this is mainly for puppeteer, by default it stores chromium downloads in node_modules/puppeteer/.local-chromium
+    - "$HOME/build/binaryage/cljs-devtools/test/node_modules"
 before_install:
   - npm i -g npm
   - yes y | sudo lein upgrade
