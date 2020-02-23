@@ -8,6 +8,7 @@ cache:
   directories:
     - "$HOME/.m2"
 before_install:
+  - npm i -g npm
   - yes y | sudo lein upgrade
   - curl -sSL https://raw.githubusercontent.com/cljs-oss/canary/master/scripts/install-canary.sh | bash
   - cd test; npm install
