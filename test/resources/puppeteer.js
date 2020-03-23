@@ -34,6 +34,8 @@ server.listen(port, host, function () {
   (async () => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    const version = await page.browser().version();
+    console.log("[puppeteer] Chrome version:", version);
     page.on('console', logMsg);
     console.log("[puppeteer] Navigating to: ", url);
     await page.goto(url);
