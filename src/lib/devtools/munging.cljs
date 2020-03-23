@@ -196,8 +196,8 @@
 
 (defn ns-exists? [ns-module-name]
   {:pre [(string? ns-module-name)]}
-  (if-let [goog-namespaces (oget (get-global-scope) "goog" "dependencies_" "nameToPath")]
-    (some? (oget goog-namespaces ns-module-name))))
+  (if-some [ns-obj (gobj/getValueByKeys (get-global-scope) (.split ns-module-name "."))]
+    (object? ns-obj)))
 
 (defn detect-namespace-prefix
   "Given a name broken into namespace parts returns [detected-ns remaining-parts],
