@@ -74,7 +74,7 @@
 
 (defn char-to-subscript
   "Given a character with a single digit converts it into a subscript character.
-  Zero chracter maps to unicode 'SUBSCRIPT ZERO' (U+2080)."
+  Zero character maps to unicode 'SUBSCRIPT ZERO' (U+2080)."
   [char]
   {:pre [(string? char)
          (= (count char) 1)]}
@@ -91,7 +91,7 @@
 
 (defn char-to-superscript
   "Given a character with a single digit converts it into a superscript character.
-  Zero chracter maps to unicode 'SUPERSCRIPT ZERO' (U+2070)."
+  Zero character maps to unicode 'SUPERSCRIPT ZERO' (U+2070)."
   [char]
   {:pre [(string? char)
          (= (count char) 1)]}
@@ -124,7 +124,7 @@
   "Given a function source code parses out [name args]. Note that both strings are still munged.
   Suitable for further processing.
 
-  For exampe for input below the function will return [\"devtools_sample$core$hello\" \"name, unused_param\"]:
+  For example for input below the function will return [\"devtools_sample$core$hello\" \"name, unused_param\"]:
 
   function devtools_sample$core$hello(name, unused_param){
     return [cljs.core.str(\"hello, \"),cljs.core.str(name),cljs.core.str(\"!\")].join('');
@@ -162,7 +162,7 @@
 ; -- demunging --------------------------------------------------------------------------------------------------------------
 
 (defn dollar-preserving-demunge
-  "Standard cljs.core/demunge is too agresive in replacing dollars.
+  "Standard cljs.core/demunge is too aggressive in replacing dollars.
   This wrapper function works around it by leaving dollars intact."
   [munged-name]
   (-> munged-name
@@ -202,9 +202,9 @@
 (defn detect-namespace-prefix
   "Given a name broken into namespace parts returns [detected-ns remaining-parts],
   where detected-ns is a string representing longest detected existing namespace and
-  remaining-parts is a vector of remaing input parts not included in the detected-ns concatenation.
+  remaining-parts is a vector of remaining input parts not included in the detected-ns concatenation.
 
-  For given input [\"cljs\" \"core\" \"first\"] returns [\"cljs.core\" [\"first\"]] (asumming cljs.core exists)"
+  For given input [\"cljs\" \"core\" \"first\"] returns [\"cljs.core\" [\"first\"]] (assuming cljs.core exists)"
   [tokens & [ns-detector]]
   (let [effective-detector (or ns-detector ns-exists?)]
     (loop [name-tokens []
@@ -255,7 +255,7 @@
            tokens (vec (.split munged-name #"[$.]"))
            [tokens arity] (strip-arity tokens)
            [fn-ns tokens] (detect-namespace-prefix tokens effective-detector)
-           ; remianing parts contains function name,
+           ; remaining parts contains function name,
            ; but may be optionally followed by protocol namespace, protocol name and protocol method
            [fn-name-tokens protocol-ns protocol-name protocol-method-tokens] (parse-protocol tokens effective-detector)
            fn-name (string/join "$" fn-name-tokens)
@@ -304,7 +304,7 @@
   "Given a Javascript function object tries to retrieve [ns name & args] as in parse-fn-info (on best effort basis).
 
   The difference from parse-fn-info is that this function prefers to read args from arities if available.
-  It recurses arbitrary deep following IFn protocol leads.
+  It recurse arbitrary deep following IFn protocol leads.
 
   If we hit multi-arity situation in leaf, we don't attempt to list arguments and return ::multi-arity placeholder instead.
 
@@ -337,7 +337,7 @@
 
 (defn humanize-name
   "Given a name and intermediate state. Convert name to a human readable version by keeping human readable prefix with
-  optional subscribt postfix and store it in ::result. Subscript number is picked based on state. State keeps track of
+  optional subscript postfix and store it in ::result. Subscript number is picked based on state. State keeps track of
   previously assigned subscripts. Returns a new state."
   [state name]
   (let [index (find-index-of-human-prefix name)
