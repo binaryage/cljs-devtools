@@ -1,10 +1,12 @@
 (ns devtools.testenv
+  (:require-macros [devtools.runner :refer [emit-clojure-version]])
   (:require [devtools.context :as context]))
 
 ; this namespace gets included prior devtools.runner
 
 (enable-console-print!)
 
+(println "Clojure version:" (emit-clojure-version))
 (println "ClojureScript version:" *clojurescript-version*)
 
 (def silent-console
