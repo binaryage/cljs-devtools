@@ -1,18 +1,18 @@
-(def figwheel-version "0.5.19")
+(def figwheel-version "0.5.20")
 (defproject binaryage/devtools-sample "0.1.0-SNAPSHOT"
   :description "An example integration of cljs-devtools"
   :url "https://github.com/binaryage/cljs-devtools"
 
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/clojurescript "1.10.597"]
-                 [org.clojure/core.async "0.7.559"]
+                 [org.clojure/clojurescript "1.10.764"]
+                 [org.clojure/core.async "1.2.603"]
                  [binaryage/devtools "1.0.0"]
                  [binaryage/dirac "RELEASE"]
-                 [com.cognitect/transit-clj "0.8.319"]
+                 [com.cognitect/transit-clj "1.0.324"]
                  [cljs-http "0.1.46"]
                  [figwheel ~figwheel-version]]
 
-  :plugins [[lein-cljsbuild "1.1.7"]
+  :plugins [[lein-cljsbuild "1.1.8"]
             [lein-figwheel ~figwheel-version]
             [lein-shell "0.5.0"]]
 
