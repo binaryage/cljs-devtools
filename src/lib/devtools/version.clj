@@ -1,6 +1,6 @@
 (ns devtools.version)
 
-(def current-version "1.0.0")                                                                                        ; this should match our project.clj
+(def current-version "1.0.1")                                                                                        ; this should match our project.clj
 
 (defmacro get-current-version []
   current-version)
