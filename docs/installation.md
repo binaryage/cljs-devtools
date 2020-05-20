@@ -4,6 +4,10 @@
 
 Available in [**Chrome 47 and higher**](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
 
+**WARNING**: Custom formatters will be probably removed from Chrome 86 (or later). 
+Please read recent news in [issue 55](https://github.com/binaryage/cljs-devtools/issues/55).
+Newly since Chrome 84 you have to re-enable custom formatters every time you open devtools. The setting is not sticky anymore. 
+
   * Open DevTools
   * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > Preferences > Console`)
   * Check-in "Enable custom formatters"

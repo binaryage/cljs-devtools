@@ -81,6 +81,17 @@ That is why this feature is currently experimental and does not make a lot of se
 
 ### Why some custom formatters were not rendered?
 
+BREAKING:
+
+> Are you using Chrome 84 or later?
+
+Enabling custom formatters in the devtools settings is not longer sticky. 
+Custom formatters are likely to be removed later this year.
+
+Please [follow the issue here](https://github.com/binaryage/cljs-devtools/issues/55)  
+
+---
+
 First, custom formatters must be enabled in DevTools Settings:
 
 `> DevTools menu > Settings (F1) > Console > Enable custom formatters`
