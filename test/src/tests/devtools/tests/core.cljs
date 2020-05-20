@@ -63,12 +63,14 @@
       (is (= (devtools/installed? :formatters) false))
       (is (= (devtools/installed? :hints) false)))
     (testing "banner printing during install"
-      (clear-captured-console-output!)
-      (devtools/install! [:formatters])
-      (is (re-matches #".*Installing.*CLJS DevTools.*" (last (get-captured-console-messages))))
-      (devtools/uninstall!))
-    (testing "banner printing supression during install"
-      (with-prefs {:dont-display-banner true}
+      (with-prefs {:dont-display-formatters-removal-warning true}
+        (clear-captured-console-output!)
+        (devtools/install! [:formatters])
+        (is (re-matches #".*Installing.*CLJS DevTools.*" (last (get-captured-console-messages))))
+        (devtools/uninstall!)))
+    (testing "banner printing suppression during install"
+      (with-prefs {:dont-display-banner true
+                   :dont-display-formatters-removal-warning true}
         (clear-captured-console-output!)
         (devtools/install! [:formatters])
         (is (nil? (last (get-captured-console-messages))))
@@ -83,7 +85,8 @@
         (is (every? #(re-matches #".*cannot be installed.*" %) (rest (get-captured-console-messages))))
         (devtools/uninstall!))
       (testing "bypass availability checks"
-        (with-prefs {:bypass-availability-checks true}
+        (with-prefs {:bypass-availability-checks true
+                     :dont-display-formatters-removal-warning true}
           (clear-captured-console-output!)
           (devtools/install! :all)
           (is (= (count (get-captured-console-messages)) 1))
