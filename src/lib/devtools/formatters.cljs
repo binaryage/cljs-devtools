@@ -81,6 +81,12 @@
         new-formatters-js (if (empty? new-formatters) nil (into-array new-formatters))]
     (set-formatters-safe! new-formatters-js)))
 
+(defn display-formatters-removal-warning! []
+  (let [console (context/get-console)]
+    (.warn console (str "Custom formatters are likely to be removed from future Chrome. "
+                        "Enabling them is no longer sticky since Chrome 84. "
+                        "Please follow the issue here: https://github.com/binaryage/cljs-devtools/issues/55"))))
+
 ; -- installation -----------------------------------------------------------------------------------------------------------
 
 (defn installed? []
@@ -89,6 +95,8 @@
 (defn install! []
   (when-not *installed*
     (set! *installed* true)
+    (if-not (prefs/pref :dont-display-formatters-removal-warning)
+      (display-formatters-removal-warning!))
     (install-our-formatter! (build-cljs-formatter))
     true))
 
