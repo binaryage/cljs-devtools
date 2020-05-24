@@ -85,10 +85,16 @@ BREAKING:
 
 > Are you using Chrome 84 or later?
 
-Enabling custom formatters in the devtools settings is not longer sticky. 
-Custom formatters are likely to be removed later this year.
+~~Enabling custom formatters in the devtools settings is not longer sticky.~~ 
+~~Custom formatters are likely to be removed later this year.~~
 
-Please [follow the issue here](https://github.com/binaryage/cljs-devtools/issues/55)  
+Please [follow the issue here](https://github.com/binaryage/cljs-devtools/issues/55)
+
+UPDATE:
+
+Chrome developers [reconsidered removing the custom formatters feature](https://github.com/binaryage/cljs-devtools/issues/55#issuecomment-632384007).  
+
+All works the same as before for now. Please make sure you are using the latest Chrome (Canary) update.
 
 ---
 

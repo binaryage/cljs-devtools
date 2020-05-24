@@ -4,9 +4,15 @@
 
 Available in [**Chrome 47 and higher**](http://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
 
-**WARNING**: Custom formatters will be probably removed from Chrome 86 (or later). 
-Please read recent news in [issue 55](https://github.com/binaryage/cljs-devtools/issues/55).
-Newly since Chrome 84 you have to re-enable custom formatters every time you open devtools. The setting is not sticky anymore. 
+~~**WARNING**: Custom formatters will be probably removed from Chrome 86 (or later).~~ 
+~~Please read recent news in [issue 55](https://github.com/binaryage/cljs-devtools/issues/55).~~
+~~Newly since Chrome 84 you have to re-enable custom formatters every time you open devtools. The setting is not sticky anymore.~~ 
+
+UPDATE:
+
+Chrome developers [reconsidered removing the custom formatters feature](https://github.com/binaryage/cljs-devtools/issues/55#issuecomment-632384007).  
+
+All should work the same as before for now. If your setting is not sticky, please make sure you are using the latest Chrome (Canary) update.
 
   * Open DevTools
   * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > Preferences > Console`)
