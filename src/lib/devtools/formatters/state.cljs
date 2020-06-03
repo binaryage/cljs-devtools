@@ -43,6 +43,39 @@
   (let [history (get-current-history)]
     (some #(identical? % object) history)))
 
+(defn get-last-object-from-current-history []
+  (first (get-current-history)))                                                                                              ; note the list is reversed
+
+(defn present-path-segment [v]
+  (cond
+    (string? v) v
+    (keyword? v) (str v)
+    (number? v) v
+    :else "?"))
+
+(defn seek-path-segment [coll val]
+  (let [* (fn [[k v]]
+            (if (identical? v val)
+              (present-path-segment k)))]
+    (some * coll)))
+
+(defn build-path-segment [parent-object object]
+  (cond
+    (map? parent-object) (seek-path-segment (seq parent-object) object)
+    (sequential? parent-object) (seek-path-segment (map-indexed (fn [i x] [i x]) parent-object) object)))
+
+(defn extend-path-info [path-info object]
+  (let [parent-object (get-last-object-from-current-history)]
+    (if-some [path-segment (build-path-segment parent-object object)]
+      (conj (or path-info []) path-segment)
+      path-info)))
+
+(defn add-object-to-current-path-info! [object]
+  (update-current-state! update :path-info extend-path-info object))
+
+(defn get-current-path-info []
+  (:path-info (get-current-state)))
+
 (defn ^bool prevent-recursion? []
   (boolean (:prevent-recursion (get-current-state))))
 
