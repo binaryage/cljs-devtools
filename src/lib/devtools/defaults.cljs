@@ -83,6 +83,7 @@
                                                            "cljs.core/PersistentTreeSet"
                                                            "cljs.core/MapEntry"
                                                            "cljs.core/Range"
+                                                           "cljs.core/IntegerRange"
                                                            "cljs.core/ES6IteratorSeq"
                                                            "cljs.core/Eduction"
                                                            "cljs.core/UUID"
