@@ -89,8 +89,6 @@
                      :dont-display-formatters-removal-warning true}
           (clear-captured-console-output!)
           (devtools/install! :all)
-          (is (= (count (get-captured-console-messages)) 1))
-          (is (every? #(not (re-matches #".*cannot be installed.*" %)) (rest (get-captured-console-messages))))
           (is (= (devtools/installed? :all) true))
           (is (= (devtools/installed? :formatters) true))
           (is (= (devtools/installed? :hints) true))
