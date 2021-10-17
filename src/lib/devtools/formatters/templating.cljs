@@ -106,6 +106,9 @@
       (make-group "object" #js {"object" object
                                 "config" sub-state}))))
 
+(defn make-annotation [data markups]
+  (apply make-group "annotation" (clj->js data) markups))
+
 ; -- JSON ML support --------------------------------------------------------------------------------------------------------
 
 ; a renderer from hiccup-like data markup to json-ml
@@ -162,6 +165,9 @@
     "reference" (let [obj (first args)
                       converted-obj (if (surrogate-markup? obj) (render-json-ml* obj) obj)]
                   (apply make-reference (concat [converted-obj] (rest args))))
+    "annotation" (let [data (first args)
+                       converted-args (map render-json-ml* (rest args))]
+                   (make-annotation data converted-args))
     (assert-markup-error (str "no matching special tag name: '" name "'"))))
 
 (defn emptyish? [v]

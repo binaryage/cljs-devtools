@@ -5,6 +5,7 @@
             [devtools.protocols :refer [ITemplate IGroup ISurrogate IFormat]]
             [devtools.formatters.state :refer [push-object-to-current-history! *current-state* get-current-state
                                                is-circular? get-managed-print-level set-managed-print-level
+                                               add-object-to-current-path-info! get-current-path-info
                                                update-current-state!]]
             [devtools.formatters.helpers :refer [cljs-value? expandable? abbreviated? directly-printable? should-render?]]))
 
@@ -88,12 +89,19 @@
 
     :else group))
 
-(defn post-process-printed-output [output-group obj markup-db circular?]
+(defn wrap-group-with-path-annotation [group path-info]
+  (if (and (pref :render-path-annotations)
+           (some? path-info))
+    [(concat ["annotation" {"path" (into-array path-info)}] group)]
+    group))
+
+(defn post-process-printed-output [output-group obj markup-db circular? path-info]
   (-> output-group
       (detect-edge-case-and-patch-it obj markup-db)                                                                           ; an ugly hack
       (wrap-group-in-reference-if-needed obj markup-db)
       (wrap-group-in-circular-warning-if-needed markup-db circular?)
-      (wrap-group-in-meta-if-needed obj markup-db)))
+      (wrap-group-in-meta-if-needed obj markup-db)
+      (wrap-group-with-path-annotation path-info)))
 
 ; -- alternative printer ----------------------------------------------------------------------------------------------------
 
@@ -111,12 +119,14 @@
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
+    (add-object-to-current-path-info! obj)
     (let [{:keys [markup-db]} opts
           circular? (is-circular? obj)
-          inner-writer (make-template-writer (:markup-db opts))]
+          inner-writer (make-template-writer (:markup-db opts))
+          path-info (get-current-path-info)]
       (push-object-to-current-history! obj)
       (alt-printer-job obj inner-writer opts)
-      (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-db circular?)))))
+      (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-db circular? path-info)))))
 
 ; -- common code for managed printing ---------------------------------------------------------------------------------------
 

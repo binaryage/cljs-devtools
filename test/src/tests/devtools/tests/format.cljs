@@ -1089,3 +1089,55 @@
           [:float-infinity-tag "##-Inf"]
           "]"]])
       (has-body? wrapped-infs false))))
+
+(deftest test-issue-56
+  (testing "render path annotations"
+    (with-prefs {:render-path-annotations true}
+      (let [m {:k1 {:k2 "val"}}]
+        (is-header m
+          [:cljs-land-tag
+           [:header-tag
+            "{"
+            [:keyword-tag ":k1"]
+            :spacer
+            ["annotation"
+             {"path" #js [":k1"]}
+             "{"
+             ["annotation"
+              {"path" #js [":k1"]}
+              [:keyword-tag ":k2"]]
+             :spacer
+             ["annotation"
+              {"path" #js [":k1" ":k2"]}
+              [:string-tag "\"val\""]]
+             "}"]
+            "}"]]))
+      (let [m ['first ["val"]]]
+        (is-header m
+          [:cljs-land-tag
+           [:header-tag
+            "["
+            ["annotation"
+             {"path" #js [0]}
+             [:symbol-tag "first"]]
+            :spacer
+            ["annotation"
+             {"path" #js [1]}
+             "["
+             ["annotation"
+              {"path" #js [1 0]}
+              [:string-tag "\"val\""]]
+             "]"]
+            "]"]]))
+      (let [m {{} "val"}]
+        (is-header m
+          [:cljs-land-tag
+           [:header-tag
+            "{"
+            "{"
+            "}"
+            :spacer
+            ["annotation"
+             {"path" #js ["?"]}
+             [:string-tag "\"val\""]]
+            "}"]])))))
