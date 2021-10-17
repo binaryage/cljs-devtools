@@ -1093,22 +1093,26 @@
 (deftest test-issue-56
   (testing "render path annotations"
     (with-prefs {:render-path-annotations true}
-      (let [m {:k1 {:k2 "val"}}]
+      (let [k1 :k1
+            k2 :k2
+            m {k1 {k2 "val"}}]
         (is-header m
           [:cljs-land-tag
            [:header-tag
             "{"
-            [:keyword-tag ":k1"]
+            ["annotation"
+             {"path" #js [k1]}
+            [:keyword-tag ":k1"]]
             :spacer
             ["annotation"
-             {"path" #js [":k1"]}
+             {"path" #js [k1]}
              "{"
              ["annotation"
-              {"path" #js [":k1"]}
+              {"path" #js [k1 k2]}
               [:keyword-tag ":k2"]]
              :spacer
              ["annotation"
-              {"path" #js [":k1" ":k2"]}
+              {"path" #js [k1 k2]}
               [:string-tag "\"val\""]]
              "}"]
             "}"]]))
@@ -1134,8 +1138,10 @@
           [:cljs-land-tag
            [:header-tag
             "{"
-            "{"
-            "}"
+            ["annotation"
+             {"path" #js ["?"]}
+             "{"
+             "}"]
             :spacer
             ["annotation"
              {"path" #js ["?"]}
