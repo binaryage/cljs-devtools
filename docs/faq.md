@@ -140,11 +140,6 @@ Please read [installation.md#advanced-builds][13].
 
 No, AFAIK.
 
-### What else can I do to improve my ClojureScript development experience?
-
-Check out [Dirac DevTools][8] which is
-a custom fork of Chrome DevTools which goes one or two steps further.
-
 [1]: http://www.html5rocks.com/en/tutorials/developertools/async-call-stack
 [2]: https://github.com/clojure/core.async
 [3]: https://box.binaryage.com/core-async-long-stack-traces.png

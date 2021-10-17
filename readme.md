@@ -25,12 +25,6 @@ CLJS DevTools adds enhancements into Chrome DevTools for ClojureScript developer
 
 ![An example of hints](https://box.binaryage.com/cljs-devtools-sanity-hint.png)
 
----
-
-## What next?
-
-  * [Dirac DevTools](https://github.com/binaryage/dirac)
-
 [1]: https://github.com/binaryage/cljs-devtools/blob/master/docs/faq.md#what-is-the-formatters-feature
 [2]: https://github.com/binaryage/cljs-devtools/blob/master/docs/faq.md#what-is-the-hints-feature
 [3]: https://github.com/binaryage/cljs-devtools/blob/master/docs/faq.md#what-is-the-async-feature
