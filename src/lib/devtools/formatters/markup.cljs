@@ -171,6 +171,15 @@
         (conj lines [more-markup])))))
 
 (defn <details> [value starting-index]
+  ;; This is very important when the value is a map
+  ;; we need to push the object to history so that we can be able to get the paths (i.e keys)
+  ;; the other option to this is ignoring this and then when generating paths, assume that all
+  ;; vectors that have two children which are
+  ;; a keyword as the first item and
+  ;; a sequence or map as the second item when the path info is not nil.
+  ;; are all just seq'd maps and that the first item in the vector is a key in the map.
+  ;; The seq'd map is a result of `(seq value)` done in `body-lines` above
+  (devtools.formatters.state/push-object-to-current-history! value)
   (let [has-continuation? (pos? starting-index)
         body-markup (<standard-body> (body-lines value starting-index) has-continuation?)]
     (if has-continuation?
