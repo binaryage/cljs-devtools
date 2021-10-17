@@ -6,3 +6,4 @@ pom.xml.*
 .idea
 test/resources/.compiled
 .cache/
+.cpcache
