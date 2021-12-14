@@ -1,7 +1,7 @@
 (ns devtools.util
   (:require-macros [devtools.oops :refer [oget ocall oset unchecked-aget unchecked-aset]]
                    [devtools.compiler :refer [check-compiler-options!]])
-  (:require [goog.userAgent :as ua]
+  (:require [goog.userAgent :refer [getUserAgentString]]
             [clojure.data :as data]
             [devtools.version :refer [get-current-version]]
             [devtools.context :as context]
@@ -62,7 +62,7 @@
 (defn ^:dynamic get-js-context-description []
   (if-let [node-info (get-node-info (context/get-root))]
     (str "node/" (get-node-description node-info))
-    (let [user-agent (ua/getUserAgentString)]
+    (let [user-agent (getUserAgentString)]
       (if (empty? user-agent)
         "<unknown context>"
         user-agent))))
