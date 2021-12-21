@@ -125,8 +125,7 @@
           circular? (is-circular? obj)
           inner-writer (make-template-writer (:markup-db opts))
           path-info (get-current-path-info)]
-      (when (pref :render-path-annotations)
-        (push-object-to-current-history! obj))
+      (push-object-to-current-history! obj)
       (alt-printer-job obj inner-writer opts)
       (.merge writer (post-process-printed-output (.get-group inner-writer) obj markup-db circular? path-info)))))
 
