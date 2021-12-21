@@ -85,33 +85,45 @@
 ;; get the first item in the vector which is the path.
 (defn mapping?
   [history obj]
-  (let [obj-kw (when (and (vector? obj)
-                          (= (count obj) 2)
-                          ;; the map keys must always be one of these
-                          (or
-                            (-> obj first keyword?)
-                            (-> obj first string?)
-                            (-> obj first number?)))
-                 (first obj))]
-    (when (and (map? history) obj-kw)
-      (contains? history obj-kw))))
+  (let [first-kw (when (and (vector? obj)
+                            (map? history))
+                   (nth obj 0 nil))
+        valid-kw? (and first-kw
+                       (or (keyword? first-kw)
+                           (string? first-kw)
+                           (number? first-kw))
+                       ;; intentionally delaying realizing the whole vector
+                       (= (count obj) 2))]
+    (when valid-kw?
+      (contains? history first-kw))))
+
+(defn ignore-path-in-fake-vector
+  [history obj path]
+  ;; if the current item we are looping at is an artificial vector (explained at `mapping` above),
+  ;; don't append to the path
+  (when (mapping? history obj)
+    (or path [])))
+
+(defn find-path-in-fake-vector
+  [history path]
+  (let [second-last-history (get-second-last-object-from-current-history)]
+    ;; if the previous item is an artificial vector, lets append to the path info but take the first item
+    ;; in the artificial vector as the path. (Explained in `mapping` above)
+    (when (mapping? second-last-history history)
+      (conj (or path []) (nth history 0 nil)))))
+
+(defn find-path
+  [history obj path]
+  (let [path-segment (build-path-segment history obj)]
+    (when (some? path-segment)
+      (conj (or path []) path-segment))))
 
 (defn extend-path-info [path-info object]
   (let [parent-object (get-last-object-from-current-history)]
-    (cond
-      ;; if the current item we are looping at is an artificial vector (explained at `mapping` above),
-      ;; dont append to the path
-      (and (map? parent-object) (mapping? parent-object object))
-      path-info
-      ;; if the previous item is an artificial vector, lets append to the path info but take the first item
-      ;; in the vector as the path. (Explained in `mapping` above)
-      (and (map? (get-second-last-object-from-current-history))
-           (mapping? (get-second-last-object-from-current-history) parent-object))
-      (conj (or path-info []) (first parent-object))
-      ;; the current object is an item within the parent object
-      (some? (build-path-segment parent-object object))
-      (conj (or path-info []) (build-path-segment parent-object object))
-      :else path-info)))
+    (or (ignore-path-in-fake-vector parent-object object path-info)
+        (find-path-in-fake-vector parent-object path-info)
+        (find-path parent-object object path-info)
+        path-info)))
 
 (defn add-object-to-current-path-info! [object]
   (update-current-state! update :path-info extend-path-info object))
