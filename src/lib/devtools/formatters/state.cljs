@@ -57,11 +57,11 @@
     (number? v) v
     :else "?"))
 
-(defn seek-path-segment [coll val]
+(defn seek-path-segment [coll val & [seq'd-map?]]
   (let [* (fn [[k v]]
             (cond
               ;; we need to know the paths for keywords, these are clickable
-              (identical? k val)
+              (and seq'd-map? (identical? k val))
               (present-path-segment k)
 
               (identical? v val)
@@ -70,8 +70,15 @@
 
 (defn build-path-segment [parent-object object]
   (cond
-    (map? parent-object) (seek-path-segment (seq parent-object) object)
-    (sequential? parent-object) (seek-path-segment (map-indexed (fn [i x] [i x]) parent-object) object)))
+    (map? parent-object)                   (seek-path-segment (seq parent-object) object true)
+    (sequential? parent-object)            (seek-path-segment (map-indexed (fn [i x] [i x]) parent-object) object)
+    (and (set? parent-object)
+         (contains? parent-object object)
+         (or (string? object)
+             (keyword? object)
+             (integer? object)))           object           ;; if set has the simple object, return the object instead.
+    (and (set? parent-object)                               ;; in composite objects in sets, return the index in the set.
+         (contains? parent-object object)) (seek-path-segment (map-indexed (fn [i x] [i x]) parent-object) object)))
 
 ;; This function checks a unique situation of looping an immediate child element `obj` of a parent element `history`
 ;; say we have a general map {:a 2 :b {:gh 45} :c 4}
