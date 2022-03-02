@@ -119,7 +119,8 @@
 
 (defn alt-printer-impl [obj writer opts]
   (binding [*current-state* (get-current-state)]
-    (add-object-to-current-path-info! obj)
+    (when (pref :render-path-annotations)
+      (add-object-to-current-path-info! obj))
     (let [{:keys [markup-db]} opts
           circular? (is-circular? obj)
           inner-writer (make-template-writer (:markup-db opts))
