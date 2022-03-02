@@ -1,7 +1,7 @@
 (ns devtools.async
   (:require-macros [devtools.oops :refer [oset ocall]])
   (:require [goog.async.nextTick]
-            [goog.labs.userAgent.browser :as ua]
+            [goog.labs.userAgent.browser :refer [isChrome isVersionOrHigher]]
             [devtools.context :as context]))
 
 (defn ^:dynamic available? []
@@ -10,7 +10,7 @@
 (def ^:dynamic fixed-chrome-version-for-async "65.0.3321")
 
 (defn ^:dynamic needed? []
-  (not (and (ua/isChrome) (ua/isVersionOrHigher fixed-chrome-version-for-async))))
+  (not (and (isChrome) (isVersionOrHigher fixed-chrome-version-for-async))))
 
 (defn ^:dynamic get-not-needed-message []
   (str "cljs-devtools: the :async feature is no longer needed since Chrome " fixed-chrome-version-for-async ", "
