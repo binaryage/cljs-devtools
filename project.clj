@@ -1,4 +1,4 @@
-(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.10.879"))
+(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.11.4"))
 (defproject binaryage/devtools "1.0.4"
   :description "A collection of Chrome DevTools enhancements for ClojureScript developers."
   :url "https://github.com/binaryage/cljs-devtools"
