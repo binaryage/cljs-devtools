@@ -9,7 +9,7 @@
   :scm {:name "git"
         :url  "https://github.com/binaryage/cljs-devtools"}
 
-  :dependencies [[org.clojure/clojure "1.10.3" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.11.1" :scope "provided"]
                  [org.clojure/clojurescript ~clojurescript-version :scope "provided"]]
 
   :clean-targets ^{:protect false} ["target"
