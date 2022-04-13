@@ -179,7 +179,7 @@
   ;; a sequence or map as the second item when the path info is not nil.
   ;; are all just seq'd maps and that the first item in the vector is a key in the map.
   ;; The seq'd map is a result of `(seq value)` done in `body-lines` above
-  (devtools.formatters.state/push-object-to-current-history! value)
+  (devtools.formatters.state/push-object-to-current-history! (with-meta value {:index starting-index}))
   (let [has-continuation? (pos? starting-index)
         body-markup (<standard-body> (body-lines value starting-index) has-continuation?)]
     (if has-continuation?
