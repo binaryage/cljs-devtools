@@ -1,6 +1,6 @@
 (ns devtools.formatters
   (:require-macros [devtools.oops :refer [unchecked-aget unchecked-aset]])
-  (:require [goog.labs.userAgent.browser :refer [isChrome isVersionOrHigher]]
+  (:require [goog.labs.userAgent.browser :refer [isAtLeast]]
             [devtools.prefs :as prefs]
             [devtools.util :refer [get-formatters-safe set-formatters-safe! in-node-context?]]
             [devtools.context :as context]
@@ -14,7 +14,8 @@
 
 (defn ^:dynamic available? []
   (or (in-node-context?)                                                                                                      ; node.js or Chrome 47+
-      (and (isChrome) (isVersionOrHigher 47))))
+      (and (isAtLeast "CHROMIUM" 47))
+	  (and (isAtLeast "FIREFOX" 110))))
 
 (deftype CLJSDevtoolsFormatter [])
 
