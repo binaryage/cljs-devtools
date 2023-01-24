@@ -17,7 +17,7 @@ Build the project and start a local demo server:
 Wait for compilation and when figwheel fully starts:
 
   * A demo page should be available at [http://localhost:7000](http://localhost:7000).
-  * Please visit it with Google Chrome or Mozilla Firefox browser with [enabled custom formatters](https://github.com/binaryage/cljs-devtools).
+  * Please visit it with Google Chrome, Microsoft Edge or Mozilla Firefox browser with [enabled custom formatters](https://github.com/binaryage/cljs-devtools).
   * Open the web development console under devtools and you should see something similar to the screenshot above.
 
 Note: you might need to refresh the page again to force re-rendering of custom formatters after opening the console.

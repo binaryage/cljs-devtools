@@ -14,8 +14,9 @@
 
 (defn ^:dynamic available? []
   (or (in-node-context?)                                                                                                      ; node.js or Chrome 47+
-      (and (isAtLeast "CHROMIUM" 47))
-	  (and (isAtLeast "FIREFOX" 110))))
+      (isAtLeast "CHROMIUM" 47)
+      (isAtLeast "EDGE" 79) ;; First Edge to use Blink, has Blink 79.
+      (isAtLeast "FIREFOX" 111)))
 
 (deftype CLJSDevtoolsFormatter [])
 

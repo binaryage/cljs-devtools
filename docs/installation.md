@@ -2,9 +2,9 @@
 
 ## Enable Custom formatters in the browser
 
-### In Chrome
+### In Chrome and Edge
 
-Available in [**Chrome 47 and higher**](https://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html).
+Available in [**Chrome 47 and higher**](https://googlechromereleases.blogspot.cz/2015/12/stable-channel-update.html) and **Edge 79 and higher**.
 
 ~~**WARNING**: Custom formatters will be probably removed from Chrome 86 (or later).~~
 ~~Please read recent news in [issue 55](https://github.com/binaryage/cljs-devtools/issues/55).~~
@@ -27,7 +27,7 @@ only to newly printed console messages.
 
 ### In Firefox
 
-Available in [**Firefox 110 and higher**](https://www.mozilla.org/en-US/firefox/110.0/releasenotes/).
+Available in [**Firefox 111 and higher**](https://www.mozilla.org/en-US/firefox/111.0/releasenotes/).
 
   * Open DevTools
   * Go to Settings ("three dots" icon in the upper right corner of `DevTools > Menu > Settings F1 > Advanced settings`)
