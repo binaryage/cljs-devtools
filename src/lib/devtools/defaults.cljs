@@ -18,6 +18,7 @@
      :bypass-availability-checks                         false
      :disable-advanced-mode-check                        false
      :file-reader                                        nil
+     :dont-detect-custom-formatters                      true                                                                 ; the detector is flaky in recent chrome versions
 
      ; -- feature tweaks ----------------------------------------------------------------------------------------------------
 
