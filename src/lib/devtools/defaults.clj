@@ -116,12 +116,14 @@
       (sanitize-css (string/join (check-semicolons evald-args))))))
 
 (defmacro get-body-line-common-style []
-  `(css "min-height: 14px;"))
+  `(css "min-height: 14px;"
+        "display: flex;"
+		"align-items: start;"))
 
 (defmacro get-common-type-header-style []
   `(css (str "color: " (named-color :type-text) ";")
         "padding: 0px 2px 0px 2px;"
-        "-webkit-user-select: none;"))
+        "user-select: none;"))
 
 (defmacro get-inner-background-style []
   `(css "position: absolute;"
@@ -152,7 +154,7 @@
   `(css "position: relative;"
         "padding: 0px 4px;"
         "border-radius: 2px;"
-        "-webkit-user-select: none;"))
+        "user-select: none;"))
 
 ; -- style macros -----------------------------------------------------------------------------------------------------------
 
@@ -170,8 +172,9 @@
         "vertical-align: top;"
         "position: relative;"
         "margin-right: 3px;"
+        "margin-top: 2px;"
         "border-radius: 2px;"
-        "-webkit-user-select: none;"
+        "user-select: none;"
         (if (= ~kind :slim)
           "padding: 0px 4px; top:2px;"
           "padding: 1px 4px; top:1px;")))

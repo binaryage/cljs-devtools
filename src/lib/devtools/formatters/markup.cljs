@@ -213,7 +213,7 @@
         (<reference-surrogate> nil preview-markup (or details-markup default-details-fn)))
       preview-markup)))
 
-; -- mete-related markup ----------------------------------------------------------------------------------------------------
+; -- meta-related markup ----------------------------------------------------------------------------------------------------
 
 (defn <meta> [metadata]
   (let [body-fn (fn [] [:meta-body-tag (<preview> metadata)])
@@ -253,9 +253,8 @@
         arities-markup (<arities> arities)
         name-markup (if-not lambda? [:fn-name-tag name])
         icon-markup (if lambda? :lambda-icon :fn-icon)
-        prefix-markup [:fn-prefix-tag icon-markup name-markup]
-        preview-markup [:fn-header-tag prefix-markup arities-markup]
-        details-fn (partial <function-details> fn-obj ns name arities prefix-markup)]
+        preview-markup [:fn-header-tag icon-markup name-markup arities-markup]
+        details-fn (partial <function-details> fn-obj ns name arities icon-markup name-markup)]
     (<reference-surrogate> fn-obj preview-markup details-fn)))
 
 ; -- type markup ------------------------------------------------------------------------------------------------------------
@@ -282,7 +281,6 @@
         preview-markup [(or header-tag :type-header-tag) :type-symbol name-markup]
         details-markup-fn (partial <type-details> constructor-fn ns name basis)]
     [:type-wrapper-tag
-     :type-header-background
      [:type-ref-tag (<reference-surrogate> constructor-fn preview-markup details-markup-fn)]]))
 
 (defn <standalone-type> [constructor-fn & [header-tag]]
