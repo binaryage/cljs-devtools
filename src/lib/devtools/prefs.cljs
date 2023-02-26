@@ -1,11 +1,13 @@
 (ns devtools.prefs
   (:require-macros [devtools.prefs :refer [emit-external-config]])
-  (:require [devtools.defaults :as defaults]))
+  (:require [goog.labs.userAgent.browser :refer [isFirefox]]
+            [devtools.defaults :as defaults]))
 
 ; we use delay for DCE, see https://github.com/binaryage/cljs-devtools/issues/37
 (def default-config (delay @defaults/config))
+(def firefox-overrides-config (delay (if (isFirefox) @defaults/firefox-overrides-config)))
 (def external-config (delay (emit-external-config)))
-(def initial-config (delay (merge @default-config @external-config)))
+(def initial-config (delay (merge @default-config @firefox-overrides-config @external-config)))
 
 (def ^:dynamic *current-config* (delay @initial-config))
 
