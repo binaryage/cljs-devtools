@@ -117,8 +117,9 @@
 
 (defmacro get-body-line-common-style []
   `(css "min-height: 14px;"
-        "display: flex;"
-		"align-items: start;"))
+        ; apply following only as part of Firefox-specific styling
+        "-moz-display: flex;"
+        "-moz-align-items: start;"))
 
 (defmacro get-common-type-header-style []
   `(css (str "color: " (named-color :type-text) ";")
@@ -172,7 +173,7 @@
         "vertical-align: top;"
         "position: relative;"
         "margin-right: 3px;"
-        "margin-top: 2px;"
+        "-moz-margin-top: 2px;"                                                                                               ; apply just under Firefox
         "border-radius: 2px;"
         "user-select: none;"
         (if (= ~kind :slim)
