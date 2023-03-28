@@ -406,11 +406,23 @@
 ; see https://github.com/binaryage/cljs-devtools/pull/73
 (def firefox-overrides-config
   (delay
-    {:fn-header-style        (css "display: inline-flex;"
-                                  "align-items: center;")
-     :type-ref-style         (css (str "background-color:" (named-color :type) ";")
-                                  "border-radius: 0 2px 2px 0;")
-     :native-reference-style (css "padding: 0px 3px;"
-                                  "position: relative;"
-                                  "top: 1px;")
+    {:native-reference-wrapper-style (css "line-height: 0;"
+	                                      "margin-top: -1px;")
+     :symbol-style                (css "overflow: initial;")
+     :fn-header-style             (css "display: inline-flex;"
+                                       "align-items: center;")
+     :type-ref-style              (css (str "background-color:" (named-color :type) ";")
+                                       "border-radius: 0 2px 2px 0;")
+     :native-reference-style      (css "padding: 0px 3px;"
+                                       "position: relative;"
+                                       "top: 1px;")
+     :standard-li-style           (css "margin-left: 0px;"
+                                       "display: flex;"
+                                       "align-items: start;")
+     :standard-li-no-margin-style (css "margin-left: 0px;"
+                                       "display: flex;"
+                                       "align-items: start;")
+     :aligned-li-style            (css "margin-left: 0px;"
+                                       "display: flex;"
+                                       "align-items: start;")
      }))

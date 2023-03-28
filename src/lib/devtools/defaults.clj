@@ -116,10 +116,7 @@
       (sanitize-css (string/join (check-semicolons evald-args))))))
 
 (defmacro get-body-line-common-style []
-  `(css "min-height: 14px;"
-        ; apply following only as part of Firefox-specific styling
-        "-moz-display: flex;"
-        "-moz-align-items: start;"))
+  `(css "min-height: 14px;"))
 
 (defmacro get-common-type-header-style []
   `(css (str "color: " (named-color :type-text) ";")
@@ -173,7 +170,6 @@
         "vertical-align: top;"
         "position: relative;"
         "margin-right: 3px;"
-        "-moz-margin-top: 2px;"                                                                                               ; apply just under Firefox
         "border-radius: 2px;"
         "user-select: none;"
         (if (= ~kind :slim)
