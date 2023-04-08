@@ -1,5 +1,5 @@
 (def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.11.60"))
-(defproject binaryage/devtools "1.0.6"
+(defproject binaryage/devtools "1.0.7"
   :description "A collection of Chrome, Edge and Firefox DevTools enhancements for ClojureScript developers."
   :url "https://github.com/binaryage/cljs-devtools"
   :license {:name         "MIT License"
